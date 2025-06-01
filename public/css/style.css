@@ -1,20 +1,87 @@
+/* -----------------------------------------
+   1. Variabili globali (tema chiaro di default)
+   ----------------------------------------- */
+:root {
+  --color-primary:      #6633cc;
+  --color-primary-alt:  #522da0;
+  --color-background:   #ffffff;
+  --color-text:         #222222;
+  --color-navbar-bg:    var(--color-primary);
+  --color-navbar-text:  #ffffff;
+  --color-icon:         #ffffff;
+  --color-border:       rgba(0,0,0,0.1);
+  --color-input-bg:     #f5f5f5;
+  --color-input-text:   #222222;
+  --color-link:         var(--color-primary-alt);
+}
+
+/* -----------------------------------------
+   2. Tema scuro (override delle variabili)
+   ----------------------------------------- */
+[data-theme="dark"] {
+  --color-primary:      #4b0082;
+  --color-primary-alt:  #370060;
+  --color-background:   #1e1e1e;
+  --color-text:         #f0f0f0;
+  --color-navbar-bg:    var(--color-primary);
+  --color-navbar-text:  #f0f0f0;
+  --color-icon:         #f0f0f0;
+  --color-border:       rgba(255,255,255,0.1);
+  --color-input-bg:     #2a2a2a;
+  --color-input-text:   #f0f0f0;
+  --color-link:         #9e9efc;
+}
+
+/* -----------------------------------------
+   3. Reset/Global styles (background + testo)
+   ----------------------------------------- */
+body {
+  background-color: var(--color-primary); /* leave full-page primary */
+  padding-top: 60px; /* reserve space for fixed navbar */
+  color: var(--color-text);
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  line-height: 1.5;
+}
+
+/* Link globali */
+a {
+  color: var(--color-link);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+
+
+/* -----------------------------------------
+   4. .navbar (usa le custom properties)
+   ----------------------------------------- */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  background-color: #6633cc; /* viola */
-  color: white;
+  background-color: var(--color-navbar-bg);
+  color: var(--color-navbar-text);
   font-family: Arial, sans-serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px; /* or match your actual navbar height */
+  z-index: 1000;
 }
 
+/* Tre contenitori (“left”, “center”, “right”) */
 .navbar-left,
 .navbar-center,
 .navbar-right {
   display: flex;
   align-items: center;
 }
-
 .navbar-links {
   list-style: none;
   display: flex;
@@ -22,37 +89,84 @@
   padding: 0;
   margin: 0;
 }
-
 .navbar-links a {
-  color: white;
-  text-decoration: none;
+  color: var(--color-navbar-text);
   font-weight: bold;
 }
-
 .navbar-links a:hover {
+  color: var(--color-link);
   text-decoration: underline;
 }
-
 .navbar-logo {
   height: 40px;
   margin-right: 10px;
 }
-
 .navbar-title {
   font-size: 1.5rem;
   font-weight: bold;
+  color: var(--color-navbar-text);
 }
-
 .navbar-search {
-  padding: 5px;
+  padding: 5px 8px;
   border-radius: 4px;
-  border: none;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-input-bg);
+  color: var(--color-input-text);
+}
+/* Icona profilo (font-based) */
+span.material-symbols-rounded.navbar-profile-icon {
+  display: inline-block;
+  font-family: 'Material Symbols Rounded';
+  font-variation-settings: 'FILL' 0, 'wght' 700, 'GRAD' 0, 'opsz' 48;
+  font-size: 36px;
+  line-height: 36px;
+  width: 36px;
+  height: 36px;
+  text-align: center;
+  vertical-align: middle;
+
+  color: var(--color-icon);
+  cursor: pointer;
+  margin-left: 20px;
+
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background-color: rgba(255,255,255,0.1);
+  transition: background-color 0.2s, color 0.2s, transform 0.2s;
+}
+span.material-symbols-rounded.navbar-profile-icon:hover {
+  background-color: rgba(255,255,255,0.2);
+  color: var(--color-link);
+  transform: scale(1.1);
 }
 
-.navbar-profile-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  margin-left: 10px;
+/* -----------------------------------------
+   5. Altri componenti (per uniformità)
+   ----------------------------------------- */
+button,
+input[type="button"],
+input[type="submit"] {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background-color: var(--color-primary);
+  color: var(--color-navbar-text);
   cursor: pointer;
+  transition: background-color 0.2s;
+}
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover {
+  background-color: var(--color-primary-alt);
+}
+
+/* Un esempio di container principale con padding */
+#app {
+  margin-top: -60px; /* pull up under navbar’s fixed area */
+  padding-top: 60px; /* push content down below navbar */
+  padding: 20px;
+  background-color: var(--color-background);
+  min-height: calc(100vh); /* ensure content covers full viewport */
 }
