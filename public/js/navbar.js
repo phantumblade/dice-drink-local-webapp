@@ -41,10 +41,10 @@ export function createNavbar() {
 
   // Definisce le pagine da mostrare nella navbar
   const pages = [
-    { name: 'Home', id: 'home' },
-    { name: 'Prenotazioni', id: 'prenotazioni' },
-    { name: 'Eventi', id: 'eventi' },
-    { name: 'AboutUs', id: 'AboutUs' }
+    { name: 'Catalogo', id: 'catalogo', hasDropdown: true },
+    { name: 'Eventi', id: 'eventi', hasDropdown: true },
+    { name: 'Prenotazioni', id: 'prenotazioni', hasDropdown: false },
+    { name: 'AboutUs', id: 'aboutus', hasDropdown: false },
 
   ];
 
@@ -57,25 +57,91 @@ export function createNavbar() {
   pages.forEach(page => {
     // Crea un elemento <li>
     const li = document.createElement('li');
+    li.classList.add('navbar-item');
+
+    // Se la pagina ha un dropdown, aggiungi la classe
+    if (page.hasDropdown) {
+        li.classList.add('has-dropdown');
+    }
     // Crea un elemento <a> per il link
     const a = document.createElement('a');
     // Imposta l'attributo href (non cambia pagina)
     a.href = '#';
     // Imposta il testo del link
     a.textContent = page.name;
+    // Aggiunge la classe CSS al link
+    a.classList.add('navbar-link');
     // Salva l'id della pagina come data attribute
     a.dataset.page = page.id;
 
-    // Aggiunge un listener per il click sul link
+    // Se ha dropdown, aggiungiamo anche la freccia
+    if (page.hasDropdown) {
+      const arrow = document.createElement('span');
+      arrow.classList.add('dropdown-arrow');
+      arrow.textContent = '▾'; // simbolo freccia verso il basso
+      a.appendChild(arrow);
+    }
+
+    // Listener click su link di primo livello (non sulle sottovoci)
     a.addEventListener('click', (e) => {
       // Previene il comportamento di default del link
       e.preventDefault();
-      // Chiama la funzione per mostrare la pagina selezionata
-      showPage(page.id);
+
+      // Se la voce ha dropdown, apriamo/chiudiamo (qui non cambiamo pagina)
+      if (!page.hasDropdown) {
+        showPage(page.id);
+      }
+      // Se ha dropdown, non facciamo nulla al click (solo hover apre/chiude)
     });
 
     // Aggiunge il link al <li>
     li.appendChild(a);
+
+    // Se la voce ha dropdown, creiamo il <ul class="dropdown-menu">
+    if (page.hasDropdown) {
+      const dropdownMenu = document.createElement('ul');
+      dropdownMenu.classList.add('dropdown-menu');
+
+      // Definiamo le sottovoci in base a page.id
+      let submenuItems;
+      if (page.id === 'catalogo') {
+        submenuItems = [
+          { name: 'Catalogo Giochi',   id: 'catalogo-giochi' },
+          { name: 'Menù Bevande',      id: 'menu-bevande' },
+          { name: 'Menù Snack & Food', id: 'menu-snack-food' }
+        ];
+      } else if (page.id === 'eventi') {
+        submenuItems = [
+          { name: 'Tornei',           id: 'tornei' },
+          { name: 'Eventi dal vivo',  id: 'eventi-dal-vivo' },
+          { name: 'Proponi Torneo',   id: 'proponi-torneo' }
+        ];
+      } else {
+        submenuItems = [];
+      }
+
+      submenuItems.forEach(sub => {
+        const subLi = document.createElement('li');
+        subLi.classList.add('dropdown-item');
+
+        const subA = document.createElement('a');
+        subA.href = '#';
+        subA.textContent = sub.name;
+        subA.classList.add('dropdown-link');
+        subA.dataset.page = sub.id;
+
+        subA.addEventListener('click', ev => {
+          ev.preventDefault();
+          showPage(sub.id);
+        });
+
+        subLi.appendChild(subA);
+        dropdownMenu.appendChild(subLi);
+      });
+
+      li.appendChild(dropdownMenu);
+    }
+
     // Aggiunge il <li> alla lista
     ul.appendChild(li);
   });

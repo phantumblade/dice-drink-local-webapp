@@ -123,6 +123,7 @@ a:hover {
   color: var(--color-background);                /* Testo invertito rispetto allo sfondo */
 }
 
+
 .navbar-links a:active {
   box-shadow:
     -2px -2px 0 2px var(--color-text),           /* Ombra posteriore */
@@ -130,6 +131,80 @@ a:hover {
   transform: translate(2px, 2px);                 /* Sposta leggermente per simulare click */
 }
 
+/* Dropdown per voce Catalogo */
+.has-dropdown {
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.dropdown-arrow {
+  display: inline-block;
+  margin-left: 4px;
+  transition: transform 0.25s ease;
+  font-size: 0.8em;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px); /* posiziona sotto il link padre, con 8px di gap */
+  left: 0; /* allinea a sinistra */
+  background-color: var(--color-primary);
+  border-radius: 4px;
+  /* Spaziatura interna: altezza ridotta, più spazio orizzontale */
+  padding: 8px 32px;   /* → 8px in alto e in basso; 32px a sinistra/destra */
+  min-width: 260px;              /* → larghezza minima del dropdown */
+  z-index: 1001;
+  /* Remove default list styling within dropdown */
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  /* Use flex layout for items */
+  flex-direction: column;
+  align-items: center;
+  /* Remove box-shadow for dropdown panel */
+  box-shadow: none;
+  /* Add stylized borders */
+}
+
+.dropdown-item {
+  margin: 0 0 22px 0;
+}
+
+.dropdown-link {
+  display: block;
+  padding: 12px 20px;
+  text-align:center;
+  text-decoration: none;
+  color: var(--color-text);
+  font-size: 1em;
+  min-width: 180px;   /* → garantisce che ogni bottone sia almeno 180px largo */
+  white-space: nowrap; /* → impedisce l’andare a capo */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dropdown-link:last-child {
+  margin-bottom: 0;
+}
+
+.dropdown-link:hover {
+  background-color: var(--color-secondary);
+  color: var(--color-background);
+}
+
+.dropdown-menu {
+  display: none;
+}
+/* Quando il JS imposta la classe “open” sul padre, mostriamo il menu */
+.has-dropdown.open > .dropdown-menu {
+  display: flex;           /* o “block” se preferisci */
+  flex-direction: column;   /* hai già questa regola nel tuo file */
+  /* ...tutte le altre regole di styling che già avevi (padding, background, ecc.) */
+}
+/* E, se vuoi, fai ruotare l’arrow in corrispondenza di “open” */
+.has-dropdown.open .dropdown-arrow {
+  transform: rotate(180deg);
+}
 
 .navbar-logo {
   height: 60px;
