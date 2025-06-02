@@ -132,9 +132,28 @@ a:hover {
 
 
 .navbar-logo {
-  height: 40px;
+  height: 60px;
   margin-right: 10px;
 }
+/* Applico lo shake all’hover, oppure solo al caricamento della pagina */
+.navbar-logo:hover {
+  animation: shake 0.5s ease;
+}
+/* Oppure: all’avvio */
+.navbar-logo.animate-shake {
+  animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-3px) rotate(-2deg); }
+  40%      { transform: translateX(3px) rotate(2deg); }
+  60%      { transform: translateX(-3px) rotate(-2deg); }
+  80%      { transform: translateX(3px) rotate(2deg); }
+}
+
+
+
 .navbar-title {
   font-size: 1.5rem;
   font-weight: bold;
@@ -145,13 +164,14 @@ a:hover {
    (sostituisce .input e .input-container)
    ----------------------------------------- */
 .navbar-search-container {
-  position: relative;
-  width: 100%;
-  max-width: 240px;
+  width: 220px; /* o la larghezza che vuoi per la barra */
+  max-width: 220px;
+  display: flex;
+  align-items: left;
 }
 
 .navbar-search {
-  width: 100%;
+  width: 220px;            /* larghezza di base */
   height: 42px;
   padding: 12px;
   font-size: 16px;
@@ -175,13 +195,13 @@ a:hover {
 }
 
 .navbar-search:focus {
-  background-color: #010101;
+  background-color: var(--color-text);
   color: #fff;
   border-color: #d6d9dd;
 }
 
 .navbar-search:focus::placeholder {
-  color: #fff;
+  color: var(--color-background);
 }
 
 /* Quando il campo è valido (ad esempio pattern accettato) */
@@ -200,7 +220,7 @@ a:hover {
 /* I keyframe originali (blink/typing/shake/glitch) */
 @keyframes typing {
   from { width: 0; }
-  to   { width: 100%; }
+  to   { width: 220px; }
 }
 
 @keyframes blink {
@@ -230,16 +250,7 @@ a:hover {
   100% { transform: none; opacity: 1; }
 }
 
-/* Il cursore lampeggiante “|” */
-.navbar-search-container::after {
-  content: "|";
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #000;
-  animation: blink 0.7s step-end infinite;
-}
+
 
 /* Quando il campo è a fuoco, il cursore diventa bianco */
 .navbar-search:focus + .navbar-search-container::after {

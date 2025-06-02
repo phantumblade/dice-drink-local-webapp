@@ -44,7 +44,8 @@ export function createNavbar() {
     { name: 'Home', id: 'home' },
     { name: 'Prenotazioni', id: 'prenotazioni' },
     { name: 'Eventi', id: 'eventi' },
-    { name: 'Contatti', id: 'contatti' }
+    { name: 'AboutUs', id: 'AboutUs' }
+
   ];
 
   // Crea la lista non ordinata per i link
@@ -97,13 +98,23 @@ export function createNavbar() {
   // Aggiunge la classe CSS al campo ricerca
   searchInput.classList.add('navbar-search');
 
+  const searchContainer = document.createElement('div');
+  searchContainer.classList.add('navbar-search-container');
+
+  const searchWrapper = document.createElement('div');
+  searchWrapper.classList.add('search-wrapper');
+
+  searchWrapper.appendChild(searchInput);
+  searchContainer.appendChild(searchWrapper);
+
+  rightSection.appendChild(searchContainer);
+
   // Crea l'icona profilo come immagine
   const profileIcon = document.createElement('span');
   profileIcon.classList.add('material-symbols-rounded', 'navbar-profile-icon');
   profileIcon.textContent = 'person_add';
 
-  // Aggiunge il campo ricerca e l'icona profilo alla sezione destra
-  rightSection.appendChild(searchInput);
+  // Aggiunge l'icona profilo alla sezione destra
   rightSection.appendChild(profileIcon);
 
   // --- Componi la navbar completa ---
