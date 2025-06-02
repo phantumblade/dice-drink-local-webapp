@@ -4,14 +4,15 @@
 :root {
   --color-primary:      #6633cc;
   --color-primary-alt:  #522da0;
-  --color-background:   #ffffff;
-  --color-text:         #222222;
+  --color-secondary:    #B2456B;
+  --color-background:   #F8F8FF;
+  --color-text:         #292524;
   --color-navbar-bg:    var(--color-primary);
-  --color-navbar-text:  #ffffff;
-  --color-icon:         #ffffff;
+  --color-navbar-text:  #F8F8FF;
+  --color-icon:         #F8F8FF;
   --color-border:       rgba(0,0,0,0.1);
-  --color-input-bg:     #f5f5f5;
-  --color-input-text:   #222222;
+  --color-input-bg:     #F8F8FF;
+  --color-input-text:   #2E2E2E;
   --color-link:         var(--color-primary-alt);
 }
 
@@ -41,7 +42,7 @@ body {
   color: var(--color-text);
   margin: 0;
   padding: 0;
-  font-family: "Segoe UI", Arial, sans-serif;
+  font-family: "", Arial, sans-serif;
   line-height: 1.5;
 }
 
@@ -66,7 +67,6 @@ a:hover {
   padding: 10px 20px;
   background-color: var(--color-navbar-bg);
   color: var(--color-navbar-text);
-  font-family: Arial, sans-serif;
   position: fixed;
   top: 0;
   left: 0;
@@ -89,14 +89,48 @@ a:hover {
   padding: 0;
   margin: 0;
 }
+
 .navbar-links a {
-  color: var(--color-navbar-text);
+  /* 1) Display e base */
+  display: inline-block;                         /* Consente padding, margini e dimensioni */
+  appearance: none;                              /* Elimina lo stile nativo (soprattutto su mobile) */
+  text-decoration: none;                         /* Rimuove la sottolineatura */
+  font-size: 0.9rem;
   font-weight: bold;
+
+  /* 2) Colori e sfondo */
+  border: 1px solid var(--color-text);           /* Bordo basato sul testo (chiaro o scuro) */
+  background-color: var(--color-background);     /* Sfondo coerente col tema */
+  color: var(--color-primary);                      /* Testo sempre leggibile */
+  box-shadow: 2px 2px 0 2px var(--color-text);    /* Effetto rilievo (ombra esterna) */
+
+  /* 3) Dimensioni e spazi */
+  padding: 0.5em 1em;
+  border-radius: 0.4em;
+  margin: 0 0.25em;     /* Leggero spazio orizzontale tra i bottoni */
+
+  /* 4) Transizioni e cursore */
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.1s ease,
+    transform 0.1s ease;
 }
+
 .navbar-links a:hover {
-  color: var(--color-link);
-  text-decoration: underline;
+  background-color: var(--color-secondary);    /* Colore secondario più vivace */
+  color: var(--color-background);                /* Testo invertito rispetto allo sfondo */
 }
+
+.navbar-links a:active {
+  box-shadow:
+    -2px -2px 0 2px var(--color-text),           /* Ombra posteriore */
+    inset 2px 2px 6px rgba(0, 0, 0, 0.5);         /* Ombra interna per effetto “pressione” */
+  transform: translate(2px, 2px);                 /* Sposta leggermente per simulare click */
+}
+
+
 .navbar-logo {
   height: 40px;
   margin-right: 10px;
@@ -106,38 +140,141 @@ a:hover {
   font-weight: bold;
   color: var(--color-navbar-text);
 }
+/* -----------------------------------------
+   Stile animato per il campo di ricerca
+   (sostituisce .input e .input-container)
+   ----------------------------------------- */
+.navbar-search-container {
+  position: relative;
+  width: 100%;
+  max-width: 240px;
+}
+
 .navbar-search {
-  padding: 5px 8px;
-  border-radius: 4px;
-  border: 1px solid var(--color-border);
-  background-color: var(--color-input-bg);
+  width: 100%;
+  height: 42px;
+  padding: 12px;
+  font-size: 16px;
+  font-family: "Courier New", monospace;
   color: var(--color-input-text);
+  background-color: #fff;
+  border: 4px solid #000;
+  border-radius: 4px;
+  outline: none;
+  transition: all 0.3s ease;
+  box-shadow: 8px 8px 0 #000;
+}
+
+.navbar-search::placeholder {
+  color: var(--color-primary);
+}
+
+.navbar-search:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 12px 12px 0 #000;
+}
+
+.navbar-search:focus {
+  background-color: #010101;
+  color: #fff;
+  border-color: #d6d9dd;
+}
+
+.navbar-search:focus::placeholder {
+  color: #fff;
+}
+
+/* Quando il campo è valido (ad esempio pattern accettato) */
+.navbar-search:valid {
+  animation: typing 2s steps(30, end);
+}
+
+/* Quando l’user ha già scritto qualcosa (placeholder scomparso) */
+.navbar-search:not(:placeholder-shown) {
+  animation: glitch 1s linear infinite;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 0px 0px 0 #000;
+}
+
+/* I keyframe originali (blink/typing/shake/glitch) */
+@keyframes typing {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+
+@keyframes blink {
+  50% { border-color: transparent; }
+}
+
+@keyframes shake {
+  0%   { transform: translateX(0); }
+  25%  { transform: translateX(-5px) rotate(-5deg); }
+  50%  { transform: translateX(5px) rotate(5deg); }
+  75%  { transform: translateX(-5px) rotate(-5deg); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes glitch {
+  0%   { transform: none; opacity: 1; }
+  7%   { transform: skew(-0.5deg, -0.9deg); opacity: 0.75; }
+  10%  { transform: none; opacity: 1; }
+  27%  { transform: none; opacity: 1; }
+  30%  { transform: skew(0.8deg, -0.1deg); opacity: 0.75; }
+  35%  { transform: none; opacity: 1; }
+  52%  { transform: none; opacity: 1; }
+  55%  { transform: skew(-1deg, 0.2deg); opacity: 0.75; }
+  72%  { transform: none; opacity: 1; }
+  75%  { transform: skew(0.4deg, 1deg); opacity: 0.75; }
+  80%  { transform: none; opacity: 1; }
+  100% { transform: none; opacity: 1; }
+}
+
+/* Il cursore lampeggiante “|” */
+.navbar-search-container::after {
+  content: "|";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #000;
+  animation: blink 0.7s step-end infinite;
+}
+
+/* Quando il campo è a fuoco, il cursore diventa bianco */
+.navbar-search:focus + .navbar-search-container::after {
+  color: #fff;
 }
 /* Icona profilo (font-based) */
 span.material-symbols-rounded.navbar-profile-icon {
-  display: inline-block;
-  font-family: 'Material Symbols Rounded';
-  font-variation-settings: 'FILL' 0, 'wght' 700, 'GRAD' 0, 'opsz' 48;
-  font-size: 36px;
-  line-height: 36px;
-  width: 36px;
-  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
   text-align: center;
   vertical-align: middle;
 
-  color: var(--color-icon);
+  color: var(--color-primary);
   cursor: pointer;
-  margin-left: 20px;
+  margin-left: 24px;
 
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background-color: rgba(255,255,255,0.1);
-  transition: background-color 0.2s, color 0.2s, transform 0.2s;
+  border: 1px solid var(--color-text);
+  border-radius: 50%;
+  background-color: var(--color-background);
+  box-shadow: 2px 2px 0 2px var(--color-text);
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.1s ease, transform 0.1s ease;
 }
 span.material-symbols-rounded.navbar-profile-icon:hover {
-  background-color: rgba(255,255,255,0.2);
-  color: var(--color-link);
-  transform: scale(1.1);
+  background-color: var(--color-secondary);
+  color: var(--color-background);
+}
+
+span.material-symbols-rounded.navbar-profile-icon:active {
+  box-shadow:
+    -2px -2px 0 2px var(--color-text),
+    inset 2px 2px 6px rgba(0, 0, 0, 0.5);
+  transform: translate(2px, 2px);
 }
 
 /* -----------------------------------------
