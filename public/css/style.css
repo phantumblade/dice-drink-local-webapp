@@ -71,7 +71,7 @@ a:hover {
   top: 0;
   left: 0;
   right: 0;
-  height: 60px; /* or match your actual navbar height */
+  height: 80px; /* or match your actual navbar height */
   z-index: 1000;
 }
 
@@ -141,19 +141,18 @@ a:hover {
   display: inline-block;
   margin-left: 4px;
   transition: transform 0.25s ease;
-  font-size: 0.8em;
+  font-size: 0.9em;
 }
 
 .dropdown-menu {
   display: none;
   position: absolute;
   top: calc(100% + 8px); /* posiziona sotto il link padre, con 8px di gap */
-  left: 0; /* allinea a sinistra */
-  background-color: var(--color-primary);
+  background-color: var(--color-primary) !important;
   border-radius: 4px;
   /* Spaziatura interna: altezza ridotta, più spazio orizzontale */
   padding: 8px 32px;   /* → 8px in alto e in basso; 32px a sinistra/destra */
-  min-width: 260px;              /* → larghezza minima del dropdown */
+  min-width: 230px;              /* → larghezza minima del dropdown */
   z-index: 1001;
   /* Remove default list styling within dropdown */
   list-style: none;
@@ -163,7 +162,7 @@ a:hover {
   flex-direction: column;
   align-items: center;
   /* Remove box-shadow for dropdown panel */
-  box-shadow: none;
+  box-shadow: non !important; /* → rimuove eventuali ombre predefinite */
   /* Add stylized borders */
 }
 
@@ -188,8 +187,8 @@ a:hover {
 }
 
 .dropdown-link:hover {
-  background-color: var(--color-secondary);
-  color: var(--color-background);
+  background-color: var(--color-secondary) !important;
+  color: var(--color-background) !important;
 }
 
 .dropdown-menu {
@@ -392,4 +391,332 @@ input[type="submit"]:hover {
   padding: 20px;
   background-color: var(--color-background);
   min-height: calc(100vh); /* ensure content covers full viewport */
+}
+
+
+/*--FOOTER--*/
+
+/* =========================
+   Layout Footer
+   ========================= */
+
+/* Contenitore principale del footer:
+   - larghezza massima 1200px, centrato orizzontalmente
+   - flexbox con wrap per schermi stretti (<768px) e tre colonne affiancate su desktop
+   - padding orizzontale per non attaccare il contenuto ai bordi
+*/
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.footer-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.footer-column {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .footer-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0;
+  }
+  .footer-column {
+    width: 30%;
+    text-align: left;
+    margin-bottom: 0;
+    position: relative;
+    padding: 1rem 1rem;
+  }
+}
+
+/* =========================
+   Stile degli elementi all’interno del footer
+   (esempi di lista, link, icone, ecc.)
+   ========================= */
+
+footer {
+  padding: 2rem 0;
+  background-color: #212529;
+}
+
+/* Link di testo del footer */
+.footer-column .nav-item .nav-link {
+  color: #6c757d;
+  text-decoration: none;
+}
+
+/* Titoli di sezione nel footer */
+.footer-column .nav-item span.footer-title {
+  font-size: large;
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.footer-container > .footer-row + .text-center {
+  margin: 2.5rem 0 1.5rem 0; /* spazio sopra e sotto il separatore */
+}
+
+.footer-container > .footer-row + .footer-row {
+  margin-top: 2.5rem; /* spazio tra le due righe principali */
+}
+
+/* Elenco orizzontale (ad es. lista di social buttons) */
+ul.social-buttons {
+  display: flex;
+  justify-content: flex-start; /* o center se vuoi centrarli */
+  gap: 12px; /* spazio tra i bottoni */
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+ul.social-buttons li a {
+  /* Flexbox per centrare */
+  display: flex;
+  align-items: center;          /* Centra verticalmente */
+  justify-content: center;      /* Centra orizzontalmente */
+  font-size: 28px;              /* Ingrandisci l’icona */
+  width: 48px;                  /* Più grande */
+  height: 48px;
+  transition: all 0.3s;
+  color: #fff;
+  border-radius: 100%;
+  outline: 0;
+  background-color: #1a1d20;
+  position: relative;
+}
+
+ul.social-buttons li a[data-tooltip] {
+  position: relative;
+}
+
+/* Tooltip base */
+ul.social-buttons li a[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  top: 115%; /* subito sotto il cerchio */
+  transform: translateX(-50%);
+  min-width: 60px;
+  padding: 4px 8px;
+  font-size: 0.6em;
+  font-weight: bold;
+  color: #fff;
+  border-radius: 22px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 1;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  text-align: center;
+  /* Default bg, verrà sovrascritto sotto */
+  background: #222;
+}
+
+/* Tooltip freccina */
+ul.social-buttons li a[data-tooltip]:hover::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 110%;
+  transform: translateX(-50%);
+  border-width: 7px 7px 0 7px;
+  border-style: solid;
+  border-color: #222 transparent transparent transparent;
+  z-index: 11;
+  opacity: 1;
+}
+
+/* Twitter colore */
+ul.social-buttons li a.social-twitter:hover::after,
+ul.social-buttons li a.social-twitter:hover::before {
+  background: #1da1f2;
+  border-top-color: #1da1f2;
+}
+
+/* Facebook colore */
+ul.social-buttons li a.social-facebook:hover::after,
+ul.social-buttons li a.social-facebook:hover::before {
+  background: #1877f3;
+  border-top-color: #1877f3;
+}
+
+/* Linkedin colore */
+ul.social-buttons li a.social-linkedin:hover::after,
+ul.social-buttons li a.social-linkedin:hover::before {
+  background: #0077b5;
+  border-top-color: #0077b5;
+}
+
+/* Tooltip di default: nascosto */
+ul.social-buttons li a[data-tooltip]::after,
+ul.social-buttons li a[data-tooltip]::before {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+ul.social-buttons li a[data-tooltip]:hover::after,
+ul.social-buttons li a[data-tooltip]:hover::before {
+  opacity: 1;
+}
+
+ul.social-buttons li a:active,
+ul.social-buttons li a:focus,
+ul.social-buttons li a:hover {
+  background-color: var(--color-secondary);
+}
+
+/* Link rapidi in fondo */
+footer .quick-links {
+  font-size: 90%;
+  line-height: 40px;
+  margin-bottom: 0;
+  text-transform: none;
+  font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* Icona separatrice */
+.fa-ellipsis-h {
+  color: white;
+  align-item: center;
+  padding: 2rem 0;
+}
+
+
+
+
+
+.footer-social-title {
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.1em;
+  margin-bottom: 0.5em;
+}
+@media (min-width: 768px) {
+  .footer-social-title {
+    text-align: left;
+  }
+}
+
+.footer-social-column ul.social-buttons {
+  align-items: center;
+}
+@media (min-width: 768px) {
+  .footer-social-column ul.social-buttons {
+    justify-content: flex-start;
+  }
+}
+
+/* -----------------------------------------
+   Hover effects for social media icons
+   ----------------------------------------- */
+.social-twitter:hover { background-color: #1da1f2 !important; }
+.social-facebook:hover { background-color: #1877f3 !important; }
+.social-linkedin:hover { background-color: #0077b5 !important; }
+
+.social-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.social-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 2rem;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+  background: #1a1d20;
+  color: #fff;
+  outline: none;
+  border: none;
+}
+
+.social-icon .tooltip {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 100%; /* Posiziona subito sotto l’icona */
+  padding: 0.5rem 1rem;
+  border-radius: 24px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  opacity: 0;
+  pointer-events: none;
+  text-transform: uppercase;
+  transform: translate(-50%, 16px); /* Sposta leggermente verso il basso */
+  transition: all 0.3s cubic-bezier(.4,2,.6,1);
+  z-index: 1;
+  background: #222;
+  color: #fff;
+  white-space: nowrap;
+}
+.social-icon .tooltip:after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: -8px; /* Posiziona la freccia sopra il tooltip */
+  left: 50%;
+  border-width: 0 8px 8px 8px;
+  border-style: solid;
+  border-color: transparent transparent #222 transparent;
+  transform: translateX(-50%);
+}
+
+/* Colori social per tooltip e freccia */
+.social-twitter .tooltip,
+.social-twitter .tooltip:after { background: #1da1f2; }
+.social-twitter .tooltip:after { border-color: transparent transparent #1da1f2 transparent; }
+
+.social-facebook .tooltip,
+.social-facebook .tooltip:after { background: #1877f3; }
+.social-facebook .tooltip:after { border-color: transparent transparent #1877f3 transparent; }
+
+.social-linkedin .tooltip,
+.social-linkedin .tooltip:after { background: #0077b5; }
+.social-linkedin .tooltip:after { border-color: transparent transparent #0077b5 transparent; }
+
+.social-icon:hover .tooltip,
+.social-icon:focus .tooltip {
+  opacity: 1;
+  transform: translate(-50%, 32px); /* Più in basso quando visibile */
+  visibility: visible;
+}
+
+/* Colori social */
+.social-twitter { background: #1da1f2; }
+.social-facebook { background: #1877f3; }
+.social-linkedin { background: #0077b5; }
+
+.social-twitter .tooltip,
+.social-twitter .tooltip:after { background: #1da1f2; border-top-color: #1da1f2; }
+.social-facebook .tooltip,
+.social-facebook .tooltip:after { background: #1877f3; border-top-color: #1877f3; }
+.social-linkedin .tooltip,
+.social-linkedin .tooltip:after { background: #0077b5; border-top-color: #0077b5; }
+
+/* Effetto hover: testo bianco */
+.social-icon:hover, .social-icon:focus {
+  color: #fff;
+  filter: brightness(1.1);
 }

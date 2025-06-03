@@ -1,10 +1,14 @@
 import { createNavbar } from './navbar.js';
+import { buildFooter } from './footer.js';
+
 
 document.body.prepend(createNavbar());
 
 const content = document.createElement('div');
 content.id = 'content';
 document.body.appendChild(content);
+
+document.body.appendChild(buildFooter());
 
 document.addEventListener("DOMContentLoaded", () => {
   const saved = localStorage.getItem("theme") || "light";
