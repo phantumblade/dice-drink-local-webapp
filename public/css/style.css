@@ -652,54 +652,66 @@ footer .quick-links {
   border: none;
 }
 
+.social-icon,
+.social-icon:hover,
+.social-icon:focus {
+  text-decoration: none !important;
+}
+
 .social-icon .tooltip {
   display: block;
   position: absolute;
   left: 50%;
-  top: 100%; /* Posiziona subito sotto l’icona */
-  padding: 0.5rem 1rem;
-  border-radius: 24px;
-  font-size: 0.85rem;
+  top: 110%; /* tooltip sotto il bottone */
+  padding: 0.3rem 0.9rem;
+  border-radius: 18px;
+  font-size: 0.78rem;
   font-weight: bold;
   opacity: 0;
   pointer-events: none;
   text-transform: uppercase;
-  transform: translate(-50%, 16px); /* Sposta leggermente verso il basso */
-  transition: all 0.3s cubic-bezier(.4,2,.6,1);
-  z-index: 1;
+  transform: translate(-50%, 0) scale(0.95);
+  transition: opacity 0.25s, transform 0.25s;
+  z-index: 10;
   background: #222;
   color: #fff;
   white-space: nowrap;
+  min-width: unset;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
 }
-.social-icon .tooltip:after {
+
+.social-icon .tooltip:before {
   content: "";
-  display: block;
   position: absolute;
-  top: -8px; /* Posiziona la freccia sopra il tooltip */
   left: 50%;
-  border-width: 0 8px 8px 8px;
-  border-style: solid;
-  border-color: transparent transparent #222 transparent;
+  top: -10px; /* sopra il tooltip */
   transform: translateX(-50%);
+  border-width: 0 10px 10px 10px;
+  border-style: solid;
+  border-color:  #212529  #212529 #222  #212529;
+  width: 0;
+  height: 0;
+  display: block;
+  z-index: 11;
 }
 
 /* Colori social per tooltip e freccia */
 .social-twitter .tooltip,
-.social-twitter .tooltip:after { background: #1da1f2; }
-.social-twitter .tooltip:after { border-color: transparent transparent #1da1f2 transparent; }
+.social-twitter .tooltip:before { background: #1da1f2; }
+.social-twitter .tooltip:before { border-color:  #212529  #212529 #1da1f2  #212529; }
 
 .social-facebook .tooltip,
-.social-facebook .tooltip:after { background: #1877f3; }
-.social-facebook .tooltip:after { border-color: transparent transparent #1877f3 transparent; }
+.social-facebook .tooltip:before { background: #1877f3; }
+.social-facebook .tooltip:before { border-color:  #212529  #212529 #1877f3  #212529; }
 
 .social-linkedin .tooltip,
-.social-linkedin .tooltip:after { background: #0077b5; }
-.social-linkedin .tooltip:after { border-color: transparent transparent #0077b5 transparent; }
+.social-linkedin .tooltip:before { background: #0077b5; }
+.social-linkedin .tooltip:before { border-color:  #212529  #212529 #0077b5  #212529; }
 
 .social-icon:hover .tooltip,
 .social-icon:focus .tooltip {
   opacity: 1;
-  transform: translate(-50%, 32px); /* Più in basso quando visibile */
+  transform: translate(-50%, 8px) scale(1);
   visibility: visible;
 }
 
@@ -709,11 +721,11 @@ footer .quick-links {
 .social-linkedin { background: #0077b5; }
 
 .social-twitter .tooltip,
-.social-twitter .tooltip:after { background: #1da1f2; border-top-color: #1da1f2; }
+.social-twitter .tooltip:before { background: #1da1f2; border-top-color: #1da1f2; }
 .social-facebook .tooltip,
-.social-facebook .tooltip:after { background: #1877f3; border-top-color: #1877f3; }
+.social-facebook .tooltip:before { background: #1877f3; border-top-color: #1877f3; }
 .social-linkedin .tooltip,
-.social-linkedin .tooltip:after { background: #0077b5; border-top-color: #0077b5; }
+.social-linkedin .tooltip:before { background: #0077b5; border-top-color: #0077b5; }
 
 /* Effetto hover: testo bianco */
 .social-icon:hover, .social-icon:focus {
