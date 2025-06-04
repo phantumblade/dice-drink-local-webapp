@@ -538,26 +538,6 @@ ul.social-buttons li a[data-tooltip]:hover::before {
   opacity: 1;
 }
 
-/* Twitter colore */
-ul.social-buttons li a.social-twitter:hover::after,
-ul.social-buttons li a.social-twitter:hover::before {
-  background: #1da1f2;
-  border-top-color: #1da1f2;
-}
-
-/* Facebook colore */
-ul.social-buttons li a.social-facebook:hover::after,
-ul.social-buttons li a.social-facebook:hover::before {
-  background: #1877f3;
-  border-top-color: #1877f3;
-}
-
-/* Linkedin colore */
-ul.social-buttons li a.social-linkedin:hover::after,
-ul.social-buttons li a.social-linkedin:hover::before {
-  background: #0077b5;
-  border-top-color: #0077b5;
-}
 
 /* Tooltip di default: nascosto */
 ul.social-buttons li a[data-tooltip]::after,
@@ -569,12 +549,6 @@ ul.social-buttons li a[data-tooltip]::before {
 ul.social-buttons li a[data-tooltip]:hover::after,
 ul.social-buttons li a[data-tooltip]:hover::before {
   opacity: 1;
-}
-
-ul.social-buttons li a:active,
-ul.social-buttons li a:focus,
-ul.social-buttons li a:hover {
-  background-color: var(--color-secondary);
 }
 
 /* Link rapidi in fondo */
@@ -592,10 +566,6 @@ footer .quick-links {
   align-item: center;
   padding: 2rem 0;
 }
-
-
-
-
 
 .footer-social-title {
   color: #fff;
@@ -621,114 +591,152 @@ footer .quick-links {
 /* -----------------------------------------
    Hover effects for social media icons
    ----------------------------------------- */
-.social-twitter:hover { background-color: #1da1f2 !important; }
-.social-facebook:hover { background-color: #1877f3 !important; }
-.social-linkedin:hover { background-color: #0077b5 !important; }
-
+/* Stili per i bottoni social */
 .social-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 18px;
-  padding: 0;
+  position: relative;
   margin: 0;
-  list-style: none;
+  padding: 0;
 }
 
 .social-icon {
-  display: flex;
+  position: relative;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  width: 56px;
-  height: 56px;
+  width: 40px;
+  height: 40px;
+  margin: 0 5px;
   border-radius: 50%;
-  cursor: pointer;
-  font-size: 2rem;
+  transition: all 0.3s ease;
   text-decoration: none;
-  transition: background 0.2s, color 0.2s;
-  background: #1a1d20;
-  color: #fff;
-  outline: none;
-  border: none;
 }
 
-.social-icon,
-.social-icon:hover,
-.social-icon:focus {
-  text-decoration: none !important;
+.social-icon:hover {
+  text-decoration: none;
 }
 
-.social-icon .tooltip {
-  display: block;
+/* Tooltip base */
+.tooltip {
   position: absolute;
+  bottom: -35px; /* Posiziona sotto il bottone */
   left: 50%;
-  top: 110%; /* tooltip sotto il bottone */
-  padding: 0.3rem 0.9rem;
-  border-radius: 18px;
-  font-size: 0.78rem;
-  font-weight: bold;
-  opacity: 0;
-  pointer-events: none;
-  text-transform: uppercase;
-  transform: translate(-50%, 0) scale(0.95);
-  transition: opacity 0.25s, transform 0.25s;
-  z-index: 10;
-  background: #222;
-  color: #fff;
-  white-space: nowrap;
-  min-width: unset;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-}
-
-.social-icon .tooltip:before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: -10px; /* sopra il tooltip */
   transform: translateX(-50%);
-  border-width: 0 10px 10px 10px;
-  border-style: solid;
-  border-color:  #212529  #212529 #222  #212529;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* Tooltip specifici per ogni social - colori aggiornati */
+.social-twitter .tooltip {
+  background-color: #1da1f2;
+}
+
+.social-twitter .tooltip::before {
+  border-bottom-color: #1da1f2;
+}
+
+.social-facebook .tooltip {
+  background-color: #2d4373;
+}
+
+.social-facebook .tooltip::before {
+  border-bottom-color: #2d4373;
+}
+
+.social-linkedin .tooltip {
+  background-color: #0077b5;
+}
+
+.social-linkedin .tooltip::before {
+  border-bottom-color: #0077b5;
+}
+
+.social-instagram .tooltip {
+  background-color: #e1306c;
+}
+
+.social-instagram .tooltip::before {
+  border-bottom-color: #e1306c;
+}
+
+/* Freccetta del tooltip */
+.tooltip::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 0;
   height: 0;
-  display: block;
-  z-index: 11;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid;
 }
 
-/* Colori social per tooltip e freccia */
-.social-twitter .tooltip,
-.social-twitter .tooltip:before { background: #1da1f2; }
-.social-twitter .tooltip:before { border-color:  #212529  #212529 #1da1f2  #212529; }
-
-.social-facebook .tooltip,
-.social-facebook .tooltip:before { background: #1877f3; }
-.social-facebook .tooltip:before { border-color:  #212529  #212529 #1877f3  #212529; }
-
-.social-linkedin .tooltip,
-.social-linkedin .tooltip:before { background: #0077b5; }
-.social-linkedin .tooltip:before { border-color:  #212529  #212529 #0077b5  #212529; }
-
-.social-icon:hover .tooltip,
-.social-icon:focus .tooltip {
+/* Mostra tooltip al hover */
+.social-icon:hover .tooltip {
   opacity: 1;
-  transform: translate(-50%, 8px) scale(1);
   visibility: visible;
+  bottom: -40px; /* Leggero movimento verso il basso */
 }
 
-/* Colori social */
-.social-twitter { background: #1da1f2; }
-.social-facebook { background: #1877f3; }
-.social-linkedin { background: #0077b5; }
+/* Stili specifici per ogni social */
+.social-twitter {
+  background-color: #1da1f2;
+  color: white;
+}
 
-.social-twitter .tooltip,
-.social-twitter .tooltip:before { background: #1da1f2; border-top-color: #1da1f2; }
-.social-facebook .tooltip,
-.social-facebook .tooltip:before { background: #1877f3; border-top-color: #1877f3; }
-.social-linkedin .tooltip,
-.social-linkedin .tooltip:before { background: #0077b5; border-top-color: #0077b5; }
+.social-twitter:hover {
+  background-color: #1da1f2;
+  transform: translateY(-2px);
+}
 
-/* Effetto hover: testo bianco */
-.social-icon:hover, .social-icon:focus {
-  color: #fff;
-  filter: brightness(1.1);
+.social-facebook {
+  background-color: #3b5998;
+  color: white;
+}
+
+.social-facebook:hover {
+  background-color: #2d4373;
+  transform: translateY(-2px);
+}
+
+.social-linkedin {
+  background-color: #0077b5;
+  color: white;
+}
+
+.social-linkedin:hover {
+  background-color: #0077b5;
+  transform: translateY(-2px);
+}
+
+.social-instagram {
+  background-color: #e1306c;
+  color: white;
+}
+
+.social-instagram:hover {
+  background-color: #e1306c;
+  transform: translateY(-2px);
+}
+
+/* Assicurati che il contenitore padre abbia overflow visible */
+.footer-social-column {
+  overflow: visible;
+}
+
+.list-inline {
+  overflow: visible;
+}
+
+.list-inline-item {
+  position: relative;
 }

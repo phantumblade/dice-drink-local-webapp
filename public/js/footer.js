@@ -97,6 +97,12 @@ botCol2.innerHTML = `
         <span class="tooltip">LinkedIn</span>
       </a>
     </li>
+    <li class="list-inline-item">
+        <a class="social-icon social-instagram" href="#">
+        <i class="fab fa-instagram"></i>
+        <span class="tooltip">Instagram</span>
+        </a>
+    </li>
   </ul>
 `;
 
