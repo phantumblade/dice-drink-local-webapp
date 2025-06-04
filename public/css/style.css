@@ -229,7 +229,7 @@ a:hover {
 
 
 .navbar-title {
-  font-size: 1.5rem;
+  font-size: 1.7rem;
   font-weight: bold;
   color: var(--color-navbar-text);
 }
@@ -264,14 +264,14 @@ a:hover {
 }
 
 .navbar-search:hover {
-  transform: translate(-4px, -4px);
+  transform: translate(-2px, -2px);
   box-shadow: 12px 12px 0 #000;
 }
 
 .navbar-search:focus {
-  background-color: var(--color-text);
-  color: #fff;
-  border-color: #d6d9dd;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  border-color: var(--color-text);
 }
 
 .navbar-search:focus::placeholder {
@@ -573,12 +573,9 @@ footer .quick-links {
   font-weight: 600;
   font-size: 1.1em;
   margin-bottom: 0.5em;
+  text-align: left;
 }
-@media (min-width: 768px) {
-  .footer-social-title {
-    text-align: left;
-  }
-}
+
 
 .footer-social-column ul.social-buttons {
   align-items: center;
@@ -840,7 +837,7 @@ footer .quick-links {
   box-shadow: 0 4px 16px 0 rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: left;
   min-width: 0;
   max-width: 340px;
   width: 19rem;
@@ -851,7 +848,7 @@ footer .quick-links {
   color: var(--color-navbar-text);
   font-size: 1.25rem;
   font-weight: 700;
-  margin-bottom: 0.5em;
+  margin-bottom: 0.2em;
   text-transform: uppercase;
   text-align: left;
 }
@@ -862,6 +859,7 @@ footer .quick-links {
   margin-bottom: 0.9em;
   font-weight: 400;
   text-align: left;
+line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 .newsletter-form input[type="email"] {
@@ -983,4 +981,40 @@ footer .quick-links {
   .footer-legal-dot {
     display: none;
   }
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#content {
+  background: var(--color-background);
+  min-height: 60vh;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Elimina padding/margin extra */
+  margin: 0;
+  padding: 0;
+}
+
+#content-placeholder {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4vw;
+  font-weight: 900;
+  color: #e0e0e0;
+  text-align: center;
+  letter-spacing: -1px;
+  background: transparent;
+  border: none;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
 }

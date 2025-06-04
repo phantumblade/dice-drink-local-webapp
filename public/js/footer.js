@@ -114,7 +114,7 @@ botCol2.innerHTML = `
       <a href="#" class="footer-legal-link">Terms of Use</a>
     </div>
     <div class="footer-legal-copyright-row">
-      <span class="copyright quick-links">&copy; Your Website ${new Date().getFullYear()}</span>
+      <span class="copyright quick-links">&copy; Dice&Drink ${new Date().getFullYear()}</span>
     </div>
   `;
 

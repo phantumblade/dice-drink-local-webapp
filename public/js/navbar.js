@@ -200,5 +200,5 @@ function showPage(pageId) {
   // Seleziona l'elemento con id 'content'
   const content = document.getElementById('content');
   // Cambia il testo per mostrare la pagina attuale
-  content.textContent = `Sei nella pagina: ${pageId}`;
+  content.innerHTML = `<div id="content-placeholder">Sei nella pagina: ${pageId}</div>`;
 }
