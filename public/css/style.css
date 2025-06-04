@@ -13,7 +13,7 @@
   --color-border:       rgba(0,0,0,0.1);
   --color-input-bg:     #F8F8FF;
   --color-input-text:   #2E2E2E;
-  --color-link:         var(--color-primary-alt);
+  --color-link:         #6c757d;
 }
 
 /* -----------------------------------------
@@ -421,6 +421,8 @@ input[type="submit"]:hover {
   width: 100%;
   text-align: center;
   margin-bottom: 2rem;
+  line-height: 2.2; /* aumenta lo spazio verticale tra le righe */
+
 }
 
 @media (min-width: 768px) {
@@ -453,6 +455,27 @@ footer {
 .footer-column .nav-item .nav-link {
   color: #6c757d;
   text-decoration: none;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.footer-column .nav-item .nav-link:hover {
+  color: #bdbdbd; /* oppure un grigio più chiaro tipo #e0e0e0 */
+}
+
+.footer-column .nav-item .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px; /* posiziona la sottolineatura sotto il testo */
+  width: 0;
+  height: 2px;
+  background: #bdbdbd; /* colore della sottolineatura */
+  transition: width 0.25s;
+}
+
+.footer-column .nav-item .nav-link:hover::after {
+  width: 100%;
 }
 
 /* Titoli di sezione nel footer */
@@ -475,7 +498,7 @@ footer {
 ul.social-buttons {
   display: flex;
   justify-content: flex-start; /* o center se vuoi centrarli */
-  gap: 12px; /* spazio tra i bottoni */
+  gap: 10px; /* spazio tra i bottoni */
   padding: 0;
   margin: 0;
   list-style: none;
@@ -486,7 +509,7 @@ ul.social-buttons li a {
   display: flex;
   align-items: center;          /* Centra verticalmente */
   justify-content: center;      /* Centra orizzontalmente */
-  font-size: 28px;              /* Ingrandisci l’icona */
+  font-size: 24px;              /* Ingrandisci l’icona */
   width: 48px;                  /* Più grande */
   height: 48px;
   transition: all 0.3s;
@@ -501,28 +524,6 @@ ul.social-buttons li a[data-tooltip] {
   position: relative;
 }
 
-/* Tooltip base */
-ul.social-buttons li a[data-tooltip]:hover::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  left: 50%;
-  top: 115%; /* subito sotto il cerchio */
-  transform: translateX(-50%);
-  min-width: 60px;
-  padding: 4px 8px;
-  font-size: 0.6em;
-  font-weight: bold;
-  color: #fff;
-  border-radius: 22px;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 1;
-  z-index: 10;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-  text-align: center;
-  /* Default bg, verrà sovrascritto sotto */
-  background: #222;
-}
 
 /* Tooltip freccina */
 ul.social-buttons li a[data-tooltip]:hover::before {
@@ -739,4 +740,247 @@ footer .quick-links {
 
 .list-inline-item {
   position: relative;
+}
+
+/* =========================
+   Stile Newsletter Footer
+   ========================= */
+
+/* Contenitore newsletter */
+.newsletter-form {
+  margin-top: 1.5em;
+  padding: 2em 1.5em 2.5em 1.5em;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 6px 24px 0 rgba(60,40,120,0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 320px;
+  max-width: 420px;
+}
+
+/* Titolo newsletter */
+.footer-title {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: #111;
+  margin-bottom: 0.2em;
+  text-transform: uppercase;
+}
+
+/* Sottotitolo newsletter */
+.footer-subtitle {
+  font-size: 1.2rem;
+  color: #6c6e7e;
+  margin-bottom: 2.5em;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+/* Input email minimal */
+.newsletter-form input[type="email"] {
+  width: 100%;
+  border: none;
+  border-bottom: 3px solid #111;
+  background: transparent;
+  font-size: 1.2rem;
+  padding: 0.7em 0 0.5em 0;
+  margin-bottom: 2.2em;
+  color: #222;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.newsletter-form input[type="email"]:focus {
+  border-bottom: 3px solid var(--color-primary, #6633cc);
+}
+
+/* Bottone iscriviti minimal */
+.newsletter-form button {
+  align-self: flex-end;
+  background: var(--color-primary, #6633cc);
+  color: var(--color-text);
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0.7em 2.2em;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(60,40,120,0.08);
+  transition: background 0.2s, transform 0.1s;
+  margin-top: 0.5em;
+}
+
+/* Responsive: su mobile, meno padding */
+@media (max-width: 600px) {
+  .newsletter-form {
+    min-width: unset;
+    max-width: 100%;
+    padding: 1em 0.5em 1.5em 0.5em;
+  }
+  .footer-title {
+    font-size: 1.3rem;
+  }
+  .footer-subtitle {
+    font-size: 1rem;
+  }
+}
+
+/* =========================
+   Newsletter Footer - versione compatta e dark
+   ========================= */
+
+.newsletter-form {
+  margin: -4px;
+  padding: 1.2em 1.2em 2em 1.2em;
+  background: #181b1f; /* più scuro del footer */
+  border-radius: 18px;
+  box-shadow: 0 4px 16px 0 rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  max-width: 340px;
+  width: 19rem;
+  /* Allinea con le altre colonne */
+}
+
+.newsletter-form .newsletter-title {
+  color: var(--color-navbar-text);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5em;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.newsletter-form .newsletter-subtitle {
+  color: #bdbdbd;
+  font-size: 1rem;
+  margin-bottom: 0.9em;
+  font-weight: 400;
+  text-align: left;
+}
+
+.newsletter-form input[type="email"] {
+  width: 100%;
+  border: none;
+  border-bottom: 2px solid var(--color-navbar-text);
+  background: transparent;
+  font-size: 1rem;
+  padding: 0.6em 0 0.4em 0;
+  margin-bottom: 1.5em;
+  color: var(--color-navbar-text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.newsletter-form input[type="email"]::placeholder {
+  color: #6c757d;
+}
+
+.newsletter-form input[type="email"]:focus {
+  border-bottom: 2px solid var(--color-primary, #6633cc);
+}
+
+.newsletter-form button {
+  align-self: flex-end;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.6em 2em;
+  cursor: pointer;
+
+  margin-top: 0.5em;
+}
+
+.newsletter-form button:hover {
+  background: var(--color-primary-alt,);
+  color: var(--color-navbar-text);
+}
+
+/* Responsive: su mobile, meno padding */
+@media (max-width: 600px) {
+  .newsletter-form {
+    max-width: 100%;
+    padding: 1em 0.5em 1.2em 0.5em;
+  }
+  .newsletter-form .newsletter-title {
+    font-size: 1.05rem;
+  }
+  .newsletter-form .newsletter-subtitle {
+    font-size: 0.95rem;
+  }
+}
+
+/* -----------------------------------------
+   Separator
+   ----------------------------------------- */
+.footer-separator {
+  border: none;
+  border-top: 1.5px solid #34373c; /* colore sottile e elegante */
+  margin: 12px 12px;     /* spazio sopra e sotto, e dai bordi */
+  width: calc(100% - 48px);        /* lascia 24px per lato */
+  background: transparent;
+}
+
+/* -----------------------------------------
+   Footer legale (copyright, link utili, ecc.)
+   ----------------------------------------- */
+.footer-legal-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.2em;
+}
+
+.footer-legal-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-bottom: 0.2em;
+}
+
+.footer-legal-link {
+  color: var(--color-link);
+  font-size: 1em;
+  text-decoration: none;
+  transition: color 0.2s;
+  padding: 0 0.2em;
+}
+
+.footer-legal-link:hover {
+  color: #bdbdbd;
+  text-decoration: underline;
+}
+
+.footer-legal-dot {
+  color: #bdbdbd;
+  font-size: 1.2em;
+  user-select: none;
+}
+
+.footer-legal-copyright-row {
+  text-align: center;
+  color: #bdbdbd;
+  font-size: 0.95em;
+  margin-top: 0.2em;
+  width: 100%;
+}
+
+/* Responsive: su mobile, link uno sotto l'altro e pallino nascosto */
+@media (max-width: 600px) {
+  .footer-legal-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  .footer-legal-dot {
+    display: none;
+  }
 }

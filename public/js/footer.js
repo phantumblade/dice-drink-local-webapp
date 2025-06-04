@@ -12,18 +12,17 @@ export function buildFooter() {
   const row = document.createElement('div');
   row.className = 'footer-row';
 
-  // Colonna 1: Product
+  // Colonna 1: Newsletter
   const col1 = document.createElement('div');
   col1.className = 'footer-column';
   col1.innerHTML = `
-    <ul class="nav flex-column">
-      <li class="nav-item"><span class="footer-title">Product</span></li>
-      <li class="nav-item"><a class="nav-link" href="#">Product 1</a></li>
-      <li class="nav-item"><a class="nav-link" href="#">Product 2</a></li>
-      <li class="nav-item"><a class="nav-link" href="#">Plans & Prices</a></li>
-      <li class="nav-item"><a class="nav-link" href="#">Frequently asked questions</a></li>
-    </ul>
-  `;
+    <form class="newsletter-form">
+        <div class="newsletter-title">Iscriviti alla newsletter</div>
+        <div class="newsletter-subtitle">Inserisci qui la tua mail per essere notificato dei nuovi eventi futuri!</div>
+        <input type="email" placeholder="La tua email" required>
+        <button type="submit">Iscriviti</button>
+    </form>
+    `;
 
   // Colonna 2: Company
   const col2 = document.createElement('div');
@@ -56,9 +55,8 @@ export function buildFooter() {
   container.appendChild(row);
 
   // --- Separatore ---
-  const separator = document.createElement('div');
-  separator.className = 'text-center';
-  separator.innerHTML = `<i class="fas fa-ellipsis-h"></i>`;
+  const separator = document.createElement('hr');
+  separator.className = 'footer-separator';
   container.appendChild(separator);
 
   // --- Seconda riga: copyright, social, quick links ---
@@ -108,12 +106,16 @@ botCol2.innerHTML = `
 
   // Colonna 3: quick links
   const botCol3 = document.createElement('div');
-  botCol3.className = 'footer-column';
+  botCol3.className = 'footer-column footer-legal-column';
   botCol3.innerHTML = `
-    <ul class="list-inline quick-links">
-      <li class="list-inline-item"><a href="#">Privacy Policy</a></li>
-      <li class="list-inline-item"><a href="#">Terms of Use</a></li>
-    </ul>
+    <div class="footer-legal-row">
+      <a href="#" class="footer-legal-link">Privacy Policy</a>
+      <span class="footer-legal-dot">&bull;</span>
+      <a href="#" class="footer-legal-link">Terms of Use</a>
+    </div>
+    <div class="footer-legal-copyright-row">
+      <span class="copyright quick-links">&copy; Your Website ${new Date().getFullYear()}</span>
+    </div>
   `;
 
   botRow.appendChild(botCol1);
