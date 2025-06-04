@@ -78,7 +78,7 @@ botCol2.innerHTML = `
   <div class="footer-social-title">Seguici anche su:</div>
   <ul class="list-inline social-buttons">
     <li class="list-inline-item">
-      <a class="social-icon social-twitter" href="#">
+      <a class="social-icon social-twitter" href="https://x.com/andreaperini9">
         <i class="fab fa-twitter"></i>
         <span class="tooltip">Twitter</span>
       </a>
