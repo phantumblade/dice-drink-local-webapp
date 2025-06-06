@@ -1006,7 +1006,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   max-width: 1400px;
   margin: 2.5rem auto 2.5rem auto; /* solo 2rem sopra, 0 sotto */
   padding: 0 6rem;
-  position: relative;
+  position: relative; /* Assicurati che il contenitore sia relativo */
 }
 
 .carousel-slides-container {
@@ -1240,16 +1240,9 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 
 /* Controlli di navigazione */
 .carousel-controls {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  transform: translateY(-50%);
-  display: flex;
-  justify-content: space-between;
-  padding: 0 1rem;
+  position: static; /* Disabilita il posizionamento assoluto */
   pointer-events: none;
-  z-index: 3;
+  z-index: auto;
 }
 
 .carousel-btn {
@@ -1520,5 +1513,35 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   }
   .slide-actions {
     align-self: flex-start;
+  }
+}
+
+/* -----------------------------------------
+   CAROUSEL NAVIGATION BUTTONS
+   ----------------------------------------- */
+.carousel-btn.carousel-prev,
+.carousel-btn.carousel-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  pointer-events: all;
+}
+
+.carousel-btn.carousel-prev {
+  left: clamp(8px, -2.5rem, calc((100vw - 1400px)/2 - 32px));
+}
+
+.carousel-btn.carousel-next {
+  right: clamp(8px, -2.5rem, calc((100vw - 1400px)/2 - 32px));
+}
+
+/* Responsive: avvicina ai bordi su schermi piccoli */
+@media (max-width: 900px) {
+  .carousel-btn.carousel-prev {
+    left: 0;
+  }
+  .carousel-btn.carousel-next {
+    right: 0;
   }
 }
