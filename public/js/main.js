@@ -8,32 +8,97 @@ function createWelcomeSection() {
   section.id = 'welcome-section';
   section.classList.add('welcome-section');
 
+  // 1. Container generale della sezione
   const container = document.createElement('div');
   container.classList.add('welcome-container');
 
+  // 2. Titolo principale (centrato sopra le colonne)
   const title = document.createElement('h1');
   title.textContent = 'Benvenuti al Dice & Drink';
+  title.classList.add('welcome-title');
+  container.appendChild(title);
 
+  // 3. Tagline (centrata sotto il titolo)
+  const tagline = document.createElement('h2');
+  tagline.classList.add('welcome-tagline');
+  tagline.textContent = 'Dove vivrai serate indimenticabili, all’insegna di avventure, divertimento e drink speciali!';
+  container.appendChild(tagline);
+
+  // 4. Grid a due colonne: sinistra = testo+feature, destra = immagine
+  const grid = document.createElement('div');
+  grid.classList.add('welcome-grid');
+
+  // 4a. Colonna di sinistra (testo, lista feature)
+  const leftCol = document.createElement('div');
+  leftCol.classList.add('welcome-left-col');
+
+  // Descrizione breve sotto la tagline
   const description = document.createElement('p');
-  description.textContent = 'Il tuo punto di riferimento a Novara per giochi da tavolo, eventi esclusivi, cibo e drink di qualità.';
+  description.classList.add('welcome-description');
+  description.textContent = 'Unisciti a noi per serate di giochi da tavolo, drink artigianali e tanto divertimento! Scopri il nostro locale, partecipa ai tornei e agli eventi dal vivo, e goditi un’atmosfera unica con amici e appassionati di giochi.';
+  leftCol.appendChild(description);
 
+  // Lista di feature con icone (due colonne di icon+testo)
+  const featuresList = document.createElement('ul');
+  featuresList.classList.add('welcome-features');
+  const features = [
+    { icon: 'fas fa-dice', text: 'Ampia collezione di giochi' },
+    { icon: 'fas fa-beer', text: 'Drink e cocktail unici' },
+    { icon: 'fas fa-users', text: 'Eventi settimanali e tornei' },
+    { icon: 'fas fa-utensils', text: 'Snack e piatti da condividere' }
+  ];
+  features.forEach(f => {
+    const li = document.createElement('li');
+    li.innerHTML = `<i class="${f.icon}"></i><span>${f.text}</span>`;
+    featuresList.appendChild(li);
+  });
+  leftCol.appendChild(featuresList);
+
+  grid.appendChild(leftCol);
+
+  // 4b. Colonna di destra (immagine)
+  const rightCol = document.createElement('div');
+  rightCol.classList.add('welcome-right-col');
+  const img = document.createElement('img');
+  img.src = 'assets/locale.jpg'; // Sostituisci con il percorso corretto della tua immagine
+  img.alt = 'Interno del locale Dice & Drink';
+  img.classList.add('welcome-image');
+  rightCol.appendChild(img);
+
+  grid.appendChild(rightCol);
+
+  container.appendChild(grid);
+
+  // 5. Bottone CTA (centrato sotto le due colonne)
   const ctaBtn = document.createElement('button');
   ctaBtn.id = 'welcome-cta-btn';
-  ctaBtn.classList.add('btn-primary');
-  ctaBtn.innerHTML = '<i class="fas fa-door-open"></i> Scopri il locale';
-  // Al click, scrolla alla sezione del menù (da implementare quando la sezione avrà id="menu-section")
+  ctaBtn.classList.add('btn-primary', 'welcome-cta-btn');
+  ctaBtn.innerHTML = '<i class="fas fa-door-open"></i><span>Scopri il locale</span>';
   ctaBtn.addEventListener('click', () => {
     const menuSection = document.getElementById('menu-section');
     if (menuSection) {
       menuSection.scrollIntoView({ behavior: 'smooth' });
     }
   });
-
-  container.appendChild(title);
-  container.appendChild(description);
   container.appendChild(ctaBtn);
 
+  // 6. Freccia “Scroll down” (centrata sotto il bottone)
+  const scrollIndicator = document.createElement('div');
+  scrollIndicator.classList.add('scroll-down-indicator');
+  scrollIndicator.innerHTML = '<i class="fas fa-chevron-down"></i>';
+  scrollIndicator.addEventListener('click', () => {
+    const howSection = document.getElementById('how-it-works-section');
+    if (howSection) howSection.scrollIntoView({ behavior: 'smooth' });
+  });
+  container.appendChild(scrollIndicator);
+
   section.appendChild(container);
+
+  // 7. Animazione di comparsa: aggiungo la classe .show dopo un piccolo delay
+  setTimeout(() => {
+    section.classList.add('show');
+  }, 100);
+
   return section;
 }
 
@@ -43,6 +108,9 @@ document.body.prepend(createNavbar());
 const content = document.createElement('div');
 content.id = 'content';
 document.body.appendChild(content);
+
+// Aggiunge il footer di base (verrà renderizzato sotto il 'content')
+document.body.appendChild(buildFooter());
 
 // Funzione per mostrare la homepage
 function showHomepage() {
@@ -131,7 +199,7 @@ function showPage(pageId) {
 // Esponi la funzione showPage globalmente per navbar.js
 window.showPage = showPage;
 
-// Mostra la homepage all'avvio
+// Funzione per gestire il toggle del tema chiaro/scuro
 const toggleTheme = () => {
   const html = document.documentElement;
   const current = html.getAttribute('data-theme');
@@ -144,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const saved = localStorage.getItem('theme') || 'light';
   document.documentElement.setAttribute('data-theme', saved);
 
-  // Mostra la homepage
+  // Mostra la homepage all'avvio
   showHomepage();
 
   const themeButton = document.getElementById('theme-switch-button');
@@ -152,6 +220,3 @@ document.addEventListener('DOMContentLoaded', () => {
     themeButton.addEventListener('click', toggleTheme);
   }
 });
-
-// Aggiunge il footer di base (verrà renderizzato sotto il 'content')
-document.body.appendChild(buildFooter());

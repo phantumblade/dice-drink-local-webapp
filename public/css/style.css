@@ -1546,58 +1546,308 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   }
 }
 
-
-/* ==========================
+/* =========================
    Sezione 2 – Welcome + CTA
-   ========================== */
+   ========================= */
 
+/* Container generale della sezione */
 .welcome-section {
-  background-color: #f8f9fa;      /* sfondo leggermente grigio per separare dal carosello */
-  padding: 4rem 1rem;             /* spazio su/giù e padding laterale */
+  background-color: #f8f9fa;   /* sfondo grigio chiaro */
+  padding: 4rem 1rem;
+  overflow: hidden;            /* in caso di animazioni/zoom immagini */
 }
 
+/* Contenitore interno e padding */
 .welcome-container {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
-  text-align: center;
+  text-align: center;          /* di default tutto centrato */
 }
 
-.welcome-container h1 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  color: #2c3e50;                /* colore scuro per il titolo */
+/* Titolo principale (centrato, grande) */
+.welcome-title {
+  font-size: 3rem;             /* più grande di prima */
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
 }
 
-.welcome-container p {
-  font-size: 1.2rem;
+/* Tagline sotto il titolo */
+.welcome-tagline {
+  font-size: 1.75rem;          /* 1.75rem su desktop */
+  font-weight: 400;
+  color: rgba(44, 62, 80, 0.9);
   margin-bottom: 2rem;
-  color: rgba(44, 62, 80, 0.8);  /* grigio scuro opaco per il testo */
-  line-height: 1.5;
+  font-style: italic;
 }
 
-#welcome-cta-btn {
+/* =========================
+   Grid a due colonne
+   ========================= */
+.welcome-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+/* Colonna di sinistra (testo + features) */
+.welcome-left-col {
+  text-align: left;            /* testo allineato a sinistra */
+}
+
+/* Descrizione (paragrafo) */
+.welcome-description {
+  font-size: 1.3rem;           /* da 1.2rem a 1.3rem */
+  color: rgba(44, 62, 80, 0.85);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  max-width: 600px;            /* limita la larghezza per migliorare la leggibilità */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* =========================
+   Lista di feature (icone + testo)
+   ========================= */
+.welcome-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem 0;
+  display: grid;
+  /* Su desktop: fino a due colonne affiancate, min 240px ognuna */
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem 2rem;
+}
+
+.welcome-features li {
+  font-size: 1.1rem;
+  color: rgba(44, 62, 80, 0.85);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  line-height: 1.4;
+  /* NON forziamo qui il white-space: nowrap,
+     lasciamo che il testo si adatti in modo naturale */
+}
+
+.welcome-features li i {
+  color: #6c5ce7;
+  font-size: 1.3rem;
+  flex-shrink: 0;              /* blocca l’icona a non rimpicciolirsi */
+}
+
+/* =========================
+   Quando la larghezza scende sotto i 768px:
+   – Unica colonna
+   – Ogni voce diventa “icon sopra testo”
+   – Centriamo orizzontalmente
+   ========================= */
+@media (max-width: 768px) {
+  .welcome-features {
+    grid-template-columns: 1fr;    /* una sola colonna */
+    justify-items: center;         /* centriamo la cella */
+    text-align: center;            /* all’interno, testo centrato */
+  }
+  .welcome-features li {
+    flex-direction: column;        /* icona sopra testo */
+    gap: 0.5rem;                   /* spazio tra icona e testo */
+  }
+}
+
+/* =========================
+   Su schermi ancora più stretti (<576px),
+   manteniamo il comportamento a colonna,
+   ma aggiustiamo eventualmente il font‐size
+   ========================= */
+@media (max-width: 576px) {
+  .welcome-features {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+  .welcome-features li {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .welcome-features li {
+    font-size: 1rem;               /* riduciamo leggermente il font su mobile */
+  }
+  .welcome-features li i {
+    font-size: 1.2rem;             /* icone un po’ più piccole su mobile */
+  }
+}
+
+/* =========================
+   Colonna di destra (immagine)
+   ========================= */
+
+.welcome-image {
+  width: 100%;
+  max-width: 450px;            /* ingrandita rispetto al precedente 400 */
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  transition: transform 0.5s ease, box-shadow 0.5s ease, filter 0.5s ease;
+  filter: brightness(0.9) contrast(1.05); /* leggero filtro per maggiore profondità */
+  object-fit: cover;
+}
+
+.welcome-image:hover {
+  transform: scale(1.05) translateY(-5px); /* zoom e leggero sollevamento */
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+  filter: brightness(1) contrast(1);       /* torna al default per far risaltare i colori */
+}
+
+/* =========================
+   Bottone “Scopri il locale”
+   ========================= */
+.welcome-cta-btn {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  background: #6c5ce7;
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 0.75rem 1.5rem;
-  font-size: 1.1rem;
+  padding: 0.85rem 1.75rem;
+  font-size: 1.2rem;           /* da 1.1rem a 1.2rem */
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
   transition: background 0.3s ease, transform 0.2s ease;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-alt));
+}
+#welcome-cta-btn span {
+  display: inline-block;
+}
+#welcome-cta-btn i {
+  font-size: 1.3rem;
 }
 
-#welcome-cta-btn:hover {
-  background: linear-gradient(135deg, var(--color-primary-alt));
+/* Overlay animato (entra e esce in modo fluido) */
+.welcome-cta-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(-100%) skewX(-20deg);
+  transition: transform 0.5s ease;
+  pointer-events: none;
+}
+.welcome-cta-btn:hover::before {
+  transform: translateX(100%) skewX(-20deg);
+}
+.welcome-cta-btn:hover {
+  background: #5a4acb;
   transform: translateY(-2px);
-  box-shadow: 0 2px 20px var(--color-primary);
-
+}
+.welcome-cta-btn:active {
+  transform: translateY(0);
 }
 
-#welcome-cta-btn:active {
-  transform: translateY(0);
+/* =========================
+   Indicatore di scroll (freccia)
+   ========================= */
+.scroll-down-indicator {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+}
+.scroll-down-indicator i {
+  font-size: 1.7rem;           /* un po’ più grande della versione precedente */
+  color: #6c5ce7;
+  animation: bounce 2s infinite;
+}
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(10px);
+  }
+}
+
+/* =========================
+   Animazione di comparsa
+   ========================= */
+.welcome-section .welcome-container > * {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.welcome-section.show .welcome-container > * {
+  animation: appearUp 0.6s ease-out forwards;
+}
+.welcome-section.show .welcome-container > *:nth-child(1) {
+  animation-delay: 0.1s;  /* Titolo */
+}
+.welcome-section.show .welcome-container > *:nth-child(2) {
+  animation-delay: 0.2s;  /* Tagline */
+}
+.welcome-section.show .welcome-container > *:nth-child(3) {
+  animation-delay: 0.3s;  /* Grid colonna sinistra (descrizione + features) */
+}
+.welcome-section.show .welcome-container > *:nth-child(4) {
+  animation-delay: 0.4s;  /* Grid colonna destra (immagine) */
+}
+.welcome-section.show .welcome-container > *:nth-child(5) {
+  animation-delay: 0.5s;  /* Bottone CTA */
+}
+.welcome-section.show .welcome-container > *:nth-child(6) {
+  animation-delay: 0.6s;  /* Indicatore di scroll */
+}
+@keyframes appearUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   Responsive Design
+   ========================= */
+@media (max-width: 992px) {
+  .welcome-grid {
+    grid-template-columns: 1fr;   /* diventa una colonna sola su tablet */
+    text-align: center;
+  }
+  .welcome-image {
+    max-width: 350px;            /* leggermente meno larga su tablet */
+    margin: 0 auto;
+  }
+  .welcome-left-col {
+    margin-bottom: 2rem;         /* spazio tra testo e immagine */
+  }
+}
+
+@media (max-width: 576px) {
+  .welcome-title {
+    font-size: 2.5rem;           /* riduci ancora su schermi molto piccoli */
+  }
+  .welcome-tagline {
+    font-size: 1.5rem;
+  }
+  .welcome-description {
+    font-size: 1.1rem;
+    text-align: center;          /* testo centrato su mobile */
+  }
+  .welcome-features li {
+    font-size: 1rem;
+  }
+  .welcome-image {
+    max-width: 100%;             /* occupa tutta la larghezza disponibile */
+  }
+  .welcome-cta-btn {
+    width: 100%;                 /* bottone a tutta larghezza */
+    padding: 0.75rem 1rem;
+    font-size: 1.1rem;
+  }
+  .scroll-down-indicator i {
+    font-size: 1.5rem;
+  }
 }
