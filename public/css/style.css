@@ -1851,3 +1851,157 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     font-size: 1.5rem;
   }
 }
+
+/* =========================
+   Sezione 3 – Come funziona il locale
+   ========================= */
+
+/* Container generale della sezione "Come funziona" */
+.how-it-works-section {
+  padding: 1rem 1rem;
+  overflow: hidden;
+}
+
+/* Contenitore interno con max-width e centratura */
+.how-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* Titolo della sezione, coerente con il tema di benvenuto */
+.how-title {
+  font-size: 2.75rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+/* Introduzione testuale sotto il titolo */
+.how-intro {
+  font-size: 1.25rem;
+  color: rgba(44, 62, 80, 0.85);
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Wrapper per i tre step */
+.how-steps-wrapper {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+/* Ogni singolo step */
+.how-step {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.how-step:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Icona di ogni step */
+.how-step-icon {
+  font-size: 2.5rem;
+  color: #6c5ce7;
+  margin-bottom: 1rem;
+}
+
+/* Heading di ogni step */
+.how-step-heading {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.75rem;
+}
+
+/* Descrizione di ogni step */
+.how-step-desc {
+  font-size: 1rem;
+  color: rgba(44, 62, 80, 0.75);
+  line-height: 1.5;
+}
+
+/* =========================
+   Animazione di comparsa della sezione "Come funziona"
+   ========================= */
+.how-it-works-section .how-container > * {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.how-it-works-section.show .how-container > * {
+  animation: appearUp 0.6s ease-out forwards;
+}
+.how-it-works-section.show .how-container > *:nth-child(1) {
+  animation-delay: 0.1s;  /* Titolo */
+}
+.how-it-works-section.show .how-container > *:nth-child(2) {
+  animation-delay: 0.2s;  /* Introduzione */
+}
+.how-it-works-section.show .how-container > *:nth-child(3) {
+  animation-delay: 0.3s;  /* Step 1 */
+}
+.how-it-works-section.show .how-container > *:nth-child(4) {
+  animation-delay: 0.4s;  /* Step 2 */
+}
+.how-it-works-section.show .how-container > *:nth-child(5) {
+  animation-delay: 0.5s;  /* Step 3 */
+}
+@keyframes appearUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   Responsive Design per Sezione 3
+   ========================= */
+@media (max-width: 992px) {
+  .how-steps-wrapper {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .how-intro {
+    font-size: 1.15rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .how-steps-wrapper {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .how-title {
+    font-size: 2.25rem;
+  }
+  .how-intro {
+    font-size: 1.1rem;
+  }
+  .how-step {
+    padding: 1.5rem;
+  }
+  .how-step-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .how-step-heading {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+  }
+  .how-step-desc {
+    font-size: 0.95rem;
+  }
+}

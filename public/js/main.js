@@ -49,7 +49,7 @@ function createWelcomeSection() {
   ];
   features.forEach(f => {
     const li = document.createElement('li');
-    li.innerHTML = `<i class="${f.icon}"></i><span>${f.text}</span>`;
+    li.innerHTML = `<i class=\"${f.icon}\"></i><span>${f.text}</span>`;
     featuresList.appendChild(li);
   });
   leftCol.appendChild(featuresList);
@@ -73,7 +73,7 @@ function createWelcomeSection() {
   const ctaBtn = document.createElement('button');
   ctaBtn.id = 'welcome-cta-btn';
   ctaBtn.classList.add('btn-primary', 'welcome-cta-btn');
-  ctaBtn.innerHTML = '<i class="fas fa-door-open"></i><span>Scopri il locale</span>';
+  ctaBtn.innerHTML = '<i class=\"fas fa-door-open\"></i><span>Scopri il locale</span>';
   ctaBtn.addEventListener('click', () => {
     const menuSection = document.getElementById('menu-section');
     if (menuSection) {
@@ -85,7 +85,7 @@ function createWelcomeSection() {
   // 6. Freccia “Scroll down” (centrata sotto il bottone)
   const scrollIndicator = document.createElement('div');
   scrollIndicator.classList.add('scroll-down-indicator');
-  scrollIndicator.innerHTML = '<i class="fas fa-chevron-down"></i>';
+  scrollIndicator.innerHTML = '<i class=\"fas fa-chevron-down\"></i>';
   scrollIndicator.addEventListener('click', () => {
     const howSection = document.getElementById('how-it-works-section');
     if (howSection) howSection.scrollIntoView({ behavior: 'smooth' });
@@ -95,6 +95,87 @@ function createWelcomeSection() {
   section.appendChild(container);
 
   // 7. Animazione di comparsa: aggiungo la classe .show dopo un piccolo delay
+  setTimeout(() => {
+    section.classList.add('show');
+  }, 100);
+
+  return section;
+}
+
+// Sezione 3: Funzione per creare la sezione "Come funziona il locale"
+function createHowItWorksSection() {
+  const section = document.createElement('section');
+  section.id = 'how-it-works-section';
+  section.classList.add('how-it-works-section');
+
+  // Container interno
+  const container = document.createElement('div');
+  container.classList.add('how-container');
+
+  // Titolo
+  const title = document.createElement('h2');
+  title.classList.add('how-title');
+  title.textContent = 'Come funziona il locale';
+  container.appendChild(title);
+
+  // Introduzione
+  const intro = document.createElement('p');
+  intro.classList.add('how-intro');
+  intro.textContent = 'Ecco come organizzare la tua serata al Dice & Drink in tre semplici passi:';
+  container.appendChild(intro);
+
+  // Lista di step
+  const stepsWrapper = document.createElement('div');
+  stepsWrapper.classList.add('how-steps-wrapper');
+
+  const steps = [
+    {
+      icon: 'fas fa-gamepad',
+      heading: 'Scegli il gioco',
+      description: 'Sfoglia il nostro catalogo e seleziona il gioco da tavolo che preferisci.'
+    },
+    {
+      icon: 'fas fa-calendar-check',
+      heading: 'Prenota il tavolo',
+      description: 'Scegli data e orario, specifica il numero di partecipanti e conferma la prenotazione.'
+    },
+    {
+      icon: 'fas fa-wine-glass-alt',
+      heading: 'Goditi la serata',
+      description: 'Ritira il gioco, ordina drink e snack, divertiti con i tuoi amici in unatmosfera unica.'
+    }
+  ];
+
+  steps.forEach(step => {
+    const stepDiv = document.createElement('div');
+    stepDiv.classList.add('how-step');
+
+    const icon = document.createElement('i');
+    icon.className = step.icon;
+    icon.classList.add('how-step-icon');
+    stepDiv.appendChild(icon);
+
+    const textDiv = document.createElement('div');
+    textDiv.classList.add('how-step-text');
+
+    const heading = document.createElement('h3');
+    heading.classList.add('how-step-heading');
+    heading.textContent = step.heading;
+    textDiv.appendChild(heading);
+
+    const desc = document.createElement('p');
+    desc.classList.add('how-step-desc');
+    desc.textContent = step.description;
+    textDiv.appendChild(desc);
+
+    stepDiv.appendChild(textDiv);
+    stepsWrapper.appendChild(stepDiv);
+  });
+
+  container.appendChild(stepsWrapper);
+  section.appendChild(container);
+
+  // Animazione di comparsa
   setTimeout(() => {
     section.classList.add('show');
   }, 100);
@@ -129,7 +210,11 @@ function showHomepage() {
   const welcomeSection = createWelcomeSection();
   homepage.appendChild(welcomeSection);
 
-  // (In futuro: 3. createHowItWorksSection(), 4. createMenuSection(), 5. createReviewsSection())
+  // 3. Aggiunge la sezione "Come funziona il locale"
+  const howSection = createHowItWorksSection();
+  homepage.appendChild(howSection);
+
+  // (In futuro: 4. createMenuSection(), 5. createReviewsSection())
 
   content.appendChild(homepage);
 }
@@ -144,52 +229,28 @@ function showPage(pageId) {
       showHomepage();
       break;
     case 'catalogo-giochi':
-      content.innerHTML = `<div class="page-content">
-        <h1>Catalogo Giochi</h1>
-        <p>Scopri la nostra vasta collezione di giochi da tavolo</p>
-      </div>`;
+      content.innerHTML = `<div class=\"page-content\">\n        <h1>Catalogo Giochi</h1>\n        <p>Scopri la nostra vasta collezione di giochi da tavolo</p>\n      </div>`;
       break;
     case 'menu-bevande':
-      content.innerHTML = `<div class="page-content">
-        <h1>Menù Bevande</h1>
-        <p>Cocktail, birre artigianali e bevande analcoliche</p>
-      </div>`;
+      content.innerHTML = `<div class=\"page-content\">\n        <h1>Menù Bevande</h1>\n        <p>Cocktail, birre artigianali e bevande analcoliche</p>\n      </div>`;
       break;
     case 'menu-snack-food':
-      content.innerHTML = `<div class="page-content">
-        <h1>Menù Snack & Food</h1>
-        <p>Snack, panini e piatti per accompagnare le tue partite</p>
-      </div>`;
+      content.innerHTML = `<div class=\"page-content\">\n        <h1>Menù Snack & Food</h1>\n        <p>Snack, panini e piatti per accompagnare le tue partite</p>\n      </div>`;
       break;
     case 'tornei':
-      content.innerHTML = `<div class="page-content">
-        <h1>Tornei</h1>
-        <p>Partecipa ai nostri tornei settimanali e mensili</p>
-      </div>`;
+      content.innerHTML = `<div class=\"page-content\">\n        <h1>Tornei</h1>\n        <p>Partecipa ai nostri tornei settimanali e mensili</p>\n      </div>`;
       break;
     case 'eventi-dal-vivo':
-      content.innerHTML = `<div class="page-content">
-        <h1>Eventi dal Vivo</h1>
-        <p>Serate speciali, presentazioni e eventi unici</p>
-      </div>`;
+      content.innerHTML = `<div class=\"page-content\">\n        <h1>Eventi dal Vivo</h1>\n        <p>Serate speciali, presentazioni e eventi unici</p>\n      </div>`;
       break;
     case 'proponi-torneo':
-      content.innerHTML = `<div class="page-content">
-        <h1>Proponi un Torneo</h1>
-        <p>Hai un'idea per un torneo? Proponicela!</p>
-      </div>`;
+      content.innerHTML = `<div class=\"page-content\">\n        <h1>Proponi un Torneo</h1>\n        <p>Hai un'idea per un torneo? Proponicela!</p>\n      </div>`;
       break;
     case 'prenotazioni':
-      content.innerHTML = `<div class="page-content">
-        <h1>Prenotazioni</h1>
-        <p>Prenota il tuo tavolo o partecipa ai nostri eventi</p>
-      </div>`;
+      content.innerHTML = `<div class=\"page-content\">\n        <h1>Prenotazioni</h1>\n        <p>Prenota il tuo tavolo o partecipa ai nostri eventi</p>\n      </div>`;
       break;
     case 'aboutus':
-      content.innerHTML = `<div class="page-content">
-        <h1>Chi Siamo</h1>
-        <p>La storia del Dice & Drink e del nostro team</p>
-      </div>`;
+      content.innerHTML = `<div class=\"page-content\">\n        <h1>Chi Siamo</h1>\n        <p>La storia del Dice & Drink e del nostro team</p>\n      </div>`;
       break;
     default:
       showHomepage();
