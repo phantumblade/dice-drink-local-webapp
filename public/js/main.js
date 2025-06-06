@@ -2,13 +2,47 @@ import { createNavbar } from './navbar.js';
 import { buildFooter } from './footer.js';
 import { createEventCarousel } from './eventCarousel.js';
 
+// Sezione 2: Funzione per creare la sezione di benvenuto + Call to Action
+function createWelcomeSection() {
+  const section = document.createElement('section');
+  section.id = 'welcome-section';
+  section.classList.add('welcome-section');
+
+  const container = document.createElement('div');
+  container.classList.add('welcome-container');
+
+  const title = document.createElement('h1');
+  title.textContent = 'Benvenuti al Dice & Drink';
+
+  const description = document.createElement('p');
+  description.textContent = 'Il tuo punto di riferimento a Novara per giochi da tavolo, eventi esclusivi, cibo e drink di qualità.';
+
+  const ctaBtn = document.createElement('button');
+  ctaBtn.id = 'welcome-cta-btn';
+  ctaBtn.classList.add('btn-primary');
+  ctaBtn.innerHTML = '<i class="fas fa-door-open"></i> Scopri il locale';
+  // Al click, scrolla alla sezione del menù (da implementare quando la sezione avrà id="menu-section")
+  ctaBtn.addEventListener('click', () => {
+    const menuSection = document.getElementById('menu-section');
+    if (menuSection) {
+      menuSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
+  container.appendChild(title);
+  container.appendChild(description);
+  container.appendChild(ctaBtn);
+
+  section.appendChild(container);
+  return section;
+}
+
+// Inizio del rendering della pagina
 document.body.prepend(createNavbar());
 
 const content = document.createElement('div');
 content.id = 'content';
 document.body.appendChild(content);
-
-document.body.appendChild(buildFooter());
 
 // Funzione per mostrare la homepage
 function showHomepage() {
@@ -19,40 +53,16 @@ function showHomepage() {
   const homepage = document.createElement('div');
   homepage.classList.add('homepage');
 
-  // Aggiunge il carosello degli eventi
+  // 1. Aggiunge il carosello degli eventi
   const eventCarousel = createEventCarousel();
   homepage.appendChild(eventCarousel);
 
-  // Qui puoi aggiungere altre sezioni della homepage
-  // Ad esempio: sezione giochi popolari, recensioni, info locale, etc.
-
-  const welcomeSection = document.createElement('section');
-  welcomeSection.classList.add('welcome-section');
-  welcomeSection.innerHTML = `
-    <div class="welcome-container">
-      <h2>Benvenuti al Dice & Drink</h2>
-      <p>Il tuo locale di riferimento per giochi da tavolo, eventi esclusivi e drink di qualità nel cuore di Novara.</p>
-      <div class="welcome-features">
-        <div class="feature">
-          <i class="fas fa-dice"></i>
-          <h3>500+ Giochi</h3>
-          <p>La più grande collezione di giochi da tavolo della zona</p>
-        </div>
-        <div class="feature">
-          <i class="fas fa-calendar-check"></i>
-          <h3>Eventi Settimanali</h3>
-          <p>Tornei, serate a tema e competizioni per tutti i livelli</p>
-        </div>
-        <div class="feature">
-          <i class="fas fa-cocktail"></i>
-          <h3>Drink & Snack</h3>
-          <p>Bevande artigianali e snack per accompagnare le tue partite</p>
-        </div>
-      </div>
-    </div>
-  `;
-
+  // 2. Aggiunge la sezione di benvenuto e Call to Action
+  const welcomeSection = createWelcomeSection();
   homepage.appendChild(welcomeSection);
+
+  // (In futuro: 3. createHowItWorksSection(), 4. createMenuSection(), 5. createReviewsSection())
+
   content.appendChild(homepage);
 }
 
@@ -122,25 +132,26 @@ function showPage(pageId) {
 window.showPage = showPage;
 
 // Mostra la homepage all'avvio
-document.addEventListener("DOMContentLoaded", () => {
-  const saved = localStorage.getItem("theme") || "light";
-  document.documentElement.setAttribute("data-theme", saved);
+const toggleTheme = () => {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'light' ? 'dark' : 'light';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
 
   // Mostra la homepage
   showHomepage();
-});
 
-const toggleTheme = () => {
-  const html = document.documentElement;
-  const current = html.getAttribute("data-theme");
-  const next = current === "light" ? "dark" : "light";
-  html.setAttribute("data-theme", next);
-  localStorage.setItem("theme", next);
-};
-
-document.addEventListener("DOMContentLoaded", () => {
-  const themeButton = document.getElementById("theme-switch-button");
+  const themeButton = document.getElementById('theme-switch-button');
   if (themeButton) {
-    themeButton.addEventListener("click", toggleTheme);
+    themeButton.addEventListener('click', toggleTheme);
   }
 });
+
+// Aggiunge il footer di base (verrà renderizzato sotto il 'content')
+document.body.appendChild(buildFooter());

@@ -200,28 +200,43 @@ function initCarouselLogic(carousel, slideCount) {
   let isTransitioning = false;
   let autoSlideInterval;
 
+  // Pausa auto-slide SOLO quando il mouse è sopra la card attiva
+  function addHoverListenersToActiveSlide() {
+    // Rimuovi eventuali listener precedenti
+    slides.forEach(slide => {
+      slide.removeEventListener('mouseenter', stopAutoSlide);
+      slide.removeEventListener('mouseleave', startAutoSlide);
+    });
+    // Aggiungi solo alla slide attiva
+    const activeSlide = carousel.querySelector('.carousel-slide.active');
+    if (activeSlide) {
+      activeSlide.addEventListener('mouseenter', stopAutoSlide);
+      activeSlide.addEventListener('mouseleave', startAutoSlide);
+    }
+  }
+
+  // Aggiorna anche i listener ogni volta che cambia la slide
   function updateCarousel() {
     if (isTransitioning) return;
-
     isTransitioning = true;
 
-    // Aggiorna le slide
     slides.forEach((slide, index) => {
       slide.classList.toggle('active', index === currentSlide);
     });
 
-    // Aggiorna gli indicatori
     indicators.forEach((indicator, index) => {
       indicator.classList.toggle('active', index === currentSlide);
     });
 
-    // Aggiorna la posizione del wrapper
     const translateX = -currentSlide * 100;
     slidesWrapper.style.transform = `translateX(${translateX}%)`;
 
     setTimeout(() => {
       isTransitioning = false;
     }, 500);
+
+    // Aggiorna i listener hover sulla slide attiva
+    addHoverListenersToActiveSlide();
   }
 
   function nextSlide() {

@@ -41,7 +41,7 @@ body {
   padding-top: 80px; /* reserve space for fixed navbar */
   color: var(--color-text);
   margin: 0;
-  font-family: "", Arial, sans-serif;
+  font-family: "Marlin Soft Basic", Arial, sans-serif;
   line-height: 1.5;
 }
 
@@ -1544,4 +1544,60 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   .carousel-btn.carousel-next {
     right: 0;
   }
+}
+
+
+/* ==========================
+   Sezione 2 – Welcome + CTA
+   ========================== */
+
+.welcome-section {
+  background-color: #f8f9fa;      /* sfondo leggermente grigio per separare dal carosello */
+  padding: 4rem 1rem;             /* spazio su/giù e padding laterale */
+}
+
+.welcome-container {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.welcome-container h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #2c3e50;                /* colore scuro per il titolo */
+}
+
+.welcome-container p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  color: rgba(44, 62, 80, 0.8);  /* grigio scuro opaco per il testo */
+  line-height: 1.5;
+}
+
+#welcome-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+  transition: background 0.3s ease, transform 0.2s ease;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-alt));
+}
+
+#welcome-cta-btn:hover {
+  background: linear-gradient(135deg, var(--color-primary-alt));
+  transform: translateY(-2px);
+  box-shadow: 0 2px 20px var(--color-primary);
+
+}
+
+#welcome-cta-btn:active {
+  transform: translateY(0);
 }
