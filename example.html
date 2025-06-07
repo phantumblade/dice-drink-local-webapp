@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Espandibili Orizzontali</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card.active {
+            height: 400px;
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+
+        .card-main {
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            height: 180px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            position: relative;
+            justify-content: center;
+        }
+
+        .card:nth-child(2) .card-main {
+            background: linear-gradient(45deg, #4834d4, #686de0);
+        }
+
+        .card:nth-child(3) .card-main {
+            background: linear-gradient(45deg, #00d2d3, #54a0ff);
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .card.active .card-icon {
+            transform: scale(1.1);
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .card-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0;
+            line-height: 1.3;
+        }
+
+        .expand-indicator {
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            font-size: 1rem;
+            opacity: 0.7;
+            transition: transform 0.3s ease;
+        }
+
+        .card.active .expand-indicator {
+            transform: rotate(180deg);
+        }
+
+        .card-expanded {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        }
+
+        .card:nth-child(2) .card-expanded {
+            background: linear-gradient(45deg, #4834d4, #686de0);
+        }
+
+        .card:nth-child(3) .card-expanded {
+            background: linear-gradient(45deg, #00d2d3, #54a0ff);
+        }
+
+        .card.active .card-expanded {
+            max-height: 220px;
+        }
+
+        .card-content {
+            padding: 25px 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease 0.2s;
+            color: white;
+        }
+
+        .card.active .card-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card-description {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.5;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .card-features {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .card-features li {
+            padding: 5px 0;
+            color: rgba(255, 255, 255, 0.85);
+            position: relative;
+            padding-left: 15px;
+            font-size: 0.85rem;
+        }
+
+        .card-features li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .card:nth-child(1) .card-features li:before {
+            color: #ff6b6b;
+        }
+
+        .card:nth-child(2) .card-features li:before {
+            color: #4834d4;
+        }
+
+        .card:nth-child(3) .card-features li:before {
+            color: #00d2d3;
+        }
+
+        .card-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            align-self: flex-start;
+        }
+
+        .card-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive - mantiene sempre layout orizzontale */
+        @media (max-width: 968px) {
+            .container {
+                gap: 15px;
+            }
+
+            .card {
+                min-width: 180px;
+                height: 160px;
+            }
+
+            .card.active {
+                height: 350px;
+            }
+
+            .card-main {
+                padding: 15px 12px;
+                height: 160px;
+            }
+
+            .card-title {
+                font-size: 1.2rem;
+            }
+
+            .card-subtitle {
+                font-size: 0.8rem;
+            }
+
+            .card-icon {
+                font-size: 1.8rem;
+                margin-bottom: 8px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                gap: 10px;
+            }
+
+            .card {
+                min-width: 150px;
+                height: 140px;
+            }
+
+            .card.active {
+                height: 320px;
+            }
+
+            .card-main {
+                padding: 12px 10px;
+                height: 140px;
+            }
+
+            .card-title {
+                font-size: 1.1rem;
+                margin-bottom: 6px;
+            }
+
+            .card-subtitle {
+                font-size: 0.75rem;
+            }
+
+            .card-icon {
+                font-size: 1.6rem;
+                margin-bottom: 6px;
+            }
+
+            .card-content {
+                padding: 20px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                gap: 8px;
+                padding: 0 10px;
+            }
+
+            .card {
+                min-width: 120px;
+                height: 120px;
+            }
+
+            .card.active {
+                height: 280px;
+            }
+
+            .card-main {
+                padding: 10px 8px;
+                height: 120px;
+            }
+
+            .card-title {
+                font-size: 1rem;
+                margin-bottom: 4px;
+            }
+
+            .card-subtitle {
+                font-size: 0.7rem;
+            }
+
+            .card-icon {
+                font-size: 1.4rem;
+                margin-bottom: 4px;
+            }
+
+            .card-content {
+                padding: 15px 10px;
+            }
+
+            .card-description {
+                font-size: 0.8rem;
+                margin-bottom: 12px;
+            }
+
+            .card-features li {
+                font-size: 0.75rem;
+                padding: 3px 0;
+            }
+
+            .card-button {
+                font-size: 0.75rem;
+                padding: 8px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Card 1: Web Design -->
+        <div class="card" data-card="1">
+            <div class="card-main">
+                <div class="card-icon">🎨</div>
+                <h3 class="card-title">Web Design</h3>
+                <p class="card-subtitle">Creiamo siti web moderni e accattivanti per il tuo business</p>
+                <div class="expand-indicator">▼</div>
+            </div>
+            <div class="card-expanded">
+                <div class="card-content">
+                    <p class="card-description">
+                        Il nostro team di designer esperti trasforma le tue idee in esperienze digitali
+                        straordinarie. Ogni progetto è unico e pensato per distinguerti dalla concorrenza.
+                    </p>
+                    <ul class="card-features">
+                        <li>Design responsive per tutti i dispositivi</li>
+                        <li>Interfacce utente intuitive e moderne</li>
+                        <li>Ottimizzazione SEO inclusa</li>
+                        <li>Tempi di caricamento super veloci</li>
+                        <li>Supporto tecnico continuo</li>
+                    </ul>
+                    <button class="card-button">Richiedi preventivo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2: App Mobile -->
+        <div class="card" data-card="2">
+            <div class="card-main">
+                <div class="card-icon">📱</div>
+                <h3 class="card-title">App Mobile</h3>
+                <p class="card-subtitle">Sviluppiamo app native per iOS e Android su misura per te</p>
+                <div class="expand-indicator">▼</div>
+            </div>
+            <div class="card-expanded">
+                <div class="card-content">
+                    <p class="card-description">
+                        Realizziamo applicazioni mobile innovative che offrono un'esperienza utente
+                        eccezionale. Dalle app aziendali ai giochi, copriamo ogni esigenza.
+                    </p>
+                    <ul class="card-features">
+                        <li>Sviluppo nativo iOS e Android</li>
+                        <li>App ibride con React Native</li>
+                        <li>Integrazione API e database</li>
+                        <li>Design UX/UI professionale</li>
+                        <li>Deploy negli store ufficiali</li>
+                    </ul>
+                    <button class="card-button">Inizia progetto</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3: Digital Marketing -->
+        <div class="card" data-card="3">
+            <div class="card-main">
+                <div class="card-icon">📈</div>
+                <h3 class="card-title">Marketing</h3>
+                <p class="card-subtitle">Strategie digitali vincenti per far crescere il tuo brand online</p>
+                <div class="expand-indicator">▼</div>
+            </div>
+            <div class="card-expanded">
+                <div class="card-content">
+                    <p class="card-description">
+                        Aumentiamo la visibilità del tuo brand con strategie di marketing digitale
+                        personalizzate. Risultati misurabili e ROI garantito.
+                    </p>
+                    <ul class="card-features">
+                        <li>Social Media Management</li>
+                        <li>Campagne Google Ads mirate</li>
+                        <li>SEO e Content Marketing</li>
+                        <li>Email Marketing automation</li>
+                        <li>Analytics e reportistica</li>
+                    </ul>
+                    <button class="card-button">Scopri strategie</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.card');
+
+            cards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // Previeni il comportamento se viene cliccato un bottone
+                    if (e.target.tagName === 'BUTTON') {
+                        e.stopPropagation();
+                        return;
+                    }
+
+                    const isActive = this.classList.contains('active');
+
+                    // Chiudi tutte le card
+                    cards.forEach(c => {
+                        c.classList.remove('active');
+                    });
+
+                    // Se la card non era attiva, aprila
+                    if (!isActive) {
+                        this.classList.add('active');
+                    }
+                });
+            });
+
+            // Gestione click sui bottoni
+            const buttons = document.querySelectorAll('.card-button');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+
+                    const cardTitle = this.closest('.card').querySelector('.card-title').textContent;
+                    alert(`Azione per: ${cardTitle}`);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

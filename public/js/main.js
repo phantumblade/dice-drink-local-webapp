@@ -104,6 +104,7 @@ function createHowItWorksSection() {
   const container = document.createElement('div');
   container.classList.add('how-container');
 
+  // Titolo e introduzione
   const title = document.createElement('h2');
   title.classList.add('how-title');
   title.textContent = 'Come funziona il locale';
@@ -114,45 +115,66 @@ function createHowItWorksSection() {
   intro.textContent = 'Ecco come organizzare la tua serata al Dice & Drink in tre semplici passi:';
   container.appendChild(intro);
 
+  // Wrapper per i passi
   const stepsWrapper = document.createElement('div');
   stepsWrapper.classList.add('how-steps-wrapper');
 
   const steps = [
-    { icon: 'fas fa-dragon', heading: 'Scegli il gioco', description: 'Sfoglia il nostro catalogo e seleziona il gioco da tavolo che preferisci.' },
-    { icon: 'fas fa-calendar-check', heading: 'Prenota il tavolo', description: 'Scegli data e orario, specifica il numero di partecipanti e conferma la prenotazione.' },
-    { icon: 'fas fa-wine-glass-alt', heading: 'Goditi la serata', description: 'Ritira il gioco, ordina drink e snack, divertiti con i tuoi amici in un’atmosfera unica.' }
+    { icon: 'fas fa-dragon', heading: 'Scegli il gioco', description: 'Sfoglia il catalogo e seleziona il tuo gioco da tavolo preferito.' },
+    { icon: 'fas fa-calendar-check', heading: 'Prenota il tavolo', description: 'Scegli data e orario e conferma la tua prenotazione.' },
+    { icon: 'fas fa-wine-glass-alt', heading: 'Goditi la serata', description: 'Ritira il gioco e inizia a giocare!' }
   ];
 
   steps.forEach((step, index) => {
+    // Creiamo il container dello step
     const stepDiv = document.createElement('div');
     stepDiv.classList.add('how-step');
     stepDiv.setAttribute('data-step', index + 1);
 
+    // Icona, titolo e descrizione breve
     const icon = document.createElement('i');
     icon.className = step.icon;
     icon.classList.add('how-step-icon');
     stepDiv.appendChild(icon);
 
-    const textDiv = document.createElement('div');
-    textDiv.classList.add('how-step-text');
-
     const heading = document.createElement('h3');
     heading.classList.add('how-step-heading');
     heading.textContent = step.heading;
-    textDiv.appendChild(heading);
+    stepDiv.appendChild(heading);
 
     const desc = document.createElement('p');
     desc.classList.add('how-step-desc');
     desc.textContent = step.description;
-    textDiv.appendChild(desc);
+    stepDiv.appendChild(desc);
 
-    stepDiv.appendChild(textDiv);
+    // Dettagli aggiuntivi nascosti (accordion)
+    const details = document.createElement('div');
+    details.classList.add('how-step-details');
+    details.innerHTML = `
+      <ul>
+        <li>Dettaglio specifico per \"${step.heading}\"</li>
+        <li>Ulteriore informazione legata a questa fase</li>
+      </ul>
+    `;
+    stepDiv.appendChild(details);
+
+    // Listener per toggle di espansione
+    stepDiv.addEventListener('click', () => {
+      // Chiudi tutte le altre card
+      document.querySelectorAll('.how-step.expanded').forEach(el => {
+        if (el !== stepDiv) el.classList.remove('expanded');
+      });
+      // Espandi solo quella cliccata
+      stepDiv.classList.toggle('expanded');
+    });
+
     stepsWrapper.appendChild(stepDiv);
   });
 
   container.appendChild(stepsWrapper);
   section.appendChild(container);
 
+  // Attiviamo l'animazione di comparsa
   setTimeout(() => section.classList.add('show'), 100);
   return section;
 }

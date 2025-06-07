@@ -1724,11 +1724,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   object-fit: cover;
 }
 
-.welcome-image:hover {
-  transform: scale(1.05) translateY(-5px); /* zoom e leggero sollevamento */
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
-  filter: brightness(1) contrast(1);       /* torna al default per far risaltare i colori */
-}
 
 /* =========================
    Bottone “Scopri il locale”
@@ -1884,90 +1879,39 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 /* =========================
-   Sezione 3 – Come funziona il locale
+   Sezione 3 – Come funziona il locale - VERSIONE CORRETTA
    ========================= */
 
-/* Container generale della sezione "Come funziona" */
+/* Container generale */
 .how-it-works-section {
-  padding: 1rem 1rem;
+  padding: 2rem 1rem;
   overflow: hidden;
 }
 
-/* Contenitore interno con max-width e centratura */
+/* Contenitore interno */
 .how-container {
   max-width: 1200px;
   margin: 0 auto;
   text-align: center;
 }
 
-/* Sezione 3 – Badge numerati sugli step */
-
-/* Assicura che le card degli step possano contenere elementi posizionati oltre il bordo */
-.how-step {
-  position: relative;
-  overflow: visible;
-}
-
-/* Crea il cerchietto numerato (badge) a cavallo del bordo superiore della card */
-.how-step::before {
-  content: attr(data-step);
-  position: absolute;
-  top: -14px;                /* metà dell'altezza del badge fuori dalla card */
-  left: 50%;
-  transform: translateX(-50%);
-  width: 28px;
-  height: 28px;
-  background: #e0e0e0;       /* grigio chiaro per il cerchio */
-  border: 3px solid #fff;    /* bordo bianco per raccordarsi alla card */
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #2c3e50;            /* colore testo badge in linea col tema */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  z-index: 2;
-}
-
-.how-step:hover::before {
-  background: #6c5ce7;       /* colore badge al passaggio del mouse */
-  color: white;              /* testo bianco per contrasto */
-  border-color: #6c5ce7;     /* bordo dello stesso colore del badge */
-}
-
-/* In responsive, se la card diventa a tutto schermo, mantieni badge ben visibile */
-@media (max-width: 768px) {
-  .how-step::before {
-    top: -12px;
-    width: 24px;
-    height: 24px;
-    font-size: 0.75rem;
-    border-width: 2px;
-  }
-}
-
-
-/* Titolo della sezione, coerente con il tema di benvenuto */
+/* Titolo e intro */
 .how-title {
   font-size: 2.75rem;
   font-weight: 700;
   color: #2c3e50;
   margin-bottom: 1rem;
 }
-
-/* Introduzione testuale sotto il titolo */
 .how-intro {
   font-size: 1.25rem;
   color: rgba(44, 62, 80, 0.85);
   line-height: 1.6;
   margin-bottom: 2.5rem;
   max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto 2.5rem;
 }
 
-/* Wrapper per i tre step */
+/* Grid dei passi */
 .how-steps-wrapper {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1975,9 +1919,10 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   margin-bottom: 3rem;
 }
 
-/* Ogni singolo step */
+/* Card di uno step */
 .how-step {
-  background-color: #f8f9fa;
+  position: relative;
+  background: #f8f9fa;
   border-radius: 12px;
   padding: 2rem;
   display: flex;
@@ -1985,37 +1930,134 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   align-items: center;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
 }
+
 .how-step:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
-/* Icona di ogni step */
+/* Badge numerato */
+.how-step::before {
+  content: attr(data-step);
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 32px;
+  background: #e0e0e0;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+
+.how-step:hover::before {
+  background: #6c5ce7;
+  color: #fff;
+  border-color: #6c5ce7;
+}
+
+.how-step.expanded::before {
+  background: #6c5ce7;
+  color: #fff;
+  border-color: #6c5ce7;
+}
+
+/* Icona, titolo, descrizione */
 .how-step-icon {
   font-size: 2.5rem;
   color: #6c5ce7;
   margin-bottom: 1rem;
 }
-
-/* Heading di ogni step */
 .how-step-heading {
   font-size: 1.5rem;
   font-weight: 600;
   color: #2c3e50;
   margin-bottom: 0.75rem;
 }
-
-/* Descrizione di ogni step */
 .how-step-desc {
   font-size: 1rem;
   color: rgba(44, 62, 80, 0.75);
   line-height: 1.5;
+  margin-bottom: 1rem;
 }
 
-/* =========================
-   Animazione di comparsa della sezione "Come funziona"
-   ========================= */
+/* Freccina "down" */
+.how-step::after {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 24px;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%236c5ce7" d="M7 10l5 5 5-5z"/></svg>');
+  background-size: contain;
+  background-repeat: no-repeat;
+  margin-top: auto;
+  opacity: 0.5;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.how-step.expanded::after {
+  transform: rotate(180deg);
+  opacity: 1;
+}
+
+.how-step.expanded {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* DETTAGLI ESPANDIBILI - LOGICA CORRETTA */
+.how-step-details {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.4s cubic-bezier(.77,0,.18,1), opacity 0.3s;
+}
+
+.how-step.expanded .how-step-details {
+  max-height: 200px; /* o quanto serve */
+  opacity: 1;
+  transition: max-height 0.4s cubic-bezier(.77,0,.18,1), opacity 0.3s;
+}
+
+/* Elenco puntato con icone */
+.how-step-details ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.how-step-details li {
+  position: relative;
+  margin-bottom: 0.75rem;
+  padding-left: 1.8em;
+  color: rgba(44, 62, 80, 0.75);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+.how-step-details li::before {
+  content: '\f00c'; /* check */
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  position: absolute;
+  left: 0;
+  top: 0.1em;
+  font-size: 1rem;
+  color: #888;
+}
+.how-step-details li:hover::before {
+  color: #6c5ce7;
+}
+
+/* Comparsa sezione */
 .how-it-works-section .how-container > * {
   opacity: 0;
   transform: translateY(20px);
@@ -2023,64 +2065,24 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 .how-it-works-section.show .how-container > * {
   animation: appearUp 0.6s ease-out forwards;
 }
-.how-it-works-section.show .how-container > *:nth-child(1) {
-  animation-delay: 0.1s;  /* Titolo */
-}
-.how-it-works-section.show .how-container > *:nth-child(2) {
-  animation-delay: 0.2s;  /* Introduzione */
-}
-.how-it-works-section.show .how-container > *:nth-child(3) {
-  animation-delay: 0.3s;  /* Step 1 */
-}
-.how-it-works-section.show .how-container > *:nth-child(4) {
-  animation-delay: 0.4s;  /* Step 2 */
-}
-.how-it-works-section.show .how-container > *:nth-child(5) {
-  animation-delay: 0.5s;  /* Step 3 */
-}
 @keyframes appearUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* =========================
-   Responsive Design per Sezione 3
-   ========================= */
+/* Responsive */
 @media (max-width: 992px) {
-  .how-steps-wrapper {
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-  }
-  .how-intro {
-    font-size: 1.15rem;
-  }
+  .how-steps-wrapper { grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .how-intro { font-size: 1.15rem; }
 }
-
 @media (max-width: 768px) {
-  .how-steps-wrapper {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  .how-title {
-    font-size: 2.25rem;
-  }
-  .how-intro {
-    font-size: 1.1rem;
-  }
-  .how-step {
-    padding: 1.5rem;
-  }
-  .how-step-icon {
-    font-size: 2rem;
-    margin-bottom: 0.75rem;
-  }
-  .how-step-heading {
-    font-size: 1.3rem;
-    margin-bottom: 0.5rem;
-  }
-  .how-step-desc {
-    font-size: 0.95rem;
+  .how-steps-wrapper { grid-template-columns: 1fr; gap: 1rem; }
+  .how-title { font-size: 2.25rem; }
+  .how-intro { font-size: 1.1rem; }
+  .how-step { padding: 1.5rem; }
+  .how-step-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+  .how-step-heading { font-size: 1.3rem; margin-bottom: 0.5rem; }
+  .how-step-desc { font-size: 0.95rem; }
+  .how-step::before {
+    top: -12px; width: 24px; height: 24px; line-height: 24px; font-size: 0.75rem; border-width: 2px;
   }
 }
