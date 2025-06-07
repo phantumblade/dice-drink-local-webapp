@@ -1246,28 +1246,60 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 .carousel-btn {
-  width: 50px;
-  height: 50px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  color: #2c3e50;
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  width: 54px;
+  height: 54px;
+  border: 2.5px solid var(--color-text);
+  border-radius: 16px;
+  background: var(--color-background);
+  color: var(--color-primary);
+  font-size: 2rem;
+  font-weight: 900;
+  box-shadow: 4px 4px 0 2px var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    box-shadow 0.1s,
+    transform 0.08s;
+  outline: none;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
   pointer-events: all;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
+  cursor: pointer;
 }
 
-.carousel-btn:hover {
-  background: white;
-  transform: scale(1.1);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+.carousel-btn:hover, .carousel-btn:focus {
+  background: var(--color-secondary);
+  color: var(--color-background);
+  border-color: var(--color-text);
+  outline: none;
 }
 
 .carousel-btn:active {
-  transform: scale(0.95);
+  box-shadow:
+    -2px -2px 0 2px var(--color-text),           /* ombra esterna in alto a sinistra */
+    inset 2px 2px 6px rgba(0, 0, 0, 0.5);        /* ombra interna per effetto pressione */
+  transform: translateY(-50%) translate(2px, 2px); /* sposta leggermente in basso a destra */
+  color: var(--color-background);
+}
+
+.carousel-btn svg, .carousel-btn i {
+  font-size: 2rem;
+  pointer-events: none;
+}
+
+/* Responsive: più piccoli su mobile */
+@media (max-width: 900px) {
+  .carousel-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.3rem;
+    border-radius: 10px;
+  }
 }
 
 /* Indicatori */
@@ -1552,8 +1584,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 
 /* Container generale della sezione */
 .welcome-section {
-  background-color: #f8f9fa;   /* sfondo grigio chiaro */
-  padding: 4rem 1rem;
+  padding: 2rem 2rem;
   overflow: hidden;            /* in caso di animazioni/zoom immagini */
 }
 
@@ -1868,6 +1899,54 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   margin: 0 auto;
   text-align: center;
 }
+
+/* Sezione 3 – Badge numerati sugli step */
+
+/* Assicura che le card degli step possano contenere elementi posizionati oltre il bordo */
+.how-step {
+  position: relative;
+  overflow: visible;
+}
+
+/* Crea il cerchietto numerato (badge) a cavallo del bordo superiore della card */
+.how-step::before {
+  content: attr(data-step);
+  position: absolute;
+  top: -14px;                /* metà dell'altezza del badge fuori dalla card */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 28px;
+  background: #e0e0e0;       /* grigio chiaro per il cerchio */
+  border: 3px solid #fff;    /* bordo bianco per raccordarsi alla card */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2c3e50;            /* colore testo badge in linea col tema */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+
+.how-step:hover::before {
+  background: #6c5ce7;       /* colore badge al passaggio del mouse */
+  color: white;              /* testo bianco per contrasto */
+  border-color: #6c5ce7;     /* bordo dello stesso colore del badge */
+}
+
+/* In responsive, se la card diventa a tutto schermo, mantieni badge ben visibile */
+@media (max-width: 768px) {
+  .how-step::before {
+    top: -12px;
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+    border-width: 2px;
+  }
+}
+
 
 /* Titolo della sezione, coerente con il tema di benvenuto */
 .how-title {
