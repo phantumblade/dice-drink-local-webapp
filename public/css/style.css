@@ -1780,7 +1780,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
    Indicatore di scroll (freccia)
    ========================= */
 .scroll-down-indicator {
-  margin-top: 2rem;
+  margin-top: 6rem;
   display: flex;
   justify-content: center;
   cursor: pointer;
@@ -1878,211 +1878,325 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   }
 }
 
-/* =========================
-   Sezione 3 – Come funziona il locale - VERSIONE CORRETTA
-   ========================= */
+/* =======================================
+   Sezione 3 – Come funziona il locale
+   =======================================*/
 
-/* Container generale */
-.how-it-works-section {
-  padding: 2rem 1rem;
-  overflow: hidden;
-}
+/* =======================================
+   EXPANDABLE CARDS - STILI PRINCIPALI
+   ======================================= */
 
-/* Contenitore interno */
-.how-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-/* Titolo e intro */
-.how-title {
-  font-size: 2.75rem;
-  font-weight: 700;
-  color: #2c3e50;
-  margin-bottom: 1rem;
-}
-.how-intro {
-  font-size: 1.25rem;
-  color: rgba(44, 62, 80, 0.85);
-  line-height: 1.6;
-  margin-bottom: 2.5rem;
-  max-width: 800px;
-  margin: 0 auto 2.5rem;
+.expandable-cards-section {
+    /* Invece di display:flex in riga, lo trasformiamo in colonna */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 80px 20px;
+    background: #f8f9fa;
+    overflow: visible;
 }
 
-/* Grid dei passi */
-.how-steps-wrapper {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  margin-bottom: 3rem;
+/* Intestazione sopra le card */
+.expandable-section-title {
+    font-size: 2.75rem;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 0.5rem;
 }
 
-/* Card di uno step */
-.how-step {
-  position: relative;
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
+.expandable-section-intro {
+    font-size: 1.25rem;
+    color: rgba(44, 62, 80, 0.85);
+    text-align: center;
+    max-width: 800px;
+    margin: 1rem auto 4rem;
 }
 
-.how-step:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+/* Sottolineatura ondulata solo sullo span */
+.expandable-section-intro .highlight-passi {
+  text-decoration-line: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: #6c5ce7;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 4px;
+    /* forza la linea a non saltare sopra ai discendenti */
+  text-decoration-skip-ink: none;
+  /* assicura che l’onda sia sempre visibile sotto il paragrafo */
+  display: inline-block;
+  overflow: visible;
+  -webkit-text-decoration-style: wavy; /* prefisso Safari */
 }
 
-/* Badge numerato */
-.how-step::before {
-  content: attr(data-step);
-  position: absolute;
-  top: -16px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 32px;
-  height: 32px;
-  background: #e0e0e0;
-  border: 3px solid #fff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #2c3e50;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  z-index: 2;
+
+.cards-container {
+    max-width: 1200px;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    align-items: flex-start;
+    justify-content: center;
+    overflow: visible; /* permette al badge di fuoriscire */
+    /* rimuovere padding-top/margin-top per le card */
+    padding-top: 0;
 }
 
-.how-step:hover::before {
-  background: #6c5ce7;
-  color: #fff;
-  border-color: #6c5ce7;
+/* =======================================
+   CARD BASE
+   ======================================= */
+
+.card {
+    background: white;
+    border-radius: 12px;
+        border: 1px solid #e9ecef; /* bordo per evitare overflow */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
+    overflow: visible; /* badge visibile */
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+    position: relative;
+    flex: 1;
+    max-width: 450px;
+    min-height: 280px;
+    /* nessun margin-top */
+    margin-top: 0;
+
+      /* disattiva il highlight predefinito al tap sui WebKit (iOS, Android) */
+  -webkit-tap-highlight-color: transparent;
+  /* rimuove l’outline di focus */
+  outline: none;
+
 }
 
-.how-step.expanded::before {
-  background: #6c5ce7;
-  color: #fff;
-  border-color: #6c5ce7;
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 35px rgba(0, 0, 0, 0.10);
 }
 
-/* Icona, titolo, descrizione */
-.how-step-icon {
-  font-size: 2.5rem;
-  color: #6c5ce7;
-  margin-bottom: 1rem;
-}
-.how-step-heading {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 0.75rem;
-}
-.how-step-desc {
-  font-size: 1rem;
-  color: rgba(44, 62, 80, 0.75);
-  line-height: 1.5;
-  margin-bottom: 1rem;
+.card.active {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 35px rgba(0, 0, 0, 0.10);
 }
 
-/* Freccina "down" */
-.how-step::after {
-  content: '';
-  display: block;
-  width: 24px;
-  height: 24px;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%236c5ce7" d="M7 10l5 5 5-5z"/></svg>');
-  background-size: contain;
-  background-repeat: no-repeat;
-  margin-top: auto;
-  opacity: 0.5;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+/* =======================================
+   SEZIONE PRINCIPALE CARD
+   ======================================= */
+
+.card-main {
+    padding: 30px 30px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    background: white;
+    min-height: 280px;
+    justify-content: center;
+    border-radius: 12px;
+    overflow: hidden;
+    /* nessun margin-top */
+    margin-top: 0;
 }
 
-.how-step.expanded::after {
-  transform: rotate(180deg);
-  opacity: 1;
+/* =======================================
+   NUMERO CARD (BADGE)
+   ======================================= */
+
+.card-number {
+    position: absolute;
+    top: 0;                              /* allinea al bordo superiore card */
+    left: 50%;
+    transform: translate(-50%, -50%);    /* metà dentro, metà fuori */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #bdbdbd;
+    color: #2c3e50;
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    transition: transform 0.3s ease, background 0.3s;
 }
 
-.how-step.expanded {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+.card:hover .card-number {
+    transform: translate(-50%, -50%);
+    background: #5a4fcf;
+    border-color: #5a4fcf;
+    color: var(--color-background);
 }
 
-/* DETTAGLI ESPANDIBILI - LOGICA CORRETTA */
-.how-step-details {
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  transition: max-height 0.4s cubic-bezier(.77,0,.18,1), opacity 0.3s;
+/* =======================================
+   ICONA CARD
+   ======================================= */
+
+.card-icon {
+    margin: 30px 0 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    transition: transform 0.3s ease;
+    background: transparent;
+}
+.card-icon i {
+    font-size: 50px;
+    color: #6c5ce7;
 }
 
-.how-step.expanded .how-step-details {
-  max-height: 200px; /* o quanto serve */
-  opacity: 1;
-  transition: max-height 0.4s cubic-bezier(.77,0,.18,1), opacity 0.3s;
+/* =======================================
+   TESTO CARD
+   ======================================= */
+
+.card-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #2d3748;
+}
+.card-subtitle {
+    font-size: 15px;
+    color: #718096;
+    margin-bottom: 25px;
 }
 
-/* Elenco puntato con icone */
-.how-step-details ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+/* =======================================
+   FRECCIA DI ESPANSIONE
+   ======================================= */
+
+.expand-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c5ce7;
+    font-size: 20px;
+    transition: transform 0.3s ease, color 0.3s;
+    margin-bottom: 10px;
 }
-.how-step-details li {
-  position: relative;
-  margin-bottom: 0.75rem;
-  padding-left: 1.8em;
-  color: rgba(44, 62, 80, 0.75);
-  font-size: 0.95rem;
-  line-height: 1.4;
+.card.active .expand-arrow {
+    transform: rotate(180deg);
 }
-.how-step-details li::before {
-  content: '\f00c'; /* check */
-  font-family: 'Font Awesome 5 Free';
-  font-weight: 900;
+
+/* =======================================
+   SEZIONE ESPANDIBILE
+   ======================================= */
+
+.card-expanded {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    background: white;
+    border-radius: 0 0 12px 12px;
+}
+.card.active .card-expanded {
+    max-height: 420px;
+}
+.card-content {
+    padding: 10px 30px 30px 30px;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease 0.2s, transform 0.3s ease 0.2s;
+}
+.card.active .card-content {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* CONTENUTO ESPANSO */
+.card-description { font-size: 14px; color: #4a5568; margin-bottom: 20px; }
+.card-features { list-style: none; margin-bottom: 25px; padding: 0; }
+.card-features li { position: relative; padding-left: 24px; margin-bottom: 8px; color: #718096; }
+.card-features li::before {
+  content: "\f525";                  /* codice Unicode di fa-dice-one */
+  font-family: "Font Awesome 6 Free";/* o la tua versione di FA */
+  font-weight: 900;                  /* solid */
   position: absolute;
   left: 0;
-  top: 0.1em;
-  font-size: 1rem;
-  color: #888;
+  top: 0;
+  font-size: 1rem;                   /* regola come vuoi */
+  color: #718096;
+  opacity: 0.8;                    /* colore dell’icona */
 }
-.how-step-details li:hover::before {
-  color: #6c5ce7;
+.card-button {
+    padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  background: #6c5ce7;
+  color: white;
+}
+.card-button:hover {
+      background: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 20px #6c5ce7;
 }
 
-/* Comparsa sezione */
-.how-it-works-section .how-container > * {
-  opacity: 0;
-  transform: translateY(20px);
-}
-.how-it-works-section.show .how-container > * {
-  animation: appearUp 0.6s ease-out forwards;
-}
-@keyframes appearUp {
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Responsive */
-@media (max-width: 992px) {
-  .how-steps-wrapper { grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-  .how-intro { font-size: 1.15rem; }
+/* RESPONSIVE */
+@media (max-width: 968px) {
+    .cards-container {
+        flex-wrap: wrap;
+        gap: 24px;
+    }
+    .card {
+        max-width: 320px;
+    }
 }
 @media (max-width: 768px) {
-  .how-steps-wrapper { grid-template-columns: 1fr; gap: 1rem; }
-  .how-title { font-size: 2.25rem; }
-  .how-intro { font-size: 1.1rem; }
-  .how-step { padding: 1.5rem; }
-  .how-step-icon { font-size: 2rem; margin-bottom: 0.75rem; }
-  .how-step-heading { font-size: 1.3rem; margin-bottom: 0.5rem; }
-  .how-step-desc { font-size: 0.95rem; }
-  .how-step::before {
-    top: -12px; width: 24px; height: 24px; line-height: 24px; font-size: 0.75rem; border-width: 2px;
-  }
+    .expandable-cards-section {
+        padding: 60px 16px;
+    }
+    .cards-container{
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+    .card {
+        max-width: 100%;
+        min-height: 240px;
+    }
+    .card-number {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+        top: 0;
+        transform: translate(-50%, -50%);
+    }
+}
+@media (max-width: 480px) {
+    .expandable-cards-section {
+        padding: 40px 12px;
+    }
+    .card {
+        min-height: 220px;
+    }
+    .card-main {
+        padding: 25px 16px 16px;
+    }
+    .card-number {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+        top: 0;
+        transform: translate(-50%, -50%);
+    }
+    .card-icon i {
+        font-size: 38px;
+    }
+    .card-title {
+        font-size: 28px;
+    }
+    .card-subtitle {
+        font-size: 16px;
+    }
 }
