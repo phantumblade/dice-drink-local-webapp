@@ -2,7 +2,8 @@ import { createNavbar } from './navbar.js';
 import { buildFooter } from './footer.js';
 import { createEventCarousel } from './eventCarousel.js';
 
-// Funzione per creare le card espandibili
+
+// Sezione 3: Funzione per creare la sezione "Come funziona il locale"
 function createExpandableCards() {
   const section = document.createElement('section');
   section.classList.add('expandable-cards-section');
@@ -277,18 +278,92 @@ function createWelcomeSection() {
   return section;
 }
 
-// Sezione 3: Funzione per creare la sezione "Come funziona il locale"
+function createCatalogSection() {
+  const section = document.createElement('section');
+  section.id = 'catalog-section';
+  section.classList.add('catalog-section');
+
+  // Titolo e filtri
+  const header = document.createElement('div');
+  header.classList.add('catalog-header');
+
+  const title = document.createElement('h2');
+  title.classList.add('catalog-title');
+  title.textContent = 'Catalogo di ';
+
+  const filters = ['Giochi', 'Drink', 'Snack', 'Special D&D'];
+  let activeFilter = 0; // default: Giochi
+
+  const buttonsContainer = document.createElement('span');
+  buttonsContainer.classList.add('catalog-filters');
+
+  filters.forEach((label, idx) => {
+    const btn = document.createElement('button');
+    btn.classList.add('filter-btn');
+    if (idx === activeFilter) btn.classList.add('active');
+    btn.textContent = label;
+    btn.addEventListener('click', () => {
+      // Aggiorna stato attivo
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = idx;
+      // Aggiorna titolo
+      title.textContent = `Catalogo di ${label}`;
+      // Ricarica contenuto prodotto
+      populateCatalogItems(label);
+    });
+    buttonsContainer.appendChild(btn);
+  });
+
+  header.appendChild(title);
+  header.appendChild(buttonsContainer);
+  section.appendChild(header);
+
+  // Contenitore prodotti
+  const listContainer = document.createElement('div');
+  listContainer.classList.add('catalog-list');
+  section.appendChild(listContainer);
+
+  // Bottone "Sfoglia intero catalogo"
+  const browseBtn = document.createElement('button');
+  browseBtn.classList.add('browse-catalog-btn');
+  browseBtn.textContent = 'Sfoglia intero catalogo';
+  browseBtn.addEventListener('click', () => {
+    // Naviga alla pagina completa del catalogo
+    window.location.href = `/catalog?filter=${encodeURIComponent(filters[activeFilter].toLowerCase())}`;
+  });
+  section.appendChild(browseBtn);
+
+  // Funzione per popolare voci (stub, sostituire con dati reali)
+  function populateCatalogItems(filter) {
+    listContainer.innerHTML = '';
+    // Simula 5 elementi
+    for (let i = 1; i <= 5; i++) {
+      const item = document.createElement('div');
+      item.classList.add('catalog-item');
+      item.textContent = `${filter} Prodotto ${i}`;
+      listContainer.appendChild(item);
+    }
+  }
+
+  // Popola inizialmente con filtro di default
+  populateCatalogItems(filters[activeFilter]);
+  return section;
+}
+
+
 
 // Rendering della pagina
 function showHomepage() {
   const content = document.getElementById('content');
   content.innerHTML = '';
-
   const homepage = document.createElement('div');
   homepage.classList.add('homepage');
+
   homepage.appendChild(createEventCarousel());
   homepage.appendChild(createWelcomeSection());
   homepage.appendChild(createExpandableCards());
+  homepage.appendChild(createCatalogSection());
 
   content.appendChild(homepage);
 }
