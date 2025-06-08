@@ -283,61 +283,61 @@ function createCatalogSection() {
   section.id = 'catalog-section';
   section.classList.add('catalog-section');
 
-  // Titolo e filtri
+  // Header: titolo fisso + filtri
   const header = document.createElement('div');
   header.classList.add('catalog-header');
 
   const title = document.createElement('h2');
   title.classList.add('catalog-title');
   title.textContent = 'Catalogo di ';
+  header.appendChild(title);
 
   const filters = ['Giochi', 'Drink', 'Snack', 'Special D&D'];
-  let activeFilter = 0; // default: Giochi
+  let activeIndex = 0; // default: primo filtro
 
-  const buttonsContainer = document.createElement('span');
+  const buttonsContainer = document.createElement('div');
   buttonsContainer.classList.add('catalog-filters');
 
+  // Crea i bottoni
   filters.forEach((label, idx) => {
     const btn = document.createElement('button');
-    btn.classList.add('filter-btn');
-    if (idx === activeFilter) btn.classList.add('active');
+    btn.classList.add('catalog-filter-btn');
     btn.textContent = label;
+    if (idx === activeIndex) btn.classList.add('active');
     btn.addEventListener('click', () => {
-      // Aggiorna stato attivo
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      // Aggiorna classe active
+      document.querySelectorAll('.catalog-filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      activeFilter = idx;
-      // Aggiorna titolo
-      title.textContent = `Catalogo di ${label}`;
-      // Ricarica contenuto prodotto
+      activeIndex = idx;
+      // Riallinea ordine: porta in prima posizione il filtro attivo
+      buttonsContainer.insertBefore(btn, buttonsContainer.firstChild);
+      // Ricarica prodotti
       populateCatalogItems(label);
     });
     buttonsContainer.appendChild(btn);
   });
 
-  header.appendChild(title);
   header.appendChild(buttonsContainer);
   section.appendChild(header);
 
-  // Contenitore prodotti
+  // Contenitore lista prodotti
   const listContainer = document.createElement('div');
   listContainer.classList.add('catalog-list');
   section.appendChild(listContainer);
 
-  // Bottone "Sfoglia intero catalogo"
+  // Bottone sfoglia intero catalogo
   const browseBtn = document.createElement('button');
   browseBtn.classList.add('browse-catalog-btn');
   browseBtn.textContent = 'Sfoglia intero catalogo';
   browseBtn.addEventListener('click', () => {
-    // Naviga alla pagina completa del catalogo
-    window.location.href = `/catalog?filter=${encodeURIComponent(filters[activeFilter].toLowerCase())}`;
+    const filter = filters[activeIndex].toLowerCase();
+    window.location.href = `/catalog?filter=${encodeURIComponent(filter)}`;
   });
   section.appendChild(browseBtn);
 
-  // Funzione per popolare voci (stub, sostituire con dati reali)
+  // Funzione per popolare la lista (placeholder)
   function populateCatalogItems(filter) {
     listContainer.innerHTML = '';
-    // Simula 5 elementi
     for (let i = 1; i <= 5; i++) {
       const item = document.createElement('div');
       item.classList.add('catalog-item');
@@ -346,10 +346,13 @@ function createCatalogSection() {
     }
   }
 
-  // Popola inizialmente con filtro di default
-  populateCatalogItems(filters[activeFilter]);
+  // Popola inizialmente
+  populateCatalogItems(filters[activeIndex]);
+
   return section;
 }
+
+
 
 
 
