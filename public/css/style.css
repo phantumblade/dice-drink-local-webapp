@@ -6,7 +6,7 @@
   --color-primary-alt:  #522da0;
   --color-secondary:    #B2456B;
   --color-background:   #F8F8FF;
-  --color-text:         #292524;
+  --color-text:         #2c3e50;
   --color-navbar-bg:    var(--color-primary);
   --color-navbar-text:  #F8F8FF;
   --color-icon:         #F8F8FF;
@@ -493,6 +493,13 @@ ul.social-buttons {
   padding: 0;
   margin: 0;
   list-style: none;
+}
+
+footer ul,
+footer ul li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 ul.social-buttons li a {
@@ -1799,34 +1806,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   }
 }
 
-/* =========================
-   Animazione di comparsa
-   ========================= */
-.welcome-section .welcome-container > * {
-  opacity: 0;
-  transform: translateY(20px);
-}
-.welcome-section.show .welcome-container > * {
-  animation: appearUp 0.6s ease-out forwards;
-}
-.welcome-section.show .welcome-container > *:nth-child(1) {
-  animation-delay: 0.1s;  /* Titolo */
-}
-.welcome-section.show .welcome-container > *:nth-child(2) {
-  animation-delay: 0.2s;  /* Tagline */
-}
-.welcome-section.show .welcome-container > *:nth-child(3) {
-  animation-delay: 0.3s;  /* Grid colonna sinistra (descrizione + features) */
-}
-.welcome-section.show .welcome-container > *:nth-child(4) {
-  animation-delay: 0.4s;  /* Grid colonna destra (immagine) */
-}
-.welcome-section.show .welcome-container > *:nth-child(5) {
-  animation-delay: 0.5s;  /* Bottone CTA */
-}
-.welcome-section.show .welcome-container > *:nth-child(6) {
-  animation-delay: 0.6s;  /* Indicatore di scroll */
-}
 @keyframes appearUp {
   to {
     opacity: 1;
@@ -2434,4 +2413,370 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 
 .browse-catalog-btn:hover i {
   transform: translateX(6px);
+}
+
+
+
+
+/* =======================================
+   Sezione 5 – Recensioni (Slider infinito)
+   ======================================= */
+
+/* ===============================
+   SEZIONE RECENSIONI - INFINITE SCROLL
+   =============================== */
+
+.reviews-section {
+  padding: 100px 0 0 0; /* Più spazio sotto per contenere gli avatar */
+  overflow: hidden;
+  position: relative;
+}
+
+.reviews-title {
+  text-align: center;
+  font-size: 2.8rem;
+  font-weight: 700;
+  background: var(--color-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.reviews-subtitle {
+  text-align: center;
+  font-size: 1.2rem;
+  color: rgba(44, 62, 80, 0.85);
+  margin-bottom: 20px;
+}
+
+.reviews-slider {
+  position: relative;
+  overflow: visible; /* Cambiato da hidden per permettere agli avatar di essere visibili */
+  width: 100%;
+  height: 280px; /* Aumentato per contenere l'avatar che sporge */
+  margin: 0 auto;
+  padding: 40px 0; /* Spazio per gli avatar */
+
+  /* Gradienti fade sui bordi più eleganti */
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 200px;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  &::before {
+    left: 0;
+    background: linear-gradient(to right,
+      rgba(248, 249, 250, 1) 0%,
+      rgba(248, 249, 250, 0.9) 20%,
+      rgba(248, 249, 250, 0.7) 40%,
+      rgba(248, 249, 250, 0) 100%);
+  }
+
+  &::after {
+    right: 0;
+    background: linear-gradient(to left,
+      rgba(248, 249, 250, 1) 0%,
+      rgba(248, 249, 250, 0.9) 20%,
+      rgba(248, 249, 250, 0.7) 40%,
+      rgba(248, 249, 250, 0) 100%);
+  }
+}
+
+.reviews-slide-track {
+  display: flex;
+  animation: scrollReviews 30s linear infinite;
+  width: calc(280px * 10); /* Larghezza aumentata per più spazio */
+  padding: 0; /* Reset padding */
+}
+
+.reviews-slide {
+  flex-shrink: 0;
+  width: 260px; /* Aumentato per più eleganza */
+  margin: 0 10px;
+  height: 240px; /* Altezza fissa per la card */
+}
+
+.review-card {
+  background: linear-gradient(145deg, #ffffff 0%, #fafbfc 100%);
+  border-radius: 20px; /* Più arrotondato */
+  padding: 50px 25px 0px 25px; /* Più padding in alto per l'avatar */
+  height: 100%;
+  position: relative;
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.08),
+    0 4px 10px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  overflow: visible; /* Permette all'avatar di essere visibile anche se sporge */
+}
+
+/* Avatar perfettamente circolare che sporge dalla card */
+.review-avatar-container {
+  position: absolute;
+  top: -30px; /* Sporge di più per maggiore impatto visivo */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px; /* Più grande */
+  height: 60px;
+  z-index: 15; /* Z-index più alto per essere sempre visibile */
+  padding: 3px; /* Spazio per il bordo */
+  background: linear-gradient(135deg, #6c5ce7, var(--color-primary-alt));
+  border-radius: 50%;
+}
+
+.review-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%; /* Assicura che sia perfettamente circolare */
+  object-fit: cover;
+  border: 3px solid #ffffff;
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.15),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  transition: transform 0.3s ease;
+  /* Forza le dimensioni per evitare distorsioni */
+  min-width: 100%;
+  min-height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.review-avatar-container:hover .review-avatar {
+  transform: scale(1.1);
+}
+
+.review-card-content {
+  text-align: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  z-index: 5;
+}
+
+.review-user-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 5px 0 15px 0;
+  line-height: 1.3;
+  letter-spacing: 0.5px;
+}
+
+.review-stars {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 18px;
+}
+
+.review-stars i {
+  font-size: 1rem;
+  color: #ffd700;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    0 0 10px rgba(255, 215, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.review-stars i:hover {
+  transform: scale(1.2);
+}
+
+.review-stars .far {
+  color: #ddd;
+  text-shadow: none;
+}
+
+.review-text {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #555;
+  margin: 0;
+  flex-grow: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-align: left;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  position: relative;
+}
+
+/* Effetto gradient per il testo che si taglia */
+.review-text::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.9));
+  pointer-events: none;
+}
+
+/* Animazione scroll infinito migliorata */
+@keyframes scrollReviews {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-280px * 5)); /* Corretto per la nuova larghezza */
+  }
+}
+
+/* Responsive migliorato */
+@media (max-width: 768px) {
+  .reviews-section {
+    padding: 80px 0 100px 0;
+  }
+
+  .reviews-title {
+    font-size: 2.2rem;
+    margin-bottom: 60px;
+    padding: 0 20px;
+  }
+
+  .reviews-slider {
+    height: 260px;
+    padding: 35px 0;
+
+    &::before,
+    &::after {
+      width: 100px;
+    }
+  }
+
+  .reviews-slide-track {
+    animation-duration: 25s;
+    width: calc(250px * 10);
+  }
+
+  .reviews-slide {
+    width: 230px;
+    margin: 0 10px;
+    height: 220px;
+  }
+
+  .review-card {
+    padding: 45px 20px 25px 20px;
+  }
+
+  .review-avatar-container {
+    width: 50px;
+    height: 50px;
+    top: -25px;
+  }
+
+  .review-user-name {
+    font-size: 1.1rem;
+  }
+
+  .review-text {
+    font-size: 0.85rem;
+    -webkit-line-clamp: 3;
+  }
+
+  @keyframes scrollReviews {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(calc(-250px * 5));
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .reviews-section {
+    padding: 60px 0 80px 0;
+  }
+
+  .reviews-slider {
+    height: 240px;
+    padding: 30px 0;
+  }
+
+  .reviews-slide {
+    width: 210px;
+    margin: 0 8px;
+    height: 200px;
+  }
+
+  .reviews-slide-track {
+    width: calc(226px * 10);
+    animation-duration: 22s;
+  }
+
+  .review-card {
+    padding: 40px 18px 22px 18px;
+  }
+
+  .review-avatar-container {
+    width: 45px;
+    height: 45px;
+    top: -22px;
+  }
+
+  .review-user-name {
+    font-size: 1rem;
+    margin: 3px 0 12px 0;
+  }
+
+  .review-text {
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+  @keyframes scrollReviews {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(calc(-226px * 5));
+    }
+  }
+}
+
+/* Tutte le sezioni principali della homepage partono nascoste */
+.homepage > * {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* Quando la homepage ha la classe show, animali a cascata */
+.homepage.show > * {
+  animation: appearUp 0.7s cubic-bezier(.4,0,.2,1) forwards;
+}
+
+.homepage.show > *:nth-child(1) { animation-delay: 0.1s; }
+.homepage.show > *:nth-child(2) { animation-delay: 0.2s; }
+.homepage.show > *:nth-child(3) { animation-delay: 0.3s; }
+.homepage.show > *:nth-child(4) { animation-delay: 0.4s; }
+.homepage.show > *:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes appearUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

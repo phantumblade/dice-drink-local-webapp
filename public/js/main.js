@@ -273,8 +273,6 @@ function createWelcomeSection() {
 
   section.appendChild(container);
 
-  // Animazione entrata
-  setTimeout(() => section.classList.add('show'), 100);
   return section;
 }
 // Sezione 4: Funzione per creare la sezione Catalogo
@@ -374,8 +372,120 @@ function populateCatalogItems(filter) {
   return section;
 }
 
+// Sezione 5: Funzione per creare la sezione Recensioni
+// Sezione 5: Funzione per creare la sezione Recensioni
+function createReviewsSection() {
+  const section = document.createElement('section');
+  section.classList.add('reviews-section');
 
+  // Titolo sezione
+  const title = document.createElement('h2');
+  title.classList.add('reviews-title');
+  title.textContent = 'Cosa dicono i nostri clienti';
+  const subtitle = document.createElement('p');
+  subtitle.classList.add('reviews-subtitle');
+  const testo = 'Per noi è importante sapere cosa ne pensano i nostri clienti perciò facci sapere la tua. Ecco alcune delle loro recensioni:';
+  subtitle.innerHTML = testo.replace(/\. /g, '.<br>');
+  section.appendChild(title);
+  section.appendChild(subtitle);
 
+  // Container slider
+  const slider = document.createElement('div');
+  slider.classList.add('reviews-slider');
+
+  const slideTrack = document.createElement('div');
+  slideTrack.classList.add('reviews-slide-track');
+
+  // Dati recensioni d'esempio
+  const reviews = [
+    {
+      avatar: 'assets/avatar-uomo.svg',
+      name: 'Mario Rossi',
+      rating: 5,
+      text: 'Esperienza fantastica! Ambiente accogliente e giochi di qualità. Lo staff è sempre disponibile per spiegare le regole.'
+    },
+    {
+      avatar: 'assets/avatar-donna.svg',
+      name: 'Giulia Bianchi',
+      rating: 4,
+      text: 'Personale gentile e vasta scelta di giochi. I cocktail sono deliziosi e l\'atmosfera perfetta per rilassarsi.'
+    },
+    {
+      avatar: 'assets/avatar-uomo.svg',
+      name: 'Luca Verdi',
+      rating: 5,
+      text: 'Consigliatissimo per serate con amici! Abbiamo provato diversi giochi e ci siamo divertiti tantissimo.'
+    },
+    {
+      avatar: 'assets/avatar-donna.svg',
+      name: 'Sara Neri',
+      rating: 4,
+      text: 'Ottimi drink e giochi, tornerò presto! Il locale ha un\'ottima selezione e prezzi onesti.'
+    },
+    {
+      avatar: 'assets/avatar-uomo.svg',
+      name: 'Andrea Blu',
+      rating: 5,
+      text: 'Locale fantastico per gli appassionati di giochi da tavolo. Organizzazione perfetta e ambiente unico!'
+    }
+  ];
+
+  // Duplichiamo per loop infinito (serve il doppio per scroll seamless)
+  const allReviews = [...reviews, ...reviews];
+
+  allReviews.forEach(({ avatar, name, rating, text }) => {
+    const slide = document.createElement('div');
+    slide.classList.add('reviews-slide');
+
+    const card = document.createElement('div');
+    card.classList.add('review-card');
+
+    // Avatar circolare che sporge per metà sopra la card
+    const avatarContainer = document.createElement('div');
+    avatarContainer.classList.add('review-avatar-container');
+    const avatarImg = document.createElement('img');
+    avatarImg.src = avatar;
+    avatarImg.alt = `Avatar di ${name}`;
+    avatarImg.classList.add('review-avatar');
+    avatarContainer.appendChild(avatarImg);
+    card.appendChild(avatarContainer);
+
+    // Contenuto della card
+    const cardContent = document.createElement('div');
+    cardContent.classList.add('review-card-content');
+
+    // Nome utente
+    const userName = document.createElement('h3');
+    userName.classList.add('review-user-name');
+    userName.textContent = name;
+    cardContent.appendChild(userName);
+
+    // Stelle rating
+    const starsContainer = document.createElement('div');
+    starsContainer.classList.add('review-stars');
+    for (let i = 1; i <= 5; i++) {
+      const star = document.createElement('i');
+      star.className = i <= rating ? 'fas fa-star' : 'far fa-star';
+      starsContainer.appendChild(star);
+    }
+    cardContent.appendChild(starsContainer);
+
+    // Testo recensione
+    const reviewText = document.createElement('p');
+    reviewText.classList.add('review-text');
+    reviewText.textContent = text;
+    cardContent.appendChild(reviewText);
+
+    card.appendChild(cardContent);
+    slide.appendChild(card);
+    slideTrack.appendChild(slide);
+  });
+
+  slider.appendChild(slideTrack);
+  section.appendChild(slider);
+
+  return section;
+}
 // Rendering della pagina
 function showHomepage() {
   const content = document.getElementById('content');
@@ -387,8 +497,12 @@ function showHomepage() {
   homepage.appendChild(createWelcomeSection());
   homepage.appendChild(createExpandableCards());
   homepage.appendChild(createCatalogSection());
+  homepage.appendChild(createReviewsSection());
 
   content.appendChild(homepage);
+
+  // AGGIUNGI QUESTA RIGA per attivare l'animazione a cascata
+  setTimeout(() => homepage.classList.add('show'), 100);
 }
 
 // Setup iniziale

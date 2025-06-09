@@ -66,11 +66,15 @@ export function buildFooter() {
   // Colonna 1: copyright
   const botCol1 = document.createElement('div');
   botCol1.className = 'footer-column';
-  const spanCopyright = document.createElement('span');
-  spanCopyright.className = 'copyright quick-links';
-  spanCopyright.innerHTML = `Copyright &copy; Your Website ${new Date().getFullYear()}`;
-  botCol1.appendChild(spanCopyright);
-
+const mapPlaceholder = document.createElement('div');
+mapPlaceholder.className = 'footer-map-placeholder';
+mapPlaceholder.innerHTML = `
+  <div class="footer-map-title">Dove siamo</div>
+  <div class="footer-map-box">
+    <span style="color:#aaa; font-size:0.95rem;">[Qui apparirà la mappa Google]</span>
+  </div>
+`;
+botCol1.appendChild(mapPlaceholder);
   // Colonna 2: social
 const botCol2 = document.createElement('div');
 botCol2.className = 'footer-column footer-social-column';
