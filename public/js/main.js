@@ -277,7 +277,7 @@ function createWelcomeSection() {
   setTimeout(() => section.classList.add('show'), 100);
   return section;
 }
-
+// Sezione 4: Funzione per creare la sezione Catalogo
 function createCatalogSection() {
   const section = document.createElement('section');
   section.id = 'catalog-section';
@@ -328,31 +328,51 @@ function createCatalogSection() {
   // Bottone sfoglia intero catalogo
   const browseBtn = document.createElement('button');
   browseBtn.classList.add('browse-catalog-btn');
-  browseBtn.textContent = 'Sfoglia intero catalogo';
+  browseBtn.innerHTML = 'Sfoglia intero catalogo <i class="fas fa-arrow-right"></i>';
   browseBtn.addEventListener('click', () => {
     const filter = filters[activeIndex].toLowerCase();
     window.location.href = `/catalog?filter=${encodeURIComponent(filter)}`;
   });
   section.appendChild(browseBtn);
 
-  // Funzione per popolare la lista (placeholder)
-  function populateCatalogItems(filter) {
-    listContainer.innerHTML = '';
-    for (let i = 1; i <= 5; i++) {
-      const item = document.createElement('div');
-      item.classList.add('catalog-item');
-      item.textContent = `${filter} Prodotto ${i}`;
-      listContainer.appendChild(item);
-    }
-  }
+  // Funzione per popolare la lista
+function populateCatalogItems(filter) {
+  listContainer.innerHTML = '';
+  // qui potresti arrivare a fetchare i dati reali, per esempio da un'API
+  // per ora definiamo un array di oggetti di esempio
+  const sampleData = Array.from({length:4}, (_, i) => ({
+    image: `assets/GameCatalog.jpg`,
+    title: `${filter} Prodotto ${i+1}`,
+    desc: 'Breve descrizione del prodotto, caratteristiche salienti.',
+    price: `€${(10 + i*5).toFixed(2)}`
+  }));
+
+  sampleData.forEach(data => {
+    const item = document.createElement('div');
+    item.classList.add('catalog-item');
+    item.innerHTML = `
+      <div class="catalog-item-img">
+        <img src="${data.image}" alt="${data.title}">
+      </div>
+      <div class="catalog-item-content">
+        <h3 class="catalog-item-title">${data.title}</h3>
+        <p class="catalog-item-desc">${data.desc}</p>
+        <div class="catalog-item-footer">
+          <span class="catalog-item-price">${data.price}</span>
+          <button class="catalog-item-btn">Dettagli</button>
+        </div>
+      </div>
+    `;
+    listContainer.appendChild(item);
+  });
+}
+
 
   // Popola inizialmente
   populateCatalogItems(filters[activeIndex]);
 
   return section;
 }
-
-
 
 
 

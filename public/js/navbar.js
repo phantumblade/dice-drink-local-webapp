@@ -19,8 +19,15 @@ export function createNavbar() {
   logo.src = 'assets/Logo.png'; // metti il path corretto
   // Imposta il testo alternativo per l'immagine
   logo.alt = 'Logo Dice & Drink';
+  logo.alt = 'Logo Dice & Drink';
   // Aggiunge la classe CSS al logo
   logo.classList.add('navbar-logo');
+
+  // Rendi il logo cliccabile per tornare alla homepage
+  logo.style.cursor = 'pointer';
+  logo.addEventListener('click', () => {
+    window.location.href = './'; // oppure './' se lavori in locale
+  });
 
   // Crea l'elemento <span> per il titolo
   const title = document.createElement('span');
