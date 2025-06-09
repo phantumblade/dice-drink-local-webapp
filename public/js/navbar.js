@@ -114,7 +114,7 @@ export function createNavbar() {
       if (page.id === 'catalogo') {
         submenuItems = [
           { name: 'Catalogo Giochi',   id: 'catalogo-giochi' },
-          { name: 'Menù Bevande',      id: 'menu-bevande' },
+          { name: 'Menù Drink',      id: 'menu-bevande' },
           { name: 'Menù Snack & Food', id: 'menu-snack-food' }
         ];
       } else if (page.id === 'eventi') {
