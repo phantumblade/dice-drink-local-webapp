@@ -8,6 +8,9 @@ async function init() {
 
   app.use(express.json());
   app.use(express.static('public'));
+  const productsRouter = require('./routes/products');
+  app.use('/api/products', productsRouter);
+
 
   const db = await openDb();
 

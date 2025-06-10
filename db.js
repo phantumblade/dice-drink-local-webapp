@@ -1,3 +1,5 @@
+//alla prima chiamata verrà creato dice_drink.db se non esiste
+
 // db.js
 const sqlite3 = require('sqlite3');
 const { open } = require('sqlite');
