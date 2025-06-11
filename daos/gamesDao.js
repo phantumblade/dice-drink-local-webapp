@@ -114,27 +114,56 @@ class GamesDao {
     return result.lastID;
   }
 
-  // Aggiorna un gioco esistente
-  static async update(id, gameData) {
-    const {
-      name, description, minPlayers, maxPlayers, rentalPrice,
-      durationMinutes, difficultyLevel, category, imageUrl
-    } = gameData;
+// Aggiorna un gioco esistente (supporta aggiornamenti parziali)
+static async update(id, gameData) {
+  const db = await openDb();
 
-    const db = await openDb();
-    const result = await db.run(
-      `UPDATE games SET
-       name = ?, description = ?, min_players = ?, max_players = ?,
-       rental_price = ?, duration_minutes = ?, difficulty_level = ?,
-       category = ?, image_url = ?
-       WHERE id = ?`,
-      [name, description, minPlayers, maxPlayers, rentalPrice,
-       durationMinutes, difficultyLevel, category, imageUrl, id]
-    );
-    await db.close();
-    return result.changes > 0;
+  // Array per costruire la query dinamicamente
+  const fieldsToUpdate = [];
+  const params = [];
+
+  // Mappa i campi del JSON ai nomi delle colonne del database
+  const fieldMapping = {
+    name: 'name',
+    description: 'description',
+    minPlayers: 'min_players',
+    maxPlayers: 'max_players',
+    rentalPrice: 'rental_price',
+    durationMinutes: 'duration_minutes',
+    difficultyLevel: 'difficulty_level',
+    category: 'category',
+    imageUrl: 'image_url'
+  };
+
+  // Costruisci la query solo per i campi forniti
+  for (const [jsonField, dbColumn] of Object.entries(fieldMapping)) {
+    if (gameData[jsonField] !== undefined) {
+      fieldsToUpdate.push(`${dbColumn} = ?`);
+      params.push(gameData[jsonField]);
+    }
   }
 
+  // Verifica che ci sia almeno un campo da aggiornare
+  if (fieldsToUpdate.length === 0) {
+    await db.close();
+    throw new Error('Nessun campo da aggiornare fornito');
+  }
+
+  // Aggiungi l'ID alla fine dei parametri
+  params.push(id);
+
+  // Costruisci e esegui la query dinamica
+  const sql = `UPDATE games SET ${fieldsToUpdate.join(', ')} WHERE id = ?`;
+
+  try {
+    const result = await db.run(sql, params);
+    await db.close();
+    return result.changes > 0;
+  } catch (error) {
+    await db.close();
+    throw error;
+  }
+}
   // Elimina un gioco
   static async delete(id) {
     const db = await openDb();
