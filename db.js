@@ -1,6 +1,6 @@
-//alla prima chiamata verrà creato dice_drink.db se non esiste
+// COSA FA: Connessione al database SQLite
+// RELAZIONI: Usato da tutti i DAO per aprire/chiudere DB
 
-// db.js
 const sqlite3 = require('sqlite3');
 const { open } = require('sqlite');
 
