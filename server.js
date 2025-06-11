@@ -24,32 +24,48 @@ async function init() {
   // IMPORTA E REGISTRA LE ROUTES
   // ==========================================
 
-  // 🎮 GAMES API - Nuove routes per giochi da tavolo
+  // 🎮 GAMES API - Routes per giochi da tavolo
   const gamesRouter = require('./routes/games');
   app.use('/api/games', gamesRouter);
+
+  // 🍹 DRINKS API - Routes per drink e bevande
+  const drinksRouter = require('./routes/drinks');
+  app.use('/api/drinks', drinksRouter);
 
   // ==========================================
   // VERIFICA DATABASE (non crea più tabelle qui)
   // ==========================================
 
-  // Verifica solo che il database sia accessibile
-  // Le tabelle vengono create da initDb.js
+  // Verifica solo che i database siano accessibili
+  // Le tabelle vengono create da initDb.js e initDrinksDb.js
   try {
     const db = await openDb();
-    const result = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='games'");
 
-    if (!result) {
+    // Verifica tabella games
+    const gamesTable = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='games'");
+    // Verifica tabella drinks
+    const drinksTable = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='drinks'");
+
+    if (!gamesTable) {
       console.log('⚠️  ATTENZIONE: Tabella games non trovata!');
       console.log('💡 Esegui: node initDb.js');
     } else {
-      const count = await db.get('SELECT COUNT(*) as count FROM games');
-      console.log(`✅ Database OK - ${count.count} giochi disponibili`);
+      const gameCount = await db.get('SELECT COUNT(*) as count FROM games');
+      console.log(`✅ Database Games OK - ${gameCount.count} giochi disponibili`);
+    }
+
+    if (!drinksTable) {
+      console.log('⚠️  ATTENZIONE: Tabella drinks non trovata!');
+      console.log('💡 Esegui: node initDrinksDb.js');
+    } else {
+      const drinkCount = await db.get('SELECT COUNT(*) as count FROM drinks');
+      console.log(`✅ Database Drinks OK - ${drinkCount.count} drink disponibili`);
     }
 
     await db.close();
   } catch (err) {
     console.log('⚠️  Impossibile verificare il database');
-    console.log('💡 Assicurati di aver eseguito: node initDb.js');
+    console.log('💡 Assicurati di aver eseguito: node initDb.js e node initDrinksDb.js');
   }
 
   // ==========================================
@@ -60,8 +76,15 @@ async function init() {
   app.get('/api/health', async (req, res) => {
     try {
       const db = await openDb();
+
+      // Controlla games
       const gameCount = await db.get('SELECT COUNT(*) as count FROM games');
       const categories = await db.all('SELECT DISTINCT category FROM games ORDER BY category');
+
+      // Controlla drinks
+      const drinkCount = await db.get('SELECT COUNT(*) as count FROM drinks');
+      const baseSpirits = await db.all('SELECT DISTINCT base_spirit FROM drinks ORDER BY base_spirit');
+
       await db.close();
 
       res.json({
@@ -70,7 +93,9 @@ async function init() {
         version: '1.0.0',
         database: {
           games: gameCount.count,
-          categories: categories.map(c => c.category)
+          drinks: drinkCount.count,
+          categories: categories.map(c => c.category),
+          baseSpirits: baseSpirits.map(s => s.base_spirit)
         },
         endpoints: {
           games: {
@@ -79,20 +104,34 @@ async function init() {
             search: 'GET /api/games/search?q=term',
             categories: 'GET /api/games/categories',
             popular: 'GET /api/games/popular'
+          },
+          drinks: {
+            list: 'GET /api/drinks',
+            details: 'GET /api/drinks/:id',
+            search: 'GET /api/drinks/search?q=term',
+            alcoholic: 'GET /api/drinks/alcoholic',
+            nonAlcoholic: 'GET /api/drinks/non-alcoholic',
+            baseSpirits: 'GET /api/drinks/base-spirits',
+            recommended: 'GET /api/drinks/recommended'
           }
         },
         examples: {
           allGames: '/api/games',
           strategyGames: '/api/games?category=Strategia',
           fourPlayerGames: '/api/games?players=4',
-          searchCatan: '/api/games/search?q=catan'
+          searchCatan: '/api/games/search?q=catan',
+          allDrinks: '/api/drinks',
+          alcoholicDrinks: '/api/drinks/alcoholic',
+          ginDrinks: '/api/drinks/spirit/gin',
+          cheapDrinks: '/api/drinks/price-range/3/6',
+          searchGin: '/api/drinks/search?q=gin'
         }
       });
     } catch (err) {
       res.status(500).json({
         status: 'ERROR',
         message: 'Database non disponibile',
-        hint: 'Esegui: node initDb.js'
+        hint: 'Esegui: node initDb.js e node initDrinksDb.js'
       });
     }
   });
@@ -154,20 +193,25 @@ async function init() {
   // ==========================================
 
   app.listen(port, () => {
-    console.log('🎲 =====================================');
-    console.log('🎲  DICE & DRINK SERVER AVVIATO!');
-    console.log('🎲 =====================================');
+    console.log('🎲🍹 =====================================');
+    console.log('🎲🍹  DICE & DRINK SERVER AVVIATO!');
+    console.log('🎲🍹 =====================================');
     console.log(`🌐 Server URL: http://localhost:${port}`);
     console.log(`🔍 Health Check: http://localhost:${port}/api/health`);
     console.log('📡 API Endpoints:');
     console.log(`   🎮 Games: http://localhost:${port}/api/games`);
+    console.log(`   🍹 Drinks: http://localhost:${port}/api/drinks`);
     console.log('📝 Esempi:');
     console.log(`   📋 Tutti i giochi: /api/games`);
     console.log(`   🎯 Giochi strategia: /api/games?category=Strategia`);
     console.log(`   👥 Giochi 4 player: /api/games?players=4`);
     console.log(`   🔎 Cerca 'catan': /api/games/search?q=catan`);
-    console.log('🎲 =====================================');
-    console.log('💡 Se vedi errori, esegui: node initDb.js');
+    console.log(`   🍸 Tutti i drink: /api/drinks`);
+    console.log(`   🍺 Drink alcolici: /api/drinks/alcoholic`);
+    console.log(`   🥤 Drink analcolici: /api/drinks/non-alcoholic`);
+    console.log(`   🔍 Cerca 'gin': /api/drinks/search?q=gin`);
+    console.log('🎲🍹 =====================================');
+    console.log('💡 Se vedi errori, esegui: node initDb.js e node initDrinksDb.js');
   });
 }
 
@@ -182,6 +226,7 @@ init().catch(err => {
   console.log('   - Verifica che la porta 3000 sia libera');
   console.log('   - Controlla che i file db.js e routes esistano');
   console.log('   - Esegui "npm install" per installare le dipendenze');
-  console.log('   - Esegui "node initDb.js" per creare il database');
+  console.log('   - Esegui "node initDb.js" per creare il database giochi');
+  console.log('   - Esegui "node initDrinksDb.js" per creare il database drink');
   process.exit(1);
 });
