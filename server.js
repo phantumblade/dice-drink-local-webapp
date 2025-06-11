@@ -32,12 +32,16 @@ async function init() {
   const drinksRouter = require('./routes/drinks');
   app.use('/api/drinks', drinksRouter);
 
+  // 🍿 SNACKS API - Routes per snack e cibo
+  const snacksRouter = require('./routes/snacks');
+  app.use('/api/snacks', snacksRouter);
+
   // ==========================================
   // VERIFICA DATABASE (non crea più tabelle qui)
   // ==========================================
 
   // Verifica solo che i database siano accessibili
-  // Le tabelle vengono create da initDb.js e initDrinksDb.js
+  // Le tabelle vengono create da initDb.js, initDrinksDb.js e initSnacksDb.js
   try {
     const db = await openDb();
 
@@ -45,6 +49,8 @@ async function init() {
     const gamesTable = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='games'");
     // Verifica tabella drinks
     const drinksTable = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='drinks'");
+    // Verifica tabella snacks
+    const snacksTable = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='snacks'");
 
     if (!gamesTable) {
       console.log('⚠️  ATTENZIONE: Tabella games non trovata!');
@@ -62,10 +68,18 @@ async function init() {
       console.log(`✅ Database Drinks OK - ${drinkCount.count} drink disponibili`);
     }
 
+    if (!snacksTable) {
+      console.log('⚠️  ATTENZIONE: Tabella snacks non trovata!');
+      console.log('💡 Esegui: node initSnacksDb.js');
+    } else {
+      const snackCount = await db.get('SELECT COUNT(*) as count FROM snacks');
+      console.log(`✅ Database Snacks OK - ${snackCount.count} snack disponibili`);
+    }
+
     await db.close();
   } catch (err) {
     console.log('⚠️  Impossibile verificare il database');
-    console.log('💡 Assicurati di aver eseguito: node initDb.js e node initDrinksDb.js');
+    console.log('💡 Assicurati di aver eseguito: node initDb.js, node initDrinksDb.js e node initSnacksDb.js');
   }
 
   // ==========================================
@@ -85,17 +99,23 @@ async function init() {
       const drinkCount = await db.get('SELECT COUNT(*) as count FROM drinks');
       const baseSpirits = await db.all('SELECT DISTINCT base_spirit FROM drinks ORDER BY base_spirit');
 
+      // Controlla snacks
+      const snackCount = await db.get('SELECT COUNT(*) as count FROM snacks');
+      const mainIngredients = await db.all('SELECT DISTINCT main_ingredient FROM snacks ORDER BY main_ingredient');
+
       await db.close();
 
       res.json({
         status: 'OK',
-        message: 'Dice & Drink API is running',
+        message: 'Dice & Drink & Snack API is running',
         version: '1.0.0',
         database: {
           games: gameCount.count,
           drinks: drinkCount.count,
+          snacks: snackCount.count,
           categories: categories.map(c => c.category),
-          baseSpirits: baseSpirits.map(s => s.base_spirit)
+          baseSpirits: baseSpirits.map(s => s.base_spirit),
+          mainIngredients: mainIngredients.map(i => i.main_ingredient)
         },
         endpoints: {
           games: {
@@ -113,6 +133,16 @@ async function init() {
             nonAlcoholic: 'GET /api/drinks/non-alcoholic',
             baseSpirits: 'GET /api/drinks/base-spirits',
             recommended: 'GET /api/drinks/recommended'
+          },
+          snacks: {
+            list: 'GET /api/snacks',
+            details: 'GET /api/snacks/:id',
+            search: 'GET /api/snacks/search?q=term',
+            sweet: 'GET /api/snacks/sweet',
+            savory: 'GET /api/snacks/savory',
+            gameFriendly: 'GET /api/snacks/game-friendly',
+            ingredients: 'GET /api/snacks/ingredients',
+            recommended: 'GET /api/snacks/recommended'
           }
         },
         examples: {
@@ -124,14 +154,19 @@ async function init() {
           alcoholicDrinks: '/api/drinks/alcoholic',
           ginDrinks: '/api/drinks/spirit/gin',
           cheapDrinks: '/api/drinks/price-range/3/6',
-          searchGin: '/api/drinks/search?q=gin'
+          searchGin: '/api/drinks/search?q=gin',
+          allSnacks: '/api/snacks',
+          sweetSnacks: '/api/snacks/sweet',
+          cheeseSnacks: '/api/snacks/ingredient/formaggio',
+          gameFriendlySnacks: '/api/snacks/game-friendly',
+          searchChocolate: '/api/snacks/search?q=cioccolato'
         }
       });
     } catch (err) {
       res.status(500).json({
         status: 'ERROR',
         message: 'Database non disponibile',
-        hint: 'Esegui: node initDb.js e node initDrinksDb.js'
+        hint: 'Esegui: node initDb.js, node initDrinksDb.js e node initSnacksDb.js'
       });
     }
   });
@@ -193,14 +228,15 @@ async function init() {
   // ==========================================
 
   app.listen(port, () => {
-    console.log('🎲🍹 =====================================');
-    console.log('🎲🍹  DICE & DRINK SERVER AVVIATO!');
-    console.log('🎲🍹 =====================================');
+    console.log('🎲🍹🍿 =====================================');
+    console.log('🎲🍹🍿  DICE & DRINK & SNACK SERVER!');
+    console.log('🎲🍹🍿 =====================================');
     console.log(`🌐 Server URL: http://localhost:${port}`);
     console.log(`🔍 Health Check: http://localhost:${port}/api/health`);
     console.log('📡 API Endpoints:');
     console.log(`   🎮 Games: http://localhost:${port}/api/games`);
     console.log(`   🍹 Drinks: http://localhost:${port}/api/drinks`);
+    console.log(`   🍿 Snacks: http://localhost:${port}/api/snacks`);
     console.log('📝 Esempi:');
     console.log(`   📋 Tutti i giochi: /api/games`);
     console.log(`   🎯 Giochi strategia: /api/games?category=Strategia`);
@@ -210,8 +246,12 @@ async function init() {
     console.log(`   🍺 Drink alcolici: /api/drinks/alcoholic`);
     console.log(`   🥤 Drink analcolici: /api/drinks/non-alcoholic`);
     console.log(`   🔍 Cerca 'gin': /api/drinks/search?q=gin`);
-    console.log('🎲🍹 =====================================');
-    console.log('💡 Se vedi errori, esegui: node initDb.js e node initDrinksDb.js');
+    console.log(`   🧀 Tutti gli snack: /api/snacks`);
+    console.log(`   🍫 Snack dolci: /api/snacks/sweet`);
+    console.log(`   🎮 Snack game-friendly: /api/snacks/game-friendly`);
+    console.log(`   🔍 Cerca 'cioccolato': /api/snacks/search?q=cioccolato`);
+    console.log('🎲🍹🍿 =====================================');
+    console.log('💡 Se vedi errori, esegui: node initDb.js, node initDrinksDb.js e node initSnacksDb.js');
   });
 }
 
@@ -228,5 +268,6 @@ init().catch(err => {
   console.log('   - Esegui "npm install" per installare le dipendenze');
   console.log('   - Esegui "node initDb.js" per creare il database giochi');
   console.log('   - Esegui "node initDrinksDb.js" per creare il database drink');
+  console.log('   - Esegui "node initSnacksDb.js" per creare il database snack');
   process.exit(1);
 });
