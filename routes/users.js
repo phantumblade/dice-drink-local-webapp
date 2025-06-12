@@ -1,801 +1,908 @@
+// routes/users.js
+// SCOPO: Routes per gestione profili utente, preferenze, prenotazioni, wishlist
+// RELAZIONI: Usa UsersDao, auth middleware, gestisce dati personali utenti
+
+require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const bcryptjs = require('bcryptjs');
+
+// Import dei nostri moduli
+const { User } = require('../models/User');
 const UsersDao = require('../daos/usersDao');
-const DrinksDao = require('../daos/drinksDao');
-const GamesDao = require('../daos/gamesDao');
-const SnacksDao = require('../daos/snacksDao');
-const { requireAuth, requireAdmin, requireStaff } = require('../middleware/auth');
-const { logSecurityEvent, logSystemEvent } = require('../middleware/logging');
+const {
+  requireAuth,
+  requireOwnership,
+  requireRole,
+  requirePermission,
+  getClientIdentifier
+} = require('../middleware/auth');
 
-// ================================
-// 🏠 DASHBOARD & ANALYTICS
-// ================================
+// ==========================================
+// CONFIGURAZIONE DA ENVIRONMENT
+// ==========================================
 
-/**
- * 📊 Dashboard principale admin
- * GET /api/admin/dashboard
- */
-router.get('/dashboard', requireAdmin, async (req, res) => {
-  try {
-    const [
-      totalUsers,
-      activeUsers,
-      totalBookings,
-      todayBookings,
-      totalGames,
-      totalDrinks,
-      totalSnacks,
-      recentActivity,
-      topRatedItems,
-      systemHealth
-    ] = await Promise.all([
-      UsersDao.getTotalUsersCount(),
-      UsersDao.getActiveUsersCount(30), // Attivi ultimi 30 giorni
-      UsersDao.getTotalBookingsCount(),
-      UsersDao.getTodayBookingsCount(),
-      GamesDao.getTotalCount(),
-      DrinksDao.getTotalCount(),
-      SnacksDao.getTotalCount(),
-      getRecentSystemActivity(10),
-      getTopRatedItems(5),
-      getSystemHealthStatus()
-    ]);
+const CONFIG = {
+  DEBUG_MODE: process.env.DEBUG_MODE === 'true',
+  AUDIT_LOGGING_ENABLED: process.env.FEATURE_AUDIT_LOGGING === 'true',
+  MAX_UPLOAD_SIZE: process.env.MAX_UPLOAD_SIZE || '5MB',
+  ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp'],
+  FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:3000'
+};
 
-    // Statistiche utenti per tipo
-    const userStats = await UsersDao.getUserStatsByRole();
+// ==========================================
+// UTILITY FUNCTIONS
+// ==========================================
 
-    // Trend prenotazioni ultimi 7 giorni
-    const bookingTrends = await UsersDao.getBookingTrends(7);
-
-    // Top giochi più richiesti
-    const popularGames = await GamesDao.getMostPopularGames(5);
-
-    const dashboardData = {
-      overview: {
-        totalUsers,
-        activeUsers,
-        totalBookings,
-        todayBookings,
-        inventory: {
-          games: totalGames,
-          drinks: totalDrinks,
-          snacks: totalSnacks
-        }
-      },
-      userStats,
-      bookingTrends,
-      popularGames,
-      recentActivity,
-      topRatedItems,
-      systemHealth
-    };
-
-    await logSystemEvent(req, 'admin_dashboard_accessed', {
-      adminId: req.user.userId
-    });
-
-    res.json({
-      success: true,
-      data: dashboardData
-    });
-
-  } catch (error) {
-    console.error('Errore dashboard admin:', error);
-    res.status(500).json({
-      error: 'Errore caricamento dashboard',
-      message: error.message
-    });
+function debugLog(message, data = null) {
+  if (CONFIG.DEBUG_MODE) {
+    console.log(`[UsersRoutes] ${message}`, data ? JSON.stringify(data, null, 2) : '');
   }
-});
+}
 
-/**
- * 📈 Analytics avanzate
- * GET /api/admin/analytics
- */
-router.get('/analytics', requireAdmin, async (req, res) => {
-  try {
-    const { period = '30', type = 'overview' } = req.query;
-    const days = parseInt(period);
+function validateInput(req, requiredFields = []) {
+  const errors = [];
 
-    let analyticsData = {};
-
-    switch (type) {
-      case 'users':
-        analyticsData = await getUserAnalytics(days);
-        break;
-      case 'bookings':
-        analyticsData = await getBookingAnalytics(days);
-        break;
-      case 'ratings':
-        analyticsData = await getRatingAnalytics(days);
-        break;
-      case 'inventory':
-        analyticsData = await getInventoryAnalytics();
-        break;
-      default:
-        analyticsData = await getOverviewAnalytics(days);
+  for (const field of requiredFields) {
+    if (!req.body[field]) {
+      errors.push(`Campo '${field}' è obbligatorio`);
     }
-
-    res.json({
-      success: true,
-      data: analyticsData,
-      period: days,
-      type
-    });
-
-  } catch (error) {
-    console.error('Errore analytics:', error);
-    res.status(500).json({
-      error: 'Errore caricamento analytics',
-      message: error.message
-    });
   }
-});
 
-// ================================
-// 👥 USER MANAGEMENT
-// ================================
-
-/**
- * 📋 Lista utenti con filtri e paginazione
- * GET /api/admin/users
- */
-router.get('/users', requireStaff, async (req, res) => {
-  try {
-    const {
-      page = 1,
-      limit = 25,
-      search = '',
-      role = '',
-      status = '',
-      sortBy = 'created_at',
-      sortOrder = 'DESC'
-    } = req.query;
-
-    const filters = {
-      search: search.trim(),
-      role: role || null,
-      status: status || null
-    };
-
-    const pagination = {
-      page: parseInt(page),
-      limit: Math.min(parseInt(limit), 100), // Max 100 per pagina
-      sortBy,
-      sortOrder: sortOrder.toUpperCase()
-    };
-
-    const result = await UsersDao.getUsersWithFilters(filters, pagination);
-
-    // Rimuovi dati sensibili per staff (non admin)
-    if (req.user.role === 'staff') {
-      result.users = result.users.map(user => ({
-        ...user,
-        email: user.email ? '***@***.***' : null,
-        phone: user.phone ? '***-***-****' : null
-      }));
-    }
-
-    await logSystemEvent(req, 'admin_users_accessed', {
-      adminId: req.user.userId,
-      filters,
-      resultCount: result.users.length
-    });
-
-    res.json({
-      success: true,
-      data: result.users,
-      pagination: {
-        currentPage: result.currentPage,
-        totalPages: result.totalPages,
-        totalItems: result.totalItems,
-        hasNext: result.hasNext,
-        hasPrev: result.hasPrev
-      }
-    });
-
-  } catch (error) {
-    console.error('Errore lista utenti:', error);
-    res.status(500).json({
-      error: 'Errore caricamento utenti',
-      message: error.message
-    });
-  }
-});
-
-/**
- * 👤 Dettagli utente specifico
- * GET /api/admin/users/:userId
- */
-router.get('/users/:userId', requireStaff, async (req, res) => {
-  try {
-    const { userId } = req.params;
-
-    const user = await UsersDao.getUserById(userId);
-    if (!user) {
-      return res.status(404).json({
-        error: 'Utente non trovato'
-      });
-    }
-
-    // Dati aggiuntivi per admin
-    const additionalData = {};
-    if (req.user.role === 'admin') {
-      const [bookings, ratings, wishlist, securityEvents] = await Promise.all([
-        UsersDao.getUserBookings(userId, { limit: 10 }),
-        UsersDao.getUserRatings(userId, { limit: 10 }),
-        UsersDao.getUserWishlist(userId),
-        getSecurityEvents(userId, 5)
-      ]);
-
-      additionalData.bookings = bookings;
-      additionalData.ratings = ratings;
-      additionalData.wishlist = wishlist;
-      additionalData.securityEvents = securityEvents;
-    }
-
-    // Nascondi dati sensibili per staff
-    if (req.user.role === 'staff') {
-      delete user.email;
-      delete user.phone;
-      delete user.failed_login_attempts;
-      delete user.locked_until;
-    }
-
-    await logSystemEvent(req, 'admin_user_viewed', {
-      adminId: req.user.userId,
-      targetUserId: userId
-    });
-
-    res.json({
-      success: true,
-      data: {
-        user,
-        ...additionalData
-      }
-    });
-
-  } catch (error) {
-    console.error('Errore dettagli utente:', error);
-    res.status(500).json({
-      error: 'Errore caricamento utente',
-      message: error.message
-    });
-  }
-});
-
-/**
- * ✏️ Modifica utente (solo admin)
- * PUT /api/admin/users/:userId
- */
-router.put('/users/:userId', requireAdmin, async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const updateData = req.body;
-
-    // Validazioni
-    const errors = [];
-
-    if (updateData.email && !isValidEmail(updateData.email)) {
+  // Validazione email
+  if (req.body.email) {
+    try {
+      User.validateEmail(req.body.email);
+    } catch (err) {
       errors.push('Email non valida');
     }
+  }
 
-    if (updateData.role && !['customer', 'staff', 'admin'].includes(updateData.role)) {
-      errors.push('Ruolo non valido');
-    }
+  if (req.body.phone && req.body.phone.length > 20) {
+    errors.push('Numero di telefono troppo lungo');
+  }
 
-    if (errors.length > 0) {
-      return res.status(400).json({
-        error: 'Dati non validi',
-        details: errors
-      });
-    }
+  if (req.body.first_name && req.body.first_name.length > 50) {
+    errors.push('Nome troppo lungo (max 50 caratteri)');
+  }
 
-    // Non permettere auto-demozione admin
-    if (updateData.role && userId == req.user.userId && updateData.role !== 'admin') {
-      return res.status(400).json({
-        error: 'Non puoi modificare il tuo ruolo admin'
-      });
-    }
+  if (req.body.last_name && req.body.last_name.length > 50) {
+    errors.push('Cognome troppo lungo (max 50 caratteri)');
+  }
 
-    // Hash password se presente
-    if (updateData.password) {
-      updateData.password_hash = await bcryptjs.hash(updateData.password, 12);
-      delete updateData.password;
-    }
+  return errors;
+}
 
-    // Campi permessi per modifica admin
-    const allowedFields = [
-      'first_name', 'last_name', 'email', 'phone', 'role',
-      'is_active', 'email_verified', 'password_hash'
-    ];
+function sanitizeProfileData(data) {
+  // Rimuovi campi sensibili che l'utente non può modificare direttamente
+  const {
+    id, email_verified, created_at, last_login, failed_login_attempts,
+    locked_until, verification_token, reset_token, reset_expires,
+    password_hash, role, ...sanitized
+  } = data;
 
-    const sanitizedData = {};
-    Object.keys(updateData).forEach(key => {
-      if (allowedFields.includes(key)) {
-        sanitizedData[key] = updateData[key];
-      }
+  return sanitized;
+}
+
+function getUserPublicProfile(user) {
+  return {
+    id: user.id,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    phone: user.phone,
+    role: user.role,
+    isActive: user.isActive,
+    emailVerified: user.emailVerified,
+    createdAt: user.createdAt,
+    lastLogin: user.lastLogin
+  };
+}
+
+function canUserMakeBooking(user) {
+  if (!user.isActive) {
+    throw new Error('Account disattivato');
+  }
+
+  if (!user.emailVerified) {
+    throw new Error('Email non verificata. Verifica la tua email per effettuare prenotazioni.');
+  }
+
+  return true;
+}
+
+async function logSecurityEvent(req, event, details = {}) {
+  if (!CONFIG.AUDIT_LOGGING_ENABLED) return;
+
+  try {
+    console.log(`[SECURITY] ${event}:`, {
+      userId: req.user?.userId,
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+      timestamp: new Date().toISOString(),
+      ...details
     });
 
-    const updatedUser = await UsersDao.updateUser(userId, sanitizedData);
-
-    await logSecurityEvent(req, 'admin_user_updated', {
-      adminId: req.user.userId,
-      targetUserId: userId,
-      updatedFields: Object.keys(sanitizedData),
-      significantChanges: ['email', 'role', 'is_active'].filter(field => sanitizedData[field] !== undefined)
-    });
-
-    res.json({
-      success: true,
-      message: 'Utente aggiornato con successo',
-      data: updatedUser
-    });
-
+    // Log nel database se disponibile
+    if (typeof UsersDao.logAuditEvent === 'function') {
+      await UsersDao.logAuditEvent(
+        req.user?.userId || null,
+        event,
+        req.ip,
+        req.get('User-Agent'),
+        details
+      );
+    }
   } catch (error) {
-    console.error('Errore aggiornamento utente:', error);
-    res.status(500).json({
-      error: 'Errore aggiornamento utente',
-      message: error.message
+    console.error('Error logging security event:', error);
+  }
+}
+
+// ==========================================
+// MIDDLEWARE SPECIFICI
+// ==========================================
+
+// Middleware per verificare ownership del profilo
+const requireProfileOwnership = requireOwnership((req) => req.params.userId);
+
+// Middleware per staff che possono vedere profili utenti
+const canViewUserProfile = [
+  requireAuth,
+  (req, res, next) => {
+    const targetUserId = parseInt(req.params.userId);
+    const currentUserId = parseInt(req.user.userId);
+
+    // Proprietario può sempre vedere il proprio profilo
+    if (targetUserId === currentUserId) {
+      return next();
+    }
+
+    // Staff e admin possono vedere profili di customer
+    if (req.user.role === 'admin' || req.user.role === 'staff') {
+      return next();
+    }
+
+    return res.status(403).json({
+      error: 'Accesso negato',
+      message: 'Non puoi visualizzare questo profilo',
+      type: 'INSUFFICIENT_PERMISSION'
     });
   }
-});
+];
 
-/**
- * 🗑️ Elimina utente (solo admin)
- * DELETE /api/admin/users/:userId
- */
-router.delete('/users/:userId', requireAdmin, async (req, res) => {
+// ==========================================
+// ROUTES PROFILO UTENTE
+// ==========================================
+
+// GET /api/users/:userId - Visualizza profilo utente
+router.get('/:userId', canViewUserProfile, async (req, res) => {
+  debugLog('Get user profile', { userId: req.params.userId, requesterId: req.user.userId });
+
   try {
-    const { userId } = req.params;
+    const userId = parseInt(req.params.userId);
 
-    // Non permettere auto-eliminazione
-    if (userId == req.user.userId) {
+    if (isNaN(userId)) {
       return res.status(400).json({
-        error: 'Non puoi eliminare il tuo account admin'
+        error: 'ID utente non valido',
+        type: 'INVALID_USER_ID'
       });
     }
 
     const user = await UsersDao.getUserById(userId);
+
     if (!user) {
       return res.status(404).json({
-        error: 'Utente non trovato'
+        error: 'Utente non trovato',
+        type: 'USER_NOT_FOUND'
       });
     }
 
-    // Soft delete - mantieni dati per audit
-    await UsersDao.softDeleteUser(userId);
+    // Profilo base per tutti
+    let profile = getUserPublicProfile(user);
 
-    await logSecurityEvent(req, 'admin_user_deleted', {
-      adminId: req.user.userId,
-      targetUserId: userId,
-      deletedUserEmail: user.email,
-      deletedUserRole: user.role
-    });
+    // Informazioni aggiuntive se è il proprio profilo o se si è admin
+    const isOwnProfile = userId === req.user.userId;
+    const isAdmin = req.user.role === 'admin';
 
-    res.json({
-      success: true,
-      message: 'Utente eliminato con successo'
-    });
-
-  } catch (error) {
-    console.error('Errore eliminazione utente:', error);
-    res.status(500).json({
-      error: 'Errore eliminazione utente',
-      message: error.message
-    });
-  }
-});
-
-// ================================
-// 📅 BOOKING MANAGEMENT
-// ================================
-
-/**
- * 📋 Gestione prenotazioni
- * GET /api/admin/bookings
- */
-router.get('/bookings', requireStaff, async (req, res) => {
-  try {
-    const {
-      page = 1,
-      limit = 25,
-      status = '',
-      date = '',
-      userId = '',
-      sortBy = 'booking_date',
-      sortOrder = 'DESC'
-    } = req.query;
-
-    const filters = {
-      status: status || null,
-      date: date || null,
-      userId: userId || null
-    };
-
-    const pagination = {
-      page: parseInt(page),
-      limit: Math.min(parseInt(limit), 100),
-      sortBy,
-      sortOrder: sortOrder.toUpperCase()
-    };
-
-    const result = await UsersDao.getBookingsWithFilters(filters, pagination);
-
-    res.json({
-      success: true,
-      data: result.bookings,
-      pagination: {
-        currentPage: result.currentPage,
-        totalPages: result.totalPages,
-        totalItems: result.totalItems,
-        hasNext: result.hasNext,
-        hasPrev: result.hasPrev
+    if (isOwnProfile || isAdmin) {
+      // Aggiungi preferenze per proprio profilo
+      try {
+        const preferences = await UsersDao.getUserPreferences(userId);
+        profile.preferences = preferences;
+      } catch (err) {
+        profile.preferences = null;
       }
-    });
 
-  } catch (error) {
-    console.error('Errore lista prenotazioni:', error);
-    res.status(500).json({
-      error: 'Errore caricamento prenotazioni',
-      message: error.message
-    });
-  }
-});
-
-/**
- * ✅ Conferma prenotazione
- * PUT /api/admin/bookings/:bookingId/confirm
- */
-router.put('/bookings/:bookingId/confirm', requireStaff, async (req, res) => {
-  try {
-    const { bookingId } = req.params;
-    const { notes = '' } = req.body;
-
-    const booking = await UsersDao.updateBookingStatus(bookingId, 'confirmed', {
-      confirmed_by: req.user.userId,
-      confirmed_at: new Date(),
-      staff_notes: notes
-    });
-
-    await logSystemEvent(req, 'booking_confirmed', {
-      staffId: req.user.userId,
-      bookingId,
-      userId: booking.user_id
-    });
-
-    res.json({
-      success: true,
-      message: 'Prenotazione confermata',
-      data: booking
-    });
-
-  } catch (error) {
-    console.error('Errore conferma prenotazione:', error);
-    res.status(500).json({
-      error: 'Errore conferma prenotazione',
-      message: error.message
-    });
-  }
-});
-
-/**
- * ❌ Annulla prenotazione
- * PUT /api/admin/bookings/:bookingId/cancel
- */
-router.put('/bookings/:bookingId/cancel', requireStaff, async (req, res) => {
-  try {
-    const { bookingId } = req.params;
-    const { reason = 'Annullata dallo staff', notes = '' } = req.body;
-
-    const booking = await UsersDao.updateBookingStatus(bookingId, 'cancelled', {
-      cancelled_by: req.user.userId,
-      cancelled_at: new Date(),
-      cancellation_reason: reason,
-      staff_notes: notes
-    });
-
-    await logSystemEvent(req, 'booking_cancelled_by_staff', {
-      staffId: req.user.userId,
-      bookingId,
-      userId: booking.user_id,
-      reason
-    });
-
-    res.json({
-      success: true,
-      message: 'Prenotazione annullata',
-      data: booking
-    });
-
-  } catch (error) {
-    console.error('Errore annullamento prenotazione:', error);
-    res.status(500).json({
-      error: 'Errore annullamento prenotazione',
-      message: error.message
-    });
-  }
-});
-
-// ================================
-// 🛠️ SYSTEM MANAGEMENT
-// ================================
-
-/**
- * 🏥 Health check sistema
- * GET /api/admin/system/health
- */
-router.get('/system/health', requireAdmin, async (req, res) => {
-  try {
-    const healthStatus = await getSystemHealthStatus();
-
-    res.json({
-      success: true,
-      data: healthStatus,
-      timestamp: new Date().toISOString()
-    });
-
-  } catch (error) {
-    console.error('Errore health check:', error);
-    res.status(500).json({
-      error: 'Errore verifica sistema',
-      message: error.message
-    });
-  }
-});
-
-/**
- * 📋 Audit log
- * GET /api/admin/system/audit
- */
-router.get('/system/audit', requireAdmin, async (req, res) => {
-  try {
-    const {
-      page = 1,
-      limit = 50,
-      type = '',
-      userId = '',
-      startDate = '',
-      endDate = ''
-    } = req.query;
-
-    const filters = {
-      type: type || null,
-      userId: userId || null,
-      startDate: startDate || null,
-      endDate: endDate || null
-    };
-
-    const pagination = {
-      page: parseInt(page),
-      limit: Math.min(parseInt(limit), 100)
-    };
-
-    const auditLogs = await getAuditLogs(filters, pagination);
-
-    res.json({
-      success: true,
-      data: auditLogs.logs,
-      pagination: {
-        currentPage: auditLogs.currentPage,
-        totalPages: auditLogs.totalPages,
-        totalItems: auditLogs.totalItems
+      // Statistiche personali
+      try {
+        const bookings = await UsersDao.getUserBookings(userId, { limit: 5 });
+        profile.recentBookings = bookings;
+        profile.totalBookings = bookings.length;
+      } catch (err) {
+        profile.recentBookings = [];
+        profile.totalBookings = 0;
       }
-    });
-
-  } catch (error) {
-    console.error('Errore audit log:', error);
-    res.status(500).json({
-      error: 'Errore caricamento audit log',
-      message: error.message
-    });
-  }
-});
-
-/**
- * 🧹 Pulizia dati sistema
- * POST /api/admin/system/cleanup
- */
-router.post('/system/cleanup', requireAdmin, async (req, res) => {
-  try {
-    const {
-      cleanExpiredSessions = true,
-      cleanOldLogs = true,
-      cleanExpiredTokens = true,
-      daysToKeep = 90
-    } = req.body;
-
-    const cleanupResults = {};
-
-    if (cleanExpiredSessions) {
-      cleanupResults.expiredSessions = await UsersDao.cleanupExpiredSessions();
     }
 
-    if (cleanOldLogs) {
-      cleanupResults.oldLogs = await cleanupOldLogs(daysToKeep);
-    }
-
-    if (cleanExpiredTokens) {
-      cleanupResults.expiredTokens = await UsersDao.cleanupExpiredTokens();
-    }
-
-    await logSystemEvent(req, 'system_cleanup_executed', {
-      adminId: req.user.userId,
-      cleanupResults
-    });
+    debugLog('Profile retrieved successfully', { userId, isOwnProfile, isAdmin });
 
     res.json({
-      success: true,
-      message: 'Pulizia sistema completata',
-      data: cleanupResults
+      user: profile,
+      isOwnProfile,
+      canEdit: isOwnProfile || isAdmin,
+      success: true
     });
 
   } catch (error) {
-    console.error('Errore pulizia sistema:', error);
+    debugLog('Get profile error', { error: error.message });
+
     res.status(500).json({
-      error: 'Errore pulizia sistema',
-      message: error.message
+      error: 'Errore recupero profilo',
+      message: 'Si è verificato un errore interno',
+      type: 'INTERNAL_ERROR'
     });
   }
 });
 
-// ================================
-// 📊 HELPER FUNCTIONS
-// ================================
+// PUT /api/users/:userId - Aggiorna profilo utente
+router.put('/:userId', requireAuth, requireProfileOwnership, async (req, res) => {
+  debugLog('Update user profile', { userId: req.params.userId });
 
-/**
- * Analytics utenti
- */
-async function getUserAnalytics(days) {
-  const [
-    newUsers,
-    activeUsers,
-    usersByRole,
-    verificationStats,
-    loginStats
-  ] = await Promise.all([
-    UsersDao.getNewUsersCount(days),
-    UsersDao.getActiveUsersCount(days),
-    UsersDao.getUserStatsByRole(),
-    UsersDao.getVerificationStats(),
-    UsersDao.getLoginStats(days)
-  ]);
-
-  return {
-    newUsers,
-    activeUsers,
-    usersByRole,
-    verificationStats,
-    loginStats
-  };
-}
-
-/**
- * Analytics prenotazioni
- */
-async function getBookingAnalytics(days) {
-  const [
-    totalBookings,
-    bookingsByStatus,
-    averagePartySize,
-    peakHours,
-    bookingTrends
-  ] = await Promise.all([
-    UsersDao.getBookingsCount(days),
-    UsersDao.getBookingsByStatus(days),
-    UsersDao.getAveragePartySize(days),
-    UsersDao.getPeakBookingHours(days),
-    UsersDao.getBookingTrends(days)
-  ]);
-
-  return {
-    totalBookings,
-    bookingsByStatus,
-    averagePartySize,
-    peakHours,
-    bookingTrends
-  };
-}
-
-/**
- * Analytics rating
- */
-async function getRatingAnalytics(days) {
-  const [
-    averageRatings,
-    ratingDistribution,
-    topRatedItems,
-    recentReviews
-  ] = await Promise.all([
-    UsersDao.getAverageRatings(days),
-    UsersDao.getRatingDistribution(days),
-    getTopRatedItems(10),
-    UsersDao.getRecentRatings(days, 20)
-  ]);
-
-  return {
-    averageRatings,
-    ratingDistribution,
-    topRatedItems,
-    recentReviews
-  };
-}
-
-/**
- * Analytics inventario
- */
-async function getInventoryAnalytics() {
-  const [
-    gameStats,
-    drinkStats,
-    snackStats
-  ] = await Promise.all([
-    GamesDao.getInventoryStats(),
-    DrinksDao.getInventoryStats(),
-    SnacksDao.getInventoryStats()
-  ]);
-
-  return {
-    games: gameStats,
-    drinks: drinkStats,
-    snacks: snackStats
-  };
-}
-
-/**
- * Health check sistema
- */
-async function getSystemHealthStatus() {
   try {
-    const [
-      dbStatus,
-      memoryUsage,
-      activeConnections,
-      errorRate
-    ] = await Promise.all([
-      checkDatabaseHealth(),
-      getMemoryUsage(),
-      getActiveConnections(),
-      getErrorRate()
-    ]);
+    const userId = parseInt(req.params.userId);
 
-    return {
-      status: 'healthy',
-      database: dbStatus,
-      memory: memoryUsage,
-      connections: activeConnections,
-      errorRate,
-      uptime: process.uptime(),
-      timestamp: new Date().toISOString()
-    };
+    if (isNaN(userId)) {
+      return res.status(400).json({
+        error: 'ID utente non valido',
+        type: 'INVALID_USER_ID'
+      });
+    }
+
+    // Validazione input
+    const validationErrors = validateInput(req);
+    if (validationErrors.length > 0) {
+      return res.status(400).json({
+        error: 'Dati non validi',
+        details: validationErrors,
+        type: 'VALIDATION_ERROR'
+      });
+    }
+
+    // Sanitizza dati (rimuovi campi non modificabili)
+    const updateData = sanitizeProfileData(req.body);
+
+    // Log dei campi che si tenta di modificare
+    debugLog('Profile update fields', { fields: Object.keys(updateData) });
+
+    // Aggiorna profilo
+    const updatedUser = await UsersDao.updateUser(userId, updateData);
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        error: 'Utente non trovato',
+        type: 'USER_NOT_FOUND'
+      });
+    }
+
+    // Log audit per cambiamenti significativi
+    await logSecurityEvent(req, 'profile_updated', {
+      userId,
+      updatedFields: Object.keys(updateData),
+      significantChanges: ['email', 'phone'].filter(field => updateData[field])
+    });
+
+    debugLog('Profile updated successfully', { userId });
+
+    res.json({
+      message: 'Profilo aggiornato con successo',
+      user: getUserPublicProfile(updatedUser),
+      success: true
+    });
+
   } catch (error) {
-    return {
-      status: 'unhealthy',
-      error: error.message,
-      timestamp: new Date().toISOString()
-    };
+    debugLog('Update profile error', { error: error.message });
+
+    if (error.message.includes('Email già in uso') || error.message.includes('Email già registrata')) {
+      return res.status(409).json({
+        error: 'Email già utilizzata',
+        message: 'Questo indirizzo email è già associato a un altro account',
+        type: 'EMAIL_CONFLICT'
+      });
+    }
+
+    res.status(500).json({
+      error: 'Errore aggiornamento profilo',
+      message: 'Si è verificato un errore interno',
+      type: 'INTERNAL_ERROR'
+    });
   }
-}
+});
 
-/**
- * Validazione email
- */
-function isValidEmail(email) {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
+// POST /api/users/:userId/change-password - Cambia password
+router.post('/:userId/change-password', requireAuth, requireProfileOwnership, async (req, res) => {
+  debugLog('Change password attempt', { userId: req.params.userId });
 
-// Placeholder functions - implementare nei rispettivi DAOs
-async function getRecentSystemActivity(limit) { return []; }
-async function getTopRatedItems(limit) { return []; }
-async function getOverviewAnalytics(days) { return {}; }
-async function getSecurityEvents(userId, limit) { return []; }
-async function getAuditLogs(filters, pagination) { return { logs: [], currentPage: 1, totalPages: 1, totalItems: 0 }; }
-async function cleanupOldLogs(days) { return 0; }
-async function checkDatabaseHealth() { return { status: 'connected' }; }
-async function getMemoryUsage() { return process.memoryUsage(); }
-async function getActiveConnections() { return 0; }
-async function getErrorRate() { return 0; }
+  try {
+    const userId = parseInt(req.params.userId);
+    const { currentPassword, newPassword } = req.body;
+
+    const validationErrors = validateInput(req, ['currentPassword', 'newPassword']);
+    if (validationErrors.length > 0) {
+      return res.status(400).json({
+        error: 'Dati richiesti',
+        details: validationErrors,
+        type: 'VALIDATION_ERROR'
+      });
+    }
+
+    // Recupera utente
+    const user = await UsersDao.getUserById(userId);
+    if (!user) {
+      return res.status(404).json({
+        error: 'Utente non trovato',
+        type: 'USER_NOT_FOUND'
+      });
+    }
+
+    // Verifica password attuale
+    const isCurrentPasswordValid = await user.verifyPassword(currentPassword);
+    if (!isCurrentPasswordValid) {
+      await logSecurityEvent(req, 'password_change_failed_wrong_current', {
+        userId
+      });
+
+      return res.status(401).json({
+        error: 'Password attuale non corretta',
+        type: 'INVALID_CURRENT_PASSWORD'
+      });
+    }
+
+    // Valida nuova password
+    try {
+      User.validatePassword(newPassword);
+    } catch (err) {
+      return res.status(400).json({
+        error: 'Password non valida',
+        message: err.message,
+        type: 'INVALID_NEW_PASSWORD'
+      });
+    }
+
+    // Hash nuova password
+    const newPasswordHash = await User.hashPassword(newPassword);
+
+    // Aggiorna password
+    await UsersDao.updateUser(userId, {
+      password_hash: newPasswordHash,
+      failed_login_attempts: 0,
+      locked_until: null
+    });
+
+    // Invalida tutte le sessioni eccetto quella corrente (opzionale)
+    const { invalidateOtherSessions = true } = req.body;
+    if (invalidateOtherSessions) {
+      await UsersDao.invalidateAllUserSessions(userId);
+    }
+
+    await logSecurityEvent(req, 'password_changed', {
+      userId,
+      invalidatedSessions: invalidateOtherSessions
+    });
+
+    debugLog('Password changed successfully', { userId });
+
+    res.json({
+      message: 'Password modificata con successo',
+      sessionsInvalidated: invalidateOtherSessions,
+      success: true
+    });
+
+  } catch (error) {
+    debugLog('Change password error', { error: error.message });
+
+    res.status(500).json({
+      error: 'Errore modifica password',
+      message: 'Si è verificato un errore interno',
+      type: 'INTERNAL_ERROR'
+    });
+  }
+});
+
+// ==========================================
+// ROUTES PREFERENZE UTENTE
+// ==========================================
+
+// GET /api/users/:userId/preferences - Ottieni preferenze
+router.get('/:userId/preferences', requireAuth, requireProfileOwnership, async (req, res) => {
+  debugLog('Get user preferences', { userId: req.params.userId });
+
+  try {
+    const userId = parseInt(req.params.userId);
+
+    const preferences = await UsersDao.getUserPreferences(userId);
+
+    if (!preferences) {
+      // Crea preferenze default se non esistono
+      await UsersDao.createDefaultPreferences(userId, req.user.role);
+      const newPreferences = await UsersDao.getUserPreferences(userId);
+
+      return res.json({
+        preferences: newPreferences,
+        created: true,
+        success: true
+      });
+    }
+
+    res.json({
+      preferences,
+      success: true
+    });
+
+  } catch (error) {
+    debugLog('Get preferences error', { error: error.message });
+
+    res.status(500).json({
+      error: 'Errore recupero preferenze',
+      type: 'INTERNAL_ERROR'
+    });
+  }
+});
+
+// PUT /api/users/:userId/preferences - Aggiorna preferenze
+router.put('/:userId/preferences', requireAuth, requireProfileOwnership, async (req, res) => {
+  debugLog('Update user preferences', { userId: req.params.userId });
+
+  try {
+    const userId = parseInt(req.params.userId);
+    const preferences = req.body;
+
+    // Validazione preferenze
+    if (preferences.max_game_complexity && (preferences.max_game_complexity < 1 || preferences.max_game_complexity > 5)) {
+      return res.status(400).json({
+        error: 'Complessità gioco non valida',
+        message: 'La complessità deve essere tra 1 e 5',
+        type: 'VALIDATION_ERROR'
+      });
+    }
+
+    // Array validations
+    const arrayFields = ['favorite_game_categories', 'dietary_restrictions', 'preferred_drink_types', 'preferred_time_slots'];
+    for (const field of arrayFields) {
+      if (preferences[field] && !Array.isArray(preferences[field])) {
+        return res.status(400).json({
+          error: `Campo '${field}' deve essere un array`,
+          type: 'VALIDATION_ERROR'
+        });
+      }
+    }
+
+    // Notification preferences validation
+    if (preferences.notification_preferences && typeof preferences.notification_preferences !== 'object') {
+      return res.status(400).json({
+        error: 'Preferenze notifiche non valide',
+        type: 'VALIDATION_ERROR'
+      });
+    }
+
+    const updatedPreferences = await UsersDao.updateUserPreferences(userId, preferences);
+
+    await logSecurityEvent(req, 'preferences_updated', {
+      userId,
+      updatedFields: Object.keys(preferences)
+    });
+
+    debugLog('Preferences updated successfully', { userId });
+
+    res.json({
+      message: 'Preferenze aggiornate con successo',
+      preferences: updatedPreferences,
+      success: true
+    });
+
+  } catch (error) {
+    debugLog('Update preferences error', { error: error.message });
+
+    res.status(500).json({
+      error: 'Errore aggiornamento preferenze',
+      message: 'Si è verificato un errore interno',
+      type: 'INTERNAL_ERROR'
+    });
+  }
+});
+
+// ==========================================
+// ROUTES PRENOTAZIONI UTENTE
+// ==========================================
+
+// GET /api/users/:userId/bookings - Lista prenotazioni utente
+router.get('/:userId/bookings', requireAuth, requireProfileOwnership, async (req, res) => {
+  debugLog('Get user bookings', { userId: req.params.userId });
+
+  try {
+    const userId = parseInt(req.params.userId);
+    const { status, from_date, to_date, limit = 20, offset = 0 } = req.query;
+
+    const options = {
+      status,
+      from_date,
+      to_date,
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    };
+
+    const bookings = await UsersDao.getUserBookings(userId, options);
+
+    // Statistiche prenotazioni
+    const stats = {
+      total: bookings.length,
+      confirmed: bookings.filter(b => b.status === 'confirmed').length,
+      pending: bookings.filter(b => b.status === 'pending').length,
+      cancelled: bookings.filter(b => b.status === 'cancelled').length,
+      completed: bookings.filter(b => b.status === 'completed').length
+    };
+
+    res.json({
+      bookings,
+      stats,
+      pagination: {
+        limit: options.limit,
+        offset: options.offset,
+        hasMore: bookings.length === options.limit
+      },
+      success: true
+    });
+
+  } catch (error) {
+    debugLog('Get bookings error', { error: error.message });
+
+    res.status(500).json({
+      error: 'Errore recupero prenotazioni',
+      type: 'INTERNAL_ERROR'
+    });
+  }
+});
+
+// POST /api/users/:userId/bookings - Crea nuova prenotazione
+router.post('/:userId/bookings', requireAuth, requireProfileOwnership, async (req, res) => {
+  debugLog('Create booking', { userId: req.params.userId });
+
+  try {
+    const userId = parseInt(req.params.userId);
+    const bookingData = req.body;
+
+    // Validazione dati prenotazione
+    const requiredFields = ['booking_date', 'booking_time', 'party_size'];
+    const validationErrors = validateInput(req, requiredFields);
+
+    if (validationErrors.length > 0) {
+      return res.status(400).json({
+        error: 'Dati prenotazione incompleti',
+        details: validationErrors,
+        type: 'VALIDATION_ERROR'
+      });
+    }
+
+    // Validazioni business logic
+    const partySize = parseInt(bookingData.party_size);
+    if (partySize < 1 || partySize > 20) {
+      return res.status(400).json({
+        error: 'Numero persone non valido',
+        message: 'Il numero di persone deve essere tra 1 e 20',
+        type: 'INVALID_PARTY_SIZE'
+      });
+    }
+
+    // Verifica che l'utente possa fare prenotazioni
+    const user = await UsersDao.getUserById(userId);
+    try {
+      canUserMakeBooking(user);
+    } catch (err) {
+      return res.status(403).json({
+        error: 'Impossibile effettuare prenotazione',
+        message: err.message,
+        type: 'BOOKING_NOT_ALLOWED'
+      });
+    }
+
+    // Validazione data (non nel passato)
+    const bookingDate = new Date(bookingData.booking_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (bookingDate < today) {
+      return res.status(400).json({
+        error: 'Data non valida',
+        message: 'Non puoi prenotare per una data nel passato',
+        type: 'INVALID_DATE'
+      });
+    }
+
+    const booking = await UsersDao.createBooking(userId, bookingData);
+
+    await logSecurityEvent(req, 'booking_created', {
+      userId,
+      bookingId: booking.id,
+      bookingDate: bookingData.booking_date,
+      partySize: bookingData.party_size
+    });
+
+    debugLog('Booking created successfully', {
+      userId,
+      bookingId: booking.id,
+      confirmationCode: booking.confirmation_code
+    });
+
+    res.status(201).json({
+      message: 'Prenotazione creata con successo',
+      booking: {
+        id: booking.id,
+        confirmation_code: booking.confirmation_code,
+        status: 'pending'
+      },
+      success: true
+    });
+
+  } catch (error) {
+    debugLog('Create booking error', { error: error.message });
+
+    res.status(500).json({
+      error: 'Errore creazione prenotazione',
+      message: 'Si è verificato un errore interno',
+      type: 'INTERNAL_ERROR'
+    });
+  }
+});
+
+// GET /api/users/:userId/bookings/:confirmationCode - Dettagli prenotazione
+router.get('/:userId/bookings/:confirmationCode', requireAuth, requireProfileOwnership, async (req, res) => {
+  debugLog('Get booking details', {
+    userId: req.params.userId,
+    confirmationCode: req.params.confirmationCode
+  });
+
+  try {
+    const { confirmationCode } = req.params;
+
+    const booking = await UsersDao.getBookingByConfirmationCode(confirmationCode);
+
+    if (!booking) {
+      return res.status(404).json({
+        error: 'Prenotazione non trovata',
+        type: 'BOOKING_NOT_FOUND'
+      });
+    }
+
+    // Verifica ownership della prenotazione
+    if (booking.user_id !== req.user.userId && req.user.role !== 'admin' && req.user.role !== 'staff') {
+      return res.status(403).json({
+        error: 'Accesso negato',
+        message: 'Non puoi visualizzare questa prenotazione',
+        type: 'NOT_AUTHORIZED'
+      });
+    }
+
+    res.json({
+      booking,
+      success: true
+    });
+
+  } catch (error) {
+    debugLog('Get booking details error', { error: error.message });
+
+    res.status(500).json({
+      error: 'Errore recupero dettagli prenotazione',
+      type: 'INTERNAL_ERROR'
+    });
+  }
+});
+
+// ==========================================
+// ROUTES WISHLIST
+// ==========================================
+
+// GET /api/users/:userId/wishlist - Lista wishlist
+router.get('/:userId/wishlist', requireAuth, requireProfileOwnership, async (req, res) => {
+  debugLog('Get user wishlist', { userId: req.params.userId });
+
+  try {
+    const userId = parseInt(req.params.userId);
+
+    const wishlist = await UsersDao.getUserWishlist(userId);
+
+    // Raggruppa per tipo
+    const groupedWishlist = {
+      games: wishlist.filter(item => item.item_type === 'game'),
+      drinks: wishlist.filter(item => item.item_type === 'drink'),
+      snacks: wishlist.filter(item => item.item_type === 'snack')
+    };
+
+    res.json({
+      wishlist: groupedWishlist,
+      total: wishlist.length,
+      totalByType: {
+        games: groupedWishlist.games.length,
+        drinks: groupedWishlist.drinks.length,
+        snacks: groupedWishlist.snacks.length
+      },
+      success: true
+    });
+
+  } catch (error) {
+    debugLog('Get wishlist error', { error: error.message });
+
+    res.status(500).json({
+      error: 'Errore recupero wishlist',
+      type: 'INTERNAL_ERROR'
+    });
+  }
+});
+
+// POST /api/users/:userId/wishlist - Aggiungi a wishlist
+router.post('/:userId/wishlist', requireAuth, requireProfileOwnership, async (req, res) => {
+  debugLog('Add to wishlist', { userId: req.params.userId });
+
+  try {
+    const userId = parseInt(req.params.userId);
+    const { item_type, item_id, notes, priority = 1 } = req.body;
+
+    // Validazione
+    const validationErrors = validateInput(req, ['item_type', 'item_id']);
+    if (validationErrors.length > 0) {
+      return res.status(400).json({
+        error: 'Dati richiesti',
+        details: validationErrors,
+        type: 'VALIDATION_ERROR'
+      });
+    }
+
+    const validTypes = ['game', 'drink', 'snack'];
+    if (!validTypes.includes(item_type)) {
+      return res.status(400).json({
+        error: 'Tipo elemento non valido',
+        message: `Tipo deve essere uno di: ${validTypes.join(', ')}`,
+        type: 'INVALID_ITEM_TYPE'
+      });
+    }
+
+    const itemId = parseInt(item_id);
+    if (isNaN(itemId)) {
+      return res.status(400).json({
+        error: 'ID elemento non valido',
+        type: 'INVALID_ITEM_ID'
+      });
+    }
+
+    await UsersDao.addToWishlist(userId, item_type, itemId, notes, priority);
+
+    await logSecurityEvent(req, 'wishlist_item_added', {
+      userId,
+      itemType: item_type,
+      itemId
+    });
+
+    debugLog('Item added to wishlist', { userId, itemType: item_type, itemId });
+
+    res.status(201).json({
+      message: 'Elemento aggiunto alla wishlist',
+      success: true
+    });
+
+  } catch (error) {
+    debugLog('Add to wishlist error', { error: error.message });
+
+    res.status(500).json({
+      error: 'Errore aggiunta a wishlist',
+      type: 'INTERNAL_ERROR'
+    });
+  }
+});
+
+// ==========================================
+// ROUTES RATINGS
+// ==========================================
+
+// POST /api/users/:userId/ratings - Aggiungi rating
+router.post('/:userId/ratings', requireAuth, requireProfileOwnership, async (req, res) => {
+  debugLog('Add rating', { userId: req.params.userId });
+
+  try {
+    const userId = parseInt(req.params.userId);
+    const { item_type, item_id, rating, review } = req.body;
+
+    // Validazione
+    const validationErrors = validateInput(req, ['item_type', 'rating']);
+    if (validationErrors.length > 0) {
+      return res.status(400).json({
+        error: 'Dati richiesti',
+        details: validationErrors,
+        type: 'VALIDATION_ERROR'
+      });
+    }
+
+    const validTypes = ['game', 'drink', 'snack', 'service'];
+    if (!validTypes.includes(item_type)) {
+      return res.status(400).json({
+        error: 'Tipo elemento non valido',
+        message: `Tipo deve essere uno di: ${validTypes.join(', ')}`,
+        type: 'INVALID_ITEM_TYPE'
+      });
+    }
+
+    const ratingValue = parseInt(rating);
+    if (isNaN(ratingValue) || ratingValue < 1 || ratingValue > 5) {
+      return res.status(400).json({
+        error: 'Rating non valido',
+        message: 'Il rating deve essere tra 1 e 5',
+        type: 'INVALID_RATING'
+      });
+    }
+
+    const itemId = item_type === 'service' ? null : parseInt(item_id);
+    if (item_type !== 'service' && (isNaN(itemId) || !req.body.item_id)) {
+      return res.status(400).json({
+        error: 'ID elemento richiesto per questo tipo',
+        type: 'INVALID_ITEM_ID'
+      });
+    }
+
+    await UsersDao.addRating(userId, item_type, itemId, ratingValue, review);
+
+    await logSecurityEvent(req, 'rating_added', {
+      userId,
+      itemType: item_type,
+      itemId,
+      rating: ratingValue
+    });
+
+    debugLog('Rating added', { userId, itemType: item_type, itemId, rating: ratingValue });
+
+    res.status(201).json({
+      message: 'Valutazione aggiunta con successo',
+      success: true
+    });
+
+  } catch (error) {
+    debugLog('Add rating error', { error: error.message });
+
+    res.status(500).json({
+      error: 'Errore aggiunta valutazione',
+      type: 'INTERNAL_ERROR'
+    });
+  }
+});
+
+// ==========================================
+// ROUTES AUDIT LOG (solo proprio)
+// ==========================================
+
+// GET /api/users/:userId/audit-log - Log audit personale
+router.get('/:userId/audit-log', requireAuth, requireProfileOwnership, async (req, res) => {
+  debugLog('Get user audit log', { userId: req.params.userId });
+
+  try {
+    const userId = parseInt(req.params.userId);
+    const { limit = 50 } = req.query;
+
+    const auditLog = await UsersDao.getUserAuditLog(userId, parseInt(limit));
+
+    res.json({
+      auditLog,
+      total: auditLog.length,
+      success: true
+    });
+
+  } catch (error) {
+    debugLog('Get audit log error', { error: error.message });
+
+    res.status(500).json({
+      error: 'Errore recupero log audit',
+      type: 'INTERNAL_ERROR'
+    });
+  }
+});
+
+// ==========================================
+// EXPORTS
+// ==========================================
 
 module.exports = router;
