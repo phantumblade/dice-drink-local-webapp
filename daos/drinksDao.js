@@ -230,6 +230,48 @@ class DrinksDao {
     await db.close();
     return result.total;
   }
-}
+// ==========================================
+  // STATISTICHE PER ADMIN DASHBOARD
+  // ==========================================
+
+  static async getTotalCount() {
+    try {
+      const db = await openDb();
+      const result = await db.get('SELECT COUNT(*) as count FROM drinks');
+      await db.close();
+
+      return result.count;
+    } catch (error) {
+      console.error('Error getting total drinks count:', error);
+      throw error;
+    }
+  }
+
+  static async getInventoryStats() {
+    try {
+      const db = await openDb();
+      const result = await db.get(`
+        SELECT
+          COUNT(*) as total_drinks,
+          COUNT(CASE WHEN is_alcoholic = 1 THEN 1 END) as alcoholic_drinks,
+          COUNT(CASE WHEN is_alcoholic = 0 THEN 1 END) as non_alcoholic_drinks,
+          COUNT(DISTINCT base_spirit) as total_spirits,
+          AVG(price) as avg_price
+        FROM drinks
+      `);
+      await db.close();
+
+      return result;
+    } catch (error) {
+      console.error('Error getting drinks inventory stats:', error);
+      throw error;
+    }
+  }
+
+} // ← Fine della classe DrinksDao
+
+// ==========================================
+// EXPORTS
+// ==========================================
 
 module.exports = DrinksDao;

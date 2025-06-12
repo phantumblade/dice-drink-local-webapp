@@ -310,6 +310,47 @@ class SnacksDao {
     await db.close();
     return result.total;
   }
+// ==========================================
+  // STATISTICHE PER ADMIN DASHBOARD
+  // ==========================================
+
+  static async getTotalCount() {
+    try {
+      const db = await openDb();
+      const result = await db.get('SELECT COUNT(*) as count FROM snacks');
+      await db.close();
+
+      return result.count;
+    } catch (error) {
+      console.error('Error getting total snacks count:', error);
+      throw error;
+    }
+  }
+
+static async getInventoryStats() {
+  try {
+    const db = await openDb();
+    const result = await db.get(`
+      SELECT
+        COUNT(*) as total_snacks,
+        COUNT(CASE WHEN is_sweet = 1 THEN 1 END) as sweet_snacks,
+        COUNT(CASE WHEN is_sweet = 0 THEN 1 END) as savory_snacks,
+        AVG(price) as avg_price
+      FROM snacks
+    `);
+    await db.close();
+
+    return result;
+  } catch (error) {
+    console.error('Error getting snacks inventory stats:', error);
+    throw error;
+  }
 }
+
+} // ← Fine della classe SnacksDao
+
+// ==========================================
+// EXPORTS
+// ==========================================
 
 module.exports = SnacksDao;

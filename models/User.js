@@ -2,89 +2,135 @@
 // SCOPO: Modello User con validazioni, sicurezza e metodi di business logic
 // RELAZIONI: Usato da DAO e routes per gestione completa utenti
 
+require('dotenv').config();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
 // ==========================================
-// CONFIGURAZIONE SICUREZZA
+// CONFIGURAZIONE SICUREZZA DA ENV
 // ==========================================
 
 const SECURITY_CONFIG = {
-  // Bcrypt rounds (più alto = più sicuro ma più lento)
-  BCRYPT_ROUNDS: 12,
+  // Bcrypt rounds da environment
+  BCRYPT_ROUNDS: parseInt(process.env.BCRYPT_ROUNDS) || 12,
 
-  // JWT Token expiration
-  ACCESS_TOKEN_EXPIRES: '15m',    // 15 minuti per API calls
-  REFRESH_TOKEN_EXPIRES: '7d',    // 7 giorni per refresh
-  VERIFICATION_TOKEN_EXPIRES: '24h', // 24 ore per email verify
-  RESET_TOKEN_EXPIRES: '1h',      // 1 ora per password reset
+  // JWT Token expiration da environment
+  ACCESS_TOKEN_EXPIRES: process.env.JWT_ACCESS_EXPIRES || '15m',
+  REFRESH_TOKEN_EXPIRES: process.env.JWT_REFRESH_EXPIRES || '7d',
+  VERIFICATION_TOKEN_EXPIRES: process.env.JWT_VERIFY_EXPIRES || '24h',
+  RESET_TOKEN_EXPIRES: process.env.JWT_RESET_EXPIRES || '1h',
 
-  // Rate limiting
-  MAX_FAILED_ATTEMPTS: 5,         // Tentativi login falliti
-  LOCK_TIME: 15 * 60 * 1000,      // 15 minuti lock (in ms)
+  // Rate limiting da environment
+  MAX_FAILED_ATTEMPTS: parseInt(process.env.MAX_FAILED_LOGIN_ATTEMPTS) || 5,
+  LOCK_TIME: parseInt(process.env.ACCOUNT_LOCK_TIME) || 15, // minuti
 
   // Password requirements
   MIN_PASSWORD_LENGTH: 8,
-  PASSWORD_REGEX: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/
+  PASSWORD_REGEX: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+
+  // JWT Secret da environment
+  JWT_SECRET: process.env.JWT_SECRET || 'dice-and-drink-fallback-secret-2025'
 };
 
+// Warning se usando secret di default
+if (SECURITY_CONFIG.JWT_SECRET === 'dice-and-drink-fallback-secret-2025') {
+  console.warn('⚠️  SECURITY WARNING: Using default JWT secret! Set JWT_SECRET in .env for production!');
+}
+
 // ==========================================
-// SISTEMA PERMESSI PER RUOLI
+// SISTEMA PERMESSI GRANULARE
 // ==========================================
 
 const ROLE_PERMISSIONS = {
   customer: [
+    // Lettura cataloghi
     'read:games',
     'read:drinks',
     'read:snacks',
     'read:events_public',
+
+    // Gestione prenotazioni proprie
     'create:booking',
     'read:own_bookings',
     'update:own_booking',
     'cancel:own_booking',
+
+    // Gestione profilo proprio
     'read:own_profile',
     'update:own_profile',
+    'update:own_preferences',
+
+    // Interazioni
     'create:wishlist',
-    'rate:games'
+    'rate:games',
+    'rate:drinks',
+    'rate:snacks',
+    'rate:service'
   ],
 
   staff: [
-    // Eredita tutti i permessi customer
-    ...this?.customer || [],
+    // Tutti i permessi customer
+    ...[], // Popolato dopo la definizione
+
+    // Gestione prenotazioni
     'read:all_bookings',
     'update:booking_status',
-    'read:user_list',
+    'read:booking_details',
+
+    // Gestione eventi
     'create:events',
     'update:events',
     'read:event_details',
-    'manage:event_participants'
+    'manage:event_participants',
+
+    // Lettura utenti base
+    'read:user_list',
+    'read:user_stats',
+
+    // Gestione inventario
+    'update:inventory',
+    'read:inventory_reports'
   ],
 
   admin: [
-    // Eredita tutti i permessi staff
+    // Accesso completo
     'read:*',
     'create:*',
     'update:*',
     'delete:*',
+
+    // Gestione utenti
     'manage:users',
     'manage:roles',
+    'read:user_audit_log',
+
+    // Analytics e reports
     'read:analytics',
+    'read:financial_reports',
+    'export:data',
+
+    // Sistema
     'system:backup',
+    'system:maintenance',
     'access:admin_panel'
   ]
 };
 
-// Fix per riferimento circolare
+// Popolamento permessi staff con customer
 ROLE_PERMISSIONS.staff = [
   ...ROLE_PERMISSIONS.customer,
   'read:all_bookings',
   'update:booking_status',
-  'read:user_list',
+  'read:booking_details',
   'create:events',
   'update:events',
   'read:event_details',
-  'manage:event_participants'
+  'manage:event_participants',
+  'read:user_list',
+  'read:user_stats',
+  'update:inventory',
+  'read:inventory_reports'
 ];
 
 // ==========================================
@@ -93,48 +139,78 @@ ROLE_PERMISSIONS.staff = [
 
 class User {
   constructor(userData = {}) {
+    // Dati base
     this.id = userData.id;
     this.email = userData.email;
     this.passwordHash = userData.password_hash;
     this.role = userData.role || 'customer';
+
+    // Informazioni personali
     this.firstName = userData.first_name;
     this.lastName = userData.last_name;
     this.phone = userData.phone;
     this.dateOfBirth = userData.date_of_birth;
+    this.profileImage = userData.profile_image;
+
+    // Timestamp
     this.createdAt = userData.created_at;
     this.lastLogin = userData.last_login;
+
+    // Stato account
     this.isActive = userData.is_active !== false; // Default true
     this.emailVerified = userData.email_verified || false;
+
+    // Sicurezza
     this.verificationToken = userData.verification_token;
     this.resetToken = userData.reset_token;
     this.resetExpires = userData.reset_expires;
     this.failedLoginAttempts = userData.failed_login_attempts || 0;
     this.lockedUntil = userData.locked_until;
-    this.profileImage = userData.profile_image;
   }
 
   // ==========================================
-  // VALIDAZIONI
+  // VALIDAZIONI INPUT
   // ==========================================
 
   static validateEmail(email) {
+    if (!email) {
+      throw new Error('Email è obbligatoria');
+    }
+
+    // Regex email completa
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
-      throw new Error('Email non valida');
+    if (!emailRegex.test(email)) {
+      throw new Error('Formato email non valido');
     }
+
     if (email.length > 254) {
-      throw new Error('Email troppo lunga');
+      throw new Error('Email troppo lunga (max 254 caratteri)');
     }
+
     return true;
   }
 
   static validatePassword(password) {
-    if (!password || password.length < SECURITY_CONFIG.MIN_PASSWORD_LENGTH) {
+    if (!password) {
+      throw new Error('Password è obbligatoria');
+    }
+
+    if (password.length < SECURITY_CONFIG.MIN_PASSWORD_LENGTH) {
       throw new Error(`Password deve essere di almeno ${SECURITY_CONFIG.MIN_PASSWORD_LENGTH} caratteri`);
     }
 
     if (!SECURITY_CONFIG.PASSWORD_REGEX.test(password)) {
-      throw new Error('Password deve contenere: maiuscola, minuscola, numero e carattere speciale');
+      throw new Error('Password deve contenere: maiuscola, minuscola, numero e carattere speciale (@$!%*?&)');
+    }
+
+    // Controlla password comuni
+    const commonPasswords = [
+      'password', '123456', '12345678', 'qwerty', 'abc123',
+      'password123', 'admin', 'letmein', 'welcome', 'monkey'
+    ];
+
+    if (commonPasswords.includes(password.toLowerCase())) {
+      throw new Error('Password troppo comune, scegline una più sicura');
     }
 
     return true;
@@ -148,6 +224,18 @@ class User {
     return true;
   }
 
+  static validatePhone(phone) {
+    if (!phone) return true; // Opzionale
+
+    // Regex per telefono italiano/internazionale
+    const phoneRegex = /^[\+]?[1-9][\d\s\-\(\)]{8,20}$/;
+    if (!phoneRegex.test(phone)) {
+      throw new Error('Formato telefono non valido');
+    }
+
+    return true;
+  }
+
   static validateUserData(userData) {
     const errors = [];
 
@@ -158,7 +246,7 @@ class User {
       errors.push(err.message);
     }
 
-    // Password obbligatoria (solo per nuovi utenti)
+    // Password obbligatoria per nuovi utenti
     if (userData.password && !userData.id) {
       try {
         User.validatePassword(userData.password);
@@ -184,9 +272,25 @@ class User {
       errors.push('Cognome troppo lungo (max 50 caratteri)');
     }
 
-    // Telefono formato base
-    if (userData.phone && !/^[\+]?[\d\s\-\(\)]{8,20}$/.test(userData.phone)) {
-      errors.push('Formato telefono non valido');
+    // Telefono formato
+    try {
+      User.validatePhone(userData.phone);
+    } catch (err) {
+      errors.push(err.message);
+    }
+
+    // Data di nascita
+    if (userData.date_of_birth) {
+      const birthDate = new Date(userData.date_of_birth);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear();
+
+      if (age < 13) {
+        errors.push('Età minima 13 anni');
+      }
+      if (age > 120) {
+        errors.push('Data di nascita non valida');
+      }
     }
 
     if (errors.length > 0) {
@@ -207,30 +311,26 @@ class User {
 
   async verifyPassword(password) {
     if (!this.passwordHash) {
-      throw new Error('Password hash non trovato');
+      throw new Error('Password hash non trovato per questo utente');
     }
     return await bcrypt.compare(password, this.passwordHash);
   }
 
   async updatePassword(newPassword) {
     this.passwordHash = await User.hashPassword(newPassword);
+
+    // Reset sicurezza quando password cambia
     this.resetToken = null;
     this.resetExpires = null;
     this.failedLoginAttempts = 0;
     this.lockedUntil = null;
+
+    return this;
   }
 
   // ==========================================
   // JWT TOKEN MANAGEMENT
   // ==========================================
-
-  static getJWTSecret() {
-    const secret = process.env.JWT_SECRET || 'dice-and-drink-secret-key-2025';
-    if (secret === 'dice-and-drink-secret-key-2025') {
-      console.warn('⚠️  Using default JWT secret! Set JWT_SECRET in production!');
-    }
-    return secret;
-  }
 
   generateAccessToken() {
     const payload = {
@@ -238,13 +338,15 @@ class User {
       email: this.email,
       role: this.role,
       permissions: this.getPermissions(),
-      emailVerified: this.emailVerified
+      emailVerified: this.emailVerified,
+      iat: Math.floor(Date.now() / 1000)
     };
 
-    return jwt.sign(payload, User.getJWTSecret(), {
+    return jwt.sign(payload, SECURITY_CONFIG.JWT_SECRET, {
       expiresIn: SECURITY_CONFIG.ACCESS_TOKEN_EXPIRES,
-      issuer: 'dice-and-drink',
-      audience: 'dice-and-drink-users'
+      issuer: 'dice-and-drink-api',
+      audience: 'dice-and-drink-users',
+      subject: this.id.toString()
     });
   }
 
@@ -252,12 +354,13 @@ class User {
     const payload = {
       userId: this.id,
       tokenType: 'refresh',
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      sessionId: crypto.randomBytes(16).toString('hex')
     };
 
-    return jwt.sign(payload, User.getJWTSecret(), {
+    return jwt.sign(payload, SECURITY_CONFIG.JWT_SECRET, {
       expiresIn: SECURITY_CONFIG.REFRESH_TOKEN_EXPIRES,
-      issuer: 'dice-and-drink'
+      issuer: 'dice-and-drink-api'
     });
   }
 
@@ -268,20 +371,28 @@ class User {
 
   generateResetToken() {
     this.resetToken = crypto.randomBytes(32).toString('hex');
-    this.resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 ora
+
+    // Scadenza da config environment
+    const expiresIn = parseInt(SECURITY_CONFIG.RESET_TOKEN_EXPIRES.replace('h', '')) * 60 * 60 * 1000;
+    this.resetExpires = new Date(Date.now() + expiresIn);
+
     return this.resetToken;
   }
 
   static verifyJWT(token) {
     try {
-      return jwt.verify(token, User.getJWTSecret());
+      return jwt.verify(token, SECURITY_CONFIG.JWT_SECRET, {
+        issuer: 'dice-and-drink-api'
+      });
     } catch (err) {
       if (err.name === 'TokenExpiredError') {
         throw new Error('Token scaduto');
       } else if (err.name === 'JsonWebTokenError') {
         throw new Error('Token non valido');
+      } else if (err.name === 'NotBeforeError') {
+        throw new Error('Token non ancora valido');
       }
-      throw err;
+      throw new Error('Errore verifica token');
     }
   }
 
@@ -301,6 +412,11 @@ class User {
       return true;
     }
 
+    // Controlla permesso wildcard (*)
+    if (userPermissions.includes(`${permission.split(':')[0]}:*`)) {
+      return true;
+    }
+
     // Controlla permesso specifico
     return userPermissions.includes(permission);
   }
@@ -316,7 +432,7 @@ class User {
       return this.id === targetUser.id; // Solo i propri dati
     }
 
-    // Admin può gestire tutti tranne altri admin (safety)
+    // Admin non può gestire altri admin (safety)
     if (targetUser.role === 'admin' && this.id !== targetUser.id) {
       return false;
     }
@@ -324,12 +440,23 @@ class User {
     return true;
   }
 
+  canAccessBooking(booking) {
+    // Proprietario può sempre accedere
+    if (booking.user_id === this.id) {
+      return true;
+    }
+
+    // Staff e admin possono vedere tutte le prenotazioni
+    return this.hasPermission('read:all_bookings');
+  }
+
   // ==========================================
   // GESTIONE ACCOUNT SECURITY
   // ==========================================
 
   isAccountLocked() {
-    return this.lockedUntil && this.lockedUntil > new Date();
+    if (!this.lockedUntil) return false;
+    return new Date(this.lockedUntil) > new Date();
   }
 
   shouldLockAccount() {
@@ -337,7 +464,8 @@ class User {
   }
 
   lockAccount() {
-    this.lockedUntil = new Date(Date.now() + SECURITY_CONFIG.LOCK_TIME);
+    const lockTimeMs = SECURITY_CONFIG.LOCK_TIME * 60 * 1000; // minuti to milliseconds
+    this.lockedUntil = new Date(Date.now() + lockTimeMs);
     this.failedLoginAttempts = SECURITY_CONFIG.MAX_FAILED_ATTEMPTS;
   }
 
@@ -356,6 +484,48 @@ class User {
   updateLastLogin() {
     this.lastLogin = new Date();
     this.resetFailedAttempts();
+  }
+
+  // ==========================================
+  // VALIDAZIONI BUSINESS LOGIC
+  // ==========================================
+
+  canLogin() {
+    if (!this.isActive) {
+      throw new Error('Account disattivato. Contatta il supporto.');
+    }
+
+    if (this.isAccountLocked()) {
+      const unlockTime = new Date(this.lockedUntil).toLocaleString('it-IT');
+      throw new Error(`Account bloccato fino a ${unlockTime} per troppi tentativi di login falliti.`);
+    }
+
+    return true;
+  }
+
+  isEmailVerificationRequired() {
+    // Admin sono pre-verificati
+    if (this.role === 'admin') {
+      return false;
+    }
+
+    // Feature flag da environment
+    const emailVerificationEnabled = process.env.FEATURE_EMAIL_VERIFICATION === 'true';
+    if (!emailVerificationEnabled) {
+      return false;
+    }
+
+    return !this.emailVerified;
+  }
+
+  canMakeBooking() {
+    this.canLogin();
+
+    if (this.isEmailVerificationRequired()) {
+      throw new Error('Verifica la tua email prima di effettuare prenotazioni.');
+    }
+
+    return true;
   }
 
   // ==========================================
@@ -382,36 +552,44 @@ class User {
     if (this.firstName && this.lastName) {
       return `${this.firstName} ${this.lastName}`;
     }
-    return this.firstName || this.lastName || this.email;
+    return this.firstName || this.lastName || this.email.split('@')[0];
   }
 
-  isEmailVerificationRequired() {
-    return !this.emailVerified && this.role !== 'admin';
+  getDisplayName() {
+    return this.getFullName();
   }
 
-  canLogin() {
-    if (!this.isActive) {
-      throw new Error('Account disattivato');
+  getAge() {
+    if (!this.dateOfBirth) return null;
+
+    const birth = new Date(this.dateOfBirth);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
     }
 
-    if (this.isAccountLocked()) {
-      const unlockTime = new Date(this.lockedUntil).toLocaleString();
-      throw new Error(`Account bloccato fino a ${unlockTime}`);
-    }
+    return age;
+  }
 
-    return true;
+  isMinor() {
+    const age = this.getAge();
+    return age !== null && age < 18;
   }
 
   // ==========================================
-  // SERIALIZZAZIONE
+  // SERIALIZZAZIONE SICURA
   // ==========================================
 
   toJSON() {
-    // Non includere mai password hash o token sensibili nella serializzazione
+    // Non includere mai password hash o token sensibili
     const safeData = { ...this };
     delete safeData.passwordHash;
     delete safeData.verificationToken;
     delete safeData.resetToken;
+    delete safeData.resetExpires;
     return safeData;
   }
 
@@ -419,37 +597,51 @@ class User {
     return new User(row);
   }
 
-  toDatabaseObject() {
-    return {
-      email: this.email,
-      password_hash: this.passwordHash,
+  toDatabaseObject(includePassword = true) {
+    const dbObject = {
+      email: User.sanitizeEmail(this.email),
       role: this.role,
       first_name: this.firstName,
       last_name: this.lastName,
       phone: this.phone,
       date_of_birth: this.dateOfBirth,
-      is_active: this.isActive,
-      email_verified: this.emailVerified,
+      is_active: this.isActive ? 1 : 0,
+      email_verified: this.emailVerified ? 1 : 0,
       verification_token: this.verificationToken,
       reset_token: this.resetToken,
-      reset_expires: this.resetExpires,
+      reset_expires: this.resetExpires ? this.resetExpires.toISOString() : null,
       failed_login_attempts: this.failedLoginAttempts,
-      locked_until: this.lockedUntil,
+      locked_until: this.lockedUntil ? this.lockedUntil.toISOString() : null,
       profile_image: this.profileImage,
-      last_login: this.lastLogin
+      last_login: this.lastLogin ? this.lastLogin.toISOString() : null
     };
+
+    if (includePassword && this.passwordHash) {
+      dbObject.password_hash = this.passwordHash;
+    }
+
+    return dbObject;
   }
 
   // ==========================================
   // STATIC UTILITY METHODS
   // ==========================================
 
+  static sanitizeEmail(email) {
+    if (!email) return null;
+    return email.trim().toLowerCase();
+  }
+
   static generateSecureId() {
     return crypto.randomBytes(16).toString('hex');
   }
 
-  static sanitizeEmail(email) {
-    return email?.trim().toLowerCase();
+  static generateConfirmationCode() {
+    // Formato: DCK2025061501 (DCK + YYYYMMDD + sequenza)
+    const today = new Date();
+    const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
+    const random = Math.floor(Math.random() * 100).toString().padStart(2, '0');
+    return `DCK${dateStr}${random}`;
   }
 
   static getRoleHierarchy() {
@@ -462,7 +654,41 @@ class User {
 
   static compareRoles(role1, role2) {
     const hierarchy = User.getRoleHierarchy();
-    return hierarchy[role1] - hierarchy[role2];
+    return (hierarchy[role1] || 0) - (hierarchy[role2] || 0);
+  }
+
+  static isValidRole(role) {
+    return ['customer', 'staff', 'admin'].includes(role);
+  }
+
+  static getPasswordStrength(password) {
+    let strength = 0;
+
+    if (password.length >= 8) strength += 1;
+    if (password.length >= 12) strength += 1;
+    if (/[a-z]/.test(password)) strength += 1;
+    if (/[A-Z]/.test(password)) strength += 1;
+    if (/[0-9]/.test(password)) strength += 1;
+    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+
+    if (strength <= 2) return 'debole';
+    if (strength <= 4) return 'media';
+    return 'forte';
+  }
+
+  // ==========================================
+  // CONFIGURAZIONE E DEBUG
+  // ==========================================
+
+  static getSecurityConfig() {
+    return { ...SECURITY_CONFIG };
+  }
+
+  static getRolePermissions(role = null) {
+    if (role) {
+      return ROLE_PERMISSIONS[role] || [];
+    }
+    return { ...ROLE_PERMISSIONS };
   }
 }
 

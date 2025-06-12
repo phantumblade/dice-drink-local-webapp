@@ -193,6 +193,78 @@ static async update(id, gameData) {
     await db.close();
     return result.total;
   }
+
+// ==========================================
+  // STATISTICHE PER ADMIN DASHBOARD
+  // ==========================================
+
+  static async getTotalCount() {
+    try {
+      const db = await openDb();
+      const result = await db.get('SELECT COUNT(*) as count FROM games');
+      await db.close();
+
+      return result.count;
+    } catch (error) {
+      console.error('Error getting total games count:', error);
+      throw error;
+    }
+  }
+
+// SOSTITUZIONE COMPLETA per getMostPopularGames() in gamesDao.js
+// Trova questa funzione e sostituiscila completamente:
+
+static async getMostPopularGames(limit = 5) {
+  try {
+    const db = await openDb();
+    const result = await db.all(`
+      SELECT
+        id,
+        name,
+        category,
+        min_players,
+        max_players,
+        difficulty_level,
+        rental_price
+      FROM games
+      ORDER BY name ASC
+      LIMIT ?
+    `, [limit]);
+    await db.close();
+
+    return result;
+  } catch (error) {
+    console.error('Error getting popular games:', error);
+    throw error;
+  }
 }
+
+// ANCHE questa funzione se esiste - getInventoryStats():
+
+static async getInventoryStats() {
+  try {
+    const db = await openDb();
+    const result = await db.get(`
+      SELECT
+        COUNT(*) as total_games,
+        COUNT(DISTINCT category) as total_categories,
+        AVG(difficulty_level) as avg_difficulty,
+        AVG(rental_price) as avg_rental_price
+      FROM games
+    `);
+    await db.close();
+
+    return result;
+  } catch (error) {
+    console.error('Error getting games inventory stats:', error);
+    throw error;
+  }
+}
+
+} // ← Fine della classe GamesDao
+
+// ==========================================
+// EXPORTS
+// ==========================================
 
 module.exports = GamesDao;

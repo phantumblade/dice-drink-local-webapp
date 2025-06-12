@@ -36,6 +36,18 @@ async function init() {
   const snacksRouter = require('./routes/snacks');
   app.use('/api/snacks', snacksRouter);
 
+  // 🔐 AUTH API - Routes per autenticazione (login, register, logout)
+  const authRoutes = require('./routes/auth');
+  app.use('/api/auth', authRoutes);
+
+  // 👤 USERS API - Routes per gestione profilo utente
+  const usersRoutes = require('./routes/users');
+  app.use('/api/users', usersRoutes);
+
+  // 👑 ADMIN API - Routes per pannello amministrativo
+  const adminRoutes = require('./routes/admin');
+  app.use('/api/admin', adminRoutes);
+
   // ==========================================
   // VERIFICA DATABASE (non crea più tabelle qui)
   // ==========================================
