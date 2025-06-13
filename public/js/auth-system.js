@@ -1,13 +1,12 @@
-// public/js/auth-system.js - FINAL VERSION
-// Sistema di autenticazione autonomo - VERSIONE DEFINITIVA SENZA DUPLICATI
+// public/js/auth-system.js - GAMING STYLE VERSION
+// Sistema di autenticazione con design gaming/pixel art
 
-console.log('🚀 Sistema auth autonomo - v3.2 FINAL');
+console.log('🚀 Sistema auth autonomo - v3.3 GAMING STYLE');
 
 // ==========================================
 // CONTROLLO DUPLICAZIONE
 // ==========================================
 
-// Evita caricamenti multipli
 if (window.SimpleAuth && window.SimpleAuth.isInitialized) {
     console.log('⚠️ SimpleAuth già inizializzato, evito duplicazione');
 } else {
@@ -30,7 +29,7 @@ window.SimpleAuth = {
     isAuthenticated: false,
     currentUser: null,
     isInitialized: false,
-    currentModal: null, // Traccia il modal attivo
+    currentModal: null,
 
     async init() {
         if (this.isInitialized) {
@@ -98,8 +97,6 @@ window.SimpleAuth = {
 
             if (profileIcon) {
                 profileIcon.style.cursor = 'pointer';
-
-                // Rimuovi listener esistenti per evitare duplicazioni
                 profileIcon.removeEventListener('click', this.handleProfileClick.bind(this));
                 profileIcon.addEventListener('click', this.handleProfileClick.bind(this));
 
@@ -186,14 +183,12 @@ window.SimpleAuth = {
     showLoginModal() {
         console.log('🔑 Apertura modale di login');
 
-        // CONTROLLO DUPLICAZIONE MODAL
         if (this.currentModal) {
             console.log('⚠️ Modal già aperto, lo chiudo prima di aprirne uno nuovo');
             this.currentModal.hide();
             this.currentModal = null;
         }
 
-        // Rimuovi eventuali modal orfani dal DOM
         const existingModals = document.querySelectorAll('.auth-modal-overlay');
         existingModals.forEach(modal => {
             console.log('🧹 Rimuovo modal orfano dal DOM');
@@ -392,7 +387,6 @@ window.SimpleAuth = {
         }
     },
 
-    // Metodo per pulire modal quando viene chiuso
     onModalClosed() {
         this.currentModal = null;
         console.log('🧹 Modal chiuso e riferimento pulito');
@@ -400,7 +394,7 @@ window.SimpleAuth = {
 };
 
 // ==========================================
-// CLASSE MODALE GRAFICA - ANTI-DUPLICAZIONE
+// CLASSE MODALE GRAFICA - GAMING STYLE
 // ==========================================
 
 class AuthModal {
@@ -411,7 +405,6 @@ class AuthModal {
     }
 
     show() {
-        // Controllo di sicurezza: verifica se esiste già un modal
         const existingModal = document.querySelector('.auth-modal-overlay');
         if (existingModal) {
             console.log('⚠️ Modal esistente trovato, lo rimuovo');
@@ -421,21 +414,17 @@ class AuthModal {
         this.createModal();
         document.body.appendChild(this.modal);
 
-        // Forza reflow per assicurarsi che l'elemento sia nel DOM
         this.modal.offsetHeight;
 
-        // Mostra il modal con animazione
         setTimeout(() => {
             this.modal.classList.add('active');
         }, 10);
 
-        // Focus sul primo input
         setTimeout(() => {
             const firstInput = this.modal.querySelector('input[type="email"]');
             if (firstInput) firstInput.focus();
         }, 150);
 
-        // Blocca scroll del body
         document.body.style.overflow = 'hidden';
 
         console.log('✅ Modal mostrato correttamente');
@@ -445,16 +434,13 @@ class AuthModal {
         if (this.modal) {
             this.modal.classList.remove('active');
 
-            // Rimuovi dopo l'animazione
             setTimeout(() => {
                 if (this.modal && this.modal.parentNode) {
                     this.modal.parentNode.removeChild(this.modal);
                     console.log('🧹 Modal rimosso dal DOM');
                 }
-                // Ripristina scroll del body
                 document.body.style.overflow = 'auto';
 
-                // Notifica al manager che il modal è stato chiuso
                 if (this.authManager && this.authManager.onModalClosed) {
                     this.authManager.onModalClosed();
                 }
@@ -463,97 +449,96 @@ class AuthModal {
     }
 
     createModal() {
-        // Crea il modal usando le classi CSS corrette
         this.modal = document.createElement('div');
         this.modal.className = 'auth-modal-overlay';
 
         this.modal.innerHTML = `
-            <div class="auth-modal">
-                <div class="auth-modal-header">
-                    <button class="auth-modal-close" type="button">×</button>
-                    <div class="dice-icon">🎲</div>
-                    <h2 class="auth-modal-title">Dice & Drink</h2>
-                    <p class="auth-modal-tagline">La tua passione per i giochi da tavolo inizia qui</p>
+            <div class="auth-modal gaming-style">
+                <!-- SEZIONE SINISTRA: GAMING/PIXEL ART -->
+                <div class="auth-modal-left">
+                    <div class="gaming-background">
+                        <div class="pixel-dice-container">
+                            <div class="pixel-dice">
+                                <div class="dice-face dice-face-1"></div>
+                                <div class="dice-face dice-face-2"></div>
+                                <div class="dice-face dice-face-3"></div>
+                                <div class="dice-character">🎮</div>
+                            </div>
+                        </div>
+                        <h2 class="gaming-title">Dice&Drink</h2>
+                        <p class="gaming-subtitle">Identificati avventuriero!</p>
+                    </div>
                 </div>
 
-                <div class="auth-modal-content">
-                    <div class="auth-tabs">
-                        <button type="button" class="auth-tab active" id="login-tab">
-                            Accedi
-                        </button>
-                        <button type="button" class="auth-tab" id="register-tab">
-                            Registrati
-                        </button>
-                    </div>
+                <!-- SEZIONE DESTRA: FORM -->
+                <div class="auth-modal-right">
+                    <button class="auth-modal-close" type="button">×</button>
 
-                    <!-- LOGIN FORM -->
-                    <form class="auth-form active" id="login-form">
-                        <div class="form-group">
-                            <label class="form-label" for="login-email">Email</label>
-                            <input type="email" class="form-input" id="login-email" placeholder="La tua email" required>
-                        </div>
+                    <div class="auth-form-container">
+                        <h2 class="form-title" id="form-title">Crea account</h2>
+                        <p class="form-subtitle">
+                            <span id="form-subtitle">Hai già un account?</span>
+                            <a href="#" class="toggle-link" id="toggle-link">Log in</a>
+                        </p>
 
-                        <div class="form-group">
-                            <label class="form-label" for="login-password">Password</label>
-                            <input type="password" class="form-input" id="login-password" placeholder="La tua password" required>
-                        </div>
+                        <!-- FORM REGISTRAZIONE -->
+                        <form class="auth-form active" id="register-form">
+                            <div class="form-row">
+                                <input type="text" class="form-input" id="register-firstName" placeholder="Nome" required>
+                                <input type="text" class="form-input" id="register-lastName" placeholder="Cognome" required>
+                            </div>
 
-                        <div class="form-group">
-                            <label class="checkbox-item">
+                            <input type="email" class="form-input" id="register-email" placeholder="Email" required>
+                            <input type="password" class="form-input" id="register-password" placeholder="Inserisci la password" required>
+
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="terms-checkbox" required>
+                                <label for="terms-checkbox">Accetto i Termini e Condizioni</label>
+                            </div>
+
+                            <div id="register-error" class="error-message"></div>
+
+                            <button type="submit" class="auth-button primary" id="register-submit">
+                                Crea account
+                            </button>
+
+                            <div class="divider">
+                                <span>Oppure registrati con</span>
+                            </div>
+
+                            <div class="social-buttons">
+                                <button type="button" class="auth-button social google">
+                                    <span class="social-icon">G</span>
+                                    Google
+                                </button>
+                                <button type="button" class="auth-button social apple">
+                                    <span class="social-icon">🍎</span>
+                                    Apple
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- FORM LOGIN -->
+                        <form class="auth-form" id="login-form">
+                            <input type="email" class="form-input" id="login-email" placeholder="Email" required>
+                            <input type="password" class="form-input" id="login-password" placeholder="Password" required>
+
+                            <div class="checkbox-container">
                                 <input type="checkbox" id="remember-me">
-                                <span>Ricordami per 30 giorni</span>
-                            </label>
-                        </div>
+                                <label for="remember-me">Ricordami per 30 giorni</label>
+                            </div>
 
-                        <div id="login-error" class="error-message"></div>
+                            <div id="login-error" class="error-message"></div>
 
-                        <button type="submit" class="auth-button" id="login-submit">
-                            Accedi
-                        </button>
+                            <button type="submit" class="auth-button primary" id="login-submit">
+                                Accedi
+                            </button>
 
-                        <div style="text-align: center; margin-top: 1rem;">
-                            <button type="button" class="auth-button" id="demo-login" style="background: rgba(255,255,255,0.1); margin-top: 0.5rem;">
+                            <button type="button" class="auth-button demo" id="demo-login">
                                 🎮 Demo Login
                             </button>
-                        </div>
-                    </form>
-
-                    <!-- REGISTER FORM -->
-                    <form class="auth-form" id="register-form">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label" for="register-firstName">Nome</label>
-                                <input type="text" class="form-input" id="register-firstName" placeholder="Il tuo nome" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="register-lastName">Cognome</label>
-                                <input type="text" class="form-input" id="register-lastName" placeholder="Il tuo cognome" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" for="register-email">Email</label>
-                            <input type="email" class="form-input" id="register-email" placeholder="La tua email" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" for="register-password">Password</label>
-                            <input type="password" class="form-input" id="register-password" placeholder="Crea una password (min 6 caratteri)" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="checkbox-item">
-                                <input type="checkbox" id="terms-checkbox" required>
-                                <span>Accetto i Termini e Condizioni</span>
-                            </label>
-                        </div>
-
-                        <div id="register-error" class="error-message"></div>
-
-                        <button type="submit" class="auth-button" id="register-submit">
-                            Registrati
-                        </button>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         `;
@@ -562,26 +547,33 @@ class AuthModal {
     }
 
     setupModalEvents() {
-        // Tab switching
-        const loginTab = this.modal.querySelector('#login-tab');
-        const registerTab = this.modal.querySelector('#register-tab');
+        // Toggle between login/register
+        const toggleLink = this.modal.querySelector('#toggle-link');
+        const formTitle = this.modal.querySelector('#form-title');
+        const formSubtitle = this.modal.querySelector('#form-subtitle');
         const loginForm = this.modal.querySelector('#login-form');
         const registerForm = this.modal.querySelector('#register-form');
 
-        loginTab.addEventListener('click', () => {
-            loginTab.classList.add('active');
-            registerTab.classList.remove('active');
-            loginForm.classList.add('active');
-            registerForm.classList.remove('active');
-            this.isLoginMode = true;
-        });
+        toggleLink.addEventListener('click', (e) => {
+            e.preventDefault();
 
-        registerTab.addEventListener('click', () => {
-            registerTab.classList.add('active');
-            loginTab.classList.remove('active');
-            registerForm.classList.add('active');
-            loginForm.classList.remove('active');
-            this.isLoginMode = false;
+            if (this.isLoginMode) {
+                // Switch to register
+                formTitle.textContent = 'Crea account';
+                formSubtitle.textContent = 'Hai già un account?';
+                toggleLink.textContent = 'Log in';
+                loginForm.classList.remove('active');
+                registerForm.classList.add('active');
+                this.isLoginMode = false;
+            } else {
+                // Switch to login
+                formTitle.textContent = 'Bentornato!';
+                formSubtitle.textContent = 'Non hai un account?';
+                toggleLink.textContent = 'Registrati';
+                registerForm.classList.remove('active');
+                loginForm.classList.add('active');
+                this.isLoginMode = true;
+            }
         });
 
         // Close button
@@ -595,7 +587,7 @@ class AuthModal {
             }
         });
 
-        // Escape key to close
+        // Escape key
         const escapeHandler = (e) => {
             if (e.key === 'Escape') {
                 this.hide();
@@ -625,11 +617,9 @@ class AuthModal {
         const password = this.modal.querySelector('#login-password').value;
         const rememberMe = this.modal.querySelector('#remember-me').checked;
 
-        // Reset UI
         errorDiv.textContent = '';
         errorDiv.classList.remove('show');
 
-        // Set loading state
         const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
         submitBtn.classList.add('loading');
@@ -647,7 +637,6 @@ class AuthModal {
             errorDiv.textContent = error.message;
             errorDiv.classList.add('show');
         } finally {
-            // Reset button
             submitBtn.disabled = false;
             submitBtn.classList.remove('loading');
             submitBtn.textContent = originalText;
@@ -665,11 +654,9 @@ class AuthModal {
         const password = this.modal.querySelector('#register-password').value;
         const termsAccepted = this.modal.querySelector('#terms-checkbox').checked;
 
-        // Reset UI
         errorDiv.textContent = '';
         errorDiv.classList.remove('show');
 
-        // Validation
         if (!firstName || !lastName) {
             errorDiv.textContent = 'Nome e cognome sono obbligatori';
             errorDiv.classList.add('show');
@@ -688,7 +675,6 @@ class AuthModal {
             return;
         }
 
-        // Set loading state
         const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
         submitBtn.classList.add('loading');
@@ -707,7 +693,6 @@ class AuthModal {
             errorDiv.textContent = error.message;
             errorDiv.classList.add('show');
         } finally {
-            // Reset button
             submitBtn.disabled = false;
             submitBtn.classList.remove('loading');
             submitBtn.textContent = originalText;
@@ -731,6 +716,6 @@ if (document.readyState === 'loading') {
     }
 }
 
-console.log('✅ Sistema auth autonomo caricato - v3.2 FINAL');
+console.log('✅ Sistema auth autonomo caricato - v3.3 GAMING STYLE');
 
 } // Fine controllo duplicazione
