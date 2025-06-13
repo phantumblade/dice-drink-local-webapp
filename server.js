@@ -48,6 +48,8 @@ async function init() {
   const adminRoutes = require('./routes/admin');
   app.use('/api/admin', adminRoutes);
 
+
+
   // ==========================================
   // VERIFICA DATABASE (non crea più tabelle qui)
   // ==========================================

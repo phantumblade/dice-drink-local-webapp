@@ -183,13 +183,43 @@ export function createNavbar() {
   rightSection.appendChild(searchContainer);
 
   // Crea l'icona profilo come immagine
-  const profileIcon = document.createElement('span');
-  profileIcon.classList.add('material-symbols-rounded', 'navbar-profile-icon');
-  profileIcon.textContent = 'person_add';
+// Crea l'icona profilo come immagine
+const profileIcon = document.createElement('span');
+profileIcon.classList.add('material-symbols-rounded', 'navbar-profile-icon');
+profileIcon.textContent = 'person_add';
 
-  // Aggiunge l'icona profilo alla sezione destra
-  rightSection.appendChild(profileIcon);
+// Configura l'icona profilo
+profileIcon.style.cursor = 'pointer';
+profileIcon.title = 'Clicca per accedere';
 
+// Event listener per l'icona profilo
+profileIcon.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    console.log('👤 Click su icona profilo da navbar');
+
+    // Usa il sistema SimpleAuth se disponibile
+    if (window.SimpleAuth) {
+        console.log('✅ Uso SimpleAuth dal navbar');
+        window.SimpleAuth.handleProfileClick(e);
+    } else {
+        console.warn('⚠️ SimpleAuth non ancora caricato, riprovo...');
+
+        // Riprova dopo un breve delay
+        setTimeout(() => {
+            if (window.SimpleAuth) {
+                window.SimpleAuth.handleProfileClick(e);
+            } else {
+                console.error('❌ SimpleAuth non disponibile');
+                alert('Sistema di autenticazione non disponibile.\nRicarica la pagina e riprova.');
+            }
+        }, 100);
+    }
+});
+
+// Aggiunge l'icona profilo alla sezione destra
+rightSection.appendChild(profileIcon);
   // --- Componi la navbar completa ---
   // Aggiunge la sezione sinistra alla navbar
   nav.appendChild(leftSection);
