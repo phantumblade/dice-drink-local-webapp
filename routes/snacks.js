@@ -3,6 +3,8 @@
 
 const express = require('express');
 const SnacksDao = require('../daos/snacksDao');
+const { requireAdmin } = require('../middleware/auth');
+
 
 const router = express.Router();
 
@@ -246,7 +248,7 @@ router.get('/:id', async (req, res, next) => {
 // ==========================================
 
 // POST /api/snacks - Crea un nuovo snack (SOLO ADMIN)
-router.post('/', async (req, res, next) => {
+router.post('/', requireAdmin, async (req, res, next) => {
   try {
     // TODO: Aggiungere middleware di autenticazione admin
     // router.post('/', requireAdmin, async (req, res, next) => {
@@ -294,7 +296,7 @@ router.post('/', async (req, res, next) => {
 });
 
 // PUT /api/snacks/:id - Aggiorna uno snack esistente (SOLO ADMIN)
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', requireAdmin, async (req, res, next) => {
   try {
     // TODO: Aggiungere middleware di autenticazione admin
 
@@ -334,7 +336,7 @@ router.put('/:id', async (req, res, next) => {
 });
 
 // DELETE /api/snacks/:id - Elimina uno snack (SOLO ADMIN)
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', requireAdmin, async (req, res, next) => {
   try {
     // TODO: Aggiungere middleware di autenticazione admin
 

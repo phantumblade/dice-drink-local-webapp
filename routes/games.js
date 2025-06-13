@@ -7,7 +7,7 @@
 
 const express = require('express');
 const GamesDao = require('../daos/gamesDao');
-
+const { requireAdmin } = require('../middleware/auth');
 const router = express.Router();
 
 // ==========================================
@@ -134,7 +134,7 @@ router.get('/:id', async (req, res, next) => {
 // ==========================================
 
 // POST /api/games - Crea un nuovo gioco (SOLO ADMIN)
-router.post('/', async (req, res, next) => {
+router.post('/', requireAdmin, async (req, res, next) => {
   try {
     // TODO: Aggiungere middleware di autenticazione admin
     // router.post('/', requireAdmin, async (req, res, next) => {
@@ -190,7 +190,7 @@ router.post('/', async (req, res, next) => {
 });
 
 // PUT /api/games/:id - Aggiorna un gioco esistente (SOLO ADMIN)
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', requireAdmin, async (req, res, next) => {
   try {
     // TODO: Aggiungere middleware di autenticazione admin
 
@@ -236,7 +236,7 @@ router.put('/:id', async (req, res, next) => {
 });
 
 // DELETE /api/games/:id - Elimina un gioco (SOLO ADMIN)
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', requireAdmin, async (req, res, next) => {
   try {
     // TODO: Aggiungere middleware di autenticazione admin
 

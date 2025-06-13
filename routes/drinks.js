@@ -7,6 +7,7 @@
 
 const express = require('express');
 const DrinksDao = require('../daos/drinksDao');
+const { requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -191,7 +192,7 @@ router.get('/:id', async (req, res, next) => {
 // ==========================================
 
 // POST /api/drinks - Crea un nuovo drink (SOLO ADMIN)
-router.post('/', async (req, res, next) => {
+router.post('/', requireAdmin, async (req, res, next) => {
   try {
     // TODO: Aggiungere middleware di autenticazione admin
     // router.post('/', requireAdmin, async (req, res, next) => {
@@ -239,7 +240,7 @@ router.post('/', async (req, res, next) => {
 });
 
 // PUT /api/drinks/:id - Aggiorna un drink esistente (SOLO ADMIN)
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', requireAdmin, async (req, res, next) => {
   try {
     // TODO: Aggiungere middleware di autenticazione admin
 
@@ -279,7 +280,7 @@ router.put('/:id', async (req, res, next) => {
 });
 
 // DELETE /api/drinks/:id - Elimina un drink (SOLO ADMIN)
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', requireAdmin, async (req, res, next) => {
   try {
     // TODO: Aggiungere middleware di autenticazione admin
 
