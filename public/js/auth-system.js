@@ -718,4 +718,4 @@ if (document.readyState === 'loading') {
 
 console.log('✅ Sistema auth autonomo caricato - v3.3 GAMING STYLE');
 
-} // Fine controllo duplicazione
+} 
