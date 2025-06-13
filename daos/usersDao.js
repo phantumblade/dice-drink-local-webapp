@@ -1313,16 +1313,17 @@ static async getBookingsWithFilters(filters, pagination) {
   }
 }
 
+
 static async updateBookingStatus(bookingId, status, updateData = {}) {
   debugLog('updateBookingStatus called', { bookingId, status });
 
   try {
     const db = await openDb();
 
-    // Verifica se la tabella bookings esiste
+    // Verifica se la tabella user_bookings esiste (CORRETTO!)
     const tableExists = await db.get(`
       SELECT name FROM sqlite_master
-      WHERE type='table' AND name='bookings'
+      WHERE type='table' AND name='user_bookings'
     `);
 
     if (!tableExists) {
@@ -1330,21 +1331,42 @@ static async updateBookingStatus(bookingId, status, updateData = {}) {
       throw new Error('Tabella prenotazioni non trovata');
     }
 
+    // Aggiorna il record nella tabella user_bookings (CORRETTO!)
     const result = await db.run(
-      'UPDATE bookings SET status = ?, updated_at = datetime("now") WHERE id = ?',
+      'UPDATE user_bookings SET status = ?, updated_at = datetime("now") WHERE id = ?',
       [status, bookingId]
+    );
+
+    if (result.changes === 0) {
+      await db.close();
+      throw new Error('Prenotazione non trovata o già aggiornata');
+    }
+
+    // Se ci sono dati aggiuntivi da aggiornare
+    if (Object.keys(updateData).length > 0) {
+      const updateFields = Object.keys(updateData).map(key => `${key} = ?`).join(', ');
+      const updateValues = Object.values(updateData);
+
+      await db.run(
+        `UPDATE user_bookings SET ${updateFields}, updated_at = datetime("now") WHERE id = ?`,
+        [...updateValues, bookingId]
+      );
+    }
+
+    // Recupera la prenotazione aggiornata
+    const updatedBooking = await db.get(
+      'SELECT * FROM user_bookings WHERE id = ?',
+      [bookingId]
     );
 
     await db.close();
 
-    if (result.changes === 0) {
-      throw new Error('Prenotazione non trovata');
-    }
-
-    return { id: bookingId, status, ...updateData };
+    debugLog('Booking status updated successfully', { bookingId, status, updatedBooking });
+    return updatedBooking;
 
   } catch (error) {
-    handleError('updateBookingStatus', error);
+    debugLog('Error updating booking status', { error: error.message, bookingId, status });
+    throw error;
   }
 }
 

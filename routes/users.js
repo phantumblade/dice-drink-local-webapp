@@ -143,8 +143,30 @@ async function logSecurityEvent(req, event, details = {}) {
 // ==========================================
 
 // Middleware per verificare ownership del profilo
-const requireProfileOwnership = requireOwnership((req) => req.params.userId);
+// Middleware per verificare ownership del profilo O staff/admin access
+const requireProfileOwnership = [
+  requireAuth,
+  (req, res, next) => {
+    const targetUserId = parseInt(req.params.userId);
+    const currentUserId = parseInt(req.user.userId);
 
+    // Proprietario può sempre vedere i propri dati
+    if (targetUserId === currentUserId) {
+      return next();
+    }
+
+    // Staff e admin possono vedere dati di tutti
+    if (req.user.role === 'admin' || req.user.role === 'staff') {
+      return next();
+    }
+
+    return res.status(403).json({
+      error: 'Accesso negato',
+      message: 'Puoi accedere solo ai tuoi dati personali',
+      type: 'NOT_OWNER'
+    });
+  }
+];
 // Middleware per staff che possono vedere profili utenti
 const canViewUserProfile = [
   requireAuth,

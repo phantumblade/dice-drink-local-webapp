@@ -453,11 +453,7 @@ router.put('/bookings/:bookingId/confirm', requireStaff, async (req, res) => {
     const { bookingId } = req.params;
     const { notes = '' } = req.body;
 
-    const booking = await UsersDao.updateBookingStatus(bookingId, 'confirmed', {
-      confirmed_by: req.user.userId,
-      confirmed_at: new Date(),
-      staff_notes: notes
-    });
+    const booking = await UsersDao.updateBookingStatus(bookingId, 'confirmed');
 
     await logSystemEvent(req, 'booking_confirmed', {
       staffId: req.user.userId,
@@ -490,10 +486,8 @@ router.put('/bookings/:bookingId/cancel', requireStaff, async (req, res) => {
     const { reason = 'Annullata dallo staff', notes = '' } = req.body;
 
     const booking = await UsersDao.updateBookingStatus(bookingId, 'cancelled', {
-      cancelled_by: req.user.userId,
       cancelled_at: new Date(),
       cancellation_reason: reason,
-      staff_notes: notes
     });
 
     await logSystemEvent(req, 'booking_cancelled_by_staff', {
