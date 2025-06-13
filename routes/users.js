@@ -797,6 +797,55 @@ router.post('/:userId/wishlist', requireAuth, requireProfileOwnership, async (re
   }
 });
 
+// DELETE /api/users/:userId/wishlist/:itemId - Rimuovi da wishlist
+router.delete('/:userId/wishlist/:itemId', requireAuth, requireProfileOwnership, async (req, res) => {
+  debugLog('Remove from wishlist', {
+    userId: req.params.userId,
+    itemId: req.params.itemId
+  });
+
+  try {
+    const userId = parseInt(req.params.userId);
+    const itemId = parseInt(req.params.itemId);
+
+    if (isNaN(userId) || isNaN(itemId)) {
+      return res.status(400).json({
+        error: 'ID non validi',
+        type: 'INVALID_ID'
+      });
+    }
+
+    const removed = await UsersDao.removeFromWishlist(userId, itemId);
+
+    if (!removed) {
+      return res.status(404).json({
+        error: 'Elemento non trovato nella wishlist',
+        type: 'WISHLIST_ITEM_NOT_FOUND'
+      });
+    }
+
+    await logSecurityEvent(req, 'wishlist_item_removed', {
+      userId,
+      itemId
+    });
+
+    debugLog('Item removed from wishlist', { userId, itemId });
+
+    res.json({
+      message: 'Elemento rimosso dalla wishlist con successo',
+      success: true
+    });
+
+  } catch (error) {
+    debugLog('Remove from wishlist error', { error: error.message });
+
+    res.status(500).json({
+      error: 'Errore rimozione da wishlist',
+      type: 'INTERNAL_ERROR'
+    });
+  }
+});
+
 // ==========================================
 // ROUTES RATINGS
 // ==========================================

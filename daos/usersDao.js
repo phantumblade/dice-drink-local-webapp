@@ -1489,6 +1489,22 @@ static async softDeleteUser(userId) {
     }
   }
 
+// Rimuovi elemento da wishlist
+static async removeFromWishlist(userId, wishlistItemId) {
+  try {
+    const db = await openDb();  // ← Apri connessione
+    const result = await db.run(
+      `DELETE FROM user_wishlist
+       WHERE user_id = ? AND id = ?`,
+      [userId, wishlistItemId]
+    );
+
+    return result.changes > 0;
+  } catch (error) {
+    console.error('Error removing from wishlist:', error);
+    throw new Error('Errore rimozione da wishlist');
+  }
+}
   // ==========================================
   // AUDIT LOG
   // ==========================================
