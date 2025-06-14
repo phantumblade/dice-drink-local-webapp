@@ -17,7 +17,7 @@ const CATALOG_CONFIG = {
     CATEGORIES: {
         giochi: {
             label: 'Giochi',
-            icon: 'fas fa-gamepad',
+            icon: 'fas fa-dragon',
             endpoint: 'games'
         },
         drink: {
@@ -507,7 +507,7 @@ class CatalogPageManager {
 
         if (this.currentCategory === 'giochi') {
             return {
-                icon: 'fas fa-gamepad',
+                icon: 'fas fa-dragon',
                 count: count,
                 label: 'Giochi Disponibili',
                 rating: '4.8',
