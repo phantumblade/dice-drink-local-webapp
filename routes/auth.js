@@ -888,7 +888,7 @@ router.get('/sessions', requireAuth, async (req, res) => {
 
   try {
     const sessions = await UsersDao.getUserActiveSessions(req.user.userId);
-    
+
     res.json({
       sessions: sessions.map(session => ({
         id: session.id,
@@ -911,6 +911,70 @@ router.get('/sessions', requireAuth, async (req, res) => {
     });
   }
 });
+
+// routes/auth.js - Aggiungi questo endpoint temporaneo SOLO per testing
+
+// ENDPOINT TEMPORANEO PER TESTING - RIMUOVI IN PRODUZIONE!
+router.post('/test-admin-token', async (req, res) => {
+  try {
+    // ATTENZIONE: Questo endpoint bypassa la sicurezza - SOLO PER SVILUPPO!
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(403).json({
+        error: 'Endpoint non disponibile in produzione'
+      });
+    }
+
+    console.log('⚠️ ATTENZIONE: Generazione token admin di test!');
+
+    // Crea un utente admin fittizio per il test
+    const testAdminUser = {
+      userId: 999,
+      id: 999,
+      email: 'test-admin@dicedrink.local',
+      first_name: 'Test',
+      last_name: 'Admin',
+      role: 'admin',
+      permissions: ['*:*'], // Tutti i permessi
+      isActive: true
+    };
+
+    // Genera token JWT valido
+    const accessToken = User.generateJWT(testAdminUser);
+    const refreshToken = User.generateRefreshToken(testAdminUser);
+
+    res.json({
+      success: true,
+      message: '🔧 Token admin di test generato',
+      tokens: {
+        accessToken,
+        refreshToken
+      },
+      user: testAdminUser,
+      warning: 'SOLO PER TESTING - Non usare in produzione!',
+      instructions: {
+        steps: [
+          '1. Copia il accessToken qui sotto',
+          '2. Vai nel tuo API tester (Postman/Insomnia)',
+          '3. Headers → Authorization → Bearer {accessToken}',
+          '4. Ora puoi testare PUT /api/games/:id'
+        ],
+        tokenToCopy: accessToken
+      }
+    });
+
+  } catch (error) {
+    console.error('Errore generazione token test:', error);
+    res.status(500).json({
+      error: 'Errore generazione token di test',
+      details: error.message
+    });
+  }
+});
+
+// ISTRUZIONI PER L'USO:
+// 1. POST http://localhost:3000/api/auth/test-admin-token
+// 2. Copia il token dalla risposta
+// 3. Usalo come Bearer token nelle richieste protette
 
 // ==========================================
 // EXPORTS
