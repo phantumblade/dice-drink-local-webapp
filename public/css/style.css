@@ -14,6 +14,27 @@
   --color-input-bg:     #F8F8FF;
   --color-input-text:   #2E2E2E;
   --color-link:         #6c757d;
+    --role-guest-color: #999;
+    --role-guest-border: #ccc;
+    --role-customer-color: #4CAF50;
+    --role-customer-border: #4CAF50;
+    --role-staff-color: #FF9800;
+    --role-staff-border: #FF9800;
+    --role-admin-color: #F44336;
+    --role-admin-border: #F44336;
+
+}
+
+/* CSS Custom Properties per ruoli */
+:root {
+    --role-guest-color: #999;
+    --role-guest-border: #ccc;
+    --role-customer-color: #4CAF50;
+    --role-customer-border: #4CAF50;
+    --role-staff-color: #FF9800;
+    --role-staff-border: #FF9800;
+    --role-admin-color: #F44336;
+    --role-admin-border: #F44336;
 }
 
 /* -----------------------------------------
@@ -72,15 +93,17 @@ a:hover {
   right: 0;
   height: 80px; /* or match your actual navbar height */
   z-index: 1000;
+  flex-wrap: nowrap; /* FIX: Evita il wrap di default */
 }
 
-/* Tre contenitori (“left”, “center”, “right”) */
+/* Tre contenitori ("left", "center", "right") */
 .navbar-left,
 .navbar-center,
 .navbar-right {
   display: flex;
   align-items: center;
 }
+
 .navbar-links {
   list-style: none;
   display: flex;
@@ -122,11 +145,10 @@ a:hover {
   color: var(--color-background);                /* Testo invertito rispetto allo sfondo */
 }
 
-
 .navbar-links a:active {
   box-shadow:
     -2px -2px 0 2px var(--color-text),           /* Ombra posteriore */
-    inset 2px 2px 6px rgba(0, 0, 0, 0.5);         /* Ombra interna per effetto “pressione” */
+    inset 2px 2px 6px rgba(0, 0, 0, 0.5);         /* Ombra interna per effetto "pressione" */
   transform: translate(2px, 2px);                 /* Sposta leggermente per simulare click */
 }
 
@@ -161,7 +183,7 @@ a:hover {
   flex-direction: column;
   align-items: center;
   /* Remove box-shadow for dropdown panel */
-  box-shadow: non !important; /* → rimuove eventuali ombre predefinite */
+  box-shadow: none !important; /* FIX: era "non" */
   /* Add stylized borders */
 }
 
@@ -172,12 +194,12 @@ a:hover {
 .dropdown-link {
   display: block;
   padding: 12px 20px;
-  text-align:center;
+  text-align: center;
   text-decoration: none;
   color: var(--color-text);
   font-size: 1em;
   min-width: 180px;   /* → garantisce che ogni bottone sia almeno 180px largo */
-  white-space: nowrap; /* → impedisce l’andare a capo */
+  white-space: nowrap; /* → impedisce l'andare a capo */
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
@@ -190,16 +212,14 @@ a:hover {
   color: var(--color-background) !important;
 }
 
-.dropdown-menu {
-  display: none;
-}
-/* Quando il JS imposta la classe “open” sul padre, mostriamo il menu */
+/* Quando il JS imposta la classe "open" sul padre, mostriamo il menu */
 .has-dropdown.open > .dropdown-menu {
-  display: flex;           /* o “block” se preferisci */
+  display: flex;           /* o "block" se preferisci */
   flex-direction: column;   /* hai già questa regola nel tuo file */
   /* ...tutte le altre regole di styling che già avevi (padding, background, ecc.) */
 }
-/* E, se vuoi, fai ruotare l’arrow in corrispondenza di “open” */
+
+/* E, se vuoi, fai ruotare l'arrow in corrispondenza di "open" */
 .has-dropdown.open .dropdown-arrow {
   transform: rotate(180deg);
 }
@@ -208,11 +228,13 @@ a:hover {
   height: 60px;
   margin-right: 10px;
 }
-/* Applico lo shake all’hover, oppure solo al caricamento della pagina */
+
+/* Applico lo shake all'hover, oppure solo al caricamento della pagina */
 .navbar-logo:hover {
   animation: shake 0.5s ease;
 }
-/* Oppure: all’avvio */
+
+/* Oppure: all'avvio */
 .navbar-logo.animate-shake {
   animation: shake 0.5s ease;
 }
@@ -225,13 +247,12 @@ a:hover {
   80%      { transform: translateX(3px) rotate(2deg); }
 }
 
-
-
 .navbar-title {
   font-size: 1.7rem;
   font-weight: bold;
   color: var(--color-navbar-text);
 }
+
 /* -----------------------------------------
    Stile animato per il campo di ricerca
    (sostituisce .input e .input-container)
@@ -241,6 +262,7 @@ a:hover {
   max-width: 220px;
   display: flex;
   align-items: left;
+  position: relative; /* FIX: Aggiunto per posizionamento icona e ricerca espandibile */
 }
 
 .navbar-search {
@@ -282,7 +304,7 @@ a:hover {
   animation: typing 2s steps(30, end);
 }
 
-/* Quando l’user ha già scritto qualcosa (placeholder scomparso) */
+/* Quando l'user ha già scritto qualcosa (placeholder scomparso) */
 .navbar-search:not(:placeholder-shown) {
   animation: glitch 1s linear infinite;
   font-weight: bold;
@@ -300,14 +322,6 @@ a:hover {
   50% { border-color: transparent; }
 }
 
-@keyframes shake {
-  0%   { transform: translateX(0); }
-  25%  { transform: translateX(-5px) rotate(-5deg); }
-  50%  { transform: translateX(5px) rotate(5deg); }
-  75%  { transform: translateX(-5px) rotate(-5deg); }
-  100% { transform: translateX(0); }
-}
-
 @keyframes glitch {
   0%   { transform: none; opacity: 1; }
   7%   { transform: skew(-0.5deg, -0.9deg); opacity: 0.75; }
@@ -323,12 +337,11 @@ a:hover {
   100% { transform: none; opacity: 1; }
 }
 
-
-
 /* Quando il campo è a fuoco, il cursore diventa bianco */
 .navbar-search:focus + .navbar-search-container::after {
   color: #fff;
 }
+
 /* Icona profilo (font-based) */
 span.material-symbols-rounded.navbar-profile-icon {
   display: inline-flex;
@@ -349,16 +362,281 @@ span.material-symbols-rounded.navbar-profile-icon {
   box-shadow: 2px 2px 0 2px var(--color-text);
   transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.1s ease, transform 0.1s ease;
 }
+
 span.material-symbols-rounded.navbar-profile-icon:hover {
   background-color: var(--color-secondary);
   color: var(--color-background);
 }
+/* Effetto :active per tutti i ruoli in una volta sola */
+span.material-symbols-rounded.navbar-profile-icon:active,
+span.material-symbols-rounded.navbar-profile-icon.role-guest:active,
+span.material-symbols-rounded.navbar-profile-icon.role-customer:active,
+span.material-symbols-rounded.navbar-profile-icon.role-staff:active,
+span.material-symbols-rounded.navbar-profile-icon.role-admin:active {
+    box-shadow:
+        -2px -2px 0 2px var(--color-text),
+        inset 2px 2px 6px rgba(0, 0, 0, 0.5);
+    transform: translate(2px, 2px);
+}
 
-span.material-symbols-rounded.navbar-profile-icon:active {
-  box-shadow:
-    -2px -2px 0 2px var(--color-text),
-    inset 2px 2px 6px rgba(0, 0, 0, 0.5);
-  transform: translate(2px, 2px);
+//PERSONALIZZAZIONE PER RUOLO
+
+/* Guest - Mantiene stile base */
+span.material-symbols-rounded.navbar-profile-icon.role-guest {
+    color: var(--role-guest-color);
+}
+
+/* Customer - Verde */
+span.material-symbols-rounded.navbar-profile-icon.role-customer {
+    color: var(--role-customer-color);
+}
+
+/* Staff - Arancione */
+span.material-symbols-rounded.navbar-profile-icon.role-staff {
+    color: var(--role-staff-color);
+}
+
+/* Admin - Rosso con effetti speciali */
+span.material-symbols-rounded.navbar-profile-icon.role-admin {
+    color: var(--role-admin-color);
+}
+
+
+/* -----------------------------------------
+   RESPONSIVE NAVBAR SYSTEM
+   Sistema responsivo progressivo
+   ----------------------------------------- */
+
+/* FASE 1: TABLET (768px - 1199px) - Nasconde il titolo */
+@media (max-width: 1199px) {
+  .navbar-title {
+    display: none; /* Prima cosa a sparire */
+  }
+
+  .navbar-logo {
+    margin-right: 0; /* Rimuove spazio del titolo */
+  }
+
+  .navbar {
+    padding: 10px 15px; /* Riduce padding laterale */
+  }
+}
+
+/* FASE 2: MOBILE MEDIUM (481px - 767px) - Ricerca diventa icona */
+@media (max-width: 767px) {
+  /* Nasconde la barra di ricerca normale */
+  .navbar-search {
+    display: none;
+  }
+
+  /* Container ricerca diventa flessibile */
+  .navbar-search-container {
+    width: auto;
+    max-width: none;
+  }
+
+  /* Icona lente di ingrandimento */
+  .navbar-search-container::before {
+    content: '🔍';
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    font-size: 18px;
+    cursor: pointer;
+    border: 1px solid var(--color-text);
+    border-radius: 50%;
+    background-color: var(--color-background);
+    box-shadow: 2px 2px 0 2px var(--color-text);
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.1s ease;
+  }
+
+  .navbar-search-container::before:hover {
+    background-color: var(--color-secondary);
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 2px var(--color-text);
+  }
+
+  /* Barra di ricerca espandibile */
+  .navbar-search-container.expanded .navbar-search {
+    display: block;
+    position: absolute;
+    top: 60px; /* Sotto la navbar */
+    right: 0;
+    width: 280px;
+    z-index: 1002;
+    animation: slideDown 0.3s ease;
+  }
+
+  .navbar-search-container.expanded::before {
+    background-color: var(--color-secondary);
+    color: var(--color-background);
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Links rimangono della stessa dimensione ma gap ridotto */
+  .navbar-links {
+    gap: 10px; /* Riduce leggermente il gap */
+  }
+
+  .navbar-links a {
+    padding: 0.4em 0.8em; /* Riduce leggermente il padding */
+    font-size: 0.85rem; /* Leggermente più piccolo */
+  }
+}
+
+/* FASE 3: MOBILE SMALL (320px - 480px) - Layout a 2 righe */
+@media (max-width: 480px) {
+  .navbar {
+    height: auto; /* Altezza variabile */
+    min-height: 80px;
+    flex-direction: column;
+    padding: 8px 15px;
+    gap: 10px;
+  }
+
+  /* RIGA 1: Logo + Ricerca + Profilo */
+  .navbar-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 60px;
+  }
+
+  /* RIGA 2: Links */
+  .navbar-bottom-row {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  /* Riorganizza le sezioni */
+  .navbar-left {
+    flex: 0 0 auto;
+  }
+
+  .navbar-center {
+    order: 3; /* Va nella seconda riga */
+    width: 100%;
+    justify-content: center;
+  }
+
+  .navbar-right {
+    flex: 0 0 auto;
+    gap: 15px;
+  }
+
+  /* Titolo ritorna se c'è spazio */
+  .navbar-title {
+    display: inline; /* Riappare */
+    font-size: 1.4rem; /* Più piccolo */
+    margin-left: 8px;
+  }
+
+  /* Links mantengono dimensione originale */
+  .navbar-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .navbar-links a {
+    padding: 0.5em 1em; /* Dimensione originale */
+    font-size: 0.9rem; /* Dimensione originale */
+    min-width: auto;
+  }
+
+  /* Ricerca espandibile nella nuova posizione */
+  .navbar-search-container.expanded .navbar-search {
+    top: 70px; /* Aggiustato per la nuova altezza */
+    right: 15px;
+    width: calc(100vw - 30px); /* Full width mobile */
+    max-width: 300px;
+  }
+
+}
+
+/* FASE 4: EXTRA SMALL DEVICES (sotto 320px) */
+@media (max-width: 319px) {
+  .navbar-title {
+    display: none; /* Nascondi titolo su schermi tiny */
+  }
+
+  .navbar-links {
+    gap: 5px;
+  }
+
+  .navbar-links a {
+    padding: 0.3em 0.6em;
+    font-size: 0.8rem;
+  }
+
+  .navbar-logo {
+    height: 45px; /* Logo più piccolo */
+  }
+
+  span.material-symbols-rounded.navbar-profile-icon {
+    width: 40px !important;
+    height: 40px !important;
+  }
+}
+
+/* -----------------------------------------
+   RESPONSIVE DROPDOWNS
+   Mantiene funzionalità dropdown su mobile
+   ----------------------------------------- */
+@media (max-width: 480px) {
+  .dropdown-menu {
+    position: fixed;
+    top: 140px; /* Sotto la navbar a 2 righe */
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100vw - 30px);
+    max-width: 300px;
+    z-index: 1003;
+  }
+
+  .dropdown-link {
+    min-width: auto;
+    text-align: center;
+  }
+}
+
+/* -----------------------------------------
+   JAVASCRIPT HELPER CLASSES
+   Per gestire stati dinamici
+   ----------------------------------------- */
+
+/* Overlay per chiudere ricerca cliccando fuori */
+.search-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  z-index: 1001;
+}
+
+/* Quando la ricerca è aperta */
+.search-expanded {
+  position: relative;
+}
+
+.search-expanded .navbar-search {
+  display: block !important;
 }
 
 /* -----------------------------------------
@@ -377,6 +655,7 @@ input[type="submit"] {
   cursor: pointer;
   transition: background-color 0.2s;
 }
+
 button:hover,
 input[type="button"]:hover,
 input[type="submit"]:hover {

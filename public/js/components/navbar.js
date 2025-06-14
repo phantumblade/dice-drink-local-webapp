@@ -174,15 +174,13 @@ export function createNavbar() {
   const searchContainer = document.createElement('div');
   searchContainer.classList.add('navbar-search-container');
 
-  const searchWrapper = document.createElement('div');
-  searchWrapper.classList.add('search-wrapper');
-
-  searchWrapper.appendChild(searchInput);
-  searchContainer.appendChild(searchWrapper);
+  // Direttamente nel container senza wrapper
+  searchContainer.appendChild(searchInput);
 
   rightSection.appendChild(searchContainer);
 
   // Crea l'icona profilo come immagine
+  
 // Crea l'icona profilo come immagine
 const profileIcon = document.createElement('span');
 profileIcon.classList.add('material-symbols-rounded', 'navbar-profile-icon');

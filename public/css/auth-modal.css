@@ -1,6 +1,7 @@
 /* ==========================================
-   AUTH MODAL CSS - GAMING/PIXEL ART STYLE
-   Design ispirato allo screenshot fornito
+   AUTH MODAL CSS - CLEAN CARD STYLE
+   Design con card sinistra pulita + logo
+   OTTIMIZZATO PER MOBILE
    ========================================== */
 
 /* OVERLAY MODALE */
@@ -19,6 +20,8 @@
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 .auth-modal-overlay.active {
@@ -26,12 +29,12 @@
     visibility: visible;
 }
 
-/* CONTAINER PRINCIPALE - LAYOUT A DUE COLONNE */
-.auth-modal.gaming-style {
+/* CONTAINER PRINCIPALE - CARD STYLE */
+.auth-modal {
     background: transparent;
     border: none;
     border-radius: 16px;
-    width: 90%;
+    width: 100%;
     max-width: 1000px;
     max-height: 90vh;
     overflow: hidden;
@@ -40,169 +43,121 @@
     transform: translateY(-30px) scale(0.95);
     transition: transform 0.3s ease;
     display: flex;
+    background-color: rgb(42, 39, 55);
 }
 
-.auth-modal-overlay.active .auth-modal.gaming-style {
+.auth-modal-overlay.active .auth-modal {
     transform: translateY(0) scale(1);
-}
-
-/* SEZIONE SINISTRA - GAMING/PIXEL ART */
-.auth-modal-left {
-    flex: 1;
-    background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 50%, #a855f7 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-    min-height: 600px;
-}
-
-.gaming-background {
-    text-align: center;
-    position: relative;
-    z-index: 2;
-    padding: 2rem;
-}
-
-/* DADO PIXEL ART ANIMATO */
-.pixel-dice-container {
-    margin-bottom: 2rem;
-    position: relative;
-}
-
-.pixel-dice {
-    width: 120px;
-    height: 120px;
-    margin: 0 auto;
-    position: relative;
-    transform-style: preserve-3d;
-    animation: pixelFloat 4s ease-in-out infinite;
-}
-
-@keyframes pixelFloat {
-    0%, 100% { transform: translateY(0px) rotateY(0deg); }
-    25% { transform: translateY(-10px) rotateY(90deg); }
-    50% { transform: translateY(-15px) rotateY(180deg); }
-    75% { transform: translateY(-10px) rotateY(270deg); }
-}
-
-.dice-face {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(45deg, #ec4899, #be185d);
-    border: 3px solid #fff;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    color: white;
-    font-weight: bold;
-    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.3);
-}
-
-.dice-face-1::before { content: "⚀"; }
-.dice-face-2::before { content: "⚁"; }
-.dice-face-3::before { content: "⚂"; }
-
-.dice-face-1 { transform: rotateY(0deg) translateZ(60px); }
-.dice-face-2 { transform: rotateY(90deg) translateZ(60px); }
-.dice-face-3 { transform: rotateY(180deg) translateZ(60px); }
-
-.dice-character {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 3rem;
-    z-index: 10;
-    animation: characterPulse 2s ease-in-out infinite;
-}
-
-@keyframes characterPulse {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); }
-    50% { transform: translate(-50%, -50%) scale(1.1); }
-}
-
-/* TITOLI GAMING */
-.gaming-title {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: white;
-    margin-bottom: 0.5rem;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    font-family: 'Courier New', monospace;
-    letter-spacing: 2px;
-}
-
-.gaming-subtitle {
-    font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.9);
-    font-family: 'Courier New', monospace;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-    letter-spacing: 1px;
-}
-
-/* PATTERN DI SFONDO PIXEL */
-.auth-modal-left::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image:
-        radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 2px, transparent 2px),
-        radial-gradient(circle at 75% 75%, rgba(255,255,255,0.1) 2px, transparent 2px);
-    background-size: 50px 50px;
-    background-position: 0 0, 25px 25px;
-    opacity: 0.3;
-    animation: patternMove 20s linear infinite;
-}
-
-@keyframes patternMove {
-    0% { transform: translate(0, 0); }
-    100% { transform: translate(50px, 50px); }
-}
-
-/* SEZIONE DESTRA - FORM */
-.auth-modal-right {
-    flex: 1;
-    background: #1f2937;
-    padding: 2rem;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    min-height: 600px;
 }
 
 /* BOTTONE CHIUSURA */
 .auth-modal-close {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: #9ca3af;
+    top: 16px;
+    right: 16px;
     width: 32px;
     height: 32px;
+    border: none;
     border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 18px;
+    line-height: 1;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
-    font-weight: bold;
-    transition: all 0.2s ease;
+    transition: background 0.2s;
     z-index: 10;
 }
 
 .auth-modal-close:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.auth-modal-close:focus {
+    outline: none;
+}
+
+/* SEZIONE SINISTRA - CARD CON LOGO */
+.auth-modal-left {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background-color: rgb(42, 39, 55);
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+    overflow: hidden;
+    padding: 50px 12px;
+}
+
+.image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(42, 39, 55);
+    padding: 40px 20px;
+}
+
+/* LOGO GRANDE */
+.background-img {
+    width: 480px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+/* OVERLAY TEXT */
+.overlay-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     color: white;
-    transform: scale(1.1);
+    text-align: center;
+}
+
+.overlay-text .logo {
+    font-size: 32px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    margin-top: 20px;
+}
+
+.overlay-text .caption {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* SEZIONE DESTRA - FORM */
+.auth-modal-right {
+    flex: 1;
+    padding: 40px;
+    background-color: rgb(42, 39, 55);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #fff;
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+    overflow-y: auto;
 }
 
 /* CONTAINER FORM */
@@ -218,29 +173,24 @@
 
 /* TITOLI FORM */
 .form-title {
-    font-size: 2rem;
-    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 26px;
     color: white;
-    margin-bottom: 0.5rem;
-    text-align: left;
+    font-weight: bold;
 }
 
 .form-subtitle {
-    color: #9ca3af;
-    margin-bottom: 2rem;
-    font-size: 0.9rem;
+    font-size: 14px;
+    color: #aaa;
+    margin-bottom: 24px;
 }
 
-.toggle-link {
-    color: #8b5cf6;
+.form-subtitle a {
+    color: #a98dff;
     text-decoration: none;
-    font-weight: 600;
-    margin-left: 0.5rem;
-    transition: color 0.2s ease;
 }
 
-.toggle-link:hover {
-    color: #a78bfa;
+.form-subtitle a:hover {
     text-decoration: underline;
 }
 
@@ -258,66 +208,75 @@
 /* ROW PER NOME/COGNOME */
 .form-row {
     display: flex;
-    gap: 0.75rem;
-}
-
-.form-row .form-input {
-    flex: 1;
+    gap: 12px;
+    margin-bottom: 12px;
 }
 
 /* INPUT STYLING */
 .form-input {
     width: 100%;
-    padding: 0.875rem 1rem;
-    background: #374151;
-    border: 1px solid #4b5563;
+    padding: 14px 16px;
+    margin-bottom: 12px;
     border-radius: 8px;
+    border: none;
+    background-color: rgb(59, 56, 72);
     color: white;
-    font-size: 0.95rem;
+    font-size: 16px;
     transition: all 0.2s ease;
     box-sizing: border-box;
 }
 
 .form-input:focus {
     outline: none;
-    border-color: #8b5cf6;
-    background: #4b5563;
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    border: 1px solid #a98dff;
+    background-color: rgb(66, 62, 82);
 }
 
 .form-input::placeholder {
-    color: #9ca3af;
+    color: #999;
 }
 
 /* CHECKBOX STYLING */
 .checkbox-container {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 0.5rem 0;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    margin-bottom: 20px;
+    color: #ddd;
+    line-height: 1.4;
 }
 
 .checkbox-container input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    accent-color: #8b5cf6;
+    width: 18px;
+    height: 18px;
+    accent-color: #a98dff;
     cursor: pointer;
+    margin-top: 2px;
+    flex-shrink: 0;
 }
 
 .checkbox-container label {
-    color: #d1d5db;
-    font-size: 0.85rem;
     cursor: pointer;
     user-select: none;
+}
+
+.checkbox-container a {
+    color: #a98dff;
+    text-decoration: none;
+}
+
+.checkbox-container a:hover {
+    text-decoration: underline;
 }
 
 /* BOTTONI */
 .auth-button {
     width: 100%;
-    padding: 0.875rem 1rem;
+    padding: 16px;
     border: none;
     border-radius: 8px;
-    font-size: 0.95rem;
+    font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -326,28 +285,30 @@
     justify-content: center;
     gap: 0.5rem;
     margin-top: 0.5rem;
+    min-height: 48px;
 }
 
 .auth-button.primary {
-    background: #8b5cf6;
+    background-color: #8d5cf4;
     color: white;
+    font-weight: bold;
 }
 
 .auth-button.primary:hover:not(:disabled) {
-    background: #7c3aed;
+    background-color: #a98dff;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    box-shadow: 0 4px 12px rgba(141, 92, 244, 0.4);
 }
 
 .auth-button.demo {
-    background: #374151;
-    color: #d1d5db;
-    border: 1px solid #4b5563;
+    background-color: transparent;
+    color: #ddd;
+    border: 1px solid #8d5cf4;
+    margin-top: 10px;
 }
 
 .auth-button.demo:hover {
-    background: #4b5563;
-    border-color: #6b7280;
+    background-color: #2e2e2e;
 }
 
 .auth-button:disabled {
@@ -383,10 +344,10 @@
 /* DIVIDER */
 .divider {
     text-align: center;
-    margin: 1.5rem 0;
+    margin: 24px 0;
+    color: #999;
+    font-size: 14px;
     position: relative;
-    color: #6b7280;
-    font-size: 0.85rem;
 }
 
 .divider::before {
@@ -396,12 +357,12 @@
     left: 0;
     right: 0;
     height: 1px;
-    background: #374151;
+    background: #555;
     z-index: 1;
 }
 
 .divider span {
-    background: #1f2937;
+    background: rgb(42, 39, 55);
     padding: 0 1rem;
     position: relative;
     z-index: 2;
@@ -410,36 +371,32 @@
 /* BOTTONI SOCIAL */
 .social-buttons {
     display: flex;
-    gap: 0.75rem;
+    gap: 12px;
 }
 
 .auth-button.social {
     flex: 1;
-    background: #374151;
-    color: #d1d5db;
-    border: 1px solid #4b5563;
-    font-size: 0.85rem;
-    padding: 0.75rem;
+    background-color: transparent;
+    border: 1px solid #8d5cf4;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    gap: 8px;
+    transition: background 0.3s, color 0.3s;
+    padding: 12px;
+    min-height: 44px;
 }
 
 .auth-button.social:hover {
-    background: #4b5563;
-    border-color: #6b7280;
+    background-color: #2e2e2e;
+    border-color: #ffffff;
+    color: #ffffff;
 }
 
 .social-icon {
     font-weight: bold;
     font-size: 1rem;
-}
-
-.auth-button.social.google:hover {
-    border-color: #db4437;
-    color: #db4437;
-}
-
-.auth-button.social.apple:hover {
-    border-color: #ffffff;
-    color: #ffffff;
 }
 
 /* MESSAGGI DI ERRORE */
@@ -448,11 +405,11 @@
     border: 1px solid #ef4444;
     border-left: 4px solid #ef4444;
     color: #fca5a5;
-    padding: 0.75rem;
+    padding: 12px;
     border-radius: 6px;
-    font-size: 0.85rem;
+    font-size: 14px;
     display: none;
-    margin: 0.5rem 0;
+    margin: 8px 0;
 }
 
 .error-message.show {
@@ -471,121 +428,319 @@
     }
 }
 
-/* RESPONSIVE DESIGN */
-@media (max-width: 768px) {
-    .auth-modal.gaming-style {
-        flex-direction: column;
-        width: 95%;
-        max-height: 95vh;
+/* ==========================================
+   RESPONSIVE DESIGN - OTTIMIZZATO
+   ========================================== */
+
+/* TABLET */
+@media (max-width: 1024px) {
+    .auth-modal {
+        max-width: 800px;
     }
 
     .auth-modal-left {
-        min-height: 200px;
-        flex: 0 0 auto;
+        padding: 30px 8px;
     }
 
-    .gaming-background {
-        padding: 1rem;
+    .background-img {
+        width: 360px;
+    }
+}
+
+/* MOBILE GRANDE */
+@media (max-width: 768px) {
+    .auth-modal-overlay {
+        padding: 16px;
+        align-items: flex-start;
+        padding-top: 40px;
     }
 
-    .pixel-dice {
-        width: 80px;
-        height: 80px;
+    .auth-modal {
+        flex-direction: column;
+        width: 100%;
+        max-width: 480px;
+        max-height: calc(100vh - 80px);
+        margin: 0 auto;
     }
 
-    .gaming-title {
-        font-size: 1.8rem;
-    }
-
-    .gaming-subtitle {
-        font-size: 1rem;
+    .auth-modal-left {
+        display: none;
     }
 
     .auth-modal-right {
-        padding: 1.5rem;
-        min-height: auto;
+        width: 100%;
+        border-radius: 16px;
+        padding: 32px 24px;
+        position: relative;
+        overflow-y: auto;
+    }
+
+    /* Logo mobile centrato */
+    .auth-modal-right::before {
+        content: "🎲 Dice&Drink";
+        font-size: 28px;
+        font-weight: bold;
+        color: white;
+        margin-bottom: 24px;
+        text-align: center;
+        display: block;
+    }
+
+    .form-title {
+        text-align: center;
+        font-size: 24px;
+        margin-bottom: 6px;
+    }
+
+    .form-subtitle {
+        text-align: center;
+        margin-bottom: 28px;
     }
 
     .form-row {
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0;
+        margin-bottom: 0;
+    }
+
+    .form-row .form-input {
+        width: 100%;
+        margin-bottom: 16px;
     }
 
     .social-buttons {
         flex-direction: column;
+        gap: 12px;
+    }
+
+    .auth-button.social {
+        width: 100%;
+    }
+
+    .divider {
+        margin: 20px 0;
     }
 }
 
+/* MOBILE PICCOLO */
 @media (max-width: 480px) {
-    .auth-modal.gaming-style {
-        width: 100%;
-        height: 100%;
-        max-height: 100vh;
-        border-radius: 0;
+    .auth-modal-overlay {
+        padding: 12px;
+        padding-top: 20px;
     }
 
-    .auth-modal-left {
-        min-height: 150px;
+    .auth-modal {
+        width: 100%;
+        max-width: 100%;
+        max-height: calc(100vh - 40px);
+        border-radius: 12px;
     }
 
     .auth-modal-right {
-        padding: 1rem;
+        padding: 24px 20px;
+        border-radius: 12px;
+    }
+
+    .auth-modal-right::before {
+        font-size: 24px;
+        margin-bottom: 20px;
     }
 
     .form-title {
-        font-size: 1.5rem;
+        font-size: 22px;
+    }
+
+    .form-input {
+        padding: 16px;
+        font-size: 16px; /* Evita zoom su iOS */
+        margin-bottom: 14px;
+    }
+
+    .auth-button {
+        padding: 16px;
+        font-size: 16px;
+        min-height: 50px; /* Più accessibile su mobile */
+    }
+
+    .auth-button.social {
+        min-height: 46px;
+        font-size: 15px;
+    }
+
+    .checkbox-container {
+        font-size: 13px;
+        gap: 8px;
+        margin-bottom: 18px;
+    }
+
+    .checkbox-container input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+    }
+
+    .auth-modal-close {
+        top: 12px;
+        right: 12px;
+        width: 28px;
+        height: 28px;
+        font-size: 16px;
+    }
+
+    .divider {
+        margin: 18px 0;
+        font-size: 13px;
+    }
+
+    .error-message {
+        font-size: 13px;
+        padding: 10px;
+    }
+}
+
+/* MOBILE MOLTO PICCOLO */
+@media (max-width: 360px) {
+    .auth-modal-overlay {
+        padding: 8px;
+        padding-top: 16px;
+    }
+
+    .auth-modal {
+        max-height: calc(100vh - 32px);
+    }
+
+    .auth-modal-right {
+        padding: 20px 16px;
+    }
+
+    .auth-modal-right::before {
+        font-size: 22px;
+        margin-bottom: 16px;
+    }
+
+    .form-title {
+        font-size: 20px;
+    }
+
+    .form-input {
+        padding: 14px;
+        margin-bottom: 12px;
+    }
+
+    .auth-button {
+        padding: 14px;
+        min-height: 46px;
+    }
+}
+
+/* LANDSCAPE MOBILE */
+@media (max-height: 500px) and (orientation: landscape) {
+    .auth-modal-overlay {
+        padding: 8px;
+        align-items: center;
+        padding-top: 8px;
+    }
+
+    .auth-modal {
+        max-height: calc(100vh - 16px);
+    }
+
+    .auth-modal-right {
+        padding: 16px 20px;
+    }
+
+    .auth-modal-right::before {
+        font-size: 20px;
+        margin-bottom: 12px;
+    }
+
+    .form-title {
+        font-size: 18px;
+        margin-bottom: 4px;
+    }
+
+    .form-subtitle {
+        margin-bottom: 16px;
+        font-size: 13px;
+    }
+
+    .form-input {
+        padding: 12px;
+        margin-bottom: 10px;
+    }
+
+    .auth-button {
+        padding: 12px;
+        min-height: 40px;
+        font-size: 14px;
+    }
+
+    .divider {
+        margin: 12px 0;
+    }
+
+    .checkbox-container {
+        margin-bottom: 12px;
     }
 }
 
 /* SCROLLBAR STYLING */
-.auth-modal.gaming-style::-webkit-scrollbar {
+.auth-modal::-webkit-scrollbar,
+.auth-modal-right::-webkit-scrollbar {
     width: 6px;
 }
 
-.auth-modal.gaming-style::-webkit-scrollbar-track {
+.auth-modal::-webkit-scrollbar-track,
+.auth-modal-right::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 3px;
 }
 
-.auth-modal.gaming-style::-webkit-scrollbar-thumb {
-    background: #8b5cf6;
+.auth-modal::-webkit-scrollbar-thumb,
+.auth-modal-right::-webkit-scrollbar-thumb {
+    background: #8d5cf4;
     border-radius: 3px;
 }
 
-.auth-modal.gaming-style::-webkit-scrollbar-thumb:hover {
-    background: #7c3aed;
-}
-
-/* ANIMAZIONI AVANZATE */
-@keyframes modalAppear {
-    from {
-        opacity: 0;
-        transform: translateY(-50px) scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+.auth-modal::-webkit-scrollbar-thumb:hover,
+.auth-modal-right::-webkit-scrollbar-thumb:hover {
+    background: #a98dff;
 }
 
 /* ACCESSIBILITÀ */
 .auth-button:focus,
 .form-input:focus,
-.toggle-link:focus {
-    outline: 2px solid #8b5cf6;
+.form-subtitle a:focus {
+    outline: 2px solid #a98dff;
     outline-offset: 2px;
+}
+
+/* TOUCH FRIENDLY */
+@media (pointer: coarse) {
+    .auth-button {
+        min-height: 48px;
+        padding: 16px;
+    }
+
+    .auth-button.social {
+        min-height: 44px;
+    }
+
+    .checkbox-container input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+    }
+
+    .auth-modal-close {
+        width: 36px;
+        height: 36px;
+        font-size: 20px;
+    }
 }
 
 /* PREFERS REDUCED MOTION */
 @media (prefers-reduced-motion: reduce) {
-    .pixel-dice,
-    .dice-character,
-    .auth-modal-left::before {
-        animation: none;
-    }
-
     .auth-modal-overlay,
-    .auth-modal.gaming-style,
+    .auth-modal,
     .auth-button,
     .form-input {
         transition: none;
@@ -594,7 +749,7 @@
 
 /* HIGH CONTRAST MODE */
 @media (prefers-contrast: high) {
-    .auth-modal.gaming-style {
+    .auth-modal {
         border: 2px solid white;
     }
 

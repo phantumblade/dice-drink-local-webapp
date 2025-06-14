@@ -1,7 +1,7 @@
-// public/js/auth-system.js - GAMING STYLE VERSION
-// Sistema di autenticazione con design gaming/pixel art
+// public/js/auth-system.js - CLEAN INTEGRATION
+// Sistema di autenticazione con modal pulito e card elegante
 
-console.log('🚀 Sistema auth autonomo - v3.3 GAMING STYLE');
+console.log('🚀 Sistema auth autonomo - v4.0 CLEAN INTEGRATION');
 
 // ==========================================
 // CONTROLLO DUPLICAZIONE
@@ -394,14 +394,14 @@ window.SimpleAuth = {
 };
 
 // ==========================================
-// CLASSE MODALE GRAFICA - GAMING STYLE
+// CLASSE MODALE GRAFICA - CLEAN CARD STYLE
 // ==========================================
 
 class AuthModal {
     constructor(authManager) {
         this.authManager = authManager;
         this.modal = null;
-        this.isLoginMode = true;
+        this.isLoginMode = false; // Inizia con registrazione
     }
 
     show() {
@@ -421,7 +421,7 @@ class AuthModal {
         }, 10);
 
         setTimeout(() => {
-            const firstInput = this.modal.querySelector('input[type="email"]');
+            const firstInput = this.modal.querySelector('input[type="text"], input[type="email"]');
             if (firstInput) firstInput.focus();
         }, 150);
 
@@ -453,31 +453,26 @@ class AuthModal {
         this.modal.className = 'auth-modal-overlay';
 
         this.modal.innerHTML = `
-            <div class="auth-modal gaming-style">
-                <!-- SEZIONE SINISTRA: GAMING/PIXEL ART -->
+            <div class="auth-modal">
+                <button class="auth-modal-close" type="button">×</button>
+
+                <!-- SEZIONE SINISTRA: CARD CON LOGO -->
                 <div class="auth-modal-left">
-                    <div class="gaming-background">
-                        <div class="pixel-dice-container">
-                            <div class="pixel-dice">
-                                <div class="dice-face dice-face-1"></div>
-                                <div class="dice-face dice-face-2"></div>
-                                <div class="dice-face dice-face-3"></div>
-                                <div class="dice-character">🎮</div>
-                            </div>
+                    <div class="image-wrapper">
+                        <img src="assets/Logo.png" alt="Dice&Drink Logo" class="background-img" />
+                        <div class="overlay-text">
+                            <h2 class="logo">Dice&Drink</h2>
+                            <p class="caption">Identificati avventuriero!</p>
                         </div>
-                        <h2 class="gaming-title">Dice&Drink</h2>
-                        <p class="gaming-subtitle">Identificati avventuriero!</p>
                     </div>
                 </div>
 
                 <!-- SEZIONE DESTRA: FORM -->
                 <div class="auth-modal-right">
-                    <button class="auth-modal-close" type="button">×</button>
-
                     <div class="auth-form-container">
                         <h2 class="form-title" id="form-title">Crea account</h2>
-                        <p class="form-subtitle">
-                            <span id="form-subtitle">Hai già un account?</span>
+                        <p class="form-subtitle" id="form-subtitle">
+                            <span id="form-subtitle-text">Hai già un account?</span>
                             <a href="#" class="toggle-link" id="toggle-link">Log in</a>
                         </p>
 
@@ -493,7 +488,7 @@ class AuthModal {
 
                             <div class="checkbox-container">
                                 <input type="checkbox" id="terms-checkbox" required>
-                                <label for="terms-checkbox">Accetto i Termini e Condizioni</label>
+                                <label for="terms-checkbox">Accetto i <a href="#">Termini e Condizioni</a></label>
                             </div>
 
                             <div id="register-error" class="error-message"></div>
@@ -508,11 +503,11 @@ class AuthModal {
 
                             <div class="social-buttons">
                                 <button type="button" class="auth-button social google">
-                                    <span class="social-icon">G</span>
+                                    <i class="fab fa-google"></i>
                                     Google
                                 </button>
                                 <button type="button" class="auth-button social apple">
-                                    <span class="social-icon">🍎</span>
+                                    <i class="fab fa-apple"></i>
                                     Apple
                                 </button>
                             </div>
@@ -537,6 +532,21 @@ class AuthModal {
                             <button type="button" class="auth-button demo" id="demo-login">
                                 🎮 Demo Login
                             </button>
+
+                            <div class="divider">
+                                <span>Oppure accedi con</span>
+                            </div>
+
+                            <div class="social-buttons">
+                                <button type="button" class="auth-button social google">
+                                    <i class="fab fa-google"></i>
+                                    Google
+                                </button>
+                                <button type="button" class="auth-button social apple">
+                                    <i class="fab fa-apple"></i>
+                                    Apple
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -550,7 +560,7 @@ class AuthModal {
         // Toggle between login/register
         const toggleLink = this.modal.querySelector('#toggle-link');
         const formTitle = this.modal.querySelector('#form-title');
-        const formSubtitle = this.modal.querySelector('#form-subtitle');
+        const formSubtitleText = this.modal.querySelector('#form-subtitle-text');
         const loginForm = this.modal.querySelector('#login-form');
         const registerForm = this.modal.querySelector('#register-form');
 
@@ -560,7 +570,7 @@ class AuthModal {
             if (this.isLoginMode) {
                 // Switch to register
                 formTitle.textContent = 'Crea account';
-                formSubtitle.textContent = 'Hai già un account?';
+                formSubtitleText.textContent = 'Hai già un account?';
                 toggleLink.textContent = 'Log in';
                 loginForm.classList.remove('active');
                 registerForm.classList.add('active');
@@ -568,7 +578,7 @@ class AuthModal {
             } else {
                 // Switch to login
                 formTitle.textContent = 'Bentornato!';
-                formSubtitle.textContent = 'Non hai un account?';
+                formSubtitleText.textContent = 'Non hai un account?';
                 toggleLink.textContent = 'Registrati';
                 registerForm.classList.remove('active');
                 loginForm.classList.add('active');
@@ -598,10 +608,12 @@ class AuthModal {
 
         // Demo login
         const demoBtn = this.modal.querySelector('#demo-login');
-        demoBtn.addEventListener('click', () => {
-            this.hide();
-            this.authManager.loginDemo();
-        });
+        if (demoBtn) {
+            demoBtn.addEventListener('click', () => {
+                this.hide();
+                this.authManager.loginDemo();
+            });
+        }
 
         // Form submissions
         loginForm.addEventListener('submit', (e) => this.handleLogin(e));
@@ -716,6 +728,6 @@ if (document.readyState === 'loading') {
     }
 }
 
-console.log('✅ Sistema auth autonomo caricato - v3.3 GAMING STYLE');
+console.log('✅ Sistema auth autonomo caricato - v4.0 CLEAN INTEGRATION');
 
-} 
+}
