@@ -180,7 +180,7 @@ export function createNavbar() {
   rightSection.appendChild(searchContainer);
 
   // Crea l'icona profilo come immagine
-  
+
 // Crea l'icona profilo come immagine
 const profileIcon = document.createElement('span');
 profileIcon.classList.add('material-symbols-rounded', 'navbar-profile-icon');
@@ -228,12 +228,4 @@ rightSection.appendChild(profileIcon);
 
   // Ritorna l'elemento navbar completo
   return nav;
-}
-
-// Funzione di esempio per cambiare pagina (aggiorna il contenuto)
-function showPage(pageId) {
-  // Seleziona l'elemento con id 'content'
-  const content = document.getElementById('content');
-  // Cambia il testo per mostrare la pagina attuale
-  content.innerHTML = `<div id="content-placeholder">Sei nella pagina: ${pageId}</div>`;
 }

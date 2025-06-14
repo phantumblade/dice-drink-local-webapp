@@ -13,7 +13,7 @@
 import { createNavbar } from './components/navbar.js';
 import { buildFooter } from './components/footer.js';
 import { showHomepage } from './pages/homepage.js';
-
+import { showCatalog } from './pages/catalog.js';
 // ==========================================
 // SISTEMA RUOLI E ICONE UTENTE
 // ==========================================
@@ -546,17 +546,17 @@ window.showPage = (pageId) => {
             break;
 
         case 'catalogo-giochi':
-            showPlaceholderPage('Catalogo Giochi', 'Lista completa dei giochi da tavolo disponibili');
+            showCatalog('giochi');
             break;
 
         case 'menu-bevande':
-            showPlaceholderPage('Menu Bevande', 'Drink, cocktail e bevande del locale');
+            showCatalog('drink');
             break;
 
         case 'menu-snack-food':
-            showPlaceholderPage('Menu Snack & Food', 'Snack, appetizer e piatti da condividere');
+            showCatalog('snack');
             break;
-
+            
         case 'prenotazioni':
             showPlaceholderPage('Prenotazioni', 'Prenota il tuo tavolo per una serata di gioco');
             break;
