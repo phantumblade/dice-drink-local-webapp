@@ -254,111 +254,107 @@ class CatalogPageManager {
         `;
     }
 
-    createDrinkCardHTML(drink) {
-        return `
-            <div class="item-card drink-card" data-item-id="${drink.id}">
-                <div class="item-image" style="background-image: url('${drink.imageUrl || '/assets/drinks/default.jpg'}');">
-                    <button class="expand-btn" onclick="window.catalogPageManager.openItemModal(${drink.id})">
-                        <i class="fas fa-expand"></i>
-                    </button>
-                </div>
-
-                <div class="item-content">
-                    <h3 class="item-title">${drink.name}</h3>
-                    <span class="item-category ${drink.isAlcoholic ? 'alcoholic' : 'non-alcoholic'}">
-                        ${drink.isAlcoholic ? 'Alcolico' : 'Analcolico'}
-                    </span>
-
-                    <p class="item-description">
-                        ${drink.description || 'Delizioso drink preparato con cura'}
-                    </p>
-
-                    <div class="item-stats">
-                        <div class="item-stat">
-                            <div class="item-stat-icon">
-                                <i class="fas fa-flask"></i>
-                            </div>
-                            <div class="item-stat-value">${this.formatBaseSpirit(drink.baseSpirit)}</div>
-                            <div class="item-stat-label">Base</div>
-                        </div>
-                        <div class="item-stat">
-                            <div class="item-stat-icon">
-                                <i class="fas fa-euro-sign"></i>
-                            </div>
-                            <div class="item-stat-value">€${drink.price}</div>
-                            <div class="item-stat-label">Prezzo</div>
-                        </div>
-                        <div class="item-stat">
-                            <div class="item-stat-icon">
-                                <i class="fas fa-star"></i>
-                            </div>
-                            <div class="item-stat-value">${drink.price >= 8.00 ? 'Premium' : 'Classic'}</div>
-                            <div class="item-stat-label">Qualità</div>
-                        </div>
-                    </div>
-
-                    <button class="rent-btn" onclick="window.catalogPageManager.orderItem(${drink.id})">
-                        <i class="fas fa-glass-cheers"></i>
-                        Ordina - €${drink.price}
-                    </button>
-                </div>
+createDrinkCardHTML(drink) {
+    return `
+        <div class="item-card drink-card" data-item-id="${drink.id}">
+            <div class="item-image" style="background-image: url('${drink.imageUrl || '/assets/drinks/default.jpg'}');">
+                <button class="expand-btn" onclick="window.catalogPageManager.openItemModal(${drink.id})">
+                    <i class="fas fa-expand"></i>
+                </button>
             </div>
-        `;
-    }
 
-    createSnackCardHTML(snack) {
-        return `
-            <div class="item-card snack-card" data-item-id="${snack.id}">
-                <div class="item-image" style="background-image: url('${snack.imageUrl || '/assets/snacks/default.jpg'}');">
-                    <button class="expand-btn" onclick="window.catalogPageManager.openItemModal(${snack.id})">
-                        <i class="fas fa-expand"></i>
-                    </button>
-                </div>
+            <div class="item-content">
+                <h3 class="item-title">${drink.name}</h3>
+                <span class="item-category ${drink.isAlcoholic ? 'alcoholic' : 'non-alcoholic'}">
+                    ${drink.isAlcoholic ? 'Alcolico' : 'Analcolico'}
+                </span>
 
-                <div class="item-content">
-                    <h3 class="item-title">${snack.name}</h3>
-                    <span class="item-category ${snack.isSweet ? 'sweet' : 'savory'}">
-                        ${snack.isSweet ? 'Dolce' : 'Salato'}
-                    </span>
+                <!-- Descrizione rimossa dalla card esterna -->
 
-                    <p class="item-description">
-                        ${snack.description || 'Delizioso snack per accompagnare i tuoi giochi'}
-                    </p>
-                        ${snack.description || 'Delizioso snack per accompagnare i tuoi giochi'}
-                    </p>
-
-                    <div class="item-stats">
-                        <div class="item-stat">
-                            <div class="item-stat-icon">
-                                <i class="fas fa-utensils"></i>
-                            </div>
-                            <div class="item-stat-value">${snack.isSweet ? '🍫' : '🧀'}</div>
-                            <div class="item-stat-label">Tipo</div>
+                <div class="item-stats">
+                    <div class="item-stat">
+                        <div class="item-stat-icon">
+                            <i class="fas fa-flask"></i>
                         </div>
-                        <div class="item-stat">
-                            <div class="item-stat-icon">
-                                <i class="fas fa-leaf"></i>
-                            </div>
-                            <div class="item-stat-value">${this.getIngredientCategory(snack.mainIngredient)}</div>
-                            <div class="item-stat-label">Categoria</div>
-                        </div>
-                        <div class="item-stat">
-                            <div class="item-stat-icon">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div class="item-stat-value">${this.getBestTime(snack)}</div>
-                            <div class="item-stat-label">Momento</div>
-                        </div>
+                        <div class="item-stat-value">${this.formatBaseSpirit(drink.baseSpirit)}</div>
+                        <div class="item-stat-label">Base</div>
                     </div>
-
-                    <button class="rent-btn" onclick="window.catalogPageManager.orderItem(${snack.id})">
-                        <i class="fas fa-shopping-cart"></i>
-                        Ordina - €${snack.price}
-                    </button>
+                    <div class="item-stat">
+                        <div class="item-stat-icon">
+                            <i class="fas fa-euro-sign"></i>
+                        </div>
+                        <div class="item-stat-value">€${drink.price}</div>
+                        <div class="item-stat-label">Prezzo</div>
+                    </div>
+                    <div class="item-stat">
+                        <div class="item-stat-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="item-stat-value">${drink.price >= 8.00 ? 'Premium' : 'Classic'}</div>
+                        <div class="item-stat-label">Qualità</div>
+                    </div>
                 </div>
+
+                <button class="rent-btn" onclick="window.catalogPageManager.orderItem(${drink.id})">
+                    <i class="fas fa-glass-cheers"></i>
+                    Ordina - €${drink.price}
+                </button>
             </div>
-        `;
-    }
+        </div>
+    `;
+}
+
+
+createSnackCardHTML(snack) {
+    return `
+        <div class="item-card snack-card" data-item-id="${snack.id}">
+            <div class="item-image" style="background-image: url('${snack.imageUrl || '/assets/snacks/default.jpg'}');">
+                <button class="expand-btn" onclick="window.catalogPageManager.openItemModal(${snack.id})">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+
+            <div class="item-content">
+                <h3 class="item-title">${snack.name}</h3>
+                <span class="item-category ${snack.isSweet ? 'sweet' : 'savory'}">
+                    ${snack.isSweet ? 'Dolce' : 'Salato'}
+                </span>
+
+                <div class="item-stats">
+                    <!-- 1) Prezzo -->
+                    <div class="item-stat">
+                        <div class="item-stat-icon">
+                            <i class="fas fa-euro-sign"></i>
+                        </div>
+                        <div class="item-stat-value">€${snack.price}</div>
+                        <div class="item-stat-label">Prezzo</div>
+                    </div>
+                    <!-- 2) Categoria (ingrediente) -->
+                    <div class="item-stat">
+                        <div class="item-stat-icon">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div class="item-stat-value">${this.getIngredientCategory(snack.mainIngredient)}</div>
+                        <div class="item-stat-label">Categoria</div>
+                    </div>
+                    <!-- 3) Momento -->
+                    <div class="item-stat">
+                        <div class="item-stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="item-stat-value">${this.getBestTime(snack)}</div>
+                        <div class="item-stat-label">Momento</div>
+                    </div>
+                </div>
+
+                <button class="rent-btn" onclick="window.catalogPageManager.orderItem(${snack.id})">
+                    <i class="fas fa-shopping-cart"></i>
+                    Ordina - €${snack.price}
+                </button>
+            </div>
+        </div>
+    `;
+}
 
     // ==========================================
     // MODAL PER DETTAGLI ITEM
