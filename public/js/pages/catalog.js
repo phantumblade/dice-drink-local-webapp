@@ -43,6 +43,7 @@ class CatalogPageManager {
         this.currentItems = [];
         this.isModalOpen = false;
         this.searchTerm = '';
+        this.selectedFilters = [];         // ← nuovo
 
         console.log('✅ CatalogPageManager inizializzato');
     }
@@ -405,41 +406,43 @@ class CatalogPageManager {
     // GESTIONE EVENTI
     // ==========================================
 
-    setupEvents() {
-        // Filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const category = e.target.closest('.filter-btn').dataset.category;
-                this.switchCategory(category);
-            });
-        });
+  setupEvents() {
+    // 1) Bottoni di switch categoria
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const category = e.currentTarget.dataset.category;
+        this.switchCategory(category);
+      });
+    });
 
-        // Search input
-        const searchInput = document.querySelector('.search-input');
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                this.searchTerm = e.target.value;
-                this.refreshItemsGrid();
-            });
-        }
-
-        // Modal events
-        const modal = document.getElementById('itemModal');
-        if (modal) {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    this.closeModal();
-                }
-            });
-        }
-
-        // Escape key per chiudere modal
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.isModalOpen) {
-                this.closeModal();
-            }
-        });
+    // 2) Ricerca live
+    const searchInput = document.querySelector('.search-input');
+    if (searchInput) {
+      searchInput.addEventListener('input', e => {
+        this.searchTerm = e.target.value;
+        this.refreshItemsGrid();
+      });
     }
+
+    // 3a) Chiusura modale al click sull'overlay
+    const modalOverlay = document.getElementById('itemModal');
+    if (modalOverlay) {
+      modalOverlay.addEventListener('click', e => {
+        if (e.target === modalOverlay) {
+          this.closeModal();
+        }
+      });
+    }
+    // 3b) Chiusura modale con tasto Escape
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && this.isModalOpen) {
+        this.closeModal();
+      }
+    });
+
+    // 4) Inizializza click sui chip di filtro
+    this.setupFilterChipEvents();
+  }
 
     // ==========================================
     // METODI AZIONI UTENTE
@@ -554,6 +557,30 @@ class CatalogPageManager {
         document.body.style.overflow = 'auto';
     }
 
+        /**
+     * Attacca l'evento click a tutti i .filter-chip
+     */
+    setupFilterChipEvents() {
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', e => this.handleFilterChipClick(e));
+        });
+    }
+
+    /**
+     * Toggle filtro selezionato e aggiorna la griglia
+     */
+    handleFilterChipClick(e) {
+        const chip = e.currentTarget;
+        const filter = chip.dataset.filter;
+        if (this.selectedFilters.includes(filter)) {
+        this.selectedFilters = this.selectedFilters.filter(f => f !== filter);
+        } else {
+        this.selectedFilters.push(filter);
+        }
+        chip.classList.toggle('active');
+        this.refreshItemsGrid();
+    }
+
     rentItem(itemId) {
         console.log(`🎮 Noleggio item ${itemId}`);
 
@@ -628,20 +655,49 @@ class CatalogPageManager {
         return { icon: 'fas fa-cube', count: 0, label: 'Items', rating: '0', extraIcon: 'fas fa-info', extraValue: '0', extraLabel: 'Info' };
     }
 
-    getFilteredItems() {
-        if (!this.searchTerm) {
-            return this.currentItems;
-        }
 
-        const term = this.searchTerm.toLowerCase();
-        return this.currentItems.filter(item => {
-            return item.name?.toLowerCase().includes(term) ||
-                   item.description?.toLowerCase().includes(term) ||
-                   item.category?.toLowerCase().includes(term) ||
-                   item.baseSpirit?.toLowerCase().includes(term) ||
-                   item.mainIngredient?.toLowerCase().includes(term);
-        });
-    }
+getFilteredItems() {
+  // 1) Partiamo da tutti gli items
+  let items = this.currentItems;
+
+  // 2) Ricerca testuale (se this.searchTerm non è vuoto)
+  if (this.searchTerm) {
+    const term = this.searchTerm.toLowerCase();
+    items = items.filter(item => (
+      item.name?.toLowerCase().includes(term) ||
+      item.description?.toLowerCase().includes(term) ||
+      item.category?.toLowerCase().includes(term) ||
+      item.baseSpirit?.toLowerCase().includes(term) ||
+      item.mainIngredient?.toLowerCase().includes(term)
+    ));
+  }
+
+  // 3) Filtri avanzati (se almeno un chip è attivo)
+  if (this.selectedFilters.length > 0) {
+    items = items.filter(item =>
+      this.selectedFilters.every(filter => {
+        switch (filter) {
+          case 'alcoholic':
+            // isAlcoholic è 1 per vero
+            return item.isAlcoholic === 1;
+          case 'non-alcoholic':
+            // isAlcoholic è 0 per falso
+            return item.isAlcoholic === 0;
+          case 'premium':
+            return item.price >= 8.00;
+          case 'economic':
+            return item.price < 8.00;
+          default:
+            return true;
+        }
+      })
+    );
+  }
+
+  // 4) Ritorna l’array filtrato
+  return items;
+}
+
 
     formatDuration(minutes) {
         if (!minutes) return 'N/A';

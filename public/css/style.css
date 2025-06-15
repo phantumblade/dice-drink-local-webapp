@@ -3185,14 +3185,16 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
    ========================================== */
 
 .advanced-filters {
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-    justify-content: center;
+    display: grid;                              /* da flex a grid */
+    grid-template-columns: repeat(2, auto);     /* 2 colonne */
+    grid-template-rows: repeat(2, auto);        /* 2 righe */
+    gap: 0.5rem;                                /* spazio più piccolo */
+    justify-content: center;                    /* centrati orizzontalmente */
+    margin: 0 1rem;                             /* un po’ di margine laterale */
 }
 
 .filter-chip {
-    padding: 0.5rem 1rem;
+    padding: 0.3rem 0.6rem;
     background: #E2E8F0;
     color: #64748B;
     border: 2px solid transparent;
@@ -3248,12 +3250,16 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     max-width: 350px;
 }
 
+.stats-bar .search-container {
+    justify-self: end;
+}
+
 .search-input {
     padding: 1rem 1rem 1rem 3rem;
     border: 2px solid rgba(0,0,0,0.1);
     border-radius: 50px;
     font-size: 1rem;
-    width: 100%;
+    width: 80%;
     transition: all 0.3s ease;
     background: #F8F8FF;
     color: #2E2E2E;
@@ -3564,7 +3570,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 .modal-image {
-    height: 300px;
+    height: 450px;
     background-size: cover;
     background-position: center;
     position: relative;
