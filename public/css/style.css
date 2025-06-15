@@ -4846,4 +4846,921 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 .auth-notification.error {
-    background: linear-gradient(135deg, #f44336
+    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.auth-notification.info {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.auth-notification.warning {
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Header della notifica */
+.notification-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+    position: relative;
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.notification-title {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0;
+    flex: 1;
+    line-height: 1.3;
+}
+
+.notification-close {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.notification-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+/* Messaggio della notifica */
+.notification-message {
+    font-size: 15px;
+    margin: 0;
+    opacity: 0.95;
+    line-height: 1.5;
+    white-space: pre-line;
+}
+
+/* Animazione dell'icona */
+.notification-icon i {
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 60%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-4px);
+    }
+    80% {
+        transform: translateY(-2px);
+    }
+}
+
+/* Responsive per mobile */
+@media (max-width: 768px) {
+    .auth-notification {
+        bottom: 20px;
+        right: 20px;
+        left: 20px;
+        max-width: none;
+        min-width: auto;
+        transform: translateY(200px);
+    }
+
+    .auth-notification.show {
+        transform: translateY(0);
+    }
+
+    .auth-notification.hide {
+        transform: translateY(200px);
+    }
+
+    .notification-header {
+        gap: 12px;
+    }
+
+    .notification-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+
+    .notification-title {
+        font-size: 16px;
+    }
+
+    .notification-message {
+        font-size: 14px;
+    }
+}
+
+/* ==========================================
+   MENU UTENTE ELEGANTE
+   ========================================== */
+
+.user-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    opacity: 0;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-menu-overlay.show {
+    opacity: 1;
+}
+
+.user-menu {
+    background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 20px;
+    padding: 0;
+    min-width: 320px;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: scale(0.9);
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.user-menu-overlay.show .user-menu {
+    transform: scale(1);
+}
+
+/* Header del menu utente */
+.user-menu-header {
+    padding: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.user-info {
+    flex: 1;
+}
+
+.user-info h3 {
+    margin: 0 0 4px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+}
+
+.user-info p {
+    margin: 0;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.user-menu-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.user-menu-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+/* Opzioni del menu */
+.user-menu-options {
+    padding: 12px;
+}
+
+.user-menu-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    background: transparent;
+    border: none;
+    color: white;
+    width: 100%;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 15px;
+    margin-bottom: 8px;
+}
+
+.user-menu-option:last-child {
+    margin-bottom: 0;
+}
+
+.user-menu-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(4px);
+}
+
+.user-menu-option.logout:hover {
+    background: rgba(244, 67, 54, 0.2);
+    color: #ff6b6b;
+}
+
+.user-menu-option i {
+    width: 20px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.user-menu-option span {
+    flex: 1;
+    text-align: left;
+}
+
+/* ==========================================
+   MODAL AUTH ESISTENTE - AGGIORNAMENTI
+   ========================================== */
+
+/* Miglioramenti al modal esistente per coerenza */
+.auth-modal-overlay {
+    backdrop-filter: blur(10px);
+}
+
+.auth-modal {
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+}
+
+/* Migliori transizioni per i bottoni */
+.auth-button {
+    transition: all 0.3s ease;
+}
+
+.auth-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.auth-button.loading {
+    position: relative;
+    color: transparent;
+}
+
+.auth-button.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ==========================================
+   RESPONSIVE E ACCESSIBILITÀ
+   ========================================== */
+
+/* Focus states per accessibilità */
+.user-menu-option:focus,
+.notification-close:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* Riduzione movimento per utenti con preferenze */
+@media (prefers-reduced-motion: reduce) {
+    .auth-notification,
+    .user-menu,
+    .notification-icon i {
+        animation: none;
+        transition-duration: 0.2s;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .user-menu {
+        background: linear-gradient(145deg, #0a0a0a 0%, #1a1a1a 100%);
+    }
+}
+
+/* Mobile specifico per menu utente */
+@media (max-width: 768px) {
+    .user-menu {
+        min-width: 280px;
+        max-width: calc(100vw - 40px);
+        margin: 20px;
+    }
+
+    .user-menu-header {
+        padding: 20px;
+    }
+
+    .user-avatar {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+
+    .user-info h3 {
+        font-size: 16px;
+    }
+
+    .user-menu-option {
+        padding: 14px 16px;
+        font-size: 14px;
+    }
+}
+
+/* ==========================================
+   ANIMAZIONI AVANZATE
+   ========================================== */
+
+/* Pulso per icone attive */
+.notification-icon.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    }
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+}
+
+/* Shake per errori */
+.auth-notification.error .notification-icon {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* ==========================================
+   BADGE CARRELLO
+   ========================================== */
+
+.cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+    color: white;
+    border-radius: 50%;
+    min-width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 1000;
+    animation: bounceIn 0.3s ease;
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Badge per icone nella navbar */
+.nav-buttons {
+    position: relative;
+}
+
+/* ==========================================
+   NOTIFICHE ELEGANTI DICE & DRINK
+   ========================================== */
+
+/* Toast Notification */
+.auth-notification {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 24px;
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    z-index: 10000;
+    transform: translateX(400px);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    max-width: 380px;
+    min-width: 320px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.auth-notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.auth-notification.hide {
+    transform: translateX(400px);
+    opacity: 0;
+}
+
+/* Varianti per tipo */
+.auth-notification.success {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.auth-notification.error {
+    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.auth-notification.info {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.auth-notification.warning {
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Header della notifica */
+.notification-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+    position: relative;
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.notification-title {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0;
+    flex: 1;
+    line-height: 1.3;
+}
+
+.notification-close {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.notification-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+/* Messaggio della notifica */
+.notification-message {
+    font-size: 15px;
+    margin: 0;
+    opacity: 0.95;
+    line-height: 1.5;
+    white-space: pre-line;
+}
+
+/* Animazione dell'icona */
+.notification-icon i {
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 60%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-4px);
+    }
+    80% {
+        transform: translateY(-2px);
+    }
+}
+
+/* Responsive per mobile */
+@media (max-width: 768px) {
+    .auth-notification {
+        bottom: 20px;
+        right: 20px;
+        left: 20px;
+        max-width: none;
+        min-width: auto;
+        transform: translateY(200px);
+    }
+
+    .auth-notification.show {
+        transform: translateY(0);
+    }
+
+    .auth-notification.hide {
+        transform: translateY(200px);
+    }
+
+    .notification-header {
+        gap: 12px;
+    }
+
+    .notification-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+
+    .notification-title {
+        font-size: 16px;
+    }
+
+    .notification-message {
+        font-size: 14px;
+    }
+}
+
+/* ==========================================
+   MENU UTENTE ELEGANTE
+   ========================================== */
+
+.user-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    opacity: 0;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-menu-overlay.show {
+    opacity: 1;
+}
+
+.user-menu {
+    background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 20px;
+    padding: 0;
+    min-width: 320px;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: scale(0.9);
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.user-menu-overlay.show .user-menu {
+    transform: scale(1);
+}
+
+/* Header del menu utente */
+.user-menu-header {
+    padding: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.user-info {
+    flex: 1;
+}
+
+.user-info h3 {
+    margin: 0 0 4px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+}
+
+.user-info p {
+    margin: 0;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.user-menu-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.user-menu-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+/* Opzioni del menu */
+.user-menu-options {
+    padding: 12px;
+}
+
+.user-menu-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    background: transparent;
+    border: none;
+    color: white;
+    width: 100%;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 15px;
+    margin-bottom: 8px;
+}
+
+.user-menu-option:last-child {
+    margin-bottom: 0;
+}
+
+.user-menu-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(4px);
+}
+
+.user-menu-option.logout:hover {
+    background: rgba(244, 67, 54, 0.2);
+    color: #ff6b6b;
+}
+
+.user-menu-option i {
+    width: 20px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.user-menu-option span {
+    flex: 1;
+    text-align: left;
+}
+
+/* ==========================================
+   MODAL AUTH ESISTENTE - AGGIORNAMENTI
+   ========================================== */
+
+/* Miglioramenti al modal esistente per coerenza */
+.auth-modal-overlay {
+    backdrop-filter: blur(10px);
+}
+
+.auth-modal {
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+}
+
+/* Migliori transizioni per i bottoni */
+.auth-button {
+    transition: all 0.3s ease;
+}
+
+.auth-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.auth-button.loading {
+    position: relative;
+    color: transparent;
+}
+
+.auth-button.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ==========================================
+   RESPONSIVE E ACCESSIBILITÀ
+   ========================================== */
+
+/* Focus states per accessibilità */
+.user-menu-option:focus,
+.notification-close:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* Riduzione movimento per utenti con preferenze */
+@media (prefers-reduced-motion: reduce) {
+    .auth-notification,
+    .user-menu,
+    .notification-icon i {
+        animation: none;
+        transition-duration: 0.2s;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .user-menu {
+        background: linear-gradient(145deg, #0a0a0a 0%, #1a1a1a 100%);
+    }
+}
+
+/* Mobile specifico per menu utente */
+@media (max-width: 768px) {
+    .user-menu {
+        min-width: 280px;
+        max-width: calc(100vw - 40px);
+        margin: 20px;
+    }
+
+    .user-menu-header {
+        padding: 20px;
+    }
+
+    .user-avatar {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+
+    .user-info h3 {
+        font-size: 16px;
+    }
+
+    .user-menu-option {
+        padding: 14px 16px;
+        font-size: 14px;
+    }
+}
+
+/* ==========================================
+   ANIMAZIONI AVANZATE
+   ========================================== */
+
+/* Pulso per icone attive */
+.notification-icon.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    }
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+}
+
+/* Shake per errori */
+.auth-notification.error .notification-icon {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
