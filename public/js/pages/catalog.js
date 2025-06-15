@@ -1,6 +1,6 @@
 // js/pages/catalog.js
 // SCOPO: Pagina catalogo per giochi, drink e snack
-// RELAZIONI: Chiamata da main.js, usa API /api/games, mostra contenuto in div#content
+// RELAZIONI: Chiamata da main.js, usa API /api/games, /api/drinks, /api/snacks
 
 console.log('🎮 Caricamento pagina catalogo...');
 
@@ -11,8 +11,8 @@ console.log('🎮 Caricamento pagina catalogo...');
 const CATALOG_CONFIG = {
     API_ENDPOINTS: {
         games: '/api/games',
-        drinks: '/api/drinks', // TODO: Implementare quando pronto
-        snacks: '/api/snacks'  // TODO: Implementare quando pronto
+        drinks: '/api/drinks',  // ✅ REALE - Ora funzionante
+        snacks: '/api/snacks'   // ✅ REALE - Ora funzionante
     },
     CATEGORIES: {
         giochi: {
@@ -48,7 +48,7 @@ class CatalogPageManager {
     }
 
     // ==========================================
-    // CARICAMENTO DATI DA API
+    // CARICAMENTO DATI DA API - ORA TUTTO REALE
     // ==========================================
 
     async loadCategoryData(category) {
@@ -58,26 +58,28 @@ class CatalogPageManager {
             throw new Error(`Categoria ${category} non supportata`);
         }
 
-        if (category === 'giochi') {
-            // Carica giochi da API esistente
-            const response = await fetch(CATALOG_CONFIG.API_ENDPOINTS.games);
+        const apiEndpoint = CATALOG_CONFIG.API_ENDPOINTS[config.endpoint];
+
+        try {
+            console.log(`🔄 Caricamento dati da ${apiEndpoint}...`);
+
+            const response = await fetch(apiEndpoint);
 
             if (!response.ok) {
-                throw new Error(`Errore API: ${response.status}`);
+                throw new Error(`Errore API ${apiEndpoint}: ${response.status} ${response.statusText}`);
             }
 
-            this.currentItems = await response.json();
+            const data = await response.json();
 
-        } else if (category === 'drink') {
-            // TODO: Implementare quando API drink sarà pronta
-            this.currentItems = this.getMockDrinks();
+            // Gestisce sia array diretto che wrapper con paginazione
+            this.currentItems = Array.isArray(data) ? data : data[config.endpoint] || data;
 
-        } else if (category === 'snack') {
-            // TODO: Implementare quando API snack sarà pronta
-            this.currentItems = this.getMockSnacks();
+            console.log(`📊 Caricati ${this.currentItems.length} items per ${category}`);
+
+        } catch (error) {
+            console.error(`❌ Errore caricamento ${category}:`, error);
+            throw new Error(`Impossibile caricare ${category}: ${error.message}`);
         }
-
-        console.log(`📊 Caricati ${this.currentItems.length} items per ${category}`);
     }
 
     // ==========================================
@@ -133,19 +135,21 @@ class CatalogPageManager {
                     <div class="stat-item">
                         <i class="${stats.icon}"></i>
                         <span class="stat-number">${stats.count}</span>
-                        <span>${stats.label}</span>
+                        <span class="stat-text">${stats.label}</span>
                     </div>
                     <div class="stat-item">
                         <i class="fas fa-star"></i>
                         <span class="stat-number">${stats.rating}</span>
-                        <span>Rating Medio</span>
+                        <span class="stat-text">Rating Medio</span>
                     </div>
                     <div class="stat-item">
                         <i class="${stats.extraIcon}"></i>
                         <span class="stat-number">${stats.extraValue}</span>
-                        <span>${stats.extraLabel}</span>
+                        <span class="stat-text">${stats.extraLabel}</span>
                     </div>
                 </div>
+
+                ${this.currentCategory === 'drink' ? this.createAdvancedFiltersHTML() : ''}
 
                 <div class="search-container">
                     <i class="fas fa-search search-icon"></i>
@@ -153,6 +157,25 @@ class CatalogPageManager {
                            placeholder="Cerca ${this.currentCategory}..."
                            value="${this.searchTerm}">
                 </div>
+            </div>
+        `;
+    }
+
+    createAdvancedFiltersHTML() {
+        return `
+            <div class="advanced-filters">
+                <button class="filter-chip alcoholic" data-filter="alcoholic">
+                    <i class="fas fa-wine-glass"></i> Alcolico
+                </button>
+                <button class="filter-chip non-alcoholic" data-filter="non-alcoholic">
+                    <i class="fas fa-coffee"></i> Analcolico
+                </button>
+                <button class="filter-chip premium" data-filter="premium">
+                    <i class="fas fa-crown"></i> Premium
+                </button>
+                <button class="filter-chip economic" data-filter="economic">
+                    <i class="fas fa-piggy-bank"></i> Economico
+                </button>
             </div>
         `;
     }
@@ -233,7 +256,7 @@ class CatalogPageManager {
     createDrinkCardHTML(drink) {
         return `
             <div class="item-card drink-card" data-item-id="${drink.id}">
-                <div class="item-image" style="background-image: url('${drink.image}');">
+                <div class="item-image" style="background-image: url('${drink.imageUrl || '/assets/drinks/default.jpg'}');">
                     <button class="expand-btn" onclick="window.catalogPageManager.openItemModal(${drink.id})">
                         <i class="fas fa-expand"></i>
                     </button>
@@ -241,10 +264,36 @@ class CatalogPageManager {
 
                 <div class="item-content">
                     <h3 class="item-title">${drink.name}</h3>
-                    <span class="item-category">${drink.category}</span>
+                    <span class="item-category ${drink.isAlcoholic ? 'alcoholic' : 'non-alcoholic'}">
+                        ${drink.isAlcoholic ? 'Alcolico' : 'Analcolico'}
+                    </span>
 
-                    <div class="item-description">
-                        ${drink.description}
+                    <p class="item-description">
+                        ${drink.description || 'Delizioso drink preparato con cura'}
+                    </p>
+
+                    <div class="item-stats">
+                        <div class="item-stat">
+                            <div class="item-stat-icon">
+                                <i class="fas fa-flask"></i>
+                            </div>
+                            <div class="item-stat-value">${this.formatBaseSpirit(drink.baseSpirit)}</div>
+                            <div class="item-stat-label">Base</div>
+                        </div>
+                        <div class="item-stat">
+                            <div class="item-stat-icon">
+                                <i class="fas fa-euro-sign"></i>
+                            </div>
+                            <div class="item-stat-value">€${drink.price}</div>
+                            <div class="item-stat-label">Prezzo</div>
+                        </div>
+                        <div class="item-stat">
+                            <div class="item-stat-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="item-stat-value">${drink.price >= 8.00 ? 'Premium' : 'Classic'}</div>
+                            <div class="item-stat-label">Qualità</div>
+                        </div>
                     </div>
 
                     <button class="rent-btn" onclick="window.catalogPageManager.orderItem(${drink.id})">
@@ -259,7 +308,7 @@ class CatalogPageManager {
     createSnackCardHTML(snack) {
         return `
             <div class="item-card snack-card" data-item-id="${snack.id}">
-                <div class="item-image" style="background-image: url('${snack.image}');">
+                <div class="item-image" style="background-image: url('${snack.imageUrl || '/assets/snacks/default.jpg'}');">
                     <button class="expand-btn" onclick="window.catalogPageManager.openItemModal(${snack.id})">
                         <i class="fas fa-expand"></i>
                     </button>
@@ -267,14 +316,42 @@ class CatalogPageManager {
 
                 <div class="item-content">
                     <h3 class="item-title">${snack.name}</h3>
-                    <span class="item-category">${snack.category}</span>
+                    <span class="item-category ${snack.isSweet ? 'sweet' : 'savory'}">
+                        ${snack.isSweet ? 'Dolce' : 'Salato'}
+                    </span>
 
-                    <div class="item-description">
-                        ${snack.description}
+                    <p class="item-description">
+                        ${snack.description || 'Delizioso snack per accompagnare i tuoi giochi'}
+                    </p>
+                        ${snack.description || 'Delizioso snack per accompagnare i tuoi giochi'}
+                    </p>
+
+                    <div class="item-stats">
+                        <div class="item-stat">
+                            <div class="item-stat-icon">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div class="item-stat-value">${snack.isSweet ? '🍫' : '🧀'}</div>
+                            <div class="item-stat-label">Tipo</div>
+                        </div>
+                        <div class="item-stat">
+                            <div class="item-stat-icon">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <div class="item-stat-value">${this.getIngredientCategory(snack.mainIngredient)}</div>
+                            <div class="item-stat-label">Categoria</div>
+                        </div>
+                        <div class="item-stat">
+                            <div class="item-stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="item-stat-value">${this.getBestTime(snack)}</div>
+                            <div class="item-stat-label">Momento</div>
+                        </div>
                     </div>
 
                     <button class="rent-btn" onclick="window.catalogPageManager.orderItem(${snack.id})">
-                        <i class="fas fa-utensils"></i>
+                        <i class="fas fa-shopping-cart"></i>
                         Ordina - €${snack.price}
                     </button>
                 </div>
@@ -395,7 +472,7 @@ class CatalogPageManager {
 
         } catch (error) {
             console.error('❌ Errore switch categoria:', error);
-            this.showError('Errore nel caricamento della categoria');
+            this.showError('Errore nel caricamento della categoria: ' + error.message);
         }
     }
 
@@ -487,8 +564,11 @@ class CatalogPageManager {
     orderItem(itemId) {
         console.log(`🍻 Ordine item ${itemId}`);
 
+        const item = this.currentItems.find(i => i.id == itemId);
+        const itemName = item ? item.name : 'Item';
+
         // TODO: Integrare con sistema ordini
-        alert(`🍻 Ordine item ${itemId}\n\nFunzionalità in sviluppo!\nSarai reindirizzato al carrello.`);
+        alert(`🍻 Ordine: ${itemName}\n\nFunzionalità in sviluppo!\nSarai reindirizzato al carrello.`);
     }
 
     addToWishlist() {
@@ -516,24 +596,32 @@ class CatalogPageManager {
                 extraLabel: 'Giocatori'
             };
         } else if (this.currentCategory === 'drink') {
+            // Conta drink alcolici e analcolici
+            const alcoholicCount = this.currentItems.filter(d => d.isAlcoholic).length;
+            const nonAlcoholicCount = count - alcoholicCount;
+
             return {
                 icon: 'fas fa-cocktail',
                 count: count,
                 label: 'Drink Disponibili',
                 rating: '4.9',
-                extraIcon: 'fas fa-glass-cheers',
-                extraValue: 'Vario',
-                extraLabel: 'Tipologie'
+                extraIcon: 'fas fa-wine-glass',
+                extraValue: `${alcoholicCount}+${nonAlcoholicCount}`,
+                extraLabel: 'Alc/Analc'
             };
         } else if (this.currentCategory === 'snack') {
+            // Conta snack dolci e salati
+            const sweetCount = this.currentItems.filter(s => s.isSweet).length;
+            const savoryCount = count - sweetCount;
+
             return {
                 icon: 'fas fa-cookie-bite',
                 count: count,
                 label: 'Snack Disponibili',
                 rating: '4.7',
-                extraIcon: 'fas fa-leaf',
-                extraValue: 'Gourmet',
-                extraLabel: 'Qualità'
+                extraIcon: 'fas fa-balance-scale',
+                extraValue: `${sweetCount}+${savoryCount}`,
+                extraLabel: 'Dolci/Salati'
             };
         }
 
@@ -549,7 +637,9 @@ class CatalogPageManager {
         return this.currentItems.filter(item => {
             return item.name?.toLowerCase().includes(term) ||
                    item.description?.toLowerCase().includes(term) ||
-                   item.category?.toLowerCase().includes(term);
+                   item.category?.toLowerCase().includes(term) ||
+                   item.baseSpirit?.toLowerCase().includes(term) ||
+                   item.mainIngredient?.toLowerCase().includes(term);
         });
     }
 
@@ -568,6 +658,60 @@ class CatalogPageManager {
     formatDifficulty(level) {
         const stars = '★'.repeat(level || 1);
         return stars;
+    }
+
+    // Metodo helper per categoria ingrediente
+    getIngredientCategory(ingredient) {
+        const categories = {
+            'formaggio': 'Latticini',
+            'mais': 'Cereali',
+            'pane': 'Panificati',
+            'patate': 'Tuberi',
+            'olive': 'Verdure',
+            'farina': 'Panificati',
+            'cioccolato': 'Dolciario',
+            'zucchero': 'Dolciario',
+            'mascarpone': 'Latticini'
+        };
+        return categories[ingredient] || 'Altro';
+    }
+
+    // Metodo helper per momento ideale
+    getBestTime(snack) {
+        if (snack.isSweet) {
+            if (snack.mainIngredient === 'mascarpone') return 'Fine serata';
+            if (snack.mainIngredient === 'cioccolato') return 'Pausa dolce';
+            return 'Merenda';
+        } else {
+            if (snack.mainIngredient === 'olive') return 'Aperitivo';
+            if (snack.mainIngredient === 'formaggio') return 'Durante il gioco';
+            return 'Spuntino';
+        }
+    }
+
+    // Metodo helper per formattare base spirit
+    formatBaseSpirit(baseSpirit) {
+        if (!baseSpirit) return 'Misto';
+
+        // Capitalizza e accorcia alcuni nomi lunghi
+        const formatted = {
+            'gin': 'Gin',
+            'vodka': 'Vodka',
+            'rum': 'Rum',
+            'bourbon': 'Bourbon',
+            'tequila': 'Tequila',
+            'whiskey di segale': 'Whiskey',
+            'aperol': 'Aperol',
+            'birra': 'Birra',
+            'caffè': 'Caffè',
+            'tè chai': 'Chai',
+            'tè alle erbe': 'Tè',
+            'succo di mirtillo': 'Mirtillo',
+            'limonata': 'Limonata',
+            'soda': 'Soda'
+        };
+
+        return formatted[baseSpirit] || baseSpirit;
     }
 
     // ==========================================
@@ -612,20 +756,30 @@ class CatalogPageManager {
     }
 
     populateDrinkModal(drink, modalImage, modalTitle, modalDescription, modalStats, modalActionBtn) {
-        modalImage.style.backgroundImage = `url('${drink.image}')`;
+        modalImage.style.backgroundImage = `url('${drink.imageUrl || '/assets/drinks/default.jpg'}')`;
         modalTitle.textContent = drink.name;
         modalDescription.textContent = drink.description;
 
         modalStats.innerHTML = `
             <div class="modal-stat">
-                <div class="item-stat-icon"><i class="fas fa-tag"></i></div>
-                <div class="item-stat-value">${drink.category}</div>
-                <div class="item-stat-label">Categoria</div>
+                <div class="item-stat-icon"><i class="fas fa-wine-glass"></i></div>
+                <div class="item-stat-value">${drink.isAlcoholic ? 'Alcolico' : 'Analcolico'}</div>
+                <div class="item-stat-label">Tipo</div>
+            </div>
+            <div class="modal-stat">
+                <div class="item-stat-icon"><i class="fas fa-flask"></i></div>
+                <div class="item-stat-value">${drink.baseSpirit || 'Misto'}</div>
+                <div class="item-stat-label">Base Spirit</div>
             </div>
             <div class="modal-stat">
                 <div class="item-stat-icon"><i class="fas fa-euro-sign"></i></div>
                 <div class="item-stat-value">€${drink.price}</div>
                 <div class="item-stat-label">Prezzo</div>
+            </div>
+            <div class="modal-stat">
+                <div class="item-stat-icon"><i class="fas fa-star"></i></div>
+                <div class="item-stat-value">${drink.price >= 8.00 ? 'Premium' : 'Classic'}</div>
+                <div class="item-stat-label">Qualità</div>
             </div>
         `;
 
@@ -637,25 +791,40 @@ class CatalogPageManager {
     }
 
     populateSnackModal(snack, modalImage, modalTitle, modalDescription, modalStats, modalActionBtn) {
-        modalImage.style.backgroundImage = `url('${snack.image}')`;
+        modalImage.style.backgroundImage = `url('${snack.imageUrl || '/assets/snacks/default.jpg'}')`;
         modalTitle.textContent = snack.name;
         modalDescription.textContent = snack.description;
 
         modalStats.innerHTML = `
             <div class="modal-stat">
-                <div class="item-stat-icon"><i class="fas fa-tag"></i></div>
-                <div class="item-stat-value">${snack.category}</div>
-                <div class="item-stat-label">Categoria</div>
+                <div class="item-stat-icon"><i class="fas fa-utensils"></i></div>
+                <div class="item-stat-value">${snack.isSweet ? 'Dolce' : 'Salato'}</div>
+                <div class="item-stat-label">Tipo</div>
+            </div>
+            <div class="modal-stat">
+                <div class="item-stat-icon"><i class="fas fa-leaf"></i></div>
+                <div class="item-stat-value">${snack.mainIngredient}</div>
+                <div class="item-stat-label">Ingrediente</div>
             </div>
             <div class="modal-stat">
                 <div class="item-stat-icon"><i class="fas fa-euro-sign"></i></div>
                 <div class="item-stat-value">€${snack.price}</div>
                 <div class="item-stat-label">Prezzo</div>
             </div>
+            <div class="modal-stat">
+                <div class="item-stat-icon"><i class="fas fa-gamepad"></i></div>
+                <div class="item-stat-value">${snack.suggestedGame || 'Universale'}</div>
+                <div class="item-stat-label">Gioco Suggerito</div>
+            </div>
+            <div class="modal-stat">
+                <div class="item-stat-icon"><i class="fas fa-glass-cheers"></i></div>
+                <div class="item-stat-value">${snack.suggestedDrink || 'A piacere'}</div>
+                <div class="item-stat-label">Drink Suggerito</div>
+            </div>
         `;
 
         modalActionBtn.innerHTML = `
-            <i class="fas fa-utensils"></i>
+            <i class="fas fa-shopping-cart"></i>
             Ordina - €${snack.price}
         `;
         modalActionBtn.onclick = () => this.orderItem(snack.id);
@@ -692,86 +861,21 @@ class CatalogPageManager {
 
         return `
             <div class="empty-state">
-                <i class="${config.icon}" style="font-size: 4rem; color: var(--catalog-primary); margin-bottom: 1rem;"></i>
+                <i class="${config.icon}" style="font-size: 4rem; color: #6633cc; margin-bottom: 1rem;"></i>
                 <h3>Nessun ${config.label.toLowerCase()} trovato</h3>
                 <p>Prova a modificare i criteri di ricerca o torna più tardi.</p>
+                ${this.searchTerm ? `<p><strong>Termine ricercato:</strong> "${this.searchTerm}"</p>` : ''}
             </div>
         `;
     }
 
     showError(message) {
-        // TODO: Implementare sistema notifiche toast
-        alert('❌ ' + message);
-    }
-
-    // ==========================================
-    // MOCK DATA (TEMPORARY)
-    // ==========================================
-
-    getMockDrinks() {
-        return [
-            {
-                id: 1,
-                name: 'Dice Cocktail',
-                category: 'Cocktail Signature',
-                description: 'Il nostro cocktail esclusivo con gin, liquore ai frutti di bosco e lime.',
-                price: 8.50,
-                image: '/assets/drinks/dice-cocktail.jpg'
-            },
-            {
-                id: 2,
-                name: 'Potion Master',
-                category: 'Cocktail Fantasy',
-                description: 'Un cocktail magico che cambia colore mentre lo bevi.',
-                price: 9.00,
-                image: '/assets/drinks/potion-master.jpg'
-            },
-            {
-                id: 3,
-                name: 'Birra Artigianale IPA',
-                category: 'Birre',
-                description: 'IPA americana con note floreali e agrumate.',
-                price: 6.00,
-                image: '/assets/drinks/craft-ipa.jpg'
-            }
-        ];
-    }
-
-    getMockSnacks() {
-        return [
-            {
-                id: 1,
-                name: 'Tagliere del Guerriero',
-                category: 'Taglieri',
-                description: 'Selezione di formaggi e salumi locali con miele e noci.',
-                price: 12.00,
-                image: '/assets/snacks/warrior-board.jpg'
-            },
-            {
-                id: 2,
-                name: 'Patatine del Mago',
-                category: 'Stuzzichini',
-                description: 'Patatine croccanti con spezie segrete e salsa blu.',
-                price: 5.50,
-                image: '/assets/snacks/magic-chips.jpg'
-            },
-            {
-                id: 3,
-                name: 'Nachos Epici',
-                category: 'Stuzzichini',
-                description: 'Nachos con formaggio fuso, jalapeños e guacamole.',
-                price: 8.00,
-                image: '/assets/snacks/epic-nachos.jpg'
-            },
-            {
-                id: 4,
-                name: 'Dolce della Vittoria',
-                category: 'Dolci',
-                description: 'Tiramisù della casa con decorazione a tema gaming.',
-                price: 6.50,
-                image: '/assets/snacks/victory-dessert.jpg'
-            }
-        ];
+        // Mostra errore nell'interfaccia
+        const itemsGrid = document.getElementById('itemsGrid');
+        if (itemsGrid) {
+            itemsGrid.innerHTML = this.createErrorHTML(message);
+        }
+        console.error('❌ Errore catalogo:', message);
     }
 }
 
@@ -809,11 +913,11 @@ export async function showCatalog(category = 'giochi') {
         // Setup eventi e inizializzazioni
         manager.setupEvents();
 
-        console.log(`✅ Catalogo ${category} caricato con successo`);
+        console.log(`✅ Catalogo ${category} caricato con successo con ${manager.currentItems.length} items`);
 
     } catch (error) {
         console.error('❌ Errore caricamento catalogo:', error);
-        content.innerHTML = manager.createErrorHTML(error.message);
+        content.innerHTML = manager.createErrorHTML(`Errore nel caricamento del catalogo: ${error.message}`);
     }
 }
 
@@ -821,4 +925,4 @@ export async function showCatalog(category = 'giochi') {
 // INIZIALIZZAZIONE AL CARICAMENTO
 // ==========================================
 
-console.log('✅ Pagina catalogo caricata e pronta per l\'uso');
+console.log('✅ Pagina catalogo completata con API reali per drink e snack');
