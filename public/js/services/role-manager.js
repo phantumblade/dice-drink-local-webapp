@@ -333,48 +333,6 @@ window.showRoleManager = function() {
     console.log('🔍 UserRoleManager Debug Info:', window.UserRoleManager.getDebugInfo());
 };
 
-// CSS per le animazioni e stili ruolo
-const roleStyles = document.createElement('style');
-roleStyles.textContent = `
-/* Stili per icone ruolo */
-.navbar-profile-icon {
-    transition: all 0.3s ease;
-    padding: 8px;
-    border-radius: 50%;
-    border: 2px solid transparent;
-}
-
-.navbar-profile-icon.role-guest {
-    border-color: transparent;
-}
-
-.navbar-profile-icon.role-customer {
-    border-color: rgba(76, 175, 80, 0.3);
-    box-shadow: 0 0 10px rgba(76, 175, 80, 0.2);
-}
-
-.navbar-profile-icon.role-staff {
-    border-color: rgba(255, 152, 0, 0.3);
-    box-shadow: 0 0 10px rgba(255, 152, 0, 0.2);
-}
-
-.navbar-profile-icon.role-admin {
-    border-color: rgba(244, 67, 54, 0.3);
-    box-shadow: 0 0 10px rgba(244, 67, 54, 0.2);
-    animation: adminGlow 2s ease-in-out infinite alternate;
-}
-
-@keyframes adminGlow {
-    from { box-shadow: 0 0 10px rgba(244, 67, 54, 0.2); }
-    to { box-shadow: 0 0 15px rgba(244, 67, 54, 0.4); }
-}
-
-.navbar-profile-icon:hover {
-    transform: scale(1.1);
-}
-`;
-document.head.appendChild(roleStyles);
-
 console.log('✅ Sistema UserRoleManager caricato e pronto');
 
 // Export per moduli ES6 se necessario

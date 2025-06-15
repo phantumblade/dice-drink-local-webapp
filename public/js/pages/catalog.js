@@ -1,6 +1,7 @@
 // js/pages/catalog.js
 // SCOPO: Pagina catalogo per giochi, drink e snack
 // RELAZIONI: Chiamata da main.js, usa API /api/games, /api/drinks, /api/snacks
+// ✅ NUOVO: Protezione acquisti per utenti non autenticati
 
 console.log('🎮 Caricamento pagina catalogo...');
 
@@ -43,9 +44,20 @@ class CatalogPageManager {
         this.currentItems = [];
         this.isModalOpen = false;
         this.searchTerm = '';
-        this.selectedFilters = [];         // ← nuovo
+        this.selectedFilters = [];
 
         console.log('✅ CatalogPageManager inizializzato');
+    }
+
+    // ==========================================
+    // CONTROLLO AUTENTICAZIONE - NUOVO METODO
+    // ==========================================
+
+    get isAuthenticated() {
+        // Controlla sia SimpleAuth che window.currentUser per compatibilità
+        return (window.SimpleAuth && window.SimpleAuth.isAuthenticated) ||
+               Boolean(window.currentUser) ||
+               Boolean(localStorage.getItem('authToken'));
     }
 
     // ==========================================
@@ -254,107 +266,101 @@ class CatalogPageManager {
         `;
     }
 
-createDrinkCardHTML(drink) {
-    return `
-        <div class="item-card drink-card" data-item-id="${drink.id}">
-            <div class="item-image" style="background-image: url('${drink.imageUrl || '/assets/drinks/default.jpg'}');">
-                <button class="expand-btn" onclick="window.catalogPageManager.openItemModal(${drink.id})">
-                    <i class="fas fa-expand"></i>
-                </button>
-            </div>
-
-            <div class="item-content">
-                <h3 class="item-title">${drink.name}</h3>
-                <span class="item-category ${drink.isAlcoholic ? 'alcoholic' : 'non-alcoholic'}">
-                    ${drink.isAlcoholic ? 'Alcolico' : 'Analcolico'}
-                </span>
-
-                <!-- Descrizione rimossa dalla card esterna -->
-
-                <div class="item-stats">
-                    <div class="item-stat">
-                        <div class="item-stat-icon">
-                            <i class="fas fa-flask"></i>
-                        </div>
-                        <div class="item-stat-value">${this.formatBaseSpirit(drink.baseSpirit)}</div>
-                        <div class="item-stat-label">Base</div>
-                    </div>
-                    <div class="item-stat">
-                        <div class="item-stat-icon">
-                            <i class="fas fa-euro-sign"></i>
-                        </div>
-                        <div class="item-stat-value">€${drink.price}</div>
-                        <div class="item-stat-label">Prezzo</div>
-                    </div>
-                    <div class="item-stat">
-                        <div class="item-stat-icon">
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <div class="item-stat-value">${drink.price >= 8.00 ? 'Premium' : 'Classic'}</div>
-                        <div class="item-stat-label">Qualità</div>
-                    </div>
+    createDrinkCardHTML(drink) {
+        return `
+            <div class="item-card drink-card" data-item-id="${drink.id}">
+                <div class="item-image" style="background-image: url('${drink.imageUrl || '/assets/drinks/default.jpg'}');">
+                    <button class="expand-btn" onclick="window.catalogPageManager.openItemModal(${drink.id})">
+                        <i class="fas fa-expand"></i>
+                    </button>
                 </div>
 
-                <button class="rent-btn" onclick="window.catalogPageManager.orderItem(${drink.id})">
-                    <i class="fas fa-glass-cheers"></i>
-                    Ordina - €${drink.price}
-                </button>
+                <div class="item-content">
+                    <h3 class="item-title">${drink.name}</h3>
+                    <span class="item-category ${drink.isAlcoholic ? 'alcoholic' : 'non-alcoholic'}">
+                        ${drink.isAlcoholic ? 'Alcolico' : 'Analcolico'}
+                    </span>
+
+                    <div class="item-stats">
+                        <div class="item-stat">
+                            <div class="item-stat-icon">
+                                <i class="fas fa-flask"></i>
+                            </div>
+                            <div class="item-stat-value">${this.formatBaseSpirit(drink.baseSpirit)}</div>
+                            <div class="item-stat-label">Base</div>
+                        </div>
+                        <div class="item-stat">
+                            <div class="item-stat-icon">
+                                <i class="fas fa-euro-sign"></i>
+                            </div>
+                            <div class="item-stat-value">€${drink.price}</div>
+                            <div class="item-stat-label">Prezzo</div>
+                        </div>
+                        <div class="item-stat">
+                            <div class="item-stat-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="item-stat-value">${drink.price >= 8.00 ? 'Premium' : 'Classic'}</div>
+                            <div class="item-stat-label">Qualità</div>
+                        </div>
+                    </div>
+
+                    <button class="rent-btn" onclick="window.catalogPageManager.orderItem(${drink.id})">
+                        <i class="fas fa-glass-cheers"></i>
+                        Ordina - €${drink.price}
+                    </button>
+                </div>
             </div>
-        </div>
-    `;
-}
+        `;
+    }
 
-
-createSnackCardHTML(snack) {
-    return `
-        <div class="item-card snack-card" data-item-id="${snack.id}">
-            <div class="item-image" style="background-image: url('${snack.imageUrl || '/assets/snacks/default.jpg'}');">
-                <button class="expand-btn" onclick="window.catalogPageManager.openItemModal(${snack.id})">
-                    <i class="fas fa-expand"></i>
-                </button>
-            </div>
-
-            <div class="item-content">
-                <h3 class="item-title">${snack.name}</h3>
-                <span class="item-category ${snack.isSweet ? 'sweet' : 'savory'}">
-                    ${snack.isSweet ? 'Dolce' : 'Salato'}
-                </span>
-
-                <div class="item-stats">
-                    <!-- 1) Prezzo -->
-                    <div class="item-stat">
-                        <div class="item-stat-icon">
-                            <i class="fas fa-euro-sign"></i>
-                        </div>
-                        <div class="item-stat-value">€${snack.price}</div>
-                        <div class="item-stat-label">Prezzo</div>
-                    </div>
-                    <!-- 2) Categoria (ingrediente) -->
-                    <div class="item-stat">
-                        <div class="item-stat-icon">
-                            <i class="fas fa-leaf"></i>
-                        </div>
-                        <div class="item-stat-value">${this.getIngredientCategory(snack.mainIngredient)}</div>
-                        <div class="item-stat-label">Categoria</div>
-                    </div>
-                    <!-- 3) Momento -->
-                    <div class="item-stat">
-                        <div class="item-stat-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <div class="item-stat-value">${this.getBestTime(snack)}</div>
-                        <div class="item-stat-label">Momento</div>
-                    </div>
+    createSnackCardHTML(snack) {
+        return `
+            <div class="item-card snack-card" data-item-id="${snack.id}">
+                <div class="item-image" style="background-image: url('${snack.imageUrl || '/assets/snacks/default.jpg'}');">
+                    <button class="expand-btn" onclick="window.catalogPageManager.openItemModal(${snack.id})">
+                        <i class="fas fa-expand"></i>
+                    </button>
                 </div>
 
-                <button class="rent-btn" onclick="window.catalogPageManager.orderItem(${snack.id})">
-                    <i class="fas fa-shopping-cart"></i>
-                    Ordina - €${snack.price}
-                </button>
+                <div class="item-content">
+                    <h3 class="item-title">${snack.name}</h3>
+                    <span class="item-category ${snack.isSweet ? 'sweet' : 'savory'}">
+                        ${snack.isSweet ? 'Dolce' : 'Salato'}
+                    </span>
+
+                    <div class="item-stats">
+                        <div class="item-stat">
+                            <div class="item-stat-icon">
+                                <i class="fas fa-euro-sign"></i>
+                            </div>
+                            <div class="item-stat-value">€${snack.price}</div>
+                            <div class="item-stat-label">Prezzo</div>
+                        </div>
+                        <div class="item-stat">
+                            <div class="item-stat-icon">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <div class="item-stat-value">${this.getIngredientCategory(snack.mainIngredient)}</div>
+                            <div class="item-stat-label">Categoria</div>
+                        </div>
+                        <div class="item-stat">
+                            <div class="item-stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="item-stat-value">${this.getBestTime(snack)}</div>
+                            <div class="item-stat-label">Momento</div>
+                        </div>
+                    </div>
+
+                    <button class="rent-btn" onclick="window.catalogPageManager.orderItem(${snack.id})">
+                        <i class="fas fa-shopping-cart"></i>
+                        Ordina - €${snack.price}
+                    </button>
+                </div>
             </div>
-        </div>
-    `;
-}
+        `;
+    }
 
     // ==========================================
     // MODAL PER DETTAGLI ITEM
@@ -402,46 +408,67 @@ createSnackCardHTML(snack) {
     // GESTIONE EVENTI
     // ==========================================
 
-  setupEvents() {
-    // 1) Bottoni di switch categoria
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', e => {
-        const category = e.currentTarget.dataset.category;
-        this.switchCategory(category);
-      });
-    });
+    setupEvents() {
+        // 1) Bottoni di switch categoria
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', e => {
+                const category = e.currentTarget.dataset.category;
+                this.switchCategory(category);
+            });
+        });
 
-    // 2) Ricerca live
-    const searchInput = document.querySelector('.search-input');
-    if (searchInput) {
-      searchInput.addEventListener('input', e => {
-        this.searchTerm = e.target.value;
-        this.refreshItemsGrid();
-      });
-    }
-
-    // 3a) Chiusura modale al click sull'overlay
-    const modalOverlay = document.getElementById('itemModal');
-    if (modalOverlay) {
-      modalOverlay.addEventListener('click', e => {
-        if (e.target === modalOverlay) {
-          this.closeModal();
+        // 2) Ricerca live
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', e => {
+                this.searchTerm = e.target.value;
+                this.refreshItemsGrid();
+            });
         }
-      });
-    }
-    // 3b) Chiusura modale con tasto Escape
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && this.isModalOpen) {
-        this.closeModal();
-      }
-    });
 
-    // 4) Inizializza click sui chip di filtro
-    this.setupFilterChipEvents();
-  }
+        // 3a) Chiusura modale al click sull'overlay
+        const modalOverlay = document.getElementById('itemModal');
+        if (modalOverlay) {
+            modalOverlay.addEventListener('click', e => {
+                if (e.target === modalOverlay) {
+                    this.closeModal();
+                }
+            });
+        }
+
+        // 3b) Chiusura modale con tasto Escape
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && this.isModalOpen) {
+                this.closeModal();
+            }
+        });
+
+        // 4) Inizializza click sui chip di filtro
+        this.setupFilterChipEvents();
+    }
+
+    setupFilterChipEvents() {
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', e => this.handleFilterChipClick(e));
+        });
+    }
+
+    handleFilterChipClick(e) {
+        const chip = e.currentTarget;
+        const filter = chip.dataset.filter;
+
+        if (this.selectedFilters.includes(filter)) {
+            this.selectedFilters = this.selectedFilters.filter(f => f !== filter);
+        } else {
+            this.selectedFilters.push(filter);
+        }
+
+        chip.classList.toggle('active');
+        this.refreshItemsGrid();
+    }
 
     // ==========================================
-    // METODI AZIONI UTENTE
+    // METODI AZIONI UTENTE - CON PROTEZIONE AUTH
     // ==========================================
 
     async switchCategory(category) {
@@ -498,6 +525,9 @@ createSnackCardHTML(snack) {
                 this.refreshItemsGrid();
             });
         }
+
+        // Re-setup filter events
+        this.setupFilterChipEvents();
     }
 
     refreshItemsGrid() {
@@ -553,51 +583,129 @@ createSnackCardHTML(snack) {
         document.body.style.overflow = 'auto';
     }
 
-        /**
-     * Attacca l'evento click a tutti i .filter-chip
+    // ==========================================
+    // PROTEZIONE AUTENTICAZIONE - NUOVI METODI
+    // ==========================================
+
+    /**
+     * Apre il modal di autenticazione esistente
      */
-    setupFilterChipEvents() {
-        document.querySelectorAll('.filter-chip').forEach(chip => {
-        chip.addEventListener('click', e => this.handleFilterChipClick(e));
-        });
+    openAuthModal() {
+        console.log('🔐 Apertura modal di autenticazione per guest');
+
+        // Usa il sistema SimpleAuth esistente
+        if (window.SimpleAuth && typeof window.SimpleAuth.showLoginModal === 'function') {
+            console.log('✅ Utilizzo SimpleAuth.showLoginModal()');
+            window.SimpleAuth.showLoginModal();
+        } else {
+            console.warn('⚠️ SimpleAuth non disponibile, fallback al prompt');
+            this.showGuestPrompt();
+        }
     }
 
     /**
-     * Toggle filtro selezionato e aggiorna la griglia
+     * Mostra un prompt semplice per guest come fallback
      */
-    handleFilterChipClick(e) {
-        const chip = e.currentTarget;
-        const filter = chip.dataset.filter;
-        if (this.selectedFilters.includes(filter)) {
-        this.selectedFilters = this.selectedFilters.filter(f => f !== filter);
-        } else {
-        this.selectedFilters.push(filter);
+    showGuestPrompt() {
+        const choice = confirm(
+            "🔐 ACCESSO RICHIESTO\n\n" +
+            "Per ordinare drink e snack o noleggiare giochi devi essere registrato.\n\n" +
+            "Vuoi accedere ora?\n\n" +
+            "• OK = Vai al login/registrazione\n" +
+            "• Annulla = Continua a navigare"
+        );
+
+        if (choice) {
+            // Simula click sull'icona profilo per aprire il login
+            const profileIcon = document.querySelector('.navbar-profile-icon');
+            if (profileIcon) {
+                profileIcon.click();
+            } else {
+                alert("Sistema di autenticazione non disponibile.\nRicarica la pagina e riprova.");
+            }
         }
-        chip.classList.toggle('active');
-        this.refreshItemsGrid();
     }
 
+    /**
+     * ✅ NUOVO: Noleggia gioco con protezione auth
+     */
     rentItem(itemId) {
-        console.log(`🎮 Noleggio item ${itemId}`);
+        console.log(`🎮 Tentativo noleggio item ${itemId}`);
 
-        // TODO: Integrare con sistema prenotazioni
-        alert(`🎮 Noleggio gioco ${itemId}\n\nFunzionalità in sviluppo!\nSarai reindirizzato al sistema di prenotazione.`);
+        // 🔐 CONTROLLO AUTENTICAZIONE
+        if (!this.isAuthenticated) {
+            console.log('❌ Utente non autenticato per noleggio, mostra modal login');
+            this.openAuthModal();
+            return;
+        }
+
+        // ✅ Utente autenticato, procedi con il noleggio
+        const item = this.currentItems.find(i => i.id == itemId);
+        const itemName = item ? item.name : 'Gioco';
+
+        console.log('✅ Utente autenticato, procedo con noleggio:', itemName);
+
+        // TODO: Integrare con sistema prenotazioni reale
+        alert(
+            `🎮 NOLEGGIO: ${itemName}\n\n` +
+            `✅ Utente autenticato come: ${this.getCurrentUserName()}\n\n` +
+            "Funzionalità in sviluppo!\n" +
+            "Sarai reindirizzato al sistema di prenotazione."
+        );
     }
 
+    /**
+     * ✅ NUOVO: Ordina drink/snack con protezione auth
+     */
     orderItem(itemId) {
-        console.log(`🍻 Ordine item ${itemId}`);
+        console.log(`🍻 Tentativo ordine item ${itemId}`);
 
+        // 🔐 CONTROLLO AUTENTICAZIONE
+        if (!this.isAuthenticated) {
+            console.log('❌ Utente non autenticato per ordine, mostra modal login');
+            this.openAuthModal();
+            return;
+        }
+
+        // ✅ Utente autenticato, procedi con l'ordine
         const item = this.currentItems.find(i => i.id == itemId);
         const itemName = item ? item.name : 'Item';
+        const itemPrice = item ? `€${item.price}` : 'Prezzo sconosciuto';
 
-        // TODO: Integrare con sistema ordini
-        alert(`🍻 Ordine: ${itemName}\n\nFunzionalità in sviluppo!\nSarai reindirizzato al carrello.`);
+        console.log('✅ Utente autenticato, procedo con ordine:', itemName);
+
+        // TODO: Integrare con sistema carrello reale
+        alert(
+            `🍻 ORDINE: ${itemName}\n\n` +
+            `💰 Prezzo: ${itemPrice}\n` +
+            `✅ Utente: ${this.getCurrentUserName()}\n\n` +
+            "Funzionalità in sviluppo!\n" +
+            "Sarai reindirizzato al carrello."
+        );
+    }
+
+    /**
+     * Helper per ottenere il nome utente corrente
+     */
+    getCurrentUserName() {
+        if (window.SimpleAuth && window.SimpleAuth.currentUser) {
+            const user = window.SimpleAuth.currentUser;
+            return user.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : user.email;
+        }
+
+        if (window.currentUser) {
+            return window.currentUser.first_name ?
+                   `${window.currentUser.first_name} ${window.currentUser.last_name || ''}`.trim() :
+                   window.currentUser.email;
+        }
+
+        return 'Utente Autenticato';
     }
 
     addToWishlist() {
         console.log('❤️ Aggiunta alla wishlist');
 
-        // TODO: Integrare con sistema wishlist utente
+        // TODO: Implementare anche qui controllo auth se necessario
         alert('❤️ Aggiunto alla wishlist!\n\n(Funzionalità in sviluppo)');
     }
 
@@ -619,7 +727,6 @@ createSnackCardHTML(snack) {
                 extraLabel: 'Giocatori'
             };
         } else if (this.currentCategory === 'drink') {
-            // Conta drink alcolici e analcolici
             const alcoholicCount = this.currentItems.filter(d => d.isAlcoholic).length;
             const nonAlcoholicCount = count - alcoholicCount;
 
@@ -629,11 +736,10 @@ createSnackCardHTML(snack) {
                 label: 'Drink Disponibili',
                 rating: '4.9',
                 extraIcon: 'fas fa-wine-glass',
-                extraValue: `${alcoholicCount}+${nonAlcoholicCount}`,
+                extraValue: `${alcoholicCount}/${nonAlcoholicCount}`,
                 extraLabel: 'Alc/Analc'
             };
         } else if (this.currentCategory === 'snack') {
-            // Conta snack dolci e salati
             const sweetCount = this.currentItems.filter(s => s.isSweet).length;
             const savoryCount = count - sweetCount;
 
@@ -643,7 +749,7 @@ createSnackCardHTML(snack) {
                 label: 'Snack Disponibili',
                 rating: '4.7',
                 extraIcon: 'fas fa-balance-scale',
-                extraValue: `${sweetCount}+${savoryCount}`,
+                extraValue: `${sweetCount}/${savoryCount}`,
                 extraLabel: 'Dolci/Salati'
             };
         }
@@ -651,58 +757,49 @@ createSnackCardHTML(snack) {
         return { icon: 'fas fa-cube', count: 0, label: 'Items', rating: '0', extraIcon: 'fas fa-info', extraValue: '0', extraLabel: 'Info' };
     }
 
+    getFilteredItems() {
+        let items = this.currentItems;
 
-getFilteredItems() {
-  // 1) Partiamo da tutti gli items
-  let items = this.currentItems;
-
-  // 2) Ricerca testuale (se this.searchTerm non è vuoto)
-  if (this.searchTerm) {
-    const term = this.searchTerm.toLowerCase();
-    items = items.filter(item => (
-      item.name?.toLowerCase().includes(term) ||
-      item.description?.toLowerCase().includes(term) ||
-      item.category?.toLowerCase().includes(term) ||
-      item.baseSpirit?.toLowerCase().includes(term) ||
-      item.mainIngredient?.toLowerCase().includes(term)
-    ));
-  }
-
-  // 3) Filtri avanzati (se almeno un chip è attivo)
-  if (this.selectedFilters.length > 0) {
-    items = items.filter(item =>
-      this.selectedFilters.every(filter => {
-        switch (filter) {
-          case 'alcoholic':
-            // isAlcoholic è 1 per vero
-            return item.isAlcoholic === 1;
-          case 'non-alcoholic':
-            // isAlcoholic è 0 per falso
-            return item.isAlcoholic === 0;
-          case 'premium':
-            return item.price >= 8.00;
-          case 'economic':
-            return item.price < 8.00;
-          default:
-            return true;
+        // Ricerca testuale
+        if (this.searchTerm) {
+            const term = this.searchTerm.toLowerCase();
+            items = items.filter(item => (
+                item.name?.toLowerCase().includes(term) ||
+                item.description?.toLowerCase().includes(term) ||
+                item.category?.toLowerCase().includes(term) ||
+                item.baseSpirit?.toLowerCase().includes(term) ||
+                item.mainIngredient?.toLowerCase().includes(term)
+            ));
         }
-      })
-    );
-  }
 
-  // 4) Ritorna l’array filtrato
-  return items;
-}
+        // Filtri avanzati
+        if (this.selectedFilters.length > 0) {
+            items = items.filter(item =>
+                this.selectedFilters.every(filter => {
+                    switch (filter) {
+                        case 'alcoholic':
+                            return item.isAlcoholic === 1;
+                        case 'non-alcoholic':
+                            return item.isAlcoholic === 0;
+                        case 'premium':
+                            return item.price >= 8.00;
+                        case 'economic':
+                            return item.price < 8.00;
+                        default:
+                            return true;
+                    }
+                })
+            );
+        }
 
+        return items;
+    }
 
     formatDuration(minutes) {
         if (!minutes) return 'N/A';
-
         if (minutes < 60) return `${minutes}min`;
-
         const hours = Math.floor(minutes / 60);
         const mins = minutes % 60;
-
         if (mins === 0) return `${hours}h`;
         return `${hours}h${mins}m`;
     }
@@ -745,7 +842,6 @@ getFilteredItems() {
     formatBaseSpirit(baseSpirit) {
         if (!baseSpirit) return 'Misto';
 
-        // Capitalizza e accorcia alcuni nomi lunghi
         const formatted = {
             'gin': 'Gin',
             'vodka': 'Vodka',
@@ -873,6 +969,11 @@ getFilteredItems() {
                 <div class="item-stat-value">${snack.suggestedDrink || 'A piacere'}</div>
                 <div class="item-stat-label">Drink Suggerito</div>
             </div>
+            <div class="modal-stat">
+                <div class="item-stat-icon"><i class="fas fa-clock"></i></div>
+                <div class="item-stat-value">${this.getBestTime(snack)}</div>
+                <div class="item-stat-label">Momento Ideale</div>
+            </div>
         `;
 
         modalActionBtn.innerHTML = `
@@ -922,7 +1023,6 @@ getFilteredItems() {
     }
 
     showError(message) {
-        // Mostra errore nell'interfaccia
         const itemsGrid = document.getElementById('itemsGrid');
         if (itemsGrid) {
             itemsGrid.innerHTML = this.createErrorHTML(message);
@@ -977,4 +1077,4 @@ export async function showCatalog(category = 'giochi') {
 // INIZIALIZZAZIONE AL CARICAMENTO
 // ==========================================
 
-console.log('✅ Pagina catalogo completata con API reali per drink e snack');
+console.log('✅ Pagina catalogo completata con protezione auth per guest');

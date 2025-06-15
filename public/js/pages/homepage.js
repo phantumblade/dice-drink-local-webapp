@@ -249,8 +249,22 @@ function createExpandableCards() {
     cardButton.classList.add('card-button');
     cardButton.textContent = cardData.buttonText;
     cardButton.addEventListener('click', (e) => {
-      e.stopPropagation();
-      alert(`Azione per: ${cardData.title}`);
+    e.stopPropagation();
+
+    // Controlla quale bottone è stato cliccato
+    if (cardData.id === 1) {
+        // Bottone "Sfoglia catalogo"
+        window.showPage('catalogo-giochi');
+    } else if (cardData.id === 2) {
+        // Bottone "Prenota ora"
+        window.showPage('prenotazioni');
+    } else if (cardData.id === 3) {
+        // Bottone "Scopri di più"
+        const menuSection = document.getElementById('catalog-section');
+        if (menuSection) {
+        menuSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
     });
     cardContent.appendChild(cardButton);
 
@@ -324,10 +338,10 @@ function createCatalogSection() {
   const browseBtn = document.createElement('button');
   browseBtn.classList.add('browse-catalog-btn');
   browseBtn.innerHTML = 'Sfoglia intero catalogo <i class="fas fa-arrow-right"></i>';
-  browseBtn.addEventListener('click', () => {
-    const filter = filters[activeIndex].toLowerCase();
-    window.location.href = `/catalog?filter=${encodeURIComponent(filter)}`;
-  });
+    browseBtn.addEventListener('click', () => {
+    // Vai alla pagina catalogo completo
+    window.showPage('catalogo-giochi');
+    });
   section.appendChild(browseBtn);
 
   // Funzione per popolare la lista
@@ -354,7 +368,7 @@ function createCatalogSection() {
           <p class="catalog-item-desc">${data.desc}</p>
           <div class="catalog-item-footer">
             <span class="catalog-item-price">${data.price}</span>
-            <button class="catalog-item-btn">Dettagli</button>
+            <button class="catalog-item-btn" onclick="window.showPage('catalogo-giochi')">Dettagli</button>
           </div>
         </div>
       `;
@@ -500,3 +514,17 @@ export function showHomepage() {
   // Attiva l'animazione a cascata
   setTimeout(() => homepage.classList.add('show'), 100);
 }
+
+// Alla fine del file homepage.js
+console.log('Homepage caricata, showPage disponibile:', typeof window.showPage);
+
+// Test rapido dei collegamenti
+window.testHomepageButtons = function() {
+  console.log('🧪 Test bottoni homepage:');
+
+  // Simula click bottone catalogo
+  console.log('- Catalogo:', typeof window.showPage === 'function' ? '✅ OK' : '❌ showPage non disponibile');
+
+  // Simula click bottone prenotazioni
+  console.log('- Prenotazioni:', typeof window.showPage === 'function' ? '✅ OK' : '❌ showPage non disponibile');
+};

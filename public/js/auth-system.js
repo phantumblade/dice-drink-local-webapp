@@ -1,7 +1,7 @@
-// public/js/auth-system.js - CLEAN INTEGRATION
-// Sistema di autenticazione con modal pulito e card elegante
+// public/js/auth-system.js - CLEAN INTEGRATION + ELEGANT NOTIFICATIONS
+// Sistema di autenticazione con notifiche eleganti
 
-console.log('🚀 Sistema auth autonomo - v4.0 CLEAN INTEGRATION');
+console.log('🚀 Sistema auth autonomo - v5.0 ELEGANT NOTIFICATIONS');
 
 // ==========================================
 // CONTROLLO DUPLICAZIONE
@@ -20,6 +20,97 @@ const AUTH_CONFIG = {
     STORAGE_KEY: 'authToken',
     REFRESH_KEY: 'refreshToken'
 };
+
+// ==========================================
+// SISTEMA NOTIFICHE ELEGANTI
+// ==========================================
+
+class NotificationSystem {
+    static show(message, type = 'success', userName = null) {
+        // Rimuovi notifiche esistenti
+        const existing = document.querySelectorAll('.auth-notification');
+        existing.forEach(n => n.remove());
+
+        const notification = document.createElement('div');
+        notification.className = `auth-notification ${type}`;
+
+        // Messaggi personalizzati per tema D&D
+        const icons = {
+            success: 'fas fa-dragon',
+            error: 'fas fa-exclamation-triangle',
+            info: 'fas fa-info-circle',
+            warning: 'fas fa-exclamation-circle'
+        };
+
+        const titles = {
+            success: ['Bentornato, Avventuriero!', 'Quest Completata!', 'Benvenuto nella Taverna!'],
+            error: ['Ops, qualcosa è andato storto!', 'La magia ha fallito!', 'Errore nell\'incantesimo!'],
+            info: ['Informazione importante', 'Avviso per l\'avventuriero', 'Nota dalla taverna'],
+            warning: ['Attenzione, avventuriero!', 'Avvertimento magico!', 'Pericolo rilevato!']
+        };
+
+        const randomTitle = titles[type][Math.floor(Math.random() * titles[type].length)];
+
+        // Personalizza messaggio per login/register
+        let finalMessage = message;
+        if (type === 'success' && userName) {
+            const welcomeMessages = [
+                `L'avventura ti aspetta, ${userName}! 🎲`,
+                `Benvenuto nell'arena, ${userName}! ⚔️`,
+                `Preparati al divertimento, ${userName}! 🎮`,
+                `La taverna è pronta per te, ${userName}! 🍺`,
+                `Che le tue partite siano leggendarie, ${userName}! ✨`
+            ];
+            finalMessage = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
+        }
+
+        notification.innerHTML = `
+            <div class="notification-header">
+                <div class="notification-icon">
+                    <i class="${icons[type]}"></i>
+                </div>
+                <h4 class="notification-title">${randomTitle}</h4>
+                <button class="notification-close">×</button>
+            </div>
+            <p class="notification-message">${finalMessage}</p>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Animazione di entrata
+        setTimeout(() => notification.classList.add('show'), 100);
+
+        // Auto-hide dopo 5.5 secondi
+        setTimeout(() => {
+            notification.classList.add('hide');
+            setTimeout(() => notification.remove(), 400);
+        }, 5500);
+
+        // Close button
+        notification.querySelector('.notification-close').addEventListener('click', () => {
+            notification.classList.add('hide');
+            setTimeout(() => notification.remove(), 400);
+        });
+
+        return notification;
+    }
+
+    static showWelcome(userName) {
+        this.show('', 'success', userName);
+    }
+
+    static showError(message) {
+        this.show(message, 'error');
+    }
+
+    static showInfo(message) {
+        this.show(message, 'info');
+    }
+
+    static showLogout() {
+        this.show('Arrivederci, avventuriero! Torna presto per nuove quest! 👋', 'info');
+    }
+}
 
 // ==========================================
 // GESTORE AUTENTICAZIONE PRINCIPALE
@@ -133,51 +224,93 @@ window.SimpleAuth = {
     showUserMenu() {
         const userName = this.currentUser?.first_name || this.currentUser?.email || 'Utente';
 
-        const menuText = [
-            `👋 Ciao ${userName}!`,
-            '',
-            'Cosa vuoi fare?',
-            '',
-            '1️⃣ Visualizza Profilo',
-            '2️⃣ Le Mie Prenotazioni',
-            '3️⃣ Logout',
-            '❌ Annulla'
-        ].join('\n');
+        // Crea menu elegante invece di prompt
+        const existingMenu = document.querySelector('.user-menu-overlay');
+        if (existingMenu) existingMenu.remove();
 
-        const choice = prompt(menuText + '\n\nScegli un\'opzione (1-3):');
+        const menuOverlay = document.createElement('div');
+        menuOverlay.className = 'user-menu-overlay';
 
-        switch(choice) {
-            case '1':
-                this.showProfile();
-                break;
-            case '2':
-                this.showBookings();
-                break;
-            case '3':
-                this.logout();
-                break;
-            default:
-                console.log('Menu utente chiuso');
+        menuOverlay.innerHTML = `
+            <div class="user-menu">
+                <div class="user-menu-header">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-info">
+                        <h3>Ciao ${userName}!</h3>
+                        <p>${this.currentUser?.email || ''}</p>
+                    </div>
+                    <button class="user-menu-close">×</button>
+                </div>
+                <div class="user-menu-options">
+                    <button class="user-menu-option" data-action="profile">
+                        <i class="fas fa-user"></i>
+                        <span>Visualizza Profilo</span>
+                    </button>
+                    <button class="user-menu-option" data-action="bookings">
+                        <i class="fas fa-calendar"></i>
+                        <span>Le Mie Prenotazioni</span>
+                    </button>
+                    <button class="user-menu-option logout" data-action="logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(menuOverlay);
+        setTimeout(() => menuOverlay.classList.add('show'), 10);
+
+        // Event listeners
+        menuOverlay.addEventListener('click', (e) => {
+            if (e.target === menuOverlay) this.closeUserMenu();
+        });
+
+        menuOverlay.querySelector('.user-menu-close').addEventListener('click', () => {
+            this.closeUserMenu();
+        });
+
+        menuOverlay.querySelectorAll('.user-menu-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                const action = e.currentTarget.dataset.action;
+                this.closeUserMenu();
+
+                switch(action) {
+                    case 'profile':
+                        this.showProfile();
+                        break;
+                    case 'bookings':
+                        this.showBookings();
+                        break;
+                    case 'logout':
+                        this.logout();
+                        break;
+                }
+            });
+        });
+    },
+
+    closeUserMenu() {
+        const menu = document.querySelector('.user-menu-overlay');
+        if (menu) {
+            menu.classList.remove('show');
+            setTimeout(() => menu.remove(), 300);
         }
     },
 
     showProfile() {
         const user = this.currentUser;
-        const profileInfo = [
-            '👤 IL TUO PROFILO',
-            '',
-            `📧 Email: ${user.email}`,
-            `👤 Nome: ${user.first_name} ${user.last_name}`,
-            `🎭 Ruolo: ${user.role}`,
-            '',
-            'Profilo caricato con successo! 🎉'
-        ].join('\n');
-
-        alert(profileInfo);
+        NotificationSystem.showInfo(
+            `📧 Email: ${user.email}\n👤 Nome: ${user.first_name} ${user.last_name}\n🎭 Ruolo: ${user.role}`
+        );
     },
 
     showBookings() {
-        alert('📅 LE TUE PRENOTAZIONI\n\n🔄 Caricamento prenotazioni...\n\n(Funzionalità in sviluppo)\n\nProssimamente potrai vedere:\n• Prenotazioni attive\n• Storico prenotazioni\n• Modifica/cancella prenotazioni');
+        NotificationSystem.showInfo(
+            'Caricamento prenotazioni... (Funzionalità in sviluppo)\n\nProssimamente potrai vedere:\n• Prenotazioni attive\n• Storico prenotazioni\n• Modifica/cancella prenotazioni'
+        );
     },
 
     showLoginModal() {
@@ -201,64 +334,8 @@ window.SimpleAuth = {
         } catch (error) {
             console.error('❌ Errore apertura modale:', error);
             this.currentModal = null;
-            this.showSimpleLoginMenu();
+            NotificationSystem.showError('Errore apertura login. Riprova.');
         }
-    },
-
-    showSimpleLoginMenu() {
-        const options = [
-            '🔑 ACCESSO ACCOUNT',
-            '',
-            '1️⃣ Login Rapido',
-            '2️⃣ Registrazione',
-            '3️⃣ Login Demo',
-            '❌ Annulla'
-        ];
-
-        const choice = prompt(options.join('\n') + '\n\nScegli un\'opzione (1-3):');
-
-        switch(choice) {
-            case '1':
-                this.showQuickLogin();
-                break;
-            case '2':
-                this.showQuickRegister();
-                break;
-            case '3':
-                this.loginDemo();
-                break;
-            default:
-                console.log('Login annullato');
-        }
-    },
-
-    showQuickLogin() {
-        const email = prompt('🔑 LOGIN RAPIDO\n\n📧 Inserisci email:');
-        if (!email) return;
-
-        const password = prompt('🔑 LOGIN RAPIDO\n\n🔒 Inserisci password:');
-        if (!password) return;
-
-        this.login(email, password);
-    },
-
-    showQuickRegister() {
-        const firstName = prompt('📝 REGISTRAZIONE\n\n👤 Nome:');
-        if (!firstName) return;
-
-        const lastName = prompt('📝 REGISTRAZIONE\n\n👤 Cognome:');
-        if (!lastName) return;
-
-        const email = prompt('📝 REGISTRAZIONE\n\n📧 Email:');
-        if (!email) return;
-
-        const password = prompt('📝 REGISTRAZIONE\n\n🔒 Password (min 6 caratteri):');
-        if (!password || password.length < 6) {
-            alert('❌ Password troppo corta (minimo 6 caratteri)');
-            return;
-        }
-
-        this.register({ firstName, lastName, email, password });
     },
 
     loginDemo() {
@@ -276,7 +353,7 @@ window.SimpleAuth = {
         };
 
         this.updateUI();
-        alert('✅ Login demo completato!\n\nBenvenuto Demo User!\n\n🎮 Ora sei loggato e puoi esplorare le funzionalità.');
+        NotificationSystem.showWelcome('Demo');
         console.log('✅ Demo login attivato');
     },
 
@@ -303,7 +380,7 @@ window.SimpleAuth = {
                 this.updateUI();
 
                 console.log('✅ Login riuscito:', this.currentUser.email);
-                alert(`✅ Benvenuto ${this.currentUser.first_name || this.currentUser.email}!`);
+                NotificationSystem.showWelcome(this.currentUser.first_name || this.currentUser.email);
 
                 return { success: true, user: this.currentUser };
             } else {
@@ -311,7 +388,6 @@ window.SimpleAuth = {
             }
         } catch (error) {
             console.error('❌ Errore login:', error);
-            alert(`❌ Errore login: ${error.message}`);
             return { success: false, error: error.message };
         }
     },
@@ -339,11 +415,10 @@ window.SimpleAuth = {
                     this.currentUser = result.user;
                     this.updateUI();
 
-                    alert(`✅ Registrazione completata!\nBenvenuto ${result.user.first_name}!`);
-
+                    NotificationSystem.showWelcome(result.user.first_name);
                     return { success: true, user: this.currentUser, autoLogin: true };
                 } else {
-                    alert('✅ Registrazione completata!\nControlla la tua email per verificare l\'account.');
+                    NotificationSystem.showInfo('Registrazione completata! Controlla la tua email per verificare l\'account.');
                     return { success: true, emailVerificationRequired: true };
                 }
             } else {
@@ -351,7 +426,6 @@ window.SimpleAuth = {
             }
         } catch (error) {
             console.error('❌ Errore registrazione:', error);
-            alert(`❌ Errore registrazione: ${error.message}`);
             return { success: false, error: error.message };
         }
     },
@@ -383,7 +457,7 @@ window.SimpleAuth = {
             this.updateUI();
 
             console.log('✅ Logout completato');
-            alert('👋 Logout completato!');
+            NotificationSystem.showLogout();
         }
     },
 
@@ -728,6 +802,6 @@ if (document.readyState === 'loading') {
     }
 }
 
-console.log('✅ Sistema auth autonomo caricato - v4.0 CLEAN INTEGRATION');
+console.log('✅ Sistema auth autonomo caricato - v5.0 ELEGANT NOTIFICATIONS');
 
 }

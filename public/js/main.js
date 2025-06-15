@@ -14,6 +14,7 @@ import { createNavbar } from './components/navbar.js';
 import { buildFooter } from './components/footer.js';
 import { showHomepage } from './pages/homepage.js';
 import { showCatalog } from './pages/catalog.js';
+import { showBookings } from './pages/bookings.js';
 // ==========================================
 // SISTEMA RUOLI E ICONE UTENTE
 // ==========================================
@@ -556,9 +557,9 @@ window.showPage = (pageId) => {
         case 'menu-snack-food':
             showCatalog('snack');
             break;
-            
+
         case 'prenotazioni':
-            showPlaceholderPage('Prenotazioni', 'Prenota il tuo tavolo per una serata di gioco');
+            showBookings();
             break;
 
         case 'tornei':
