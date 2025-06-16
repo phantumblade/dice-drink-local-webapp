@@ -6797,3 +6797,521 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     25% { transform: translateX(-5px); }
     75% { transform: translateX(5px); }
 }
+
+
+/* ========================================
+   BOOKING SUCCESS MODAL
+   ======================================== */
+
+/* Base Modal Container */
+.dice-booking-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999; /* Z-index molto alto per sicurezza */
+    animation: diceBookingModalFadeIn 0.3s ease;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Animazioni specifiche per il modale */
+@keyframes diceBookingModalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes diceBookingModalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes diceBookingModalBounce {
+    0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
+    40%, 43% { transform: translateY(-10px); }
+    70% { transform: translateY(-5px); }
+}
+
+/* Modal principale */
+.dice-success-modal {
+    background: #16213e;
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 650px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    position: relative;
+    animation: diceBookingModalSlideUp 0.4s ease;
+    color: #ffffff;
+}
+
+/* Header del modale */
+.dice-modal-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.dice-success-icon {
+    width: 80px;
+    height: 80px;
+    background: #22c55e;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    animation: diceBookingModalBounce 0.6s ease;
+}
+
+.dice-success-icon svg {
+    width: 40px;
+    height: 40px;
+    color: white;
+}
+
+.dice-modal-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 8px;
+    font-family: inherit;
+}
+
+.dice-modal-subtitle {
+    font-size: 16px;
+    color: #94a3b8;
+    font-weight: 400;
+    font-family: inherit;
+}
+
+/* Codice conferma */
+.dice-confirmation-code {
+    background: #0f172a;
+    border: 2px solid #6366f1;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 24px 0;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.dice-confirmation-code:hover {
+    border-color: #4f46e5;
+}
+
+.dice-code-label {
+    font-size: 14px;
+    color: #94a3b8;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+    font-family: inherit;
+}
+
+.dice-code-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #6366f1;
+    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    letter-spacing: 2px;
+    word-break: break-all;
+    user-select: all; /* Facilita la selezione del testo */
+}
+
+/* Layout griglia */
+.dice-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 24px 0;
+}
+
+/* Sezioni dettagli e ordine */
+.dice-booking-details,
+.dice-order-summary {
+    background: #0f172a;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+.dice-details-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+}
+
+.dice-details-title svg {
+    flex-shrink: 0;
+}
+
+/* Elementi dettaglio */
+.dice-detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #1e293b;
+}
+
+.dice-detail-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.dice-detail-label {
+    font-size: 14px;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+}
+
+.dice-detail-label svg {
+    flex-shrink: 0;
+}
+
+.dice-detail-value {
+    font-size: 16px;
+    color: #ffffff;
+    font-weight: 600;
+    font-family: inherit;
+}
+
+/* Sezioni ordine */
+.dice-order-section {
+    margin-bottom: 20px;
+}
+
+.dice-order-section:last-child {
+    margin-bottom: 0;
+}
+
+.dice-order-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #6366f1;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+}
+
+.dice-order-section-title svg {
+    flex-shrink: 0;
+}
+
+.dice-order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+.dice-order-item:last-child {
+    border-bottom: none;
+}
+
+.dice-item-name {
+    font-size: 14px;
+    color: #e2e8f0;
+    font-family: inherit;
+    flex: 1;
+    margin-right: 12px;
+}
+
+.dice-item-price {
+    font-size: 14px;
+    color: #22c55e;
+    font-weight: 600;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.dice-empty-section {
+    font-size: 14px;
+    color: #64748b;
+    font-style: italic;
+    text-align: center;
+    padding: 12px 0;
+    font-family: inherit;
+}
+
+/* Sezione totale */
+.dice-total-section {
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 16px;
+}
+
+.dice-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dice-total-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    font-family: inherit;
+}
+
+.dice-total-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #22c55e;
+    font-family: inherit;
+}
+
+/* Notifica email */
+.dice-email-notice {
+    background: rgba(99, 102, 241, 0.15);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 24px 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    grid-column: 1 / -1;
+}
+
+.dice-email-icon {
+    width: 24px;
+    height: 24px;
+    color: #a5b4fc;
+    flex-shrink: 0;
+}
+
+.dice-email-text {
+    font-size: 14px;
+    color: #e0e7ff;
+    line-height: 1.5;
+    font-family: inherit;
+}
+
+.dice-email-text strong {
+    color: #ffffff;
+}
+
+/* Azioni del modale */
+.dice-modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+}
+
+.dice-btn {
+    flex: 1;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: inherit;
+    text-decoration: none;
+    outline: none;
+}
+
+.dice-btn:focus {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+}
+
+.dice-btn svg {
+    flex-shrink: 0;
+}
+
+.dice-btn-primary {
+    background: #6366f1;
+    color: white;
+}
+
+.dice-btn-primary:hover {
+    background: #5b21b6;
+    transform: translateY(-1px);
+}
+
+.dice-btn-primary:active {
+    transform: translateY(0);
+}
+
+.dice-btn-secondary {
+    background: #374151;
+    color: #d1d5db;
+    border: 1px solid #4b5563;
+}
+
+.dice-btn-secondary:hover {
+    background: #4b5563;
+    transform: translateY(-1px);
+}
+
+.dice-btn-secondary:active {
+    transform: translateY(0);
+}
+
+/* Pulsante chiudi */
+.dice-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #374151;
+    border: none;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #9ca3af;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.dice-close-btn:hover {
+    background: #4b5563;
+    color: #ffffff;
+}
+
+.dice-close-btn:focus {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+}
+
+/* Design responsive */
+@media (max-width: 768px) {
+    .dice-content-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .dice-success-modal {
+        padding: 24px;
+        margin: 10px;
+        width: calc(100% - 20px);
+    }
+
+    .dice-modal-title {
+        font-size: 24px;
+    }
+
+    .dice-code-value {
+        font-size: 18px;
+        letter-spacing: 1px;
+    }
+
+    .dice-modal-actions {
+        flex-direction: column;
+    }
+
+    .dice-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .dice-success-modal {
+        padding: 20px;
+        margin: 5px;
+        width: calc(100% - 10px);
+    }
+
+    .dice-modal-title {
+        font-size: 22px;
+    }
+
+    .dice-code-value {
+        font-size: 16px;
+        letter-spacing: 1px;
+    }
+
+    .dice-email-notice {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+}
+
+/* Scrollbar personalizzata solo per il modale */
+.dice-success-modal::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dice-success-modal::-webkit-scrollbar-track {
+    background: #1e293b;
+    border-radius: 4px;
+}
+
+.dice-success-modal::-webkit-scrollbar-thumb {
+    background: #6366f1;
+    border-radius: 4px;
+}
+
+.dice-success-modal::-webkit-scrollbar-thumb:hover {
+    background: #5b21b6;
+}
+
+/* Firefox scrollbar */
+.dice-success-modal {
+    scrollbar-width: thin;
+    scrollbar-color: #6366f1 #1e293b;
+}
+
+/* Accessibilità - Movimento ridotto */
+@media (prefers-reduced-motion: reduce) {
+    .dice-booking-modal-overlay,
+    .dice-success-modal,
+    .dice-success-icon,
+    .dice-btn {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* Contrasto alto */
+@media (prefers-contrast: high) {
+    .dice-success-modal {
+        border: 2px solid #ffffff;
+    }
+
+    .dice-confirmation-code {
+        border: 3px solid #6366f1;
+    }
+
+    .dice-btn {
+        border: 2px solid currentColor;
+    }
+}
