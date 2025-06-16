@@ -4,17 +4,24 @@
 //
 // SCOPO:
 // - Setup iniziale dell'applicazione SPA
-// - Gestione routing client-side tra pagine
+// - Gestione routing client-side tra pagine con Page.js
 // - Configurazione layout fisso (navbar + footer)
 // - Sistema di autenticazione integrato
 // - Gestione ruoli utente e icone dinamiche
 // - Orchestrazione generale dell'app
 
+// ==========================================
+// IMPORT PAGE.JS ROUTER (METODO ES6 DAL PDF)
+// ==========================================
+import page from "//unpkg.com/page/page.mjs";
+
+// Import esistenti
 import { createNavbar } from './components/navbar.js';
 import { buildFooter } from './components/footer.js';
 import { showHomepage } from './pages/homepage.js';
 import { showCatalog } from './pages/catalog.js';
 import { showBookings } from './pages/bookings.js';
+
 // ==========================================
 // SISTEMA RUOLI E ICONE UTENTE
 // ==========================================
@@ -418,7 +425,6 @@ class AuthIntegrationManager {
         }
     }
 
-    // ✅ AGGIUNGI QUESTO METODO MANCANTE:
     addRoleStyles() {
         // Metodo per aggiungere stili basati sul ruolo utente
         if (!this.currentUser) return;
@@ -510,7 +516,6 @@ class AuthIntegrationManager {
         document.body.appendChild(panel);
     }
 
-
     async checkInitialAuthState() {
         const token = localStorage.getItem('authToken');
 
@@ -541,79 +546,241 @@ document.body.appendChild(content);
 document.body.appendChild(buildFooter());
 
 // ==========================================
-// SISTEMA ROUTING CLIENT-SIDE
+// CONFIGURAZIONE ROTTE PAGE.JS
+// ==========================================
+
+const ROUTES_CONFIG = {
+    '/': {
+        title: 'Home - Dice & Drink',
+        handler: () => showHomepage(),
+        navItem: 'homepage'
+    },
+    '/catalogo': {
+        title: 'Catalogo - Dice & Drink',
+        handler: () => showCatalog('giochi'),
+        navItem: 'catalogo-giochi'
+    },
+    '/catalogo/giochi': {
+        title: 'Catalogo Giochi - Dice & Drink',
+        handler: () => showCatalog('giochi'),
+        navItem: 'catalogo-giochi'
+    },
+    '/catalogo/drink': {
+        title: 'Menu Bevande - Dice & Drink',
+        handler: () => showCatalog('drink'),
+        navItem: 'menu-bevande'
+    },
+    '/catalogo/snack': {
+        title: 'Menu Snack - Dice & Drink',
+        handler: () => showCatalog('snack'),
+        navItem: 'menu-snack-food'
+    },
+    '/prenotazioni': {
+        title: 'Prenota il Tuo Tavolo - Dice & Drink',
+        handler: () => showBookings(),
+        navItem: 'prenotazioni'
+    },
+    '/tornei': {
+        title: 'Tornei - Dice & Drink',
+        handler: () => showPlaceholderPage('Tornei', 'Partecipa ai tornei organizzati dal locale'),
+        navItem: 'tornei'
+    },
+    '/eventi': {
+        title: 'Eventi dal Vivo - Dice & Drink',
+        handler: () => showPlaceholderPage('Eventi dal Vivo', 'Serate speciali, workshop e eventi live'),
+        navItem: 'eventi-dal-vivo'
+    },
+    '/proponi-torneo': {
+        title: 'Proponi Torneo - Dice & Drink',
+        handler: () => showPlaceholderPage('Proponi Torneo', 'Proponi un torneo per il tuo gioco preferito'),
+        navItem: 'proponi-torneo'
+    },
+    '/about': {
+        title: 'Chi Siamo - Dice & Drink',
+        handler: () => showPlaceholderPage('About Us', 'Chi siamo, la nostra storia e la nostra passione'),
+        navItem: 'aboutus'
+    },
+    '/login': {
+        title: 'Accedi - Dice & Drink',
+        handler: () => showPlaceholderPage('Login', 'Accedi al tuo account o registrati'),
+        navItem: 'login'
+    },
+    '/profile': {
+        title: 'Il Mio Profilo - Dice & Drink',
+        handler: () => showPlaceholderPage('Il Mio Profilo', 'Gestisci il tuo account e le tue prenotazioni'),
+        navItem: 'profile'
+    },
+    '/admin': {
+        title: 'Dashboard Admin - Dice & Drink',
+        handler: () => showPlaceholderPage('Dashboard Admin', 'Pannello di controllo amministrativo'),
+        navItem: 'admin'
+    }
+};
+
+// ==========================================
+// GESTORE ROUTING PAGE.JS
+// ==========================================
+
+class DiceRouterManager {
+    constructor() {
+        this.currentRoute = '/';
+        this.isInitialized = false;
+        console.log('🛣️ Router manager inizializzato');
+    }
+
+    init() {
+        if (this.isInitialized) return;
+
+        console.log('⚙️ Configurazione routing con Page.js...');
+
+        // Configura tutte le rotte
+        Object.entries(ROUTES_CONFIG).forEach(([path, config]) => {
+            page(path, (ctx) => this.handleRoute(ctx, config));
+        });
+
+        // Rotta catch-all per 404
+        page('*', (ctx) => this.handleNotFound(ctx));
+
+        // Avvia Page.js
+        page();
+
+        this.isInitialized = true;
+        console.log('✅ Page.js routing configurato con successo');
+    }
+
+    handleRoute(ctx, config) {
+        console.log(`🔄 Navigazione Page.js: ${ctx.path}`);
+
+        try {
+            // Aggiorna il titolo della pagina
+            document.title = config.title;
+
+            // Aggiorna navbar attiva
+            this.updateActiveNavItem(config.navItem);
+
+            // Chiama l'handler della pagina
+            config.handler();
+
+            // Salva rotta corrente
+            this.currentRoute = ctx.path;
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            console.log(`✅ Pagina caricata: ${ctx.path}`);
+
+        } catch (error) {
+            console.error(`❌ Errore caricamento pagina ${ctx.path}:`, error);
+            this.showError(`Errore nel caricamento della pagina: ${error.message}`);
+        }
+    }
+
+    handleNotFound(ctx) {
+        console.log(`🚫 Pagina non trovata: ${ctx.path}`);
+        document.title = '404 - Pagina Non Trovata - Dice & Drink';
+
+        const content = document.getElementById('content');
+        if (content) {
+            content.innerHTML = `
+                <div style="text-align: center; padding: 4rem 2rem;">
+                    <h1 style="font-size: 4rem; color: #6633cc; margin-bottom: 1rem;">404</h1>
+                    <h2 style="color: #333; margin-bottom: 1rem;">Pagina Non Trovata</h2>
+                    <p style="color: #666; margin-bottom: 2rem;">
+                        La pagina "${ctx.path}" non esiste.
+                    </p>
+                    <a href="/" style="
+                        background: #6633cc;
+                        color: white;
+                        padding: 12px 24px;
+                        text-decoration: none;
+                        border-radius: 8px;
+                        display: inline-block;
+                    ">🏠 Torna alla Home</a>
+                </div>
+            `;
+        }
+    }
+
+    updateActiveNavItem(navItem) {
+        // Rimuovi classe active da tutti i nav items
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+
+        // Aggiungi classe active all'item corrente
+        const activeItem = document.querySelector(`[data-page="${navItem}"]`);
+        if (activeItem) {
+            activeItem.classList.add('active');
+        }
+    }
+
+    showError(message) {
+        const content = document.getElementById('content');
+        if (content) {
+            content.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: #d63384;">
+                    <h2>⚠️ Errore</h2>
+                    <p>${message}</p>
+                    <button onclick="page('/')" style="
+                        background: #6633cc;
+                        color: white;
+                        border: none;
+                        padding: 8px 16px;
+                        border-radius: 4px;
+                        cursor: pointer;
+                    ">Torna alla Home</button>
+                </div>
+            `;
+        }
+    }
+
+    // Metodo per navigazione programmatica
+    navigateTo(path) {
+        page(path);
+    }
+
+    // Getter per rotta corrente
+    getCurrentRoute() {
+        return this.currentRoute;
+    }
+}
+
+// ==========================================
+// SISTEMA ROUTING CLIENT-SIDE (COMPATIBILITÀ)
 // ==========================================
 
 /**
  * Router principale dell'applicazione
- * Gestisce la navigazione tra le diverse pagine della SPA
+ * AGGIORNATO: Ora usa Page.js ma mantiene compatibilità
  */
 window.showPage = (pageId) => {
-    const content = document.getElementById('content');
-    if (!content) {
-        console.error('Container #content non trovato!');
-        return;
+    console.log(`🔗 Compatibilità showPage(${pageId}) -> Page.js routing`);
+
+    // Mappa pageId esistenti alle nuove rotte URL
+    const routeMap = {
+        'homepage': '/',
+        'home': '/',
+        'catalogo-giochi': '/catalogo/giochi',
+        'menu-bevande': '/catalogo/drink',
+        'menu-snack-food': '/catalogo/snack',
+        'prenotazioni': '/prenotazioni',
+        'tornei': '/tornei',
+        'eventi-dal-vivo': '/eventi',
+        'proponi-torneo': '/proponi-torneo',
+        'aboutus': '/about',
+        'login': '/login',
+        'profile': '/profile',
+        'admin': '/admin'
+    };
+
+    const route = routeMap[pageId];
+    if (route) {
+        // Usa Page.js per la navigazione
+        page(route);
+    } else {
+        console.warn(`⚠️ Pagina non mappata: ${pageId}. Reindirizzamento alla homepage.`);
+        page('/');
     }
-
-    console.log(`🧭 Navigazione verso: ${pageId}`);
-
-    switch(pageId) {
-        case 'homepage':
-        case 'home':
-            showHomepage();
-            break;
-
-        case 'catalogo-giochi':
-            showCatalog('giochi');
-            break;
-
-        case 'menu-bevande':
-            showCatalog('drink');
-            break;
-
-        case 'menu-snack-food':
-            showCatalog('snack');
-            break;
-
-        case 'prenotazioni':
-            showBookings();
-            break;
-
-        case 'tornei':
-            showPlaceholderPage('Tornei', 'Partecipa ai tornei organizzati dal locale');
-            break;
-
-        case 'eventi-dal-vivo':
-            showPlaceholderPage('Eventi dal Vivo', 'Serate speciali, workshop e eventi live');
-            break;
-
-        case 'proponi-torneo':
-            showPlaceholderPage('Proponi Torneo', 'Proponi un torneo per il tuo gioco preferito');
-            break;
-
-        case 'aboutus':
-            showPlaceholderPage('About Us', 'Chi siamo, la nostra storia e la nostra passione');
-            break;
-
-        case 'login':
-            showPlaceholderPage('Login', 'Accedi al tuo account o registrati');
-            break;
-
-        case 'profile':
-            showPlaceholderPage('Il Mio Profilo', 'Gestisci il tuo account e le tue prenotazioni');
-            break;
-
-        case 'admin':
-            showPlaceholderPage('Dashboard Admin', 'Pannello di controllo amministrativo');
-            break;
-
-        default:
-            console.warn(`⚠️ Pagina non trovata: ${pageId}. Reindirizzamento alla homepage.`);
-            showHomepage();
-            break;
-    }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 // ==========================================
@@ -633,10 +800,10 @@ function showPlaceholderPage(title, description) {
                 <div class="placeholder-status">
                     <span class="status-badge">🚧 In sviluppo</span>
                 </div>
-                <button class="btn-primary placeholder-back-btn" onclick="showPage('homepage')">
+                <a href="/" class="btn-primary placeholder-back-btn">
                     <i class="fas fa-home"></i>
                     Torna alla Homepage
-                </button>
+                </a>
             </div>
         </div>
     `;
@@ -664,13 +831,26 @@ function showPlaceholderPage(title, description) {
             .placeholder-back-btn {
                 margin-top: 2rem; background: #667eea; color: white; border: none;
                 padding: 0.75rem 2rem; border-radius: 10px; cursor: pointer;
-                font-size: 1rem; transition: transform 0.2s;
+                font-size: 1rem; transition: transform 0.2s; text-decoration: none;
+                display: inline-block;
             }
             .placeholder-back-btn:hover { transform: translateY(-2px); background: #5a67d8; }
         `;
         document.head.appendChild(styles);
     }
 }
+
+// ==========================================
+// FUNZIONI GLOBALI PER NAVIGAZIONE PAGE.JS
+// ==========================================
+
+// Espone Page.js per uso globale
+window.diceRouter = {
+    navigateTo: (path) => page(path),
+    getCurrentRoute: () => window.appRouter?.getCurrentRoute() || '/',
+    goHome: () => page('/'),
+    goBack: () => history.back()
+};
 
 // ==========================================
 // INIZIALIZZAZIONE APP COMPLETA
@@ -680,33 +860,61 @@ function showPlaceholderPage(title, description) {
 window.authIntegrationManager = new AuthIntegrationManager();
 window.userRoleManager = window.authIntegrationManager.userRoleManager;
 
+// Istanza globale del router
+window.appRouter = new DiceRouterManager();
+
 /**
  * Avvio dell'applicazione quando il DOM è pronto
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🚀 Dice & Drink SPA - Applicazione avviata');
+    console.log('🚀 Dice & Drink SPA - Applicazione avviata con Page.js Router');
 
-    // Carica la homepage come pagina iniziale
-    showHomepage();
+    try {
+        // Inizializza il router Page.js
+        window.appRouter.init();
 
-    // Inizializza sistema auth (con delay per assicurarsi che tutto sia caricato)
-    setTimeout(async () => {
-        try {
-            await window.authIntegrationManager.init();
-            console.log('✅ Sistema auth inizializzato');
-        } catch (error) {
-            console.error('❌ Errore inizializzazione auth:', error);
-        }
-    }, 100);
+        // Inizializza sistema auth (con delay per assicurarsi che tutto sia caricato)
+        setTimeout(async () => {
+            try {
+                await window.authIntegrationManager.init();
+                console.log('✅ Sistema auth inizializzato');
+            } catch (error) {
+                console.error('❌ Errore inizializzazione auth:', error);
+            }
+        }, 100);
 
-    console.log('✅ Setup completato - App pronta');
+        console.log('✅ Setup completato - App pronta con routing URL');
+
+    } catch (error) {
+        console.error('❌ Errore inizializzazione app:', error);
+
+        // Fallback: carica homepage manualmente
+        console.log('🔄 Fallback: caricamento homepage...');
+        showHomepage();
+    }
 
     // Mostra guida in console
     console.log(`
-🎯 DICE & DRINK - SISTEMA AUTH INTEGRATO
+🎯 DICE & DRINK - SPA CON PAGE.JS ROUTER
 =======================================
 
-TESTING FUNZIONI:
+ROUTING URL:
+▪️ localhost:3000/ - Homepage
+▪️ localhost:3000/catalogo/giochi - Catalogo Giochi
+▪️ localhost:3000/catalogo/drink - Menu Bevande
+▪️ localhost:3000/catalogo/snack - Menu Snack
+▪️ localhost:3000/prenotazioni - Prenotazioni
+▪️ localhost:3000/tornei - Tornei
+▪️ localhost:3000/eventi - Eventi dal Vivo
+▪️ localhost:3000/about - Chi Siamo
+
+NAVIGAZIONE PROGRAMMATICA:
+▪️ diceRouter.navigateTo('/catalogo/giochi')
+▪️ diceRouter.goHome()
+▪️ diceRouter.goBack()
+▪️ diceRouter.getCurrentRoute()
+
+TESTING FUNZIONI AUTH:
 ▪️ testLogin('demo') - Login demo rapido
 ▪️ testLogin('customer') - Test login cliente
 ▪️ testLogin('staff') - Test login staff
@@ -724,5 +932,29 @@ ICONE RUOLI:
 ▪️ 👤 Customer: person (verde)
 ▪️ 👨‍💼 Staff: badge (arancione)
 ▪️ 👑 Admin: admin_panel_settings (rosso glow)
+
+CARATTERISTICHE ROUTING:
+▪️ ✅ URL cambiano in base alla pagina
+▪️ ✅ Bottoni back/forward funzionanti
+▪️ ✅ Link condivisibili e bookmarkabili
+▪️ ✅ Deep linking diretto alle pagine
+▪️ ✅ Compatibilità con sistema esistente
     `);
 });
+
+// ==========================================
+// DEBUG UTILITIES (solo sviluppo)
+// ==========================================
+if (window.location.hostname === 'localhost') {
+    window.debugRouter = () => {
+        console.log('🔍 Router Debug Info:');
+        console.log('Current route:', window.appRouter?.getCurrentRoute());
+        console.log('Available routes:', Object.keys(ROUTES_CONFIG));
+        console.log('Router initialized:', window.appRouter?.isInitialized);
+        console.log('Page.js current:', page.current);
+    };
+
+    console.log('🔧 Debug: window.debugRouter() disponibile');
+}
+
+console.log('✅ main.js caricato - Page.js Router configurato');

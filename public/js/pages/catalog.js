@@ -663,7 +663,7 @@ class CatalogPageManager {
 
                     <button class="rent-btn" onclick="window.catalogPageManager.handleOrderDrink(${drink.id})">
                         <i class="fas fa-glass-cheers"></i>
-                        Ordina - €${drink.price}
+                        Ordina
                     </button>
                 </div>
             </div>
@@ -711,7 +711,7 @@ class CatalogPageManager {
 
                     <button class="rent-btn" onclick="window.catalogPageManager.handleOrderSnack(${snack.id})">
                         <i class="fas fa-shopping-cart"></i>
-                        Ordina - €${snack.price}
+                        Ordina 
                     </button>
                 </div>
             </div>

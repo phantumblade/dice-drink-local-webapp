@@ -3982,7 +3982,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 /* Carrello come popup laterale */
 .catalog-cart-box {
     position: fixed;
-    top: 50%;
+    top: 60%;
     right: -400px; /* Nascosto inizialmente */
     transform: translateY(-50%);
     width: 380px;
@@ -4472,35 +4472,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 .cart-box-toggle:focus {
     outline: 2px solid rgba(102, 51, 204, 0.8);
     outline-offset: 1px;
-}
-
-/* ==========================================
-   DARK MODE SUPPORT
-   ========================================== */
-
-@media (prefers-color-scheme: dark) {
-    .catalog-cart-box {
-        background: #2d2d2d;
-        border-left-color: #8b5cf6;
-    }
-
-    .cart-category {
-        background: #3a3a3a;
-        border-left-color: #8b5cf6;
-    }
-
-    .cart-item-entry {
-        background: #3a3a3a;
-        border-color: rgba(139, 92, 246, 0.2);
-    }
-
-    .cart-item-name {
-        color: #ffffff;
-    }
-
-    .cart-category-total {
-        color: #ffffff;
-    }
 }
 
 /* ==========================================
@@ -5194,11 +5165,37 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     background: #fafbff;
 }
 
-.textarea {
-    min-height: 100px;
+/* Rimuovi lo stile esistente della textarea e applica uno stile più semplice */
+.form-section .textarea {
+    /* Reset dello stile precedente */
+    min-height: 80px;
     resize: vertical;
     font-family: inherit;
+
+    /* Nuovo stile semplice come gli altri input */
+    padding: 14px 18px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px; /* Più semplice, meno arrotondato */
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    color: #2d3748;
+    line-height: 1.5;
+    font-weight: 400;
 }
+
+.form-section .textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: #fafbff;
+}
+
+.form-section .textarea::placeholder {
+    color: #a0aec0;
+    font-weight: 400;
+}
+
 
 /* ==========================================
    ✅ EMPTY STATE COMPATTO E ELEGANTE
@@ -5377,6 +5374,76 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     color: #667eea;
     font-weight: 600;
     margin-right: 0.75rem;
+}
+
+.item-quantity {
+    font-weight: 600;
+    color: #667eea;
+    font-size: 0.9em;
+    margin-left: 0.5rem;
+}
+
+.item-price-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+    margin-right: 0.75rem;
+}
+
+.unit-price {
+    font-size: 0.75rem;
+    color: #718096;
+    font-style: italic;
+}
+
+.item-price {
+    font-weight: 600;
+    color: #667eea;
+    font-size: 1rem;
+}
+
+.item-name strong {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.item-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.3s ease;
+    border-radius: 0;
+}
+
+.item-entry:hover {
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 8px;
+    border-bottom: 1px solid transparent;
+}
+
+.booking-item-remove {
+    background: #fed7d7;
+    color: #c53030;
+    border: none;
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.booking-item-remove:hover {
+    background: #feb2b2;
+    color: #9b2c2c;
+    transform: scale(1.1);
 }
 
 /* ✅ BOTTONE RIMOZIONE ELEMENTO - Flat */
@@ -5859,7 +5926,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     max-width: 380px;
     min-width: 320px;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .auth-notification.show {
@@ -6359,7 +6425,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     max-width: 380px;
     min-width: 320px;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .auth-notification.show {
@@ -6803,21 +6868,20 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
    BOOKING SUCCESS MODAL
    ======================================== */
 
-/* Base Modal Container */
+/* Cambia completamente lo stile del modale per renderlo uguale al modale auth */
 .dice-booking-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 9999; /* Z-index molto alto per sicurezza */
-    animation: diceBookingModalFadeIn 0.3s ease;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    z-index: 9999;
+    animation: authModalFadeIn 0.3s ease;
 }
 
 /* Animazioni specifiche per il modale */
@@ -6843,20 +6907,31 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     70% { transform: translateY(-5px); }
 }
 
-/* Modal principale */
+/* Modal principale - Stesso stile del modale auth */
 .dice-success-modal {
-    background: #16213e;
+    background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
     border-radius: 20px;
-    padding: 40px;
+    padding: 24px;
     max-width: 650px;
     width: 95%;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(99, 102, 241, 0.2);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     position: relative;
-    animation: diceBookingModalSlideUp 0.4s ease;
+    animation: authModalSlideUp 0.4s ease;
     color: #ffffff;
+}
+
+@keyframes authModalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 /* Header del modale */
@@ -6868,14 +6943,21 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 .dice-success-icon {
     width: 80px;
     height: 80px;
-    background: #22c55e;
+    background: #4CAF50;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 20px;
-    animation: diceBookingModalBounce 0.6s ease;
+    animation: successBounce 0.6s ease;
 }
+
+@keyframes successBounce {
+    0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
+    40%, 43% { transform: translateY(-10px); }
+    70% { transform: translateY(-5px); }
+}
+
 
 .dice-success-icon svg {
     width: 40px;
@@ -6893,30 +6975,32 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 
 .dice-modal-subtitle {
     font-size: 16px;
-    color: #94a3b8;
+    color: rgba(255, 255, 255, 0.7);
     font-weight: 400;
     font-family: inherit;
 }
 
-/* Codice conferma */
+/* Codice conferma - Stile auth */
 .dice-confirmation-code {
-    background: #0f172a;
-    border: 2px solid #6366f1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid #667eea;
     border-radius: 12px;
     padding: 20px;
     margin: 24px 0;
     text-align: center;
     cursor: pointer;
-    transition: border-color 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 .dice-confirmation-code:hover {
-    border-color: #4f46e5;
+    border-color: #5a67d8;
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
 }
 
 .dice-code-label {
     font-size: 14px;
-    color: #94a3b8;
+    color: rgba(255, 255, 255, 0.6);
     margin-bottom: 8px;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -6927,11 +7011,11 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 .dice-code-value {
     font-size: 24px;
     font-weight: 700;
-    color: #6366f1;
+    color: #667eea;
     font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
     letter-spacing: 2px;
     word-break: break-all;
-    user-select: all; /* Facilita la selezione del testo */
+    user-select: all;
 }
 
 /* Layout griglia */
@@ -6942,13 +7026,13 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     margin: 24px 0;
 }
 
-/* Sezioni dettagli e ordine */
+/* Sezioni dettagli e ordine - Stesso background auth */
 .dice-booking-details,
 .dice-order-summary {
-    background: #0f172a;
+    background: rgba(255, 255, 255, 0.03);
     border-radius: 12px;
     padding: 24px;
-    border: 1px solid rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .dice-details-title {
@@ -6964,6 +7048,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 
 .dice-details-title svg {
     flex-shrink: 0;
+    color: #667eea;
 }
 
 /* Elementi dettaglio */
@@ -7038,7 +7123,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 
 .dice-item-name {
     font-size: 14px;
-    color: #e2e8f0;
+    color: rgba(255, 255, 255, 0.9);
     font-family: inherit;
     flex: 1;
     margin-right: 12px;
@@ -7046,7 +7131,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 
 .dice-item-price {
     font-size: 14px;
-    color: #22c55e;
+    color: #667eea;
     font-weight: 600;
     font-family: inherit;
     white-space: nowrap;
@@ -7054,16 +7139,16 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 
 .dice-empty-section {
     font-size: 14px;
-    color: #64748b;
+    color: rgba(255, 255, 255, 0.5);
     font-style: italic;
     text-align: center;
     padding: 12px 0;
     font-family: inherit;
 }
 
-/* Sezione totale */
+/* Sezione totale - Colori auth */
 .dice-total-section {
-    background: rgba(99, 102, 241, 0.1);
+    background: rgba(102, 126, 234, 0.15);
     border-radius: 8px;
     padding: 16px;
     margin-top: 16px;
@@ -7085,13 +7170,13 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 .dice-total-value {
     font-size: 24px;
     font-weight: 700;
-    color: #22c55e;
+    color: #667eea;
     font-family: inherit;
 }
 
-/* Notifica email */
+/* Notifica email - Colori auth */
 .dice-email-notice {
-    background: rgba(99, 102, 241, 0.15);
+    background: rgba(102, 126, 234, 0.1);
     border-radius: 12px;
     padding: 20px;
     margin: 24px 0;
@@ -7104,13 +7189,13 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 .dice-email-icon {
     width: 24px;
     height: 24px;
-    color: #a5b4fc;
+    color: #667eea;
     flex-shrink: 0;
 }
 
 .dice-email-text {
     font-size: 14px;
-    color: #e0e7ff;
+    color: rgba(255, 255, 255, 0.8);
     line-height: 1.5;
     font-family: inherit;
 }
@@ -7119,7 +7204,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     color: #ffffff;
 }
 
-/* Azioni del modale */
+/* Azioni del modale - Stile auth */
 .dice-modal-actions {
     display: flex;
     gap: 12px;
@@ -7134,7 +7219,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     font-weight: 600;
     border: none;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -7145,7 +7230,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 .dice-btn:focus {
-    outline: 2px solid #6366f1;
+    outline: 2px solid #667eea;
     outline-offset: 2px;
 }
 
@@ -7153,14 +7238,9 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     flex-shrink: 0;
 }
 
-.dice-btn-primary {
-    background: #6366f1;
-    color: white;
-}
-
 .dice-btn-primary:hover {
-    background: #5b21b6;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 
 .dice-btn-primary:active {
@@ -7168,26 +7248,28 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 .dice-btn-secondary {
-    background: #374151;
-    color: #d1d5db;
-    border: 1px solid #4b5563;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .dice-btn-secondary:hover {
-    background: #4b5563;
-    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
 }
 
 .dice-btn-secondary:active {
     transform: translateY(0);
 }
 
-/* Pulsante chiudi */
+/* Pulsante chiudi - Stile auth */
 .dice-close-btn {
     position: absolute;
     top: 20px;
     right: 20px;
-    background: #374151;
+    background: rgba(255, 255, 255, 0.1);
     border: none;
     border-radius: 8px;
     width: 40px;
@@ -7196,22 +7278,26 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: #9ca3af;
-    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
     outline: none;
 }
 
 .dice-close-btn:hover {
-    background: #4b5563;
+    background: rgba(255, 255, 255, 0.2);
     color: #ffffff;
+    transform: scale(1.1);
 }
 
 .dice-close-btn:focus {
-    outline: 2px solid #6366f1;
+    outline: 2px solid #667eea;
     outline-offset: 2px;
 }
 
-/* Design responsive */
+/* ==========================================
+   📱 RESPONSIVE DESIGN
+   ========================================== */
+
 @media (max-width: 768px) {
     .dice-content-grid {
         grid-template-columns: 1fr;
@@ -7265,37 +7351,17 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     }
 }
 
-/* Scrollbar personalizzata solo per il modale */
-.dice-success-modal::-webkit-scrollbar {
-    width: 8px;
-}
+/* ==========================================
+   ♿ ACCESSIBILITÀ
+   ========================================== */
 
-.dice-success-modal::-webkit-scrollbar-track {
-    background: #1e293b;
-    border-radius: 4px;
-}
-
-.dice-success-modal::-webkit-scrollbar-thumb {
-    background: #6366f1;
-    border-radius: 4px;
-}
-
-.dice-success-modal::-webkit-scrollbar-thumb:hover {
-    background: #5b21b6;
-}
-
-/* Firefox scrollbar */
-.dice-success-modal {
-    scrollbar-width: thin;
-    scrollbar-color: #6366f1 #1e293b;
-}
-
-/* Accessibilità - Movimento ridotto */
+/* Movimento ridotto per utenti con preferenze */
 @media (prefers-reduced-motion: reduce) {
     .dice-booking-modal-overlay,
     .dice-success-modal,
     .dice-success-icon,
-    .dice-btn {
+    .dice-btn,
+    .dice-confirmation-code {
         animation: none !important;
         transition: none !important;
     }
@@ -7308,10 +7374,35 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     }
 
     .dice-confirmation-code {
-        border: 3px solid #6366f1;
+        border: 3px solid #667eea;
     }
 
     .dice-btn {
         border: 2px solid currentColor;
     }
+}
+
+/* Scrollbar personalizzata per il modale */
+.dice-success-modal::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dice-success-modal::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.dice-success-modal::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 4px;
+}
+
+.dice-success-modal::-webkit-scrollbar-thumb:hover {
+    background: #5a67d8;
+}
+
+/* Firefox scrollbar */
+.dice-success-modal {
+    scrollbar-width: thin;
+    scrollbar-color: #667eea rgba(255, 255, 255, 0.1);
 }

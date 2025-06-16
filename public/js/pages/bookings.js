@@ -47,6 +47,7 @@ class BookingsPageManager {
         this.bookingData = { ...BOOKINGS_CONFIG.DEFAULT_BOOKING };
         this.selectedItems = this.getSelectedItemsFromStorage();
         this.isSubmitting = false;
+        this.setupStorageListener();
 
         console.log('✅ BookingsPageManager inizializzato');
     }
@@ -81,52 +82,137 @@ class BookingsPageManager {
     // GESTIONE DATI SELEZIONATI - ✅ MIGLIORATA
     // ==========================================
 
-    getSelectedItemsFromStorage() {
-        // ✅ FIX: Controlla prima se ci sono dati reali nel localStorage/sessionStorage
-        try {
-            // Prova a recuperare selezioni reali dal catalogo
-            const catalogSelection = sessionStorage.getItem('catalogSelection');
-            if (catalogSelection) {
-                const parsed = JSON.parse(catalogSelection);
-                console.log('📦 Elementi selezionati trovati nel catalogo:', parsed);
-                return parsed;
-            }
+// ✅ NUOVO metodo per BookingsPageManager in bookings.js
+getSelectedItemsFromStorage() {
+    console.log('🔍 FASE 1: Controllo storage per elementi selezionati...');
 
-            // Prova con localStorage come fallback
-            const bookingItems = localStorage.getItem('bookingItems');
-            if (bookingItems) {
-                const parsed = JSON.parse(bookingItems);
-                console.log('📦 Elementi selezionati trovati in localStorage:', parsed);
-                return parsed;
-            }
-        } catch (error) {
-            console.warn('⚠️ Errore nel recupero elementi selezionati:', error);
+    try {
+        // ✅ CHIAVE CORRETTA: stesso del catalog.js
+        const catalogSelection = sessionStorage.getItem('catalogSelection');
+
+        if (catalogSelection) {
+            const parsed = JSON.parse(catalogSelection);
+            console.log('✅ Elementi trovati nel catalogSelection:', parsed);
+
+            // ✅ VALIDAZIONE STRUTTURA: Assicura che abbia la struttura corretta
+            const validatedCart = {
+                games: Array.isArray(parsed.games) ? parsed.games : [],
+                drinks: Array.isArray(parsed.drinks) ? parsed.drinks : [],
+                snacks: Array.isArray(parsed.snacks) ? parsed.snacks : []
+            };
+
+            console.log('📦 Carrello validato:', validatedCart);
+            console.log('📊 Totale elementi:',
+                validatedCart.games.length +
+                validatedCart.drinks.length +
+                validatedCart.snacks.length
+            );
+
+            return validatedCart;
         }
 
-        // ✅ FIX: Ritorna struttura vuota invece di mock data
-        console.log('📦 Nessun elemento selezionato - inizializzazione vuota');
-        return {
-            games: [],
-            drinks: [],
-            snacks: []
-        };
+        // ✅ FALLBACK: Prova con localStorage
+        const bookingItems = localStorage.getItem('bookingItems');
+        if (bookingItems) {
+            const parsed = JSON.parse(bookingItems);
+            console.log('📦 Fallback localStorage trovato:', parsed);
+            return parsed;
+        }
 
-        // 🗑️ RIMOSSO: Mock data che causava il problema
-        // return {
-        //     games: [
-        //         { id: 1, name: 'Catan', price: 8.00 },
-        //         { id: 2, name: 'Azul', price: 6.00 }
-        //     ],
-        //     drinks: [
-        //         { id: 1, name: 'Coca Cola', quantity: 2, price: 4.00 },
-        //         { id: 2, name: 'Sprite', quantity: 2, price: 4.00 }
-        //     ],
-        //     snacks: [
-        //         { id: 1, name: 'Patatine Classic', price: 3.50 },
-        //         { id: 2, name: 'Mix Olive', price: 4.00 }
-        //     ]
-        // };
+    } catch (error) {
+        console.error('❌ Errore parsing storage:', error);
     }
+
+    // ✅ RITORNA STRUTTURA VUOTA (non mock data)
+    console.log('📭 Nessun elemento trovato - carrello vuoto');
+    return {
+        games: [],
+        drinks: [],
+        snacks: []
+    };
+}
+
+setupStorageListener() {
+    // Listener per storage events (da altre pagine/schede)
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'catalogSelection') {
+            console.log('🔄 Storage aggiornato da altra scheda, ricarico carrello...');
+            this.refreshCartFromStorage();
+        }
+    });
+
+    // Listener per focus window (quando si torna alla pagina)
+    window.addEventListener('focus', () => {
+        console.log('👁️ Window focus - controllo aggiornamenti carrello...');
+        setTimeout(() => {
+            this.refreshCartFromStorage();
+        }, 100);
+    });
+
+    // ✅ NUOVO: Controllo periodico ogni 2 secondi per catturare aggiornamenti
+    this.cartCheckInterval = setInterval(() => {
+        const currentStorage = sessionStorage.getItem('catalogSelection');
+        const currentStringified = JSON.stringify(this.selectedItems);
+
+        if (currentStorage !== this.lastStorageCheck) {
+            console.log('🔄 Rilevato cambiamento storage, aggiorno carrello...');
+            this.refreshCartFromStorage();
+            this.lastStorageCheck = currentStorage;
+        }
+    }, 2000);
+
+    this.lastStorageCheck = sessionStorage.getItem('catalogSelection');
+
+    console.log('✅ Storage listeners attivati');
+}
+
+
+// ==========================================
+// 2. NUOVO METODO PER REFRESH AUTOMATICO
+// Aggiungere a BookingsPageManager in bookings.js
+// ==========================================
+
+// ✅ NUOVO metodo per forzare reload del carrello
+refreshCartFromStorage() {
+    console.log('🔄 Refresh carrello dal storage...');
+
+    // Ricarica dal storage
+    this.selectedItems = this.getSelectedItemsFromStorage();
+
+    // Aggiorna l'UI se siamo nella pagina bookings
+    if (window.location.pathname.includes('prenotazioni') ||
+        document.querySelector('.bookings-page')) {
+
+        // Rigenera la sezione elementi selezionati
+        const existingSection = document.querySelector('.form-section:has(.selected-items), .empty-selection-section');
+        if (existingSection) {
+            const newSectionHTML = this.createSelectedItemsHTML();
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = newSectionHTML;
+            const newSection = tempDiv.firstElementChild;
+
+            existingSection.parentNode.replaceChild(newSection, existingSection);
+
+            // Re-setup eventi
+            this.setupEvents();
+        }
+
+        // Aggiorna anche il pricing summary
+        const pricingSection = document.querySelector('.pricing-summary');
+        if (pricingSection) {
+            const newPricingHTML = this.createPricingSummaryHTML();
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = newPricingHTML;
+            const newPricing = tempDiv.firstElementChild;
+
+            pricingSection.parentNode.replaceChild(newPricing, pricingSection);
+        }
+    }
+
+    console.log('✅ Carrello aggiornato:', this.selectedItems);
+}
+
+
 
     calculateTotalPrice() {
         const gamesTotal = this.selectedItems.games.reduce((sum, game) => sum + game.price, 0);
@@ -334,34 +420,88 @@ class BookingsPageManager {
 
     createItemCategoryHTML(category, title, icon) {
         const items = this.selectedItems[category];
-
         if (!items || items.length === 0) return '';
 
         return `
             <div class="item-category">
                 <div class="category-header">
                     <i class="${icon}"></i>
-                    ${title}
+                    <span>${title}</span>
                     <span class="category-count">(${items.length})</span>
                 </div>
                 <ul class="item-list">
-                    ${items.map(item => `
-                        <li class="item-entry">
-                            <span class="item-name">
-                                ${item.name}${item.quantity ? ` x${item.quantity}` : ''}
-                            </span>
-                            <span class="item-price">
-                                €${(item.price * (item.quantity || 1)).toFixed(2)}
-                            </span>
-                            <button class="booking-item-remove" onclick="window.bookingsPageManager.removeItem('${category}', ${item.id})" title="Rimuovi elemento">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </li>
-                    `).join('')}
+                    ${items.map(item => {
+                        // ✅ FIX: Gestione quantità e prezzo migliorata
+                        const quantity = item.quantity || 1;
+                        const unitPrice = item.price || 0;
+                        const totalPrice = unitPrice * quantity;
+
+                        return `
+                            <li class="item-entry">
+                                <span class="item-name">
+                                    <strong>${item.name || 'Nome non disponibile'}</strong>
+                                    ${quantity > 1 ? `<span class="item-quantity"> x${quantity}</span>` : ''}
+                                </span>
+                                <div class="item-price-info">
+                                    ${quantity > 1 ? `<small class="unit-price">€${unitPrice.toFixed(2)} cad.</small>` : ''}
+                                    <span class="item-price">€${totalPrice.toFixed(2)}</span>
+                                </div>
+                                <button class="booking-item-remove"
+                                        onclick="window.bookingsPageManager.removeItemFromCart('${category}', '${item.id || item.name}')"
+                                        title="Rimuovi ${item.name}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </li>
+                        `;
+                    }).join('')}
                 </ul>
             </div>
         `;
     }
+
+    // ==========================================
+// 5. NUOVO METODO PER RIMOZIONE ITEMS
+// Aggiungere a BookingsPageManager
+// ==========================================
+
+removeItemFromCart(category, itemId) {
+    console.log(`🗑️ Rimuovendo item ${itemId} dalla categoria ${category}`);
+
+    // Trova e rimuovi l'item
+    const items = this.selectedItems[category];
+    if (!items) return;
+
+    const originalLength = items.length;
+    this.selectedItems[category] = items.filter(item =>
+        (item.id && item.id.toString() !== itemId.toString()) &&
+        (item.name !== itemId)
+    );
+
+    const newLength = this.selectedItems[category].length;
+
+    if (newLength < originalLength) {
+        console.log(`✅ Item rimosso da ${category}`);
+
+        // ✅ Salva nel storage (IMPORTANTE: stessa chiave del catalog!)
+        try {
+            sessionStorage.setItem('catalogSelection', JSON.stringify(this.selectedItems));
+            localStorage.setItem('bookingItems', JSON.stringify(this.selectedItems));
+            console.log('💾 Carrello aggiornato nel storage');
+        } catch (error) {
+            console.error('❌ Errore salvataggio storage:', error);
+        }
+
+        // Aggiorna UI
+        this.refreshCartFromStorage();
+
+        // Notifica success
+        if (window.showNotification) {
+            window.showNotification('success', 'Rimosso', 'Elemento rimosso dal carrello');
+        }
+    } else {
+        console.warn('⚠️ Item non trovato per rimozione');
+    }
+}
 
     createPricingSummaryHTML() {
         const pricing = this.calculateTotalPrice();
@@ -405,7 +545,7 @@ class BookingsPageManager {
                 </h3>
                 <div class="form-group">
                     <label class="form-label">Note aggiuntive (opzionale)</label>
-                    <textarea class="form-input textarea"
+                    <textarea class=" textarea"
                               id="special-requests"
                               placeholder="Eventuali richieste speciali, allergie, preferenze per il tavolo...">${this.bookingData.specialRequests}</textarea>
                 </div>
@@ -1034,7 +1174,7 @@ showSuccessModal(result, bookingData, pricing) {
         <div class="dice-booking-modal-overlay" id="booking-success-modal">
             <div class="dice-success-modal">
                 <!-- Pulsante chiudi -->
-                <button class="dice-close-btn" onclick="window.bookingsPageManager.closeSuccessModal()">
+                <button class="auth-modal-close" onclick="window.bookingsPageManager.closeSuccessModal()">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -1404,7 +1544,7 @@ removeModalKeyListener() {
 // ==========================================
 
 export function showBookings() {
-    console.log('🎯 Apertura pagina prenotazioni');
+    console.log('🎯 Apertura pagina prenotazioni con sync carrello migliorato');
 
     const content = document.getElementById('content');
     if (!content) {
@@ -1420,13 +1560,23 @@ export function showBookings() {
     const manager = window.bookingsPageManager;
 
     try {
+        // ✅ FORZA REFRESH DEL CARRELLO PRIMA DEL RENDER
+        console.log('🔄 Refresh carrello prima del render...');
+        manager.refreshCartFromStorage();
+
         // Renderizza la pagina prenotazioni
         content.innerHTML = manager.createBookingsHTML();
 
         // Setup eventi e inizializzazioni
         manager.setupEvents();
 
-        console.log('✅ Pagina prenotazioni caricata con successo');
+        // ✅ SECONDO REFRESH DOPO IL RENDER (per sicurezza)
+        setTimeout(() => {
+            console.log('🔄 Secondo refresh carrello post-render...');
+            manager.refreshCartFromStorage();
+        }, 100);
+
+        console.log('✅ Pagina prenotazioni caricata con sync carrello');
 
     } catch (error) {
         console.error('❌ Errore caricamento pagina prenotazioni:', error);
