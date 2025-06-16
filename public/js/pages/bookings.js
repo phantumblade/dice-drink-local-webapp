@@ -239,7 +239,7 @@ class BookingsPageManager {
                     <div class="form-group">
                         <label class="form-label">
                             <i class="fas fa-hashtag"></i>
-                            Numero Giocatori 
+                            Numero Giocatori
                         </label>
                     <select class="form-select" id="booking-players">
                         <option value="">Quanti giocatori?</option>
@@ -643,55 +643,378 @@ class BookingsPageManager {
         }
     }
 
-    async submitBooking() {
-        const confirmBtn = document.getElementById('confirm-booking-btn');
+// SOSTITUZIONE per il metodo submitBooking in bookings.js
+// Trova questo metodo e sostituisci la sezione "Prepara i dati per l'invio"
 
-        if (this.isSubmitting) return;
-        this.isSubmitting = true;
+// SOSTITUZIONE COMPLETA del metodo submitBooking() in bookings.js
+// Obiettivi: Debug avanzato, auto-recovery auth, logging dettagliato, validazione robusta
 
-        const originalContent = confirmBtn.innerHTML;
-        confirmBtn.disabled = true;
-        confirmBtn.innerHTML = '<div class="loading"></div> Elaborazione...';
+async submitBooking() {
+    const confirmBtn = document.getElementById('confirm-booking-btn');
 
-        try {
-            // Prepara i dati per l'invio
-            const bookingPayload = {
-                ...this.bookingData,
-                selectedItems: this.selectedItems,
-                totalPrice: this.calculateTotalPrice().total,
-                userId: window.SimpleAuth?.currentUser?.id,
-                confirmationCode: this.generateConfirmationCode()
-            };
+    if (this.isSubmitting) return;
+    this.isSubmitting = true;
 
-            console.log('📤 Invio prenotazione:', bookingPayload);
+    const originalContent = confirmBtn.innerHTML;
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '<div class="loading"></div> Elaborazione...';
 
-            // Simula chiamata API (sostituire con fetch reale)
-            await this.simulateAPICall(bookingPayload);
+    try {
+        console.log('🎯 ===== INIZIO PROCESSO PRENOTAZIONE =====');
+        console.log('📊 Timestamp:', new Date().toISOString());
 
-            // Successo
-            const pricing = this.calculateTotalPrice();
-            alert(
-                '✅ PRENOTAZIONE CONFERMATA!\n\n' +
-                `📧 Codice: ${bookingPayload.confirmationCode}\n` +
-                `💰 Totale: €${pricing.total.toFixed(2)}\n` +
-                `📅 Data: ${this.formatDate(this.bookingData.date)} ore ${this.bookingData.time}\n` +
-                `👥 Giocatori: ${this.bookingData.players}\n\n` +
-                'Riceverai email di conferma entro 5 minuti.'
-            );
+        // ==========================================
+        // 🔍 FASE 1: ANALISI COMPLETA SISTEMA AUTH
+        // ==========================================
+        console.log('🔍 FASE 1: Analisi Sistema di Autenticazione');
 
-            // Pulisci i dati e vai alla homepage
-            this.clearBookingData();
-            window.showPage('homepage');
+        // Inventario completo di tutti i sistemi auth possibili
+        const authSources = {
+            simpleAuth: window.SimpleAuth,
+            currentUser: window.currentUser,
+            localStorage: {
+                authToken: localStorage.getItem('authToken'),
+                token: localStorage.getItem('token'),
+                currentUser: localStorage.getItem('currentUser'),
+                user: localStorage.getItem('user')
+            },
+            sessionStorage: {
+                authToken: sessionStorage.getItem('authToken'),
+                token: sessionStorage.getItem('token'),
+                currentUser: sessionStorage.getItem('currentUser'),
+                user: sessionStorage.getItem('user')
+            }
+        };
 
-        } catch (error) {
-            console.error('❌ Errore prenotazione:', error);
-            alert(`❌ Errore durante la prenotazione: ${error.message}`);
-        } finally {
-            confirmBtn.disabled = false;
-            confirmBtn.innerHTML = originalContent;
-            this.isSubmitting = false;
+        console.log('📋 Inventario Sistemi Auth:', {
+            simpleAuthPresent: !!authSources.simpleAuth,
+            currentUserPresent: !!authSources.currentUser,
+            localStorageTokens: Object.keys(authSources.localStorage).filter(k => authSources.localStorage[k]),
+            sessionStorageTokens: Object.keys(authSources.sessionStorage).filter(k => authSources.sessionStorage[k])
+        });
+
+        // Analisi dettagliata SimpleAuth
+        if (authSources.simpleAuth) {
+            console.log('🔐 SimpleAuth Dettagliato:', {
+                isAuthenticated: authSources.simpleAuth.isAuthenticated,
+                currentUser: authSources.simpleAuth.currentUser,
+                hasToken: !!authSources.simpleAuth.token,
+                userProperties: authSources.simpleAuth.currentUser ? Object.keys(authSources.simpleAuth.currentUser) : []
+            });
         }
+
+        // Analisi dettagliata window.currentUser
+        if (authSources.currentUser) {
+            console.log('👤 CurrentUser Dettagliato:', {
+                properties: Object.keys(authSources.currentUser),
+                hasId: !!authSources.currentUser.id,
+                hasUserId: !!authSources.currentUser.userId,
+                hasToken: !!authSources.currentUser.token,
+                email: authSources.currentUser.email
+            });
+        }
+
+        // ==========================================
+        // 🎯 FASE 2: AUTO-RECOVERY INTELLIGENTE
+        // ==========================================
+        console.log('🎯 FASE 2: Auto-Recovery Dati Utente');
+
+        let userId = null;
+        let authToken = null;
+        let userEmail = null;
+        let authMethod = null;
+
+        // Strategia 1: SimpleAuth con isAuthenticated
+        if (authSources.simpleAuth?.isAuthenticated && authSources.simpleAuth.currentUser) {
+            userId = authSources.simpleAuth.currentUser.id || authSources.simpleAuth.currentUser.userId;
+            authToken = authSources.simpleAuth.token || authSources.localStorage.authToken;
+            userEmail = authSources.simpleAuth.currentUser.email;
+            authMethod = 'SimpleAuth';
+            console.log('✅ Strategia 1 SUCCESS: SimpleAuth', { userId, hasToken: !!authToken, email: userEmail });
+        }
+        // Strategia 2: window.currentUser diretto
+        else if (authSources.currentUser?.id || authSources.currentUser?.userId) {
+            userId = authSources.currentUser.id || authSources.currentUser.userId;
+            authToken = authSources.currentUser.token || authSources.localStorage.authToken || authSources.localStorage.token;
+            userEmail = authSources.currentUser.email;
+            authMethod = 'currentUser';
+            console.log('✅ Strategia 2 SUCCESS: currentUser', { userId, hasToken: !!authToken, email: userEmail });
+        }
+        // Strategia 3: localStorage parsing
+        else if (authSources.localStorage.currentUser) {
+            try {
+                const parsed = JSON.parse(authSources.localStorage.currentUser);
+                userId = parsed.id || parsed.userId;
+                authToken = parsed.token || authSources.localStorage.authToken || authSources.localStorage.token;
+                userEmail = parsed.email;
+                authMethod = 'localStorage';
+                console.log('✅ Strategia 3 SUCCESS: localStorage', { userId, hasToken: !!authToken, email: userEmail });
+            } catch (e) {
+                console.warn('⚠️ Strategia 3 FAILED: Errore parsing localStorage:', e);
+            }
+        }
+        // Strategia 4: sessionStorage parsing
+        else if (authSources.sessionStorage.currentUser) {
+            try {
+                const parsed = JSON.parse(authSources.sessionStorage.currentUser);
+                userId = parsed.id || parsed.userId;
+                authToken = parsed.token || authSources.sessionStorage.authToken || authSources.sessionStorage.token;
+                userEmail = parsed.email;
+                authMethod = 'sessionStorage';
+                console.log('✅ Strategia 4 SUCCESS: sessionStorage', { userId, hasToken: !!authToken, email: userEmail });
+            } catch (e) {
+                console.warn('⚠️ Strategia 4 FAILED: Errore parsing sessionStorage:', e);
+            }
+        }
+
+        console.log('🎯 RISULTATO AUTO-RECOVERY:', {
+            userId: userId,
+            hasToken: !!authToken,
+            tokenPreview: authToken ? authToken.substring(0, 20) + '...' : null,
+            userEmail: userEmail,
+            authMethod: authMethod
+        });
+
+        // ==========================================
+        // 🛡️ FASE 3: VALIDAZIONE AUTENTICAZIONE
+        // ==========================================
+        console.log('🛡️ FASE 3: Validazione Autenticazione');
+
+        if (!userId) {
+            console.error('❌ ERRORE CRITICO: Nessun userId trovato');
+            console.log('💡 Suggerimenti:');
+            console.log('   - Verifica di essere loggato');
+            console.log('   - Controlla la console per errori di login');
+            console.log('   - Prova a rifare il login');
+            throw new Error(
+                'Sistema di autenticazione non funzionante.\n\n' +
+                '• Verifica di essere correttamente loggato\n' +
+                '• Prova a ricaricare la pagina\n' +
+                '• Se il problema persiste, effettua logout e login'
+            );
+        }
+
+        if (!authToken) {
+            console.error('❌ ERRORE CRITICO: Nessun token di autenticazione');
+            throw new Error(
+                'Token di autenticazione mancante.\n\n' +
+                '• Il tuo login potrebbe essere scaduto\n' +
+                '• Effettua nuovamente il login per continuare'
+            );
+        }
+
+        console.log('✅ Autenticazione VALIDATA:', {
+            userId: userId,
+            tokenLength: authToken.length,
+            userEmail: userEmail,
+            method: authMethod
+        });
+
+        // ==========================================
+        // 📊 FASE 4: PREPARAZIONE DATI PRENOTAZIONE
+        // ==========================================
+        console.log('📊 FASE 4: Preparazione Dati Prenotazione');
+
+        // Validazione dati form prima della preparazione
+        const formValidation = {
+            hasDate: !!this.bookingData.date,
+            hasPlayers: !!this.bookingData.players && parseInt(this.bookingData.players) > 0,
+            validPlayers: parseInt(this.bookingData.players) >= 1 && parseInt(this.bookingData.players) <= 20,
+            hasTime: !!this.bookingData.time
+        };
+
+        console.log('📋 Validazione Form:', formValidation);
+
+        if (!formValidation.hasDate) {
+            throw new Error('Data prenotazione non selezionata');
+        }
+        if (!formValidation.hasPlayers) {
+            throw new Error('Numero giocatori non specificato');
+        }
+        if (!formValidation.validPlayers) {
+            throw new Error('Numero giocatori deve essere tra 1 e 20');
+        }
+
+        // Preparazione payload con mapping ottimizzato
+        const bookingPayload = {
+            // Campi obbligatori
+            booking_date: this.bookingData.date,
+            booking_time: this.bookingData.time || '18:00',
+            party_size: parseInt(this.bookingData.players),
+
+            // Campi opzionali
+            duration_hours: parseInt(this.bookingData.duration) || 2,
+            table_number: this.bookingData.tableId || null,
+            special_requests: this.bookingData.specialRequests?.trim() || null,
+
+            // Elementi selezionati (convertiti in array di stringhe)
+            game_requests: this.selectedItems.games.map(g => g.name),
+            drink_orders: this.selectedItems.drinks.map(d =>
+                d.quantity && d.quantity > 1 ? `${d.name} x${d.quantity}` : d.name
+            ),
+            snack_orders: this.selectedItems.snacks.map(s => s.name),
+
+            // Pricing
+            total_price: parseFloat(this.calculateTotalPrice().total.toFixed(2))
+        };
+
+        console.log('📦 Payload Prenotazione Preparato:', {
+            booking_date: bookingPayload.booking_date,
+            booking_time: bookingPayload.booking_time,
+            party_size: bookingPayload.party_size,
+            duration_hours: bookingPayload.duration_hours,
+            total_price: bookingPayload.total_price,
+            table_number: bookingPayload.table_number,
+            items_count: {
+                games: bookingPayload.game_requests.length,
+                drinks: bookingPayload.drink_orders.length,
+                snacks: bookingPayload.snack_orders.length
+            },
+            has_special_requests: !!bookingPayload.special_requests
+        });
+
+        // ==========================================
+        // 🌐 FASE 5: CHIAMATA API
+        // ==========================================
+        console.log('🌐 FASE 5: Chiamata API');
+
+        const apiUrl = `/api/users/${userId}/bookings`;
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+        };
+
+        console.log('🚀 Preparazione chiamata API:', {
+            url: apiUrl,
+            method: 'POST',
+            hasAuth: headers.Authorization.startsWith('Bearer '),
+            contentType: headers['Content-Type'],
+            payloadSize: JSON.stringify(bookingPayload).length
+        });
+
+        // Esecuzione chiamata API
+        console.log('📡 Invio richiesta al server...');
+        const requestStart = Date.now();
+
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(bookingPayload)
+        });
+
+        const requestDuration = Date.now() - requestStart;
+        console.log('📡 Risposta ricevuta:', {
+            status: response.status,
+            statusText: response.statusText,
+            ok: response.ok,
+            duration: `${requestDuration}ms`,
+            headers: Object.fromEntries(response.headers.entries())
+        });
+
+        // ==========================================
+        // 📋 FASE 6: ELABORAZIONE RISPOSTA
+        // ==========================================
+        console.log('📋 FASE 6: Elaborazione Risposta');
+
+        let result;
+        try {
+            result = await response.json();
+            console.log('✅ JSON Response parsato:', result);
+        } catch (parseError) {
+            console.error('❌ Errore parsing JSON response:', parseError);
+            throw new Error('Risposta del server non valida');
+        }
+
+        if (!response.ok) {
+            console.error('❌ Errore HTTP:', {
+                status: response.status,
+                statusText: response.statusText,
+                errorData: result
+            });
+
+            const errorMessage = result.message || result.error || `Errore ${response.status}: ${response.statusText}`;
+            throw new Error(errorMessage);
+        }
+
+        // ==========================================
+        // 🎉 FASE 7: SUCCESSO E CLEANUP
+        // ==========================================
+        console.log('🎉 FASE 7: Prenotazione Completata con Successo');
+
+        const pricing = this.calculateTotalPrice();
+        const confirmationCode = result.booking?.confirmation_code || result.confirmation_code || 'In elaborazione';
+
+        console.log('✅ PRENOTAZIONE SALVATA NEL DATABASE:', {
+            bookingId: result.booking?.id || result.id,
+            confirmationCode: confirmationCode,
+            status: result.booking?.status || 'pending',
+            totalPrice: pricing.total,
+            userId: userId,
+            authMethod: authMethod
+        });
+
+        // Notifica utente del successo
+        const successMessage =
+            '🎉 PRENOTAZIONE CONFERMATA!\n\n' +
+            `📧 Codice Conferma: ${confirmationCode}\n` +
+            `💰 Totale: €${pricing.total.toFixed(2)}\n` +
+            `📅 Data: ${this.formatDate(this.bookingData.date)}\n` +
+            `⏰ Orario: ${this.bookingData.time || '18:00'}\n` +
+            `👥 Giocatori: ${this.bookingData.players}\n\n` +
+            '📧 Riceverai email di conferma entro 5 minuti\n' +
+            '🎮 Preparati per una serata fantastica!';
+
+        alert(successMessage);
+
+        // Cleanup e reindirizzamento
+        console.log('🧹 Pulizia dati e reindirizzamento...');
+        this.clearBookingData();
+        window.showPage('homepage');
+
+        console.log('🎯 ===== PROCESSO PRENOTAZIONE COMPLETATO =====');
+
+    } catch (error) {
+        console.error('❌ ===== ERRORE DURANTE PRENOTAZIONE =====');
+        console.error('🔍 Tipo errore:', error.name);
+        console.error('📝 Messaggio:', error.message);
+        console.error('📊 Stack trace:', error.stack);
+        console.error('⏰ Timestamp:', new Date().toISOString());
+
+        // Messaggio user-friendly basato sul tipo di errore
+        let userMessage = error.message;
+
+        if (error.message.includes('non identificato') || error.message.includes('autenticazione')) {
+            userMessage =
+                '🔐 Problema di Autenticazione\n\n' +
+                'Il tuo login potrebbe essere scaduto.\n' +
+                'Prova a:\n' +
+                '• Ricaricare la pagina\n' +
+                '• Effettuare logout e login\n' +
+                '• Controllare la connessione internet';
+        } else if (error.message.includes('fetch') || error.message.includes('network')) {
+            userMessage =
+                '🌐 Problema di Connessione\n\n' +
+                'Impossibile contattare il server.\n' +
+                'Verifica la connessione internet e riprova.';
+        } else if (error.message.includes('Data') || error.message.includes('giocatori')) {
+            userMessage =
+                '📋 Dati Incompleti\n\n' +
+                'Controlla di aver compilato tutti i campi obbligatori:\n' +
+                '• Data prenotazione\n' +
+                '• Numero giocatori (1-20)';
+        }
+
+        alert(`❌ ${userMessage}`);
+
+    } finally {
+        // Ripristina sempre il bottone
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = originalContent;
+        this.isSubmitting = false;
+
+        console.log('🔄 Stato bottone ripristinato');
     }
+}
 
     async simulateAPICall(data) {
         // Simula delay API

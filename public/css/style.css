@@ -3722,6 +3722,8 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     margin-bottom: 1rem;
 }
 
+
+
 /* ==========================================
    RESPONSIVE DESIGN
    ========================================== */
@@ -3966,6 +3968,1037 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
         to { opacity: 1; }
     }
 }
+
+
+/* ==========================================
+   🛒 CARRELLO POPUP LATERALE - CLASSI SPECIFICHE
+   ========================================== */
+
+/* Rimuovi il padding bottom aggiunto prima */
+.catalog-page {
+    padding-bottom: 2rem !important; /* Ripristina padding normale */
+}
+
+/* Carrello come popup laterale */
+.catalog-cart-box {
+    position: fixed;
+    top: 50%;
+    right: -400px; /* Nascosto inizialmente */
+    transform: translateY(-50%);
+    width: 380px;
+    max-width: 90vw;
+    max-height: 80vh;
+    background: #ffffff;
+    border-radius: 16px 0 0 16px;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    border-left: 4px solid #6633cc;
+}
+
+/* Carrello visibile quando ha contenuto */
+.catalog-cart-box:not([style*="display: none"]) {
+    right: 0;
+}
+
+/* Header compatto */
+.cart-box-header {
+    background: linear-gradient(135deg, #6633cc, #522da0);
+    color: #ffffff;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(102, 51, 204, 0.3);
+}
+
+.cart-box-header:hover {
+    background: linear-gradient(135deg, #522da0, #B2456B);
+}
+
+.cart-box-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cart-box-title i {
+    font-size: 1.1rem;
+}
+
+.cart-box-count {
+    background: rgba(255, 255, 255, 0.25);
+    padding: 0.15rem 0.4rem;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.cart-box-toggle {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0.3rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cart-box-toggle:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.1);
+}
+
+/* Contenuto scrollabile */
+.cart-box-content {
+    padding: 1rem 1.5rem;
+    max-height: calc(80vh - 120px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #6633cc transparent;
+}
+
+.cart-box-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.cart-box-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.cart-box-content::-webkit-scrollbar-thumb {
+    background: #6633cc;
+    border-radius: 3px;
+}
+
+/* ==========================================
+   CATEGORIE COMPATTE
+   ========================================== */
+
+.cart-categories {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.cart-category {
+    background: #F8F8FF;
+    border-radius: 10px;
+    padding: 0.75rem;
+    border-left: 3px solid #6633cc;
+}
+
+.cart-category-header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.cart-category-header i {
+    color: #6633cc;
+    font-size: 0.9rem;
+}
+
+.cart-category-count {
+    background: #ffffff;
+    padding: 0.1rem 0.4rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    color: #718096;
+}
+
+.cart-category-divider {
+    height: 1px;
+    background: linear-gradient(90deg, #6633cc, transparent);
+    margin-bottom: 0.75rem;
+}
+
+/* Lista items compatta */
+.cart-item-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+}
+
+.cart-item-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    background: #ffffff;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(102, 51, 204, 0.1);
+}
+
+.cart-item-entry:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-color: rgba(102, 51, 204, 0.2);
+}
+
+.cart-item-name {
+    font-weight: 500;
+    color: #2c3e50;
+    flex-grow: 1;
+    font-size: 0.85rem;
+    line-height: 1.2;
+}
+
+.cart-item-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.cart-item-price {
+    font-weight: 600;
+    color: #6633cc;
+    font-size: 0.8rem;
+    min-width: 40px;
+    text-align: right;
+}
+
+/* Controlli quantità mini */
+.cart-quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: #F8F8FF;
+    border-radius: 15px;
+    padding: 0.1rem;
+}
+
+.cart-qty-btn {
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: #6633cc;
+    color: #ffffff;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.cart-qty-btn:hover {
+    background: #522da0;
+    transform: scale(1.1);
+}
+
+.cart-qty-display {
+    font-weight: 600;
+    color: #2c3e50;
+    min-width: 15px;
+    text-align: center;
+    font-size: 0.8rem;
+}
+
+.cart-item-remove {
+    width: 22px;
+    height: 22px;
+    border: none;
+    background: #F44336;
+    color: #ffffff;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    transition: all 0.3s ease;
+}
+
+.cart-item-remove:hover {
+    background: #d32f2f;
+    transform: scale(1.1);
+}
+
+/* Totale categoria mini */
+.cart-category-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(102, 51, 204, 0.15);
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.8rem;
+}
+
+/* ==========================================
+   SUMMARY E AZIONI COMPATTE
+   ========================================== */
+
+.cart-box-summary {
+    background: linear-gradient(135deg, #F8F8FF, #ffffff);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(102, 51, 204, 0.2);
+}
+
+.cart-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.3rem;
+}
+
+.cart-summary-row:last-child {
+    margin-bottom: 0;
+}
+
+.cart-total {
+    font-size: 1.1rem;
+    color: #6633cc;
+    padding-top: 0.75rem;
+    border-top: 2px solid #6633cc;
+    font-weight: 700;
+}
+
+/* Azioni compatte - CLASSI SPECIFICHE */
+.cart-box-actions {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem;
+}
+
+.cart-btn-clear {
+    padding: 0.75rem 1rem;
+    background: #F44336;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+}
+
+.cart-btn-clear:hover {
+    background: #d32f2f;
+    transform: translateY(-1px);
+}
+
+.cart-btn-primary {
+    padding: 0.75rem 1.25rem;
+    background: linear-gradient(135deg, #4CAF50, #66BB6A);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.cart-btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.cart-btn-primary:hover::before {
+    left: 100%;
+}
+
+.cart-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, #45a049, #5cbf60);
+}
+
+/* ==========================================
+   🎯 TRIGGER BUTTON - FLOATING
+   ========================================== */
+
+/* Badge carrello floating */
+.cart-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: linear-gradient(135deg, #F44336, #ff5722);
+    color: #ffffff;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(244, 67, 54, 0.4);
+    animation: badgePulse 2s infinite;
+}
+
+@keyframes badgePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+/* ==========================================
+   RESPONSIVE POPUP
+   ========================================== */
+
+@media (max-width: 768px) {
+    .catalog-cart-box {
+        width: 340px;
+        right: -340px;
+    }
+
+    .cart-box-header {
+        padding: 0.75rem 1rem;
+    }
+
+    .cart-box-content {
+        padding: 0.75rem 1rem;
+    }
+
+    .cart-box-actions {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .cart-btn-clear,
+    .cart-btn-primary {
+        padding: 0.6rem 1rem;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .catalog-cart-box {
+        width: 300px;
+        right: -300px;
+        max-width: 95vw;
+    }
+
+    .cart-item-entry {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.4rem;
+    }
+
+    .cart-item-controls {
+        align-self: flex-end;
+        gap: 0.5rem;
+    }
+}
+
+/* ==========================================
+   ANIMAZIONI E STATI
+   ========================================== */
+
+/* Animazione ingresso */
+@keyframes cartSlideIn {
+    from {
+        right: -400px;
+        opacity: 0;
+    }
+    to {
+        right: 0;
+        opacity: 1;
+    }
+}
+
+.catalog-cart-box:not([style*="display: none"]) {
+    animation: cartSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Overlay semi-trasparente opzionale */
+.cart-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.1);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.cart-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* ==========================================
+   ACCESSIBILITÀ
+   ========================================== */
+
+.cart-qty-btn:focus,
+.cart-item-remove:focus,
+.cart-btn-clear:focus,
+.cart-btn-primary:focus,
+.cart-box-toggle:focus {
+    outline: 2px solid rgba(102, 51, 204, 0.8);
+    outline-offset: 1px;
+}
+
+/* ==========================================
+   DARK MODE SUPPORT
+   ========================================== */
+
+@media (prefers-color-scheme: dark) {
+    .catalog-cart-box {
+        background: #2d2d2d;
+        border-left-color: #8b5cf6;
+    }
+
+    .cart-category {
+        background: #3a3a3a;
+        border-left-color: #8b5cf6;
+    }
+
+    .cart-item-entry {
+        background: #3a3a3a;
+        border-color: rgba(139, 92, 246, 0.2);
+    }
+
+    .cart-item-name {
+        color: #ffffff;
+    }
+
+    .cart-category-total {
+        color: #ffffff;
+    }
+}
+
+/* ==========================================
+   🎯 MODAL QUANTITÀ - CLASSI SPECIFICHE
+   ========================================== */
+
+.quantity-modal .modal-overlay {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(15px);
+    z-index: 1200; /* Sopra il carrello */
+}
+
+.quantity-modal .modal-content {
+    max-width: 480px;
+    width: 90%;
+    background: linear-gradient(135deg, #ffffff, #F8F8FF);
+    border-radius: 20px;
+    border-top: 5px solid;
+    border-image: linear-gradient(90deg, #6633cc, #B2456B) 1;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    position: relative;
+}
+
+.quantity-modal .modal-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: linear-gradient(135deg,
+        rgba(102, 51, 204, 0.02) 0%,
+        transparent 50%,
+        rgba(178, 69, 107, 0.02) 100%);
+    pointer-events: none;
+}
+
+.quantity-modal .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #F44336, #d32f2f);
+    color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    z-index: 10;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+}
+
+.quantity-modal .modal-close:hover {
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 6px 20px rgba(244, 67, 54, 0.5);
+}
+
+/* ==========================================
+   HEADER MODAL CON PRODOTTO
+   ========================================== */
+
+.quantity-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+    padding: 2rem 2rem 1rem;
+    background: linear-gradient(135deg, #F8F8FF, rgba(102, 51, 204, 0.05));
+    border-radius: 0 0 20px 20px;
+    position: relative;
+}
+
+.quantity-modal-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 2rem;
+    right: 2rem;
+    height: 2px;
+    background: linear-gradient(90deg, #6633cc, #B2456B, transparent);
+}
+
+.quantity-item-image {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border: 3px solid #ffffff;
+    transition: all 0.3s ease;
+}
+
+.quantity-item-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 35px rgba(102, 51, 204, 0.2);
+}
+
+.quantity-item-info {
+    flex-grow: 1;
+}
+
+.quantity-item-info h3 {
+    margin: 0 0 0.75rem 0;
+    color: #2c3e50;
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.3;
+    background: linear-gradient(135deg, #2c3e50, #6633cc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.quantity-item-price {
+    color: #6633cc;
+    font-weight: 700;
+    font-size: 1.1rem;
+    background: linear-gradient(135deg, #ffffff, #F8F8FF);
+    padding: 0.4rem 1rem;
+    border-radius: 25px;
+    display: inline-block;
+    border: 2px solid rgba(102, 51, 204, 0.2);
+    box-shadow: 0 2px 10px rgba(102, 51, 204, 0.1);
+}
+
+/* ==========================================
+   SELETTORE QUANTITÀ GAMING
+   ========================================== */
+
+.quantity-selector {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding: 0 2rem;
+}
+
+.quantity-label {
+    display: block;
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, #F8F8FF, #ffffff);
+    padding: 1.5rem;
+    border-radius: 20px;
+    border: 2px solid rgba(102, 51, 204, 0.1);
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* CLASSE SPECIFICA PER BOTTONI QUANTITÀ */
+.quantity-control-btn {
+    width: 50px;
+    height: 50px;
+    border: none;
+    background: linear-gradient(135deg, #6633cc, #522da0);
+    color: #ffffff;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.4rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 20px rgba(102, 51, 204, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.quantity-control-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.quantity-control-btn:hover::before {
+    left: 100%;
+}
+
+.quantity-control-btn:hover {
+    background: linear-gradient(135deg, #522da0, #B2456B);
+    transform: scale(1.15);
+    box-shadow: 0 8px 30px rgba(102, 51, 204, 0.5);
+}
+
+.quantity-control-btn:active {
+    transform: scale(1.05);
+}
+
+#quantity-input {
+    width: 100px;
+    padding: 1rem;
+    border: 3px solid #6633cc;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #2c3e50;
+    background: #ffffff;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+#quantity-input:focus {
+    outline: none;
+    border-color: #B2456B;
+    box-shadow: 0 0 0 4px rgba(102, 51, 204, 0.2), inset 0 2px 10px rgba(0, 0, 0, 0.1);
+    transform: scale(1.05);
+}
+
+#quantity-input::-webkit-outer-spin-button,
+#quantity-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#quantity-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.quantity-total {
+    color: #6633cc;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0;
+    background: linear-gradient(135deg, #ffffff, #F8F8FF);
+    padding: 1rem 2rem;
+    border-radius: 15px;
+    border: 2px solid rgba(102, 51, 204, 0.2);
+    box-shadow: 0 4px 15px rgba(102, 51, 204, 0.1);
+    display: inline-block;
+}
+
+.quantity-total span {
+    background: linear-gradient(135deg, #6633cc, #B2456B);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+}
+
+/* ==========================================
+   AZIONI MODAL - CLASSI SPECIFICHE
+   ========================================== */
+
+.quantity-actions {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    padding: 0 2rem 2rem;
+}
+
+/* CLASSE SPECIFICA PER BOTTONE ANNULLA */
+.quantity-cancel-btn {
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #718096, #5a6c7d);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 15px rgba(113, 128, 150, 0.3);
+}
+
+.quantity-cancel-btn:hover {
+    background: linear-gradient(135deg, #5a6c7d, #4a5568);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(113, 128, 150, 0.4);
+}
+
+/* CLASSE SPECIFICA PER BOTTONE AGGIUNGI */
+.quantity-add-btn {
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #6633cc, #B2456B);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-size: 1rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(102, 51, 204, 0.4);
+}
+
+.quantity-add-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.6s ease;
+}
+
+.quantity-add-btn:hover::before {
+    left: 100%;
+}
+
+.quantity-add-btn:hover {
+    background: linear-gradient(135deg, #522da0, #d63384);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(102, 51, 204, 0.6);
+}
+
+.quantity-add-btn:active {
+    transform: translateY(-1px);
+}
+
+.quantity-add-btn i {
+    font-size: 1.1rem;
+}
+
+/* ==========================================
+   ANIMAZIONI MODAL
+   ========================================== */
+
+@keyframes quantityModalAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.quantity-modal.active .modal-content {
+    animation: quantityModalAppear 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================
+   RESPONSIVE MODAL QUANTITÀ
+   ========================================== */
+
+@media (max-width: 768px) {
+    .quantity-modal .modal-content {
+        max-width: 95%;
+        margin: 1rem;
+    }
+
+    .quantity-modal-header {
+        padding: 1.5rem 1.5rem 1rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .quantity-item-image {
+        width: 80px;
+        height: 80px;
+    }
+
+    .quantity-selector {
+        padding: 0 1.5rem;
+    }
+
+    .quantity-controls {
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .quantity-control-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.2rem;
+    }
+
+    #quantity-input {
+        width: 80px;
+        padding: 0.75rem;
+        font-size: 1.2rem;
+    }
+
+    .quantity-actions {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        padding: 0 1.5rem 1.5rem;
+    }
+
+    .quantity-cancel-btn,
+    .quantity-add-btn {
+        padding: 0.875rem 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .quantity-modal-header {
+        padding: 1rem;
+    }
+
+    .quantity-item-info h3 {
+        font-size: 1.2rem;
+    }
+
+    .quantity-controls {
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .quantity-control-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    #quantity-input {
+        width: 70px;
+        order: 2;
+        flex-basis: 100%;
+        margin: 0.5rem 0;
+    }
+}
+
+/* ==========================================
+   ACCESSIBILITÀ MODAL
+   ========================================== */
+
+.quantity-control-btn:focus,
+#quantity-input:focus,
+.quantity-cancel-btn:focus,
+.quantity-add-btn:focus {
+    outline: 3px solid rgba(102, 51, 204, 0.6);
+    outline-offset: 2px;
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+    .quantity-modal .modal-content {
+        border: 3px solid #2c3e50;
+    }
+
+    .quantity-control-btn,
+    .quantity-add-btn {
+        border: 2px solid #ffffff;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .quantity-modal .modal-content,
+    .quantity-control-btn,
+    .quantity-add-btn,
+    .quantity-cancel-btn {
+        animation: none;
+        transition: none;
+    }
+
+    .quantity-control-btn:hover,
+    .quantity-add-btn:hover {
+        transform: none;
+    }
+
+    .catalog-cart-box {
+        transition: none;
+    }
+
+    .cart-qty-btn:hover,
+    .cart-item-remove:hover {
+        transform: none;
+    }
+}
+
+/* ==========================================
+   FINE CSS POPUP CARRELLO + MODAL QUANTITÀ
+   ========================================== */
 
 
 

@@ -418,6 +418,23 @@ class AuthIntegrationManager {
         }
     }
 
+    // ✅ AGGIUNGI QUESTO METODO MANCANTE:
+    addRoleStyles() {
+        // Metodo per aggiungere stili basati sul ruolo utente
+        if (!this.currentUser) return;
+
+        const body = document.body;
+
+        // Rimuovi classi role esistenti
+        body.classList.remove('role-guest', 'role-customer', 'role-staff', 'role-admin');
+
+        // Aggiungi classe basata sul ruolo
+        const roleClass = `role-${this.currentUser.role || 'guest'}`;
+        body.classList.add(roleClass);
+
+        console.log(`🎯 Stile ruolo applicato: ${roleClass}`);
+    }
+
     setupGlobalFunctions() {
         // Funzioni globali per testing
         window.testLogin = (userType = 'customer') => {
