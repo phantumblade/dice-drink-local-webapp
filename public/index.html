@@ -16,13 +16,9 @@
 <body>
     <div id="app"></div>
 
-    <!-- 1. Auth system prima (senza module) -->
-    <script src="js/auth-system.js"></script>
-
-    <!-- 2. Dropdown delay -->
-    <script src="js/components/dropdown-delay.js"></script>
-
-    <!-- 3. Main.js per ULTIMO con module -->
-    <script type="module" src="js/main.js"></script>
+    <!-- ✅ FIX DEFINITIVO: Tutti defer per ordine garantito -->
+    <script defer src="js/auth-system.js"></script>
+    <script defer src="js/components/dropdown-delay.js"></script>
+    <script defer type="module" src="js/main.js"></script>
 </body>
 </html>

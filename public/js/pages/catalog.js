@@ -5,6 +5,7 @@
 
 console.log('🎮 Caricamento pagina catalogo con sistema carrello...');
 
+
 // ==========================================
 // CONFIGURAZIONE CATALOGO
 // ==========================================
@@ -34,6 +35,186 @@ const CATALOG_CONFIG = {
     },
     CART_STORAGE_KEY: 'catalogSelection'
 };
+
+// ==========================================
+// CONFIGURAZIONE IMMAGINI CON FALLBACK LOCALI
+// ==========================================
+
+const IMAGE_CONFIG = {
+    // IMMAGINI LOCALI DI DEFAULT
+    LOCAL_DEFAULTS: {
+        games: '/assets/defaults/default-game.jpg',
+        drinks: '/assets/defaults/default-drink.png',
+        snacks: '/assets/defaults/default-snack.png'
+    },
+
+    // FALLBACK FINALE (SVG se mancano anche i default)
+    CSS_FALLBACK: {
+        games: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200"><rect width="300" height="200" fill="%236633cc"/><text x="150" y="100" text-anchor="middle" dy="0.3em" fill="white" font-family="Arial" font-size="20">🎲 Gioco</text></svg>',
+        drinks: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200"><rect width="300" height="200" fill="%23e53e3e"/><text x="150" y="100" text-anchor="middle" dy="0.3em" fill="white" font-family="Arial" font-size="20">🍹 Drink</text></svg>',
+        snacks: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200"><rect width="300" height="200" fill="%23f6ad55"/><text x="150" y="100" text-anchor="middle" dy="0.3em" fill="white" font-family="Arial" font-size="20">🍿 Snack</text></svg>'
+    },
+
+    imageCache: new Map(),
+    TIMEOUT: 3000
+};
+
+// ==========================================
+// ✅ FUNZIONI GESTIONE IMMAGINI LOCALI
+// ==========================================
+
+/**
+ * Ottiene l'URL corretto dell'immagine con fallback a file locali
+ * @param {Object} item - L'item (game, drink, snack)
+ * @param {string} category - Categoria (games, drinks, snacks)
+ * @returns {string} URL dell'immagine da usare
+ */
+function getImageUrlWithLocalFallback(item, category) {
+    // Se l'item ha un imageUrl valido, prova a usarlo
+    if (item.imageUrl && item.imageUrl.trim() !== '' && !item.imageUrl.includes('undefined')) {
+        return item.imageUrl;
+    }
+
+    // Altrimenti usa il default locale per la categoria
+    return getLocalDefaultUrl(category);
+}
+
+/**
+ * Ottiene l'URL del default locale per una categoria
+ * @param {string} category - Categoria (games, drinks, snacks, giochi, drink, snack)
+ * @returns {string} URL del default locale
+ */
+function getLocalDefaultUrl(category) {
+    // Normalizza categoria
+    const normalizedCategory = category === 'giochi' ? 'games' :
+                              category === 'drink' ? 'drinks' :
+                              category === 'snack' ? 'snacks' : category;
+
+    return IMAGE_CONFIG.LOCAL_DEFAULTS[normalizedCategory] || IMAGE_CONFIG.LOCAL_DEFAULTS.games;
+}
+
+/**
+ * Ottiene il fallback CSS/SVG se mancano anche i file locali
+ * @param {string} category - Categoria
+ * @returns {string} Data URL SVG
+ */
+function getCSSFallbackUrl(category) {
+    const normalizedCategory = category === 'giochi' ? 'games' :
+                              category === 'drink' ? 'drinks' :
+                              category === 'snack' ? 'snacks' : category;
+
+    return IMAGE_CONFIG.CSS_FALLBACK[normalizedCategory] || IMAGE_CONFIG.CSS_FALLBACK.games;
+}
+
+/**
+ * Configura il fallback automatico per un elemento immagine
+ * @param {HTMLElement} element - Elemento con background-image
+ * @param {string} category - Categoria per il fallback
+ */
+function setupLocalImageFallback(element, category) {
+    const bgImage = element.style.backgroundImage;
+    if (!bgImage || bgImage === 'none') return;
+
+    // Estrai URL dal background-image
+    const urlMatch = bgImage.match(/url\(['"]?(.*?)['"]?\)/);
+    if (!urlMatch) return;
+
+    const originalUrl = urlMatch[1];
+
+    // Se è già un fallback locale o CSS, skip
+    if (originalUrl.includes('/assets/defaults/') || originalUrl.startsWith('data:image/svg')) {
+        return;
+    }
+
+    // Verifica se l'immagine originale esiste
+    checkImageExists(originalUrl)
+        .then(exists => {
+            if (!exists) {
+                console.log(`🖼️ Immagine non trovata: ${originalUrl}`);
+
+                // Prova prima il default locale
+                const localDefault = getLocalDefaultUrl(category);
+
+                checkImageExists(localDefault)
+                    .then(localExists => {
+                        if (localExists) {
+                            console.log(`✅ Usando default locale: ${localDefault}`);
+                            element.style.backgroundImage = `url('${localDefault}')`;
+                        } else {
+                            console.log(`⚠️ Default locale non trovato, usando CSS fallback`);
+                            element.style.backgroundImage = `url('${getCSSFallbackUrl(category)}')`;
+                        }
+                    });
+            }
+        })
+        .catch(() => {
+            // Errore nel check: usa direttamente il default locale
+            element.style.backgroundImage = `url('${getLocalDefaultUrl(category)}')`;
+        });
+}
+
+/**
+ * Controlla se un'immagine esiste
+ * @param {string} url - URL dell'immagine
+ * @returns {Promise<boolean>} True se esiste
+ */
+function checkImageExists(url) {
+    return new Promise((resolve) => {
+        // Se è un data URL (SVG), ritorna sempre true
+        if (url.startsWith('data:')) {
+            resolve(true);
+            return;
+        }
+
+        const img = new Image();
+
+        const timeout = setTimeout(() => {
+            img.onload = img.onerror = null;
+            resolve(false);
+        }, IMAGE_CONFIG.TIMEOUT);
+
+        img.onload = function() {
+            clearTimeout(timeout);
+            resolve(true);
+        };
+
+        img.onerror = function() {
+            clearTimeout(timeout);
+            resolve(false);
+        };
+
+        img.src = url;
+    });
+}
+
+// ==========================================
+// ✅ SETUP AUTOMATICO FALLBACK
+// ==========================================
+
+function setupAllLocalImageFallbacks() {
+    console.log('🖼️ Setup fallback immagini locali...');
+
+    // Seleziona tutti gli elementi con immagini
+    const imageElements = document.querySelectorAll('.item-image');
+    let processedCount = 0;
+
+    imageElements.forEach(element => {
+        // Determina categoria dal parent card
+        const card = element.closest('.item-card');
+        let category = 'games'; // default
+
+        if (card) {
+            if (card.classList.contains('game-card')) category = 'games';
+            else if (card.classList.contains('drink-card')) category = 'drinks';
+            else if (card.classList.contains('snack-card')) category = 'snacks';
+        }
+
+        setupLocalImageFallback(element, category);
+        processedCount++;
+    });
+
+    console.log(`✅ Processati ${processedCount} elementi immagine`);
+}
 
 // ==========================================
 // CLASSE MANAGER CATALOGO CON CARRELLO
@@ -574,7 +755,7 @@ class CatalogPageManager {
     }
 
     createGameCardHTML(game) {
-        const imageUrl = game.imageUrl || '/assets/games/default.jpg';
+        const imageUrl = getImageUrlWithLocalFallback(game, 'games');
         const price = game.rentalPrice ? `€${game.rentalPrice}/sera` : 'Prezzo su richiesta';
 
         return `
@@ -625,7 +806,7 @@ class CatalogPageManager {
     createDrinkCardHTML(drink) {
         return `
             <div class="item-card drink-card" data-item-id="${drink.id}">
-                <div class="item-image" style="background-image: url('${drink.imageUrl || '/assets/drinks/default.jpg'}');">
+<div class="item-image" style="background-image: url('${getImageUrlWithLocalFallback(drink, 'drinks')}');">
                     <button class="expand-btn" onclick="window.catalogPageManager.openItemModal(${drink.id})">
                         <i class="fas fa-expand"></i>
                     </button>
@@ -673,7 +854,7 @@ class CatalogPageManager {
     createSnackCardHTML(snack) {
         return `
             <div class="item-card snack-card" data-item-id="${snack.id}">
-                <div class="item-image" style="background-image: url('${snack.imageUrl || '/assets/snacks/default.jpg'}');">
+<div class="item-image" style="background-image: url('${getImageUrlWithLocalFallback(snack, 'snacks')}');">
                     <button class="expand-btn" onclick="window.catalogPageManager.openItemModal(${snack.id})">
                         <i class="fas fa-expand"></i>
                     </button>
@@ -711,7 +892,7 @@ class CatalogPageManager {
 
                     <button class="rent-btn" onclick="window.catalogPageManager.handleOrderSnack(${snack.id})">
                         <i class="fas fa-shopping-cart"></i>
-                        Ordina 
+                        Ordina
                     </button>
                 </div>
             </div>
@@ -926,6 +1107,7 @@ createCartCategoryHTML(category, title, icon) {
             if (e.key === 'Escape' && this.isModalOpen) {
                 this.closeModal();
             }
+
         });
 
         // 4) Inizializza click sui chip di filtro
@@ -1036,6 +1218,8 @@ createCartCategoryHTML(category, title, icon) {
                     this.createItemCardHTML(item)
                 ).join('');
             }
+            setTimeout(() => setupAllLocalImageFallbacks(), 100);
+
         }
     }
 
@@ -1451,6 +1635,8 @@ createCartCategoryHTML(category, title, icon) {
         modalActionBtn.onclick = () => this.handleOrderSnack(snack.id);
     }
 
+
+
     // ==========================================
     // UTILITY HTML GENERATORS
     // ==========================================
@@ -1497,6 +1683,9 @@ createCartCategoryHTML(category, title, icon) {
         }
         console.error('❌ Errore catalogo:', message);
     }
+
+
+
 }
 
 // ==========================================
@@ -1535,6 +1724,10 @@ export async function showCatalog(category = 'giochi') {
 
         console.log(`✅ Catalogo ${category} caricato con successo con ${manager.currentItems.length} items`);
         console.log(`🛒 Carrello attuale:`, manager.getCartSummary());
+        setTimeout(() => {
+            console.log('🎯 Setup immagini finale...');
+            setupAllLocalImageFallbacks();
+        }, 100);
 
     } catch (error) {
         console.error('❌ Errore caricamento catalogo:', error);
@@ -1793,6 +1986,34 @@ if (typeof window !== 'undefined') {
     console.log('   sessionStorage:', !!sessionStorage.getItem('catalogSelection'));
     console.log('   localStorage:', !!localStorage.getItem('bookingItems'));
     console.log('   📞 Digita: window.catalogHelp() per la guida completa');
+}
+
+// ==========================================
+// ✅ EXPORT FUNZIONI IMMAGINI GLOBALI
+// ==========================================
+
+if (typeof window !== 'undefined') {
+    window.getImageUrlWithLocalFallback = getImageUrlWithLocalFallback;
+    window.getLocalDefaultUrl = getLocalDefaultUrl;
+    window.getCSSFallbackUrl = getCSSFallbackUrl;
+    window.setupLocalImageFallback = setupLocalImageFallback;
+    window.setupAllLocalImageFallbacks = setupAllLocalImageFallbacks;
+    window.checkImageExists = checkImageExists;
+    window.IMAGE_CONFIG = IMAGE_CONFIG;
+
+    // Funzione test sistema immagini
+    window.testLocalImageSystem = function() {
+        console.log('🖼️ Test sistema immagini locali...');
+        console.log('📁 Default locali:', IMAGE_CONFIG.LOCAL_DEFAULTS);
+
+        setupAllLocalImageFallbacks();
+        console.log('✅ Setup automatico completato');
+
+        console.log('\n🔗 Test URL:');
+        console.log('  Games:', getLocalDefaultUrl('games'));
+        console.log('  Drinks:', getLocalDefaultUrl('drinks'));
+        console.log('  Snacks:', getLocalDefaultUrl('snacks'));
+    };
 }
 
 // ==========================================

@@ -18,7 +18,16 @@ async function init() {
   app.use(express.json());
 
   // Serve file statici dalla cartella public (CSS, JS, immagini)
-  app.use(express.static('public'));
+app.use(express.static('public', {
+  setHeaders: (res, path, stat) => {
+    if (path.endsWith('.js')) {
+      res.set('Content-Type', 'application/javascript; charset=utf-8');
+    }
+    if (path.endsWith('.css')) {
+      res.set('Content-Type', 'text/css; charset=utf-8');
+    }
+  }
+}));
 
   // ==========================================
   // IMPORTA E REGISTRA LE ROUTES
@@ -190,6 +199,10 @@ async function init() {
     // Se la richiesta è per l'API, passa al prossimo middleware (404)
     if (req.path.startsWith('/api/')) {
       return next();
+    }
+      // Se è un file statico (.js, .css, .png, etc), passa al prossimo middleware
+    if (req.path.includes('.')) {
+        return next();
     }
 
     // Altrimenti servi l'index.html per la SPA
