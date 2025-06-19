@@ -1,6 +1,6 @@
 # Dice & Drink – SPA per giochi da tavolo e drink a tema
 
-Applicazione web che unisce un **catalogo di giochi da tavolo**, un **menu di drink e snack** e un modulo di prenotazione tavoli. Il sistema prevede registrazione e login, gestione profilo personale, wishlist e rating. Gli utenti possono prenotare un tavolo scegliendo durata e numero di giocatori, mentre staff e amministratori dispongono di un pannello gestionale con analytics e strumenti di moderazione.
+Applicazione web che unisce un **catalogo di giochi da tavolo**, un **menu di drink e snack** e un modulo di prenotazione tavoli. Il sistema prevede registrazione e login con gestione profilo personale. Gli utenti possono prenotare un tavolo scegliendo durata e numero di giocatori, orario e durata della sessione, mentre staff e amministratori dispongono di un pannello gestionale con analytics e strumenti di moderazione.
 
 ---
 
@@ -92,7 +92,9 @@ Consulta [`/api/health`](http://localhost:3000/api/health) per l'elenco completo
 ---
 
 ## 📎 Note aggiuntive
-
+- La sezione eventi è solo un placeholder del sito, non ha nessuna funzionalità implementata
+- Alcuni endpoint e db presenti nel progetto (come wishlist, filtri avanzati) non sono implementati nella Pagina web, solo i principali
+- Gli endpoit aggiutnvi sono tutti testabili e funzionanti tramite Postman (consultare il file html trst_endpoint.html per i test)
 - Alcune funzioni come l'invio email richiedono variabili ambiente (.env).
 - In sviluppo puoi utilizzare `npm run dev` per avviare il server con nodemon.
 - Endpoint utile di diagnostica: [http://localhost:3000/api/health](http://localhost:3000/api/health).
