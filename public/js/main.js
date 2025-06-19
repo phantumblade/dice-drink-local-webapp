@@ -21,6 +21,7 @@ import { buildFooter } from './components/footer.js';
 import { showHomepage } from './pages/homepage.js';
 import { showCatalog } from './pages/catalog.js';
 import { showBookings } from './pages/bookings.js';
+import { showAboutUs } from './pages/aboutus.js';
 
 // ==========================================
 // SISTEMA RUOLI E ICONE UTENTE
@@ -587,41 +588,12 @@ const ROUTES_CONFIG = {
         navItem: 'dashboard'
     },
 
-    '/tornei': {
-        title: 'Tornei - Dice & Drink',
-        handler: () => showPlaceholderPage('Tornei', 'Partecipa ai tornei organizzati dal locale'),
-        navItem: 'tornei'
-    },
-    '/eventi': {
-        title: 'Eventi dal Vivo - Dice & Drink',
-        handler: () => showPlaceholderPage('Eventi dal Vivo', 'Serate speciali, workshop e eventi live'),
-        navItem: 'eventi-dal-vivo'
-    },
-    '/proponi-torneo': {
-        title: 'Proponi Torneo - Dice & Drink',
-        handler: () => showPlaceholderPage('Proponi Torneo', 'Proponi un torneo per il tuo gioco preferito'),
-        navItem: 'proponi-torneo'
-    },
     '/about': {
         title: 'Chi Siamo - Dice & Drink',
-        handler: () => showPlaceholderPage('About Us', 'Chi siamo, la nostra storia e la nostra passione'),
+        handler: () => showAboutUs(),
         navItem: 'aboutus'
-    },
-    '/login': {
-        title: 'Accedi - Dice & Drink',
-        handler: () => showPlaceholderPage('Login', 'Accedi al tuo account o registrati'),
-        navItem: 'login'
-    },
-    '/profile': {
-        title: 'Il Mio Profilo - Dice & Drink',
-        handler: () => showPlaceholderPage('Il Mio Profilo', 'Gestisci il tuo account e le tue prenotazioni'),
-        navItem: 'profile'
-    },
-    '/admin': {
-        title: 'Dashboard Admin - Dice & Drink',
-        handler: () => showPlaceholderPage('Dashboard Admin', 'Pannello di controllo amministrativo'),
-        navItem: 'admin'
     }
+
 };
 
 // ==========================================

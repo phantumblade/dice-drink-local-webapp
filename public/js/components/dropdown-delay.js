@@ -1,7 +1,3 @@
-// ------------------------------------------------------------
-// dropdown-delay.js
-// Gestione “ritardata” di apertura/chiusura del menu a tendina
-// ------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', function() {
   // Calcoliamo il ritardo (in ms) prima di chiudere il dropdown

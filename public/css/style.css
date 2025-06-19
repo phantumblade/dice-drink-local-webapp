@@ -5863,3 +5863,601 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     outline: 2px solid #a98dff;
     outline-offset: 2px;
 }
+
+/* ==========================================
+   ABOUT US PAGE STYLES
+   Coerente con il design esistente di Dice & Drink
+   ========================================== */
+
+/* ==========================================
+   LAYOUT BASE ABOUT
+   ========================================== */
+.about-page {
+    background: var(--color-bg, #f8f9fa);
+    min-height: 100vh;
+}
+
+/* ==========================================
+   HERO SECTION
+   ========================================== */
+.about-hero {
+    background: #6c5ce7;
+    color: white;
+    padding: 120px 0 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.about-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dice" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23dice)"/></svg>');
+    opacity: 0.3;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.about-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.about-title i {
+    font-size: 3rem;
+    color: #FFD700;
+}
+
+.about-subtitle {
+    font-size: 1.3rem;
+    opacity: 0.9;
+    line-height: 1.6;
+    font-weight: 300;
+}
+
+/* ==========================================
+   SEZIONI COMUNI
+   ========================================== */
+.about-story,
+.about-values,
+.about-team,
+.about-location {
+    padding: 80px 0;
+}
+
+.about-story {
+    background: white;
+}
+
+.about-values {
+    background: #f8f9fa;
+}
+
+.about-team {
+    background: white;
+}
+
+.about-location {
+    background: #f8f9fa;
+}
+
+.story-container,
+.values-container,
+.team-container,
+.location-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.section-title.centered {
+    justify-content: center;
+    text-align: center;
+}
+
+.section-title i {
+    color: #6633cc;
+    font-size: 2rem;
+}
+
+/* ==========================================
+   STORY SECTION
+   ========================================== */
+.story-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.story-text {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #4a5568;
+    margin-bottom: 1.5rem;
+}
+
+.story-text strong {
+    color: #6633cc;
+    font-weight: 600;
+}
+
+.story-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-placeholder {
+    width: 300px;
+    height: 200px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border: 2px dashed #6633cc;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #6633cc;
+    font-weight: 600;
+}
+
+.image-placeholder i {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+/* ==========================================
+   VALUES SECTION
+   ========================================== */
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2.5rem;
+}
+
+.value-card {
+    background: white;
+    padding: 2.5rem 2rem;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border-top: 4px solid #6633cc;
+}
+
+.value-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+}
+
+.value-icon {
+    width: 80px;
+    height: 80px;
+    background: #6c5ce7;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: white;
+    font-size: 2rem;
+}
+
+.value-card h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.value-card p {
+    color: #718096;
+    line-height: 1.6;
+}
+
+/* ==========================================
+   TEAM SECTION
+   ========================================== */
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2.5rem;
+}
+
+.team-member {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.team-member:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.member-avatar {
+    width: 100px;
+    height: 100px;
+    background: #6c5ce7;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: white;
+    font-size: 2.5rem;
+}
+
+.team-member h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.member-role {
+    color: #6633cc;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.member-description {
+    color: #718096;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* ==========================================
+   LOCATION SECTION
+   ========================================== */
+.location-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.location-info {
+    margin-bottom: 2rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    color: #4a5568;
+}
+
+.info-item i {
+    color: #6633cc;
+    width: 20px;
+    text-align: center;
+}
+
+.location-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.map-placeholder {
+    width: 100%;
+    height: 300px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border: 2px dashed #6633cc;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #6633cc;
+    font-weight: 600;
+    text-align: center;
+}
+
+.map-placeholder i {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.map-placeholder small {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+/* ==========================================
+   CTA SECTION
+   ========================================== */
+.about-cta {
+    background: #6c5ce7;
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+    position: relative;
+}
+
+.about-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dice2" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse"><rect x="10" y="10" width="2" height="2" fill="rgba(255,255,255,0.1)"/><rect x="18" y="18" width="2" height="2" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23dice2)"/></svg>');
+    opacity: 0.2;
+}
+
+.cta-container {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.cta-container h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.cta-container p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* ==========================================
+   BUTTONS COERENTI
+   ========================================== */
+.btn-primary,
+.btn-secondary,
+.btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.btn-primary {
+    background: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+}
+
+.btn-primary:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.btn-secondary {
+    background: #f8f9fa;
+    color: #6633cc;
+    border-color: #e9ecef;
+}
+
+.btn-secondary:hover {
+    background: #e9ecef;
+    transform: translateY(-2px);
+}
+
+.btn-outline {
+    background: transparent;
+    color: white;
+    border-color: white;
+}
+
+.btn-outline:hover {
+    background: white;
+    color: #6633cc;
+    transform: translateY(-2px);
+}
+
+.btn-primary.large,
+.btn-outline.large {
+    padding: 1.25rem 2.5rem;
+    font-size: 1.1rem;
+}
+
+/* ==========================================
+   ANIMAZIONI
+   ========================================== */
+.animate-ready {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Animazioni stagger per le cards */
+.value-card,
+.team-member {
+    animation-delay: calc(var(--index, 0) * 0.1s);
+}
+
+.values-grid .value-card:nth-child(1) { --index: 1; }
+.values-grid .value-card:nth-child(2) { --index: 2; }
+.values-grid .value-card:nth-child(3) { --index: 3; }
+.values-grid .value-card:nth-child(4) { --index: 4; }
+
+.team-grid .team-member:nth-child(1) { --index: 1; }
+.team-grid .team-member:nth-child(2) { --index: 2; }
+.team-grid .team-member:nth-child(3) { --index: 3; }
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+@media (max-width: 1024px) {
+    .story-container,
+    .location-container {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .about-hero {
+        padding: 80px 0 60px;
+    }
+
+    .about-title {
+        font-size: 2.5rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .about-subtitle {
+        font-size: 1.1rem;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+
+    .about-story,
+    .about-values,
+    .about-team,
+    .about-location {
+        padding: 60px 0;
+    }
+
+    .story-container,
+    .values-container,
+    .team-container,
+    .location-container {
+        padding: 0 1.5rem;
+    }
+
+    .values-grid,
+    .team-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .location-actions {
+        flex-direction: column;
+    }
+
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-outline {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-content,
+    .cta-container {
+        padding: 0 1rem;
+    }
+
+    .about-title {
+        font-size: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+    }
+
+    .value-card,
+    .team-member {
+        padding: 2rem 1.5rem;
+    }
+
+    .story-text {
+        font-size: 1rem;
+    }
+}
+
+/* ==========================================
+   ACCESSIBILITÀ
+   ========================================== */
+@media (prefers-reduced-motion: reduce) {
+    .animate-ready,
+    .value-card,
+    .team-member,
+    .btn-primary,
+    .btn-secondary,
+    .btn-outline {
+        transition: none;
+        animation: none;
+    }
+
+    .animate-ready {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+    .value-card,
+    .team-member {
+        border: 2px solid #2c3e50;
+    }
+
+    .btn-outline {
+        border-width: 3px;
+    }
+}
