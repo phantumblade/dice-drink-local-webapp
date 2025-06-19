@@ -302,7 +302,7 @@ function createCatalogSection() {
   title.textContent = 'Catalogo di ';
   header.appendChild(title);
 
-  const filters = ['Giochi', 'Drink', 'Snack', 'Special D&D'];
+  const filters = ['Giochi', 'Drink', 'Snack'];
   let activeIndex = 0; // default: primo filtro
 
   const buttonsContainer = document.createElement('div');
@@ -357,13 +357,36 @@ function createCatalogSection() {
       return;
     }
 
+
+
     items.slice(0, 4).forEach(itemData => {
       const item = document.createElement('div');
       item.classList.add('catalog-item');
+
+      // Determina il tipo per il placeholder corretto
+      let defaultImg = 'assets/defaults/default-game.jpg'; // fallback di default
+      if (itemData.type === 'Drink') defaultImg = 'assets/defaults/default-drink.png';
+      if (itemData.type === 'Snack') defaultImg = 'assets/defaults/default-snack.png';
+
+      // Determina la categoria per la funzione di fallback
+      let category = 'games';
+      if (itemData.type === 'Drink') category = 'drinks';
+      if (itemData.type === 'Snack') category = 'snacks';
+
+      const imgSrc = window.getImageUrlWithLocalFallback
+        ? window.getImageUrlWithLocalFallback(itemData, category)
+        : (itemData.image || itemData.img || defaultImg);
+
+      const fallbackImg = defaultImg.replace(/'/g, "\\'"); // Escape per sicurezza
+
       item.innerHTML = `
-          <h3 class="catalog-item-title">${itemData.name}</h3>
-          <p class="catalog-item-desc">${itemData.description}</p>
-        </div>`;
+        <div class="catalog-item-img">
+          <img src="${imgSrc}" alt="${itemData.name}"
+               onerror="this.onerror=null;this.src='${fallbackImg}';">
+        </div>
+        <h3 class="catalog-item-title">${itemData.name}</h3>
+        <p class="catalog-item-desc">${itemData.description}</p>
+      `;
 
       listContainer.appendChild(item);
     });

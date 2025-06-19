@@ -1,5 +1,4 @@
 // js/navbar.js
-// AGGIORNATO: Ora usa Page.js router con href reali
 
 // Esporta la funzione per creare la navbar
 export function createNavbar() {
@@ -221,22 +220,6 @@ export function createNavbar() {
   const rightSection = document.createElement('div');
   // Aggiunge la classe CSS per la sezione destra
   rightSection.classList.add('navbar-right');
-
-  // Crea il campo di input per la ricerca
-  const searchInput = document.createElement('input');
-  // Imposta il tipo di input come ricerca
-  searchInput.type = 'search';
-  // Imposta il placeholder del campo ricerca
-  searchInput.placeholder = 'Cerca...';
-  // Aggiunge la classe CSS al campo ricerca
-  searchInput.classList.add('navbar-search');
-
-  const searchContainer = document.createElement('div');
-  searchContainer.classList.add('navbar-search-container');
-
-  // Direttamente nel container senza wrapper
-  searchContainer.appendChild(searchInput);
-  rightSection.appendChild(searchContainer);
 
   // ✅ AGGIORNATO: Icona profilo migliorata
   const profileIcon = document.createElement('span');
