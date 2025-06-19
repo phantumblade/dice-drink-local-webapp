@@ -237,7 +237,6 @@ class DashboardPageManager {
         return `
             <div class="dash-container">
                 ${this.createDashboardHeaderHTML(user, role)}
-                ${this.createStatsCardsHTML(stats, role)}
                 ${this.createDashboardGridHTML()}
             </div>
         `;
@@ -281,70 +280,6 @@ class DashboardPageManager {
         `;
     }
 
-    createStatsCardsHTML(stats, role) {
-        if (!stats) return '';
-
-        let cardsHTML = '';
-
-        if (role === 'customer') {
-            cardsHTML = `
-                <div class="dash-stat-card bookings dash-customer-only">
-                    <div class="dash-stat-icon"><i class="fas fa-calendar-check"></i></div>
-                    <div class="dash-stat-number">${stats.activeBookings || 0}</div>
-                    <div class="dash-stat-label">Prenotazioni Attive</div>
-                </div>
-                <div class="dash-stat-card activity dash-customer-only">
-                    <div class="dash-stat-icon"><i class="fas fa-chart-line"></i></div>
-                    <div class="dash-stat-number">${stats.monthlyActivity || 0}</div>
-                    <div class="dash-stat-label">Attività Questo Mese</div>
-                </div>
-                <div class="dash-stat-card games dash-customer-only">
-                    <div class="dash-stat-icon"><i class="fas fa-gamepad"></i></div>
-                    <div class="dash-stat-number">${stats.gamesPlayed || 0}</div>
-                    <div class="dash-stat-label">Giochi Giocati</div>
-                </div>
-            `;
-        } else if (role === 'staff') {
-            cardsHTML = `
-                <div class="dash-stat-card users dash-staff-only">
-                    <div class="dash-stat-icon"><i class="fas fa-users"></i></div>
-                    <div class="dash-stat-number">${stats.totalUsers || 0}</div>
-                    <div class="dash-stat-label">Utenti Registrati</div>
-                </div>
-                <div class="dash-stat-card bookings dash-staff-only">
-                    <div class="dash-stat-icon"><i class="fas fa-calendar-alt"></i></div>
-                    <div class="dash-stat-number">${stats.todayBookings || 0}</div>
-                    <div class="dash-stat-label">Prenotazioni Oggi</div>
-                </div>
-            `;
-        } else if (role === 'admin') {
-            cardsHTML = `
-                <div class="dash-stat-card users dash-admin-only">
-                    <div class="dash-stat-icon"><i class="fas fa-users"></i></div>
-                    <div class="dash-stat-number">${stats.totalUsers || 0}</div>
-                    <div class="dash-stat-label">Utenti Registrati</div>
-                </div>
-                <div class="dash-stat-card bookings dash-admin-only">
-                    <div class="dash-stat-icon"><i class="fas fa-calendar-alt"></i></div>
-                    <div class="dash-stat-number">${stats.todayBookings || 0}</div>
-                    <div class="dash-stat-label">Prenotazioni Oggi</div>
-                </div>
-                <div class="dash-stat-card activity dash-admin-only">
-                    <div class="dash-stat-icon"><i class="fas fa-chart-line"></i></div>
-                    <div class="dash-stat-number">${stats.monthlySessions || 0}</div>
-                    <div class="dash-stat-label">Sessioni Questo Mese</div>
-                </div>
-                <div class="dash-stat-card games dash-admin-only">
-                    <div class="dash-stat-icon"><i class="fas fa-gamepad"></i></div>
-                    <div class="dash-stat-number">${stats.catalogGames || 0}</div>
-                    <div class="dash-stat-label">Giochi in Catalogo</div>
-                </div>
-            `;
-        }
-
-        return `<div class="dash-stats-grid">${cardsHTML}</div>`;
-    }
-
     createDashboardGridHTML() {
         const { role } = this.dashboardData;
 
@@ -356,8 +291,6 @@ class DashboardPageManager {
                     ${role === 'customer' ? this.createCustomerSectionsHTML() : ''}
                     ${role === 'staff' ? this.createStaffSectionsHTML() : ''}
                     ${role === 'admin' ? this.createAdminSectionsHTML() : ''}
-                    ${this.createActivitySectionHTML(role)}
-                    ${this.createSettingsSectionHTML()}
                 </div>
             </div>
         `;
@@ -370,7 +303,6 @@ class DashboardPageManager {
                 { icon: 'fas fa-user', text: 'Il Mio Profilo', id: 'profile' },
                 { icon: 'fas fa-heart', text: 'Preferenze', id: 'preferences' },
                 { icon: 'fas fa-calendar-alt', text: 'Prenotazioni', id: 'bookings' },
-                { icon: 'fas fa-history', text: 'Cronologia', id: 'history' }
             ],
             staff: [
                 { icon: 'fas fa-tachometer-alt', text: 'Dashboard', id: 'dashboard', active: true },
@@ -383,7 +315,6 @@ class DashboardPageManager {
                 { icon: 'fas fa-user', text: 'Profilo Admin', id: 'profile' },
                 { icon: 'fas fa-chart-pie', text: 'Dashboard Sistema', id: 'system-dashboard' },
                 { icon: 'fas fa-user-plus', text: 'Gestisci Utenti', id: 'manage-users' },
-                { icon: 'fas fa-chart-bar', text: 'Analitica', id: 'analytics' }
             ]
         };
 
@@ -403,15 +334,6 @@ class DashboardPageManager {
                                     </a>
                                 </li>
                             `).join('')}
-                        </ul>
-                    </div>
-                    <div class="dash-sidebar-section">
-                        <div class="dash-sidebar-title">Sistema</div>
-                        <ul class="dash-sidebar-nav">
-                            <li><a href="#settings" onclick="window.dashboardManager.scrollToSection('settings')">
-                                <i class="fas fa-cog"></i>Impostazioni</a></li>
-                            <li><a href="#" onclick="window.dashboardManager.logout()">
-                                <i class="fas fa-sign-out-alt"></i>Logout</a></li>
                         </ul>
                     </div>
                 </nav>
@@ -741,19 +663,20 @@ async renderStaffBookings(status = 'pending') {
 // CARD SINGOLA PRENOTAZIONE
 // ==========================================
 
-renderBookingCard(booking) {
+renderBookingCard(booking, isAdminView = false) {
     const statusClass = `booking-status-${booking.status}`;
     const statusIcon = this.getStatusIcon(booking.status);
     const statusLabel = this.getStatusLabel(booking.status);
 
     return `
-        <div class="staff-booking-card ${statusClass}" data-booking-id="${booking.id}">
-            <!-- Header prenotazione -->
+        <div class="staff-booking-card ${statusClass}" data-booking-id="${booking.id}" data-view="${isAdminView ? 'admin' : 'staff'}">
+            <!-- Header prenotazione migliorato -->
             <div class="booking-card-header">
                 <div class="booking-info-main">
                     <h4 class="customer-name">
                         <i class="fas fa-user"></i>
                         ${this.getCustomerDisplayName(booking)}
+                        ${isAdminView ? '<span class="admin-indicator">👑 Admin</span>' : ''}
                     </h4>
                     <div class="booking-meta">
                         <span class="booking-time">
@@ -795,36 +718,45 @@ renderBookingCard(booking) {
                             <strong>Totale:</strong> €${parseFloat(booking.total_cost).toFixed(2)}
                         </div>
                     ` : ''}
+                    ${isAdminView ? `
+                        <div class="booking-admin-info">
+                            <strong>Gestito da:</strong> Admin Panel
+                        </div>
+                    ` : ''}
                 </div>
             </div>
 
             <!-- Azioni staff -->
             <div class="booking-actions">
-                ${this.generateBookingActions(booking)}
+                ${this.generateBookingActions(booking, isAdminView)}
             </div>
         </div>
     `;
 }
 
+
 // ==========================================
 // AZIONI PRENOTAZIONI
 // ==========================================
 
-generateBookingActions(booking) {
+generateBookingActions(booking, isAdminView = false) {
     const actions = [];
+    const viewPrefix = isAdminView ? 'Admin' : 'Staff';
 
     switch (booking.status) {
         case 'pending':
             actions.push(`
                 <button class="action-btn action-btn-confirm"
-                        onclick="window.dashboardManager.confirmBooking(${booking.id})">
+                        onclick="window.dashboardManager.confirmBooking(${booking.id})"
+                        title="${viewPrefix}: Conferma prenotazione">
                     <i class="fas fa-check"></i>
                     Conferma
                 </button>
             `);
             actions.push(`
                 <button class="action-btn action-btn-reject"
-                        onclick="window.dashboardManager.rejectBooking(${booking.id})">
+                        onclick="window.dashboardManager.rejectBooking(${booking.id})"
+                        title="${viewPrefix}: Rifiuta prenotazione">
                     <i class="fas fa-times"></i>
                     Rifiuta
                 </button>
@@ -834,7 +766,8 @@ generateBookingActions(booking) {
         case 'confirmed':
             actions.push(`
                 <button class="action-btn action-btn-complete"
-                        onclick="window.dashboardManager.markAsCompleted(${booking.id})">
+                        onclick="window.dashboardManager.markAsCompleted(${booking.id})"
+                        title="${viewPrefix}: Marca come completata">
                     <i class="fas fa-flag-checkered"></i>
                     Completa
                 </button>
@@ -844,15 +777,29 @@ generateBookingActions(booking) {
         default:
             actions.push(`
                 <button class="action-btn action-btn-view"
-                        onclick="window.dashboardManager.viewBookingDetails(${booking.id})">
+                        onclick="window.dashboardManager.viewBookingDetails(${booking.id})"
+                        title="${viewPrefix}: Visualizza dettagli">
                     <i class="fas fa-eye"></i>
                     Dettagli
                 </button>
             `);
     }
 
+    // Azione extra per admin
+    if (isAdminView && booking.status !== 'cancelled') {
+        actions.push(`
+            <button class="action-btn action-btn-view"
+                    onclick="window.dashboardManager.editBookingAdmin(${booking.id})"
+                    title="Admin: Modifica avanzata">
+                <i class="fas fa-edit"></i>
+                Modifica
+            </button>
+        `);
+    }
+
     return actions.join('');
 }
+
 
 // ==========================================
 // AZIONI API (simulazioni per ora)
@@ -1646,22 +1593,6 @@ createAdminSectionsHTML() {
                 ${this.generateRecentUsersHTML()}
             </div>
         </div>
-
-        <!-- Analytics Avanzata -->
-        <div class="dash-card dash-admin-section" id="analytics">
-            <div class="dash-card-header">
-                <h2 class="dash-card-title">
-                    <i class="fas fa-chart-bar dash-card-icon"></i>
-                    Analitica Avanzata
-                </h2>
-                <button class="dash-btn dash-btn-outline" onclick="window.dashboardManager.openAdvancedAnalytics()">
-                    Vedi Report Completo
-                </button>
-            </div>
-            <div id="admin-analytics-summary">
-                <p>Dashboard analitica con metriche avanzate (da implementare)</p>
-            </div>
-        </div>
     `;
 }
 
@@ -1946,7 +1877,7 @@ createInventoryHTML(data) {
             <!-- Riepilogo -->
             <div class="inventory-summary">
                 <div class="summary-card">
-                    <h4>Riepilogo Inventario (Database Live)</h4>
+                    <h4>📊 Riepilogo Inventario Database</h4>
                     <div class="summary-stats">
                         <div class="summary-item">
                             <span class="summary-label">Totale Prodotti:</span>
@@ -1961,8 +1892,8 @@ createInventoryHTML(data) {
                             <span class="summary-value">Database Live</span>
                         </div>
                         <div class="summary-item">
-                            <span class="summary-label">Ultimo Refresh:</span>
-                            <span class="summary-value">${new Date().toLocaleTimeString('it-IT')}</span>
+                            <span class="summary-label">Status:</span>
+                            <span class="summary-value">🟢 Online</span>
                         </div>
                     </div>
                 </div>
@@ -1994,7 +1925,7 @@ async renderAdminBookings(status = 'pending') {
                     <div class="no-bookings-icon">
                         <i class="fas fa-calendar-check"></i>
                     </div>
-                    <h3>Nessuna prenotazione ${this.getStatusLabel(status)} (Admin)</h3>
+                    <h3>Nessuna prenotazione ${this.getStatusLabel(status)} (Pannello Admin)</h3>
                     <p>Non ci sono prenotazioni ${status === 'all' ? 'nel sistema' : `con status "${status}"`}.</p>
                     ${status !== 'all' ? `
                         <button class="dash-btn dash-btn-outline" onclick="window.dashboardManager.filterAdminBookings('all')">
@@ -2006,9 +1937,10 @@ async renderAdminBookings(status = 'pending') {
             return;
         }
 
+        // ✅ CORREZIONE: usa isAdminView = true
         const bookingCards = bookings.map((booking, index) => {
             try {
-                return this.renderBookingCard(booking, true);
+                return this.renderBookingCard(booking, true); // <- true per admin view
             } catch (error) {
                 console.error(`❌ Errore rendering card prenotazione admin ${index}:`, booking, error);
                 return `
@@ -2039,7 +1971,7 @@ async renderAdminBookings(status = 'pending') {
         console.error('❌ Errore rendering prenotazioni admin:', error);
         container.innerHTML = `
             <div class="error-bookings-staff">
-                <h3>Errore caricamento prenotazioni (Admin)</h3>
+                <h3>Errore caricamento prenotazioni (Pannello Admin)</h3>
                 <p><strong>Dettaglio errore:</strong> ${error.message}</p>
                 <div style="margin-top: 1rem;">
                     <button class="dash-btn dash-btn-primary" onclick="window.dashboardManager.renderAdminBookings('${status}')">
@@ -2055,6 +1987,83 @@ async renderAdminBookings(status = 'pending') {
         `;
     }
 }
+
+editBookingAdmin(bookingId) {
+    console.log('✏️ Modifica avanzata prenotazione admin:', bookingId);
+
+    // Modal o redirect a pagina di editing avanzato
+    alert(`🔧 MODIFICA AVANZATA ADMIN\n\nPrenotazione #${bookingId}\n\nFunzionalità amministratore:\n• Modifica date/orari\n• Cambio cliente\n• Note interne\n• Log modifiche\n• Rimborsi\n\n(In fase di sviluppo)`);
+}
+
+// ==========================================
+// CORREZIONE: Notifiche più eleganti
+// ==========================================
+
+showNotification(type, message) {
+    // Se esiste sistema notifiche avanzato, usalo
+    if (window.showNotification) {
+        window.showNotification(type, message);
+        return;
+    }
+
+    // Altrimenti crea notifica inline elegante
+    const notification = document.createElement('div');
+    notification.className = `dash-notification dash-notification-${type}`;
+    notification.innerHTML = `
+        <div class="dash-notification-content">
+            <i class="fas fa-${this.getNotificationIcon(type)}"></i>
+            <span>${message}</span>
+            <button class="dash-notification-close" onclick="this.parentElement.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+
+    // Stili inline per notifica
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${this.getNotificationColor(type)};
+        color: white;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        z-index: 9999;
+        max-width: 400px;
+        animation: slideInRight 0.3s ease-out;
+    `;
+
+    document.body.appendChild(notification);
+
+    // Auto-remove dopo 5 secondi
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+getNotificationIcon(type) {
+    const icons = {
+        success: 'check-circle',
+        error: 'exclamation-triangle',
+        warning: 'exclamation-circle',
+        info: 'info-circle'
+    };
+    return icons[type] || 'info-circle';
+}
+
+getNotificationColor(type) {
+    const colors = {
+        success: '#28a745',
+        error: '#dc3545',
+        warning: '#ffc107',
+        info: '#17a2b8'
+    };
+    return colors[type] || '#17a2b8';
+}
+
 
 // Metodi interfaccia admin
 refreshInventoryData(period) {
@@ -2078,85 +2087,7 @@ createNewUser() {
     alert('➕ NUOVO UTENTE\n\nQuesta funzione permetterà di:\n• Creare nuovi utenti staff/customer\n• Assegnare ruoli e permessi\n• Inviare credenziali via email\n\n(In fase di sviluppo)');
 }
 
-openAdvancedAnalytics() {
-    console.log('📈 Apertura analytics avanzata...');
-    alert('📊 ANALYTICS AVANZATA\n\nQuesta sezione includerà:\n• Grafici di utilizzo nel tempo\n• Metriche di performance\n• Report automatici\n• Confronti periodo su periodo\n\n(In fase di sviluppo)');
-}
 
-
-
-
-    createActivitySectionHTML(role) {
-        const activities = this.generateMockActivities(role);
-
-        return `
-            <div class="dash-card" id="history">
-                <div class="dash-card-header">
-                    <h2 class="dash-card-title">
-                        <i class="fas fa-history dash-card-icon"></i>
-                        ${role === 'customer' ? 'La Tua Attività Recente' : 'Attività Sistema'}
-                    </h2>
-                    <button class="dash-btn dash-btn-outline">Vedi Tutto</button>
-                </div>
-                <div>
-                    ${activities.map(activity => `
-                        <div class="dash-activity-item">
-                            <div class="dash-activity-icon ${activity.type}">
-                                <i class="${activity.icon}"></i>
-                            </div>
-                            <div class="dash-activity-content">
-                                <h4>${activity.title}</h4>
-                                <span>${activity.description}</span>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-    }
-
-    createSettingsSectionHTML() {
-        return `
-            <div class="dash-card" id="settings">
-                <div class="dash-card-header">
-                    <h2 class="dash-card-title">
-                        <i class="fas fa-cog dash-card-icon"></i>
-                        Impostazioni Account
-                    </h2>
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
-                    <div>
-                        <h4 style="margin-bottom: 1rem; color: var(--dash-dark-color);">Sicurezza</h4>
-                        <div class="dash-form-group">
-                            <label class="dash-form-label">Nuova Password</label>
-                            <input type="password" class="dash-form-control" placeholder="Inserisci nuova password">
-                        </div>
-                        <div class="dash-form-group">
-                            <label class="dash-form-label">Conferma Password</label>
-                            <input type="password" class="dash-form-control" placeholder="Conferma nuova password">
-                        </div>
-                        <button class="dash-btn dash-btn-primary">Aggiorna Password</button>
-                    </div>
-                    <div>
-                        <h4 style="margin-bottom: 1rem; color: var(--dash-dark-color);">Notifiche</h4>
-                        <div style="margin-bottom: 1rem;">
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                <input type="checkbox" checked>
-                                <span>Email per nuove prenotazioni</span>
-                            </label>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                <input type="checkbox" checked>
-                                <span>SMS per conferme prenotazioni</span>
-                            </label>
-                        </div>
-                        <button class="dash-btn dash-btn-success">Salva Preferenze</button>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
 
     // ==========================================
     // METODI DI INTERAZIONE
@@ -2284,74 +2215,6 @@ openAdvancedAnalytics() {
         return labels[status] || status;
     }
 
-    generateMockActivities(role) {
-        if (role === 'customer') {
-            return [
-                {
-                    type: 'success',
-                    icon: 'fas fa-check-circle',
-                    title: 'Prenotazione confermata',
-                    description: 'Tavolo 5 per il 15 Giugno • 2 giorni fa'
-                },
-                {
-                    type: 'primary',
-                    icon: 'fas fa-edit',
-                    title: 'Profilo aggiornato',
-                    description: 'Preferenze bevande modificate • 1 settimana fa'
-                },
-                {
-                    type: 'info',
-                    icon: 'fas fa-gamepad',
-                    title: 'Partita giocata',
-                    description: 'Catan con 4 giocatori • 2 settimane fa'
-                }
-            ];
-        } else if (role === 'staff') {
-            return [
-                {
-                    type: 'warning',
-                    icon: 'fas fa-user-plus',
-                    title: 'Nuovo utente registrato',
-                    description: 'Marco Rossi si è registrato • 3 ore fa'
-                },
-                {
-                    type: 'success',
-                    icon: 'fas fa-check-circle',
-                    title: 'Prenotazioni confermate',
-                    description: '5 prenotazioni confermate oggi • 2 ore fa'
-                },
-                {
-                    type: 'info',
-                    icon: 'fas fa-clipboard-list',
-                    title: 'Gestione tavoli',
-                    description: 'Tavolo 3 assegnato a nuova prenotazione • 4 ore fa'
-                }
-            ];
-        } else if (role === 'admin') {
-            return [
-                {
-                    type: 'info',
-                    icon: 'fas fa-database',
-                    title: 'Database aggiornato',
-                    description: 'Aggiunti 5 nuovi giochi al catalogo • 1 giorno fa'
-                },
-                {
-                    type: 'primary',
-                    icon: 'fas fa-user-shield',
-                    title: 'Ruolo modificato',
-                    description: 'Marco Rossi promosso a Staff • 2 giorni fa'
-                },
-                {
-                    type: 'warning',
-                    icon: 'fas fa-chart-line',
-                    title: 'Report mensile generato',
-                    description: 'Report analytics di Maggio completato • 3 giorni fa'
-                }
-            ];
-        }
-        return [];
-    }
-
     showNotification(type, message) {
         // Integrazione con sistema notifiche esistente se disponibile
         if (window.showNotification) {
@@ -2361,24 +2224,6 @@ openAdvancedAnalytics() {
             const alertType = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
             alert(`${alertType} ${message}`);
         }
-    }
-
-    async updatePreferences() {
-        console.log('🎨 Apertura editor preferenze...');
-
-        // Scorri alla sezione preferenze
-        this.scrollToSection('preferences');
-
-        // Evidenzia la sezione per 2 secondi
-        const preferencesSection = document.getElementById('preferences');
-        if (preferencesSection) {
-            preferencesSection.classList.add('dash-highlight-section');
-            setTimeout(() => {
-                preferencesSection.classList.remove('dash-highlight-section');
-            }, 2000);
-        }
-
-        this.showNotification('info', 'Modifica le tue preferenze qui sotto e clicca "Salva Modifiche"');
     }
 
     // ==========================================
@@ -2410,16 +2255,46 @@ openAdvancedAnalytics() {
 
     cleanup() {
         this.stopAutoRefresh();
+
+        // Rimuovi event listeners
+        window.removeEventListener('beforeunload', this.handleBeforeUnload);
+
+        // Pulisci notifiche attive
+        document.querySelectorAll('.dash-notification').forEach(notification => {
+            notification.remove();
+        });
+
+        // Reset dati
         this.dashboardData = null;
         this.currentUser = null;
+
+        // Rimuovi classi dal body
+        document.body.classList.remove('role-customer', 'role-staff', 'role-admin');
+
         console.log('🧹 Dashboard cleanup completato');
     }
 
+    handleBeforeUnload = () => {
+    if (window.dashboardManager) {
+        window.dashboardManager.cleanup();
+    }
+};
+
+
+
+
 initializeDashboard() {
-    console.log('🚀 Inizializzazione dashboard completa...');
+    console.log('🚀 Inizializzazione dashboard ottimizzata...');
+
+    // Rimuovi classe di loading se presente
+    document.body.classList.remove('loading');
 
     setTimeout(() => {
         if (this.dashboardData && this.dashboardData.role) {
+            document.body.classList.add(`role-${this.dashboardData.role}`);
+
+            // Pulizia classi precedenti
+            document.body.classList.remove('role-customer', 'role-staff', 'role-admin');
             document.body.classList.add(`role-${this.dashboardData.role}`);
         }
 
@@ -2430,31 +2305,30 @@ initializeDashboard() {
             this.populateDrinkTypes();
         }
 
-        // Staff e Admin - Gestione prenotazioni
-        if (this.dashboardData?.role === 'staff' || this.dashboardData?.role === 'admin') {
-            console.log(`👨‍💼 Utente ${this.dashboardData.role} - inizializzazione gestione prenotazioni...`);
-
+        // Staff - Gestione prenotazioni standard
+        if (this.dashboardData?.role === 'staff') {
+            console.log('👨‍💼 Utente staff - inizializzazione gestione prenotazioni...');
             setTimeout(() => {
-                if (this.dashboardData.role === 'admin') {
-                    // Admin usa container dedicato
-                    this.renderAdminBookings('pending');
-                } else {
-                    // Staff usa container normale
-                    this.renderStaffBookings('pending');
-                }
+                this.renderStaffBookings('pending');
             }, 300);
         }
 
-        // ✅ NUOVO: Inizializza inventario sistema per admin
+        // Admin - Gestione completa
         if (this.dashboardData?.role === 'admin') {
-            console.log('🔧 Utente admin - inizializzazione inventario sistema...');
+            console.log('🔧 Utente admin - inizializzazione completa...');
 
+            // Inizializza inventario sistema
             setTimeout(() => {
                 this.renderSystemInventory(7);
+            }, 300);
+
+            // Inizializza prenotazioni admin
+            setTimeout(() => {
+                this.renderAdminBookings('pending');
             }, 500);
         }
 
-        console.log('✅ Dashboard inizializzata completamente');
+        console.log('✅ Dashboard inizializzata completamente per ruolo:', this.dashboardData?.role);
     }, 200);
 }
 

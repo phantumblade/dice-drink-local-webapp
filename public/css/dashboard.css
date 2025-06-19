@@ -1,5 +1,5 @@
 /* ==========================================
-   DASHBOARD CSS - PULITO E MODERNO
+   DASHBOARD CSS - VERSIONE OTTIMIZZATA
    ========================================== */
 
 :root {
@@ -47,13 +47,10 @@
     border-right: 1px solid var(--dash-border);
     border-left: 3px solid var(--dash-primary);
     position: sticky;
-    top: 80px;
-    height: calc(100vh - 100px);
+    top: 120px;
     overflow-y: auto;
-    box-shadow: var(--dash-shadow);
     border-radius: var(--dash-radius);
     margin-right: 1.5rem;
-    z-index: 10;
 }
 
 .dash-sidebar-section {
@@ -209,74 +206,6 @@
 
 .dash-role-badge.staff { background: var(--dash-warning); color: var(--dash-dark); }
 .dash-role-badge.admin { background: var(--dash-danger); }
-
-/* ==========================================
-   STATS CARDS
-   ========================================== */
-
-.dash-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.dash-stat-card {
-    background: var(--dash-white);
-    border-radius: var(--dash-radius);
-    padding: 1.25rem;
-    box-shadow: var(--dash-shadow);
-    text-align: center;
-    transition: var(--dash-transition);
-    border: 1px solid var(--dash-border);
-    position: relative;
-}
-
-.dash-stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    border-radius: var(--dash-radius) var(--dash-radius) 0 0;
-}
-
-.dash-stat-card.games::before { background: var(--dash-primary); }
-.dash-stat-card.bookings::before { background: var(--dash-success); }
-.dash-stat-card.activity::before { background: var(--dash-info); }
-.dash-stat-card.users::before { background: var(--dash-warning); }
-
-.dash-stat-icon {
-    width: 45px;
-    height: 45px;
-    margin: 0 auto 0.75rem;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    color: var(--dash-white);
-}
-
-.dash-stat-card.games .dash-stat-icon { background: var(--dash-primary); }
-.dash-stat-card.bookings .dash-stat-icon { background: var(--dash-success); }
-.dash-stat-card.activity .dash-stat-icon { background: var(--dash-info); }
-.dash-stat-card.users .dash-stat-icon { background: var(--dash-warning); }
-
-.dash-stat-number {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--dash-dark);
-    margin-bottom: 0.25rem;
-}
-
-.dash-stat-label {
-    color: var(--dash-gray);
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
 
 /* ==========================================
    CARDS
@@ -668,47 +597,6 @@
 .dash-status-pending { background: var(--dash-warning); color: var(--dash-dark); }
 .dash-status-cancelled { background: var(--dash-danger); color: var(--dash-white); }
 
-/* ==========================================
-   ACTIVITY E LOADING
-   ========================================== */
-
-.dash-activity-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem;
-    background: var(--dash-light);
-    border-radius: 6px;
-    margin-bottom: 0.75rem;
-    border: 1px solid var(--dash-border);
-}
-
-.dash-activity-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--dash-radius);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--dash-white);
-    font-size: 1rem;
-}
-
-.dash-activity-icon.success { background: var(--dash-success); }
-.dash-activity-icon.primary { background: var(--dash-primary); }
-.dash-activity-icon.warning { background: var(--dash-warning); }
-.dash-activity-icon.info { background: var(--dash-info); }
-
-.dash-activity-content h4 {
-    color: var(--dash-dark);
-    margin-bottom: 0.15rem;
-    font-size: 0.9rem;
-}
-
-.dash-activity-content span {
-    color: var(--dash-gray);
-    font-size: 0.8rem;
-}
 
 .dash-loading {
     display: flex;
@@ -748,8 +636,7 @@
 }
 
 /* ==========================================
-   GESTIONE PRENOTAZIONI STAFF - CSS COMPLETO
-   Aggiungi questo alla fine del tuo dashboard.css
+   GESTIONE PRENOTAZIONI STAFF - CSS MIGLIORATO
    ========================================== */
 
 /* Sezione controlli staff */
@@ -840,7 +727,7 @@
     animation: spin 1s linear infinite;
 }
 
-/* Card singola prenotazione */
+/* Card singola prenotazione - LAYOUT MIGLIORATO */
 .staff-booking-card {
     background: var(--dash-white);
     border: 1px solid var(--dash-border);
@@ -849,6 +736,7 @@
     overflow: hidden;
     transition: var(--dash-transition);
     box-shadow: var(--dash-shadow);
+    position: relative;
 }
 
 .staff-booking-card:hover {
@@ -856,21 +744,50 @@
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
-/* Stati prenotazione - bordi colorati */
+/* ✅ CORREZIONE: Badge Admin ben posizionato */
+.staff-booking-card::before {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 5;
+    color: white;
+}
+
+/* Badge ADMIN per container admin */
+#admin-bookings-container .staff-booking-card::before {
+    content: 'ADMIN';
+    background: linear-gradient(135deg, var(--dash-primary) 0%, #7c4dff 100%);
+    box-shadow: 0 2px 8px rgba(102, 51, 204, 0.3);
+}
+
+/* Badge STAFF per container staff */
+#staff-bookings-container .staff-booking-card::before {
+    content: 'STAFF';
+    background: linear-gradient(135deg, var(--dash-info) 0%, #0ea5e9 100%);
+    box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
+}
+
+/* Stati prenotazione - bordi colorati puliti */
 .staff-booking-card.booking-status-pending {
-    border-left: 5px solid var(--dash-warning);
+    border-left: 4px solid var(--dash-warning);
 }
 
 .staff-booking-card.booking-status-confirmed {
-    border-left: 5px solid var(--dash-success);
+    border-left: 4px solid var(--dash-success);
 }
 
 .staff-booking-card.booking-status-completed {
-    border-left: 5px solid var(--dash-info);
+    border-left: 4px solid var(--dash-info);
 }
 
 .staff-booking-card.booking-status-cancelled {
-    border-left: 5px solid var(--dash-danger);
+    border-left: 4px solid var(--dash-danger);
 }
 
 /* Header card prenotazione */
@@ -881,10 +798,12 @@
     padding: 1.5rem;
     border-bottom: 1px solid var(--dash-border);
     background: linear-gradient(135deg, var(--dash-light) 0%, rgba(248, 249, 250, 0.5) 100%);
+    gap: 1rem;
 }
 
 .booking-info-main {
     flex: 1;
+    padding-right: 3rem; /* Spazio per badge admin */
 }
 
 .booking-info-main h4.customer-name {
@@ -905,7 +824,7 @@
 .booking-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 1.25rem;
+    gap: 1rem;
     font-size: 0.9rem;
     color: var(--dash-gray);
 }
@@ -926,7 +845,7 @@
     font-size: 0.85rem;
 }
 
-/* Badge stato prenotazione */
+/* Badge stato prenotazione - MIGLIORATO */
 .booking-status-badge {
     display: flex;
     align-items: center;
@@ -938,6 +857,7 @@
     text-transform: uppercase;
     white-space: nowrap;
     letter-spacing: 0.5px;
+    flex-shrink: 0;
 }
 
 .booking-status-pending .booking-status-badge {
@@ -1167,494 +1087,8 @@
     line-height: 1.4;
 }
 
-/* Animazioni e transizioni */
-@keyframes slideInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.staff-booking-card {
-    animation: slideInUp 0.3s ease-out;
-}
-
-.staff-booking-card:nth-child(2) {
-    animation-delay: 0.1s;
-}
-
-.staff-booking-card:nth-child(3) {
-    animation-delay: 0.2s;
-}
-
-.staff-booking-card:nth-child(4) {
-    animation-delay: 0.3s;
-}
-
-/* Effetti hover migliorati */
-.action-btn:active {
-    transform: translateY(0) scale(0.98);
-}
-
-.booking-meta span:hover {
-    background: rgba(102, 51, 204, 0.08);
-    border-color: var(--dash-primary);
-    color: var(--dash-primary);
-}
-
-/* Indicatori stato più evidenti */
-.booking-status-pending::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, var(--dash-warning) 0%, transparent 100%);
-}
-
-.booking-status-confirmed::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, var(--dash-success) 0%, transparent 100%);
-}
-
-.staff-booking-card {
-    position: relative;
-}
-
-/* Responsive design per staff bookings */
-@media (max-width: 1024px) {
-    .staff-section-controls {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.75rem;
-    }
-
-    .staff-section-controls select {
-        min-width: auto;
-        width: 100%;
-    }
-}
-
-@media (max-width: 768px) {
-    .booking-card-header {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: flex-start;
-    }
-
-    .booking-meta {
-        flex-direction: column;
-        gap: 0.75rem;
-        width: 100%;
-    }
-
-    .booking-meta span {
-        justify-content: center;
-        text-align: center;
-    }
-
-    .booking-additional-info {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-
-    .booking-actions {
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .action-btn {
-        min-width: auto;
-        width: 100%;
-    }
-
-    .user-item {
-        flex-direction: column;
-        text-align: center;
-        gap: 0.75rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .staff-booking-card {
-        margin-bottom: 1rem;
-    }
-
-    .booking-card-header,
-    .booking-order-details,
-    .booking-actions {
-        padding: 1rem;
-    }
-
-    .special-requests {
-        padding: 1rem;
-    }
-
-    .booking-additional-info {
-        padding: 0.75rem;
-    }
-}
-
-/* Dark mode support (opzionale) */
-@media (prefers-color-scheme: dark) {
-    .staff-booking-card {
-        background: #2d3748;
-        border-color: #4a5568;
-    }
-
-    .booking-card-header {
-        background: linear-gradient(135deg, #4a5568 0%, rgba(74, 85, 104, 0.5) 100%);
-    }
-
-    .booking-meta span {
-        background: #4a5568;
-        border-color: #718096;
-        color: #e2e8f0;
-    }
-
-    .user-item {
-        background: linear-gradient(135deg, #4a5568 0%, rgba(74, 85, 104, 0.5) 100%);
-        border-color: #718096;
-    }
-}
-
-/* Accessibilità migliorata */
-.action-btn:focus {
-    outline: 3px solid rgba(102, 51, 204, 0.5);
-    outline-offset: 2px;
-}
-
-.staff-section-controls select:focus {
-    outline: 3px solid rgba(102, 51, 204, 0.5);
-    outline-offset: 2px;
-}
-
-/* Indicatori di loading migliorati */
-.loading-bookings {
-    min-height: 200px;
-}
-
-.loading-bookings i {
-    font-size: 1.5rem;
-}
-
-/* Stati vuoti più informativi */
-.no-bookings-staff {
-    min-height: 250px;
-}
-
-.error-bookings-staff {
-    min-height: 200px;
-}
-
-.error-bookings-staff h3 {
-    color: var(--dash-danger);
-    margin-bottom: 0.5rem;
-}
-
-
 /* ==========================================
-   CSS PER BADGE DATI REALI E GESTIONE ERRORI
-   ========================================== */
-
-/* Badge fonte dati */
-.data-source-badge {
-    background: linear-gradient(135deg, var(--booking-confirmed) 0%, #059669 100%);
-    color: white;
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-}
-
-.data-source-badge i {
-    font-size: 1.125rem;
-    animation: pulse 2s infinite;
-}
-
-.data-source-badge span {
-    font-weight: 600;
-    font-size: 0.9375rem;
-}
-
-.data-source-badge small {
-    margin-left: auto;
-    opacity: 0.9;
-    font-size: 0.8rem;
-}
-
-/* Indicatore inventario da database */
-.inventory-dashboard[data-source="database"] {
-    border: 2px solid var(--booking-confirmed);
-    border-radius: var(--dash-radius);
-    padding: 1rem;
-    position: relative;
-}
-
-.inventory-dashboard[data-source="database"]::before {
-    content: '🔴 LIVE';
-    position: absolute;
-    top: -8px;
-    right: 1rem;
-    background: var(--booking-cancelled);
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    animation: blink 1.5s infinite;
-}
-
-/* Gestione errori migliorata */
-.error-inventory {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.02) 100%);
-    border: 2px dashed var(--booking-cancelled);
-    border-radius: var(--dash-radius);
-    padding: 2rem;
-    text-align: center;
-    color: var(--dash-dark);
-}
-
-.error-inventory .error-icon {
-    font-size: 3rem;
-    color: var(--booking-cancelled);
-    margin-bottom: 1rem;
-}
-
-.error-inventory h3 {
-    color: var(--booking-cancelled);
-    margin-bottom: 1rem;
-    font-size: 1.25rem;
-}
-
-.error-inventory p {
-    margin-bottom: 0.75rem;
-    color: var(--dash-dark);
-}
-
-.error-inventory .error-details {
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    border-radius: 6px;
-    padding: 0.75rem;
-    font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
-    font-size: 0.875rem;
-    color: var(--booking-cancelled);
-    margin: 1rem 0;
-}
-
-.error-actions {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: center;
-    margin: 1.5rem 0;
-    flex-wrap: wrap;
-}
-
-.error-help {
-    background: var(--dash-light);
-    border-radius: 6px;
-    padding: 1rem;
-    margin-top: 1rem;
-    text-align: left;
-}
-
-.error-help strong {
-    color: var(--dash-dark);
-    display: block;
-    margin-bottom: 0.5rem;
-}
-
-.error-help small {
-    color: var(--dash-gray);
-    line-height: 1.4;
-}
-
-/* Loading migliorato per dati reali */
-.loading-inventory.real-data {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.02) 100%);
-    border: 2px dashed var(--booking-completed);
-}
-
-.loading-inventory.real-data i {
-    color: var(--booking-completed);
-}
-
-.loading-inventory.real-data span {
-    color: var(--dash-dark);
-    font-weight: 500;
-}
-
-/* Animazioni */
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-}
-
-@keyframes blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0.3; }
-}
-
-/* Status indicators per sezioni */
-.inventory-section.data-loaded {
-    border-left-width: 6px;
-    position: relative;
-}
-
-.inventory-section.data-loaded::after {
-    content: '✓';
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: var(--booking-confirmed);
-    color: white;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    font-weight: 700;
-}
-
-/* Timestamp aggiornamento */
-.last-update {
-    font-size: 0.75rem;
-    color: var(--dash-gray);
-    text-align: center;
-    margin-top: 0.5rem;
-    font-style: italic;
-}
-
-.last-update::before {
-    content: '🕐 ';
-    margin-right: 0.25rem;
-}
-
-/* Responsive per errori */
-@media (max-width: 768px) {
-    .error-inventory {
-        padding: 1.5rem;
-    }
-
-    .error-actions {
-        flex-direction: column;
-    }
-
-    .error-actions .dash-btn {
-        width: 100%;
-    }
-
-    .data-source-badge {
-        flex-direction: column;
-        text-align: center;
-        gap: 0.5rem;
-    }
-
-    .data-source-badge small {
-        margin-left: 0;
-    }
-}
-
-
-
-/* ==========================================
-   ROLE VISIBILITY
-   ========================================== */
-
-.dash-customer-only { display: block; }
-.dash-staff-only { display: none; }
-.dash-admin-only { display: none; }
-
-body.role-staff .dash-staff-only { display: block; }
-body.role-admin .dash-admin-only { display: block; }
-body.role-admin .dash-staff-only { display: block; }
-
-/* ==========================================
-   RESPONSIVE
-   ========================================== */
-
-@media (max-width: 1024px) {
-    .dash-grid { grid-template-columns: 260px 1fr; }
-    .dash-sidebar { padding: 1rem; margin-right: 1rem; }
-}
-
-@media (max-width: 768px) {
-    .dash-container { padding: 0.5rem; }
-    .dash-grid { grid-template-columns: 1fr; gap: 1rem; }
-
-    .dash-sidebar {
-        position: relative;
-        top: auto;
-        height: auto;
-        margin: 0 0 1rem 0;
-        padding: 1rem;
-        overflow-y: visible;
-        border-left: none;
-    }
-
-    .dash-sidebar-nav {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-        gap: 0.5rem;
-    }
-
-    .dash-sidebar-nav a {
-        text-align: center;
-        flex-direction: column;
-        padding: 0.75rem 0.5rem;
-        font-size: 0.75rem;
-        gap: 0.4rem;
-    }
-
-    .dash-header {
-        flex-direction: column;
-        text-align: center;
-        gap: 0.75rem;
-    }
-
-    .dash-stats-grid {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    }
-
-    .dash-checkbox-group {
-        grid-template-columns: 1fr;
-    }
-
-    .dash-card-header {
-        flex-direction: column;
-        gap: 0.75rem;
-        align-items: flex-start;
-    }
-
-    .dash-main { padding: 0; }
-    .dash-card { scroll-margin-top: 80px; }
-}
-
-
-/* ==========================================
-Admin
-============================================*/
-
-
-/* ==========================================
-   CSS ADMIN - AGGIUNGI ALLA FINE DEL TUO dashboard.css
+   CSS ADMIN - DASHBOARD INVENTARIO
    ========================================== */
 
 /* Controlli dashboard admin */
@@ -1931,7 +1365,7 @@ Admin
     color: white;
 }
 
-/* Badge dati reali */
+/* ✅ CORREZIONE: Badge dati reali - SENZA LAMPEGGIO */
 .data-source-badge {
     background: linear-gradient(135deg, var(--dash-success) 0%, #059669 100%);
     color: white;
@@ -1946,7 +1380,7 @@ Admin
 
 .data-source-badge i {
     font-size: 1.125rem;
-    animation: pulse 2s infinite;
+    /* ❌ RIMOSSA ANIMAZIONE LAMPEGGIO */
 }
 
 .data-source-badge span {
@@ -1960,7 +1394,7 @@ Admin
     font-size: 0.8rem;
 }
 
-/* Indicatore live */
+/* ✅ CORREZIONE: Indicatore live - SENZA LAMPEGGIO */
 .inventory-dashboard[data-source="database"] {
     border: 2px solid var(--dash-success);
     border-radius: var(--dash-radius);
@@ -1979,7 +1413,7 @@ Admin
     border-radius: 4px;
     font-size: 0.7rem;
     font-weight: 700;
-    animation: blink 1.5s infinite;
+    /* ❌ RIMOSSA ANIMAZIONE LAMPEGGIO */
 }
 
 /* Sezioni specifiche per tipo */
@@ -2007,46 +1441,22 @@ Admin
     background: var(--dash-warning);
 }
 
-/* Admin bookings container */
+/* Admin bookings container - MIGLIORAMENTO POSIZIONAMENTO */
 #admin-bookings-container {
     margin-top: 1.5rem;
 }
 
+/* ✅ CORREZIONE: Admin badge ben posizionato e pulito */
 #admin-bookings-container .staff-booking-card {
     position: relative;
+    padding-top: 1rem; /* Spazio per badge */
 }
 
-#admin-bookings-container .staff-booking-card::before {
-    content: 'ADMIN';
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: var(--dash-primary);
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    z-index: 2;
-}
-
-/* Animazioni */
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-}
-
-@keyframes blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0.3; }
-}
-
-@keyframes countUp {
+/* Animazioni migliorate */
+@keyframes slideInUp {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(20px);
     }
     to {
         opacity: 1;
@@ -2054,28 +1464,56 @@ Admin
     }
 }
 
-.inventory-stat-card .stat-value {
-    animation: countUp 0.6s ease-out;
+.staff-booking-card {
+    animation: slideInUp 0.3s ease-out;
 }
 
-.inventory-section:nth-child(1) {
+.staff-booking-card:nth-child(2) {
     animation-delay: 0.1s;
 }
 
-.inventory-section:nth-child(2) {
+.staff-booking-card:nth-child(3) {
     animation-delay: 0.2s;
 }
 
-.inventory-section:nth-child(3) {
+.staff-booking-card:nth-child(4) {
     animation-delay: 0.3s;
 }
 
-.inventory-summary {
-    animation: slideInUp 0.4s ease-out 0.4s both;
+/* Effetti hover migliorati */
+.action-btn:active {
+    transform: translateY(0) scale(0.98);
 }
 
-/* Responsive design */
+.booking-meta span:hover {
+    background: rgba(102, 51, 204, 0.08);
+    border-color: var(--dash-primary);
+    color: var(--dash-primary);
+}
+
+/* ✅ RIMOSSA ANIMAZIONE LAMPEGGIO GLOBALE */
+/* @keyframes blink rimossa completamente */
+
+/* ==========================================
+   ROLE VISIBILITY
+   ========================================== */
+
+.dash-customer-only { display: block; }
+.dash-staff-only { display: none; }
+.dash-admin-only { display: none; }
+
+body.role-staff .dash-staff-only { display: block; }
+body.role-admin .dash-admin-only { display: block; }
+body.role-admin .dash-staff-only { display: block; }
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
 @media (max-width: 1024px) {
+    .dash-grid { grid-template-columns: 260px 1fr; }
+    .dash-sidebar { padding: 1rem; margin-right: 1rem; }
+
     .admin-dashboard-controls {
         flex-direction: column;
         align-items: stretch;
@@ -2099,6 +1537,97 @@ Admin
 }
 
 @media (max-width: 768px) {
+    .dash-container { padding: 0.5rem; }
+    .dash-grid { grid-template-columns: 1fr; gap: 1rem; }
+
+    .dash-sidebar {
+        position: relative;
+        top: auto;
+        height: auto;
+        margin: 0 0 1rem 0;
+        padding: 1rem;
+        overflow-y: visible;
+        border-left: none;
+    }
+
+    .dash-sidebar-nav {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        gap: 0.5rem;
+    }
+
+    .dash-sidebar-nav a {
+        text-align: center;
+        flex-direction: column;
+        padding: 0.75rem 0.5rem;
+        font-size: 0.75rem;
+        gap: 0.4rem;
+    }
+
+    .dash-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+    }
+    .dash-checkbox-group {
+        grid-template-columns: 1fr;
+    }
+
+    .dash-card-header {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+
+    .dash-main { padding: 0; }
+    .dash-card { scroll-margin-top: 80px; }
+
+    /* Prenotazioni responsive */
+    .booking-card-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .booking-info-main {
+        padding-right: 0;
+        width: 100%;
+    }
+
+    .booking-meta {
+        flex-direction: column;
+        gap: 0.75rem;
+        width: 100%;
+    }
+
+    .booking-meta span {
+        justify-content: center;
+        text-align: center;
+    }
+
+    .booking-additional-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .booking-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .action-btn {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .user-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+    }
+
+    /* Inventario responsive */
     .inventory-dashboard {
         gap: 1rem;
     }
@@ -2157,6 +1686,24 @@ Admin
 }
 
 @media (max-width: 480px) {
+    .staff-booking-card {
+        margin-bottom: 1rem;
+    }
+
+    .booking-card-header,
+    .booking-order-details,
+    .booking-actions {
+        padding: 1rem;
+    }
+
+    .special-requests {
+        padding: 1rem;
+    }
+
+    .booking-additional-info {
+        padding: 0.75rem;
+    }
+
     .inventory-stats-grid {
         grid-template-columns: 1fr;
     }
@@ -2171,11 +1718,93 @@ Admin
     }
 }
 
-/* Dark mode support */
+/* ==========================================
+   ACCESSIBILITÀ MIGLIORATA
+   ========================================== */
+
+.action-btn:focus {
+    outline: 3px solid rgba(102, 51, 204, 0.5);
+    outline-offset: 2px;
+}
+
+.staff-section-controls select:focus {
+    outline: 3px solid rgba(102, 51, 204, 0.5);
+    outline-offset: 2px;
+}
+
+.admin-dashboard-controls select:focus-visible {
+    outline: 3px solid rgba(102, 51, 204, 0.5);
+    outline-offset: 2px;
+}
+
+/* ==========================================
+   INDICATORI LOADING MIGLIORATI
+   ========================================== */
+
+.loading-bookings {
+    min-height: 200px;
+}
+
+.loading-bookings i {
+    font-size: 1.5rem;
+}
+
+.loading-inventory.real-data {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.02) 100%);
+    border: 2px dashed var(--dash-info);
+}
+
+.loading-inventory.real-data i {
+    color: var(--dash-info);
+}
+
+.loading-inventory.real-data span {
+    color: var(--dash-dark);
+    font-weight: 500;
+}
+
+/* Stati vuoti più informativi */
+.no-bookings-staff {
+    min-height: 250px;
+}
+
+.error-bookings-staff {
+    min-height: 200px;
+}
+
+.error-bookings-staff h3 {
+    color: var(--dash-danger);
+    margin-bottom: 0.5rem;
+}
+
+/* ==========================================
+   DARK MODE SUPPORT (opzionale)
+   ========================================== */
+
 @media (prefers-color-scheme: dark) {
+    .staff-booking-card {
+        background: #2d3748;
+        border-color: #4a5568;
+    }
+
+    .booking-card-header {
+        background: linear-gradient(135deg, #4a5568 0%, rgba(74, 85, 104, 0.5) 100%);
+    }
+
+    .booking-meta span {
+        background: #4a5568;
+        border-color: #718096;
+        color: #e2e8f0;
+    }
+
+    .user-item {
+        background: linear-gradient(135deg, #4a5568 0%, rgba(74, 85, 104, 0.5) 100%);
+        border-color: #718096;
+    }
+
     .inventory-section {
-        background: #1f2937;
-        border-color: #374151;
+        background: #2d3748;
+        border-color: #4a5568;
         color: #f9fafb;
     }
 
@@ -2204,28 +1833,258 @@ Admin
     }
 }
 
-/* Accessibilità */
-.inventory-stat-card:focus {
-    outline: 3px solid rgba(102, 51, 204, 0.5);
-    outline-offset: 2px;
-}
+/* ==========================================
+   MOVIMENTO RIDOTTO PER UTENTI SENSIBILI
+   ========================================== */
 
-.admin-dashboard-controls select:focus-visible {
-    outline: 3px solid rgba(102, 51, 204, 0.5);
-    outline-offset: 2px;
-}
-
-/* Riduzione movimento per utenti sensibili */
 @media (prefers-reduced-motion: reduce) {
     .inventory-section,
     .inventory-stat-card,
-    .summary-card {
+    .summary-card,
+    .staff-booking-card,
+    .action-btn,
+    .dash-card,
+    .user-item {
         animation: none;
         transition: none;
     }
 
     .inventory-section:hover,
-    .inventory-stat-card:hover {
+    .inventory-stat-card:hover,
+    .staff-booking-card:hover,
+    .action-btn:hover,
+    .dash-card:hover,
+    .user-item:hover {
         transform: none;
     }
+
+    .dash-loading-spinner,
+    .loading-bookings i,
+    .loading-inventory i,
+    .dash-loading-preferences i {
+        animation: none;
+    }
 }
+
+/* ==========================================
+   MIGLIORAMENTI FINALI LAYOUT
+   ========================================== */
+
+/* Contenitore principale più fluido */
+.dash-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0;
+}
+
+/* Grid più responsive */
+.dash-grid {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Sidebar più elegante */
+.dash-sidebar {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(10px);
+}
+
+/* Main content più spaziato */
+.dash-main {
+    max-width: 100%;
+    padding: 1.5rem 0;
+}
+
+/* Cards con bordi più sottili */
+.dash-card {
+    border: 1px solid rgba(222, 226, 230, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+/* Header più pulito */
+.dash-header {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(222, 226, 230, 0.6);
+}
+
+/* ==========================================
+   CORREZIONI SPECIFICHE PER PROBLEMI
+   ========================================== */
+
+/* ✅ Fix posizionamento badge admin/staff */
+.staff-booking-card::before {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ✅ Fix spacing header prenotazioni */
+.booking-card-header {
+    min-height: 120px;
+    align-items: flex-start;
+    position: relative;
+}
+
+/* ✅ Fix overflow contenuti */
+.staff-bookings-container,
+.admin-system-inventory {
+    overflow: hidden;
+    border-radius: var(--dash-radius);
+}
+
+/* ✅ Fix z-index problemi */
+.dash-sidebar {
+    z-index: 100;
+}
+
+.staff-booking-card::before {
+    z-index: 10;
+}
+
+/* ✅ Fix margini e padding consistenti */
+.inventory-section,
+.staff-booking-card,
+.dash-card {
+    margin-bottom: 1.5rem;
+}
+
+.inventory-section:last-child,
+.staff-booking-card:last-child,
+.dash-card:last-child {
+    margin-bottom: 0;
+}
+
+/* ✅ Fix text overflow lunghi */
+.customer-name,
+.booking-meta span,
+.inventory-section-header h3 {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* ✅ Fix button consistency */
+.dash-btn,
+.action-btn {
+    border: none;
+    outline: none;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.dash-btn:focus,
+.action-btn:focus {
+    box-shadow: 0 0 0 3px rgba(102, 51, 204, 0.25);
+}
+
+/* ✅ Fix table overflow su mobile */
+.dash-data-table {
+    overflow-x: auto;
+    display: block;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .dash-data-table {
+        font-size: 0.8rem;
+    }
+
+    .dash-data-table th,
+    .dash-data-table td {
+        padding: 0.5rem 0.25rem;
+        min-width: 80px;
+    }
+}
+
+/* ==========================================
+   PERFORMANCE E OTTIMIZZAZIONI
+   ========================================== */
+
+/* GPU acceleration per elementi animati */
+.staff-booking-card,
+.inventory-section,
+.dash-card,
+.action-btn {
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+/* Smooth scrolling migliorato */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Contenimento layout shift */
+.loading-bookings,
+.loading-inventory,
+.no-bookings-staff {
+    min-height: 200px;
+    contain: layout;
+}
+
+/* Ottimizzazione rendering */
+.dash-container {
+    contain: layout style;
+}
+
+/* ==========================================
+   STATO FINALE - PULIZIA E CONSISTENZA
+   ========================================== */
+
+/* Rimozione di tutti gli elementi lampeggianti */
+.data-source-badge i,
+.inventory-dashboard[data-source="database"]::before {
+    animation: none !important;
+}
+
+/* Uniformità colori */
+:root {
+    --booking-pending: #ffc107;
+    --booking-confirmed: #28a745;
+    --booking-completed: #17a2b8;
+    --booking-cancelled: #dc3545;
+}
+
+/* Border radius uniforme */
+.staff-booking-card,
+.inventory-section,
+.dash-card,
+.booking-actions,
+.action-btn {
+    border-radius: var(--dash-radius);
+}
+
+/* Ombre uniformi */
+.staff-booking-card,
+.inventory-section,
+.dash-card {
+    box-shadow: var(--dash-shadow);
+}
+
+.staff-booking-card:hover,
+.inventory-section:hover,
+.dash-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Typography consistency */
+.customer-name,
+.inventory-section-header h3,
+.dash-card-title {
+    font-weight: 600;
+    color: var(--dash-dark);
+    line-height: 1.3;
+}
+
+/* Spacing finale uniforme */
+.booking-card-header,
+.inventory-section-header,
+.dash-card-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--dash-border);
+}
+
+/* ==========================================
+   FINE CSS OTTIMIZZATO
+   ========================================== */
