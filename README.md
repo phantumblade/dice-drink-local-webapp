@@ -95,6 +95,5 @@ Consulta [`/api/health`](http://localhost:3000/api/health) per l'elenco completo
 - La sezione eventi è solo un placeholder del sito, non ha nessuna funzionalità implementata
 - Alcuni endpoint e db presenti nel progetto (come wishlist, filtri avanzati) non sono implementati nella Pagina web, solo i principali
 - Gli endpoit aggiutnvi sono tutti testabili e funzionanti tramite Postman (consultare il file html trst_endpoint.html per i test)
-- Alcune funzioni come l'invio email richiedono variabili ambiente (.env).
 - In sviluppo puoi utilizzare `npm run dev` per avviare il server con nodemon.
 - Endpoint utile di diagnostica: [http://localhost:3000/api/health](http://localhost:3000/api/health).
