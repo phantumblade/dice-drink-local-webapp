@@ -462,6 +462,471 @@ class DashboardPageManager {
         `;
     }
 
+// ==========================================
+// SEZIONE STAFF
+// ==========================================
+
+// ==========================================
+// AGGIUNGERE AL TUO dashboard.js ESISTENTE
+// POSIZIONE: Dopo createCustomerSectionsHTML()
+// ==========================================
+
+createStaffSectionsHTML() {
+    return `
+        <!-- Gestione Prenotazioni Staff -->
+        <div class="dash-card dash-staff-section" id="manage-bookings">
+            <div class="dash-card-header">
+                <h2 class="dash-card-title">
+                    <i class="fas fa-clipboard-list dash-card-icon"></i>
+                    Gestione Prenotazioni
+                </h2>
+                <div class="staff-section-controls">
+                    <select id="booking-status-filter" onchange="window.dashboardManager.filterBookings(this.value)">
+                        <option value="all">Tutte le prenotazioni</option>
+                        <option value="pending" selected>In attesa di conferma</option>
+                        <option value="confirmed">Confermate</option>
+                        <option value="completed">Completate</option>
+                        <option value="cancelled">Annullate</option>
+                    </select>
+                    <button class="dash-btn dash-btn-secondary" onclick="window.dashboardManager.refreshBookings()">
+                        <i class="fas fa-sync-alt"></i>
+                        Aggiorna
+                    </button>
+                </div>
+            </div>
+
+            <!-- Container prenotazioni staff -->
+            <div id="staff-bookings-container" class="staff-bookings-container">
+                <div class="loading-bookings">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Caricamento prenotazioni...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Utenti Lista (Staff) -->
+        <div class="dash-card dash-staff-section" id="user-list">
+            <div class="dash-card-header">
+                <h2 class="dash-card-title">
+                    <i class="fas fa-users dash-card-icon"></i>
+                    Lista Utenti Registrati
+                </h2>
+                <button class="dash-btn dash-btn-outline" onclick="window.dashboardManager.showAllUsers()">
+                    Vedi Tutto
+                </button>
+            </div>
+            <div id="users-list-container">
+                ${this.generateRecentUsersHTML()}
+            </div>
+        </div>
+    `;
+}
+
+// ==========================================
+// METODI PER CARICAMENTO PRENOTAZIONI STAFF
+// ==========================================
+
+async loadStaffBookings(status = 'pending') {
+    console.log('📋 Caricamento prenotazioni staff, status:', status);
+
+    try {
+        const token = this.getAuthToken();
+        // Usa la tua tabella user_bookings esistente
+        const apiUrl = '/api/users/staff/bookings';
+
+        const params = new URLSearchParams();
+        if (status && status !== 'all') {
+            params.append('status', status);
+        }
+        params.append('limit', '20');
+
+        const finalUrl = params.toString() ? `${apiUrl}?${params}` : apiUrl;
+
+        console.log('🌐 Chiamata API prenotazioni:', finalUrl);
+
+        const response = await fetch(finalUrl, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Errore HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('✅ Prenotazioni caricate:', data);
+
+        return data.bookings || data || [];
+
+    } catch (error) {
+        console.error('❌ Errore caricamento prenotazioni:', error);
+        // Fallback con dati mock per test
+        return this.getMockBookingsForStaff(status);
+    }
+}
+
+// ==========================================
+// RENDERING PRENOTAZIONI STAFF
+// ==========================================
+
+async renderStaffBookings(status = 'pending') {
+    const container = document.getElementById('staff-bookings-container');
+    if (!container) return;
+
+    // Mostra loading
+    container.innerHTML = `
+        <div class="loading-bookings">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Caricamento prenotazioni ${status}...</span>
+        </div>
+    `;
+
+    try {
+        const bookings = await this.loadStaffBookings(status);
+
+        if (!bookings || bookings.length === 0) {
+            container.innerHTML = `
+                <div class="no-bookings-staff">
+                    <div class="no-bookings-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h3>Nessuna prenotazione ${this.getStatusLabel(status)}</h3>
+                    <p>Non ci sono prenotazioni da gestire al momento.</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Renderizza le prenotazioni
+        container.innerHTML = bookings.map(booking => this.renderBookingCard(booking)).join('');
+
+        console.log('✅ Prenotazioni staff renderizzate:', bookings.length);
+
+    } catch (error) {
+        console.error('❌ Errore rendering prenotazioni:', error);
+        container.innerHTML = `
+            <div class="error-bookings-staff">
+                <h3>Errore caricamento prenotazioni</h3>
+                <p>${error.message}</p>
+                <button class="dash-btn dash-btn-primary" onclick="window.dashboardManager.renderStaffBookings('${status}')">
+                    Riprova
+                </button>
+            </div>
+        `;
+    }
+}
+
+// ==========================================
+// CARD SINGOLA PRENOTAZIONE
+// ==========================================
+
+renderBookingCard(booking) {
+    const statusClass = `booking-status-${booking.status}`;
+    const statusIcon = this.getStatusIcon(booking.status);
+    const statusLabel = this.getStatusLabel(booking.status);
+
+    return `
+        <div class="staff-booking-card ${statusClass}" data-booking-id="${booking.id}">
+            <!-- Header prenotazione -->
+            <div class="booking-card-header">
+                <div class="booking-info-main">
+                    <h4 class="customer-name">
+                        <i class="fas fa-user"></i>
+                        ${this.getCustomerDisplayName(booking)}
+                    </h4>
+                    <div class="booking-meta">
+                        <span class="booking-time">
+                            <i class="fas fa-clock"></i>
+                            ${booking.booking_time || booking.time_slot || '18:00'}
+                        </span>
+                        <span class="booking-players">
+                            <i class="fas fa-users"></i>
+                            ${booking.party_size || booking.number_of_people} persone
+                        </span>
+                        <span class="booking-date">
+                            <i class="fas fa-calendar"></i>
+                            ${this.formatDate(booking.booking_date || booking.date)}
+                        </span>
+                    </div>
+                </div>
+                <div class="booking-status-badge">
+                    <i class="${statusIcon}"></i>
+                    <span>${statusLabel}</span>
+                </div>
+            </div>
+
+            <!-- Dettagli ordinazione -->
+            <div class="booking-order-details">
+                ${booking.special_requests ? `
+                    <div class="special-requests">
+                        <strong><i class="fas fa-comment"></i> Note:</strong>
+                        <span>${booking.special_requests}</span>
+                    </div>
+                ` : ''}
+
+                <div class="booking-additional-info">
+                    <div class="booking-code">
+                        <strong>ID:</strong>
+                        <span class="confirmation-code">#${booking.id}</span>
+                    </div>
+                    ${booking.total_cost ? `
+                        <div class="booking-total">
+                            <strong>Totale:</strong> €${parseFloat(booking.total_cost).toFixed(2)}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+
+            <!-- Azioni staff -->
+            <div class="booking-actions">
+                ${this.generateBookingActions(booking)}
+            </div>
+        </div>
+    `;
+}
+
+// ==========================================
+// AZIONI PRENOTAZIONI
+// ==========================================
+
+generateBookingActions(booking) {
+    const actions = [];
+
+    switch (booking.status) {
+        case 'pending':
+            actions.push(`
+                <button class="action-btn action-btn-confirm"
+                        onclick="window.dashboardManager.confirmBooking(${booking.id})">
+                    <i class="fas fa-check"></i>
+                    Conferma
+                </button>
+            `);
+            actions.push(`
+                <button class="action-btn action-btn-reject"
+                        onclick="window.dashboardManager.rejectBooking(${booking.id})">
+                    <i class="fas fa-times"></i>
+                    Rifiuta
+                </button>
+            `);
+            break;
+
+        case 'confirmed':
+            actions.push(`
+                <button class="action-btn action-btn-complete"
+                        onclick="window.dashboardManager.markAsCompleted(${booking.id})">
+                    <i class="fas fa-flag-checkered"></i>
+                    Completa
+                </button>
+            `);
+            break;
+
+        default:
+            actions.push(`
+                <button class="action-btn action-btn-view"
+                        onclick="window.dashboardManager.viewBookingDetails(${booking.id})">
+                    <i class="fas fa-eye"></i>
+                    Dettagli
+                </button>
+            `);
+    }
+
+    return actions.join('');
+}
+
+// ==========================================
+// AZIONI API (simulazioni per ora)
+// ==========================================
+
+async confirmBooking(bookingId) {
+    const confirmation = confirm('Confermare questa prenotazione?');
+    if (!confirmation) return;
+
+    try {
+        // Simulazione API call - sostituisci con la tua API
+        console.log('📞 Conferma prenotazione:', bookingId);
+
+        // TODO: Chiamata API reale
+        // const response = await fetch(`/api/user_bookings/${bookingId}/confirm`, { ... });
+
+        this.showNotification('success', 'Prenotazione confermata!');
+        this.refreshBookings();
+
+    } catch (error) {
+        console.error('❌ Errore conferma:', error);
+        this.showNotification('error', 'Errore conferma prenotazione');
+    }
+}
+
+async rejectBooking(bookingId) {
+    const reason = prompt('Motivo del rifiuto (opzionale):');
+    if (reason === null) return;
+
+    try {
+        console.log('❌ Rifiuta prenotazione:', bookingId, reason);
+
+        // TODO: Chiamata API reale
+
+        this.showNotification('success', 'Prenotazione rifiutata');
+        this.refreshBookings();
+
+    } catch (error) {
+        console.error('❌ Errore rifiuto:', error);
+        this.showNotification('error', 'Errore rifiuto prenotazione');
+    }
+}
+
+async markAsCompleted(bookingId) {
+    const confirmation = confirm('Marcare come completata?');
+    if (!confirmation) return;
+
+    try {
+        console.log('✅ Completa prenotazione:', bookingId);
+
+        // TODO: Chiamata API reale
+
+        this.showNotification('success', 'Prenotazione completata!');
+        this.refreshBookings();
+
+    } catch (error) {
+        console.error('❌ Errore completamento:', error);
+        this.showNotification('error', 'Errore completamento prenotazione');
+    }
+}
+
+// ==========================================
+// HELPER METHODS
+// ==========================================
+
+getStatusIcon(status) {
+    const icons = {
+        'pending': 'fas fa-clock',
+        'confirmed': 'fas fa-check-circle',
+        'completed': 'fas fa-flag-checkered',
+        'cancelled': 'fas fa-times-circle'
+    };
+    return icons[status] || 'fas fa-question-circle';
+}
+
+getStatusLabel(status) {
+    const labels = {
+        'pending': 'In attesa',
+        'confirmed': 'Confermata',
+        'completed': 'Completata',
+        'cancelled': 'Annullata',
+        'all': ''
+    };
+    return labels[status] || status;
+}
+
+getCustomerDisplayName(booking) {
+    // Adatta ai nomi delle colonne della tua tabella
+    if (booking.customer_name) return booking.customer_name;
+    if (booking.user_name) return booking.user_name;
+    if (booking.name) return booking.name;
+    return `Cliente #${booking.user_id || booking.id}`;
+}
+
+// ==========================================
+// INTERFACE METHODS
+// ==========================================
+
+filterBookings(status) {
+    console.log('🔍 Filtraggio per status:', status);
+    this.renderStaffBookings(status);
+}
+
+refreshBookings() {
+    console.log('🔄 Refresh prenotazioni');
+    const currentFilter = document.getElementById('booking-status-filter')?.value || 'pending';
+    this.renderStaffBookings(currentFilter);
+}
+
+generateRecentUsersHTML() {
+    // Mock data per ora
+    const recentUsers = [
+        { name: 'Marco Rossi', email: 'marco@email.com', date: '2 giorni fa' },
+        { name: 'Giulia Bianchi', email: 'giulia@email.com', date: '3 giorni fa' },
+        { name: 'Alessandro Verdi', email: 'alex@email.com', date: '1 settimana fa' }
+    ];
+
+    return `
+        <div class="users-list-preview">
+            ${recentUsers.map(user => `
+                <div class="user-item">
+                    <div class="user-avatar">${user.name.split(' ').map(n => n[0]).join('')}</div>
+                    <div class="user-info">
+                        <strong>${user.name}</strong>
+                        <small>${user.email} • ${user.date}</small>
+                    </div>
+                </div>
+            `).join('')}
+            <button class="dash-btn dash-btn-outline" onclick="window.dashboardManager.showAllUsers()">
+                Vedi tutti gli utenti
+            </button>
+        </div>
+    `;
+}
+
+showAllUsers() {
+    alert('📋 LISTA UTENTI COMPLETA\n\nQuesta funzione mostrerà:\n• Tutti gli utenti registrati\n• Filtri per ruolo\n• Ricerca per nome/email\n• Statistiche utente\n\n(In fase di sviluppo)');
+}
+
+viewBookingDetails(bookingId) {
+    alert(`📋 DETTAGLI PRENOTAZIONE #${bookingId}\n\nQuesta funzione mostrerà:\n• Dettagli completi prenotazione\n• Storia modifiche\n• Informazioni cliente\n\n(In fase di sviluppo)`);
+}
+
+// ==========================================
+// MOCK DATA PER TEST
+// ==========================================
+
+getMockBookingsForStaff(status) {
+    const allMockBookings = [
+        {
+            id: 1,
+            user_id: 5,
+            customer_name: 'Marco Rossi',
+            booking_date: '2025-06-20',
+            booking_time: '19:00',
+            party_size: 4,
+            status: 'pending',
+            special_requests: 'Tavolo vicino alla finestra',
+            total_cost: 45.50
+        },
+        {
+            id: 2,
+            user_id: 8,
+            customer_name: 'Giulia Bianchi',
+            booking_date: '2025-06-20',
+            booking_time: '20:30',
+            party_size: 2,
+            status: 'confirmed',
+            special_requests: null,
+            total_cost: 28.00
+        },
+        {
+            id: 3,
+            user_id: 12,
+            customer_name: 'Alessandro Verdi',
+            booking_date: '2025-06-21',
+            booking_time: '18:00',
+            party_size: 6,
+            status: 'pending',
+            special_requests: 'Compleanno - servono candeline',
+            total_cost: 67.50
+        }
+    ];
+
+    if (status === 'all') {
+        return allMockBookings;
+    }
+
+    return allMockBookings.filter(booking => booking.status === status);
+}
+
+
 createPreferencesSectionHTML() {
     const preferences = this.dashboardData.preferences || {
         favorite_game_categories: [],

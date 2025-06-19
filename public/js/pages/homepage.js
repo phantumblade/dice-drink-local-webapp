@@ -1,5 +1,6 @@
 // pages/homepage.js
 import { createEventCarousel } from '../components/eventCarousel.js';
+import { fetchCatalogPreview } from '../services/catalog-preview.js';
 
 // Sezione 2: Funzione per creare la sezione di benvenuto + Call to Action
 function createWelcomeSection() {
@@ -345,33 +346,25 @@ function createCatalogSection() {
   section.appendChild(browseBtn);
 
   // Funzione per popolare la lista
-  function populateCatalogItems(filter) {
+  async function populateCatalogItems(filter) {
     listContainer.innerHTML = '';
-    // qui potresti arrivare a fetchare i dati reali, per esempio da un'API
-    // per ora definiamo un array di oggetti di esempio
-    const sampleData = Array.from({length:4}, (_, i) => ({
-      image: `/assets/GameCatalog.jpg`,
-      title: `${filter} Prodotto ${i+1}`,
-      desc: 'Breve descrizione del prodotto, caratteristiche salienti.',
-      price: `€${(10 + i*5).toFixed(2)}`
-    }));
 
-    sampleData.forEach(data => {
+    // Recupera i primi elementi dal server
+    const items = await fetchCatalogPreview(filter);
+
+    if (!items || items.length === 0) {
+      listContainer.innerHTML = '<p>Nessun elemento disponibile.</p>';
+      return;
+    }
+
+    items.slice(0, 4).forEach(itemData => {
       const item = document.createElement('div');
       item.classList.add('catalog-item');
       item.innerHTML = `
-        <div class="catalog-item-img">
-          <img src="${data.image}" alt="${data.title}">
-        </div>
-        <div class="catalog-item-content">
-          <h3 class="catalog-item-title">${data.title}</h3>
-          <p class="catalog-item-desc">${data.desc}</p>
-          <div class="catalog-item-footer">
-            <span class="catalog-item-price">${data.price}</span>
-            <button class="catalog-item-btn" onclick="window.showPage('catalogo-giochi')">Dettagli</button>
-          </div>
-        </div>
-      `;
+          <h3 class="catalog-item-title">${itemData.name}</h3>
+          <p class="catalog-item-desc">${itemData.description}</p>
+        </div>`;
+
       listContainer.appendChild(item);
     });
   }

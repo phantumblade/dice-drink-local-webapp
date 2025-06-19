@@ -367,18 +367,18 @@
 /* Checkbox Groups */
 .dash-checkbox-group {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); /* RIDOTTO: da 280px a 240px */
-    gap: 0.75rem; /* RIDOTTO: da 1rem a 0.75rem */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
     margin-top: 1rem;
 }
 
 .dash-checkbox-label {
     display: flex;
     align-items: flex-start;
-    gap: 0.6rem; /* RIDOTTO: da 0.75rem a 0.6rem */
-    padding: 0.75rem; /* RIDOTTO: da 1rem a 0.75rem */
-    border: 1px solid var(--dash-border); /* RIDOTTO: da 2px a 1px */
-    border-radius: 6px; /* RIDOTTO: da 8px a 6px */
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 2px solid var(--dash-border);
+    border-radius: var(--dash-radius);
     cursor: pointer;
     transition: var(--dash-transition);
     background: var(--dash-light);
@@ -391,7 +391,7 @@
     left: 0;
     top: 0;
     bottom: 0;
-    width: 3px; /* RIDOTTO: da 4px a 3px */
+    width: 4px;
     background: var(--dash-primary);
     transform: scaleY(0);
     transition: transform 0.2s ease;

@@ -2612,28 +2612,29 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   flex-direction: column;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.catalog-list .catalog-item img {
+.catalog-item-img img {
   width: 100%;
-  aspect-ratio: 4/3;
+  height:100%;
   object-fit: cover;
 }
-.catalog-list .catalog-item-content {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-.catalog-list .catalog-item-title {
+
+.catalog-item-title {
+  flex: 1 0 0;
   font-size: 1.1rem;
   font-weight: 600;
   color: #2c3e50;
-  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+
 }
-.catalog-list .catalog-item-desc {
+.catalog-item-desc {
+  flex: 1 0 0;
   font-size: 0.9rem;
   color: #666;
-  margin-bottom: 16px;
-  flex: 1;
+  padding: 0 12px 12px 12px;
+  overflow: hidden;
 }
 .catalog-list .catalog-item-btn {
   padding: 0.75rem 1.5rem;
