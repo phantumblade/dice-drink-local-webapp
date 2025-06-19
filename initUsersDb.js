@@ -1,14 +1,6 @@
-// initUsersDb.js
-// SCOPO: Inizializzazione completa database utenti con tabelle, indici e dati demo
-// ESECUZIONE: node initUsersDb.js
-
-require('dotenv').config(); // Carica variabili ambiente
+require('dotenv').config();
 const openDb = require('./db');
 const bcrypt = require('bcrypt');
-
-// ==========================================
-// CONFIGURAZIONE DA ENVIRONMENT
-// ==========================================
 
 const CONFIG = {
   BCRYPT_ROUNDS: parseInt(process.env.BCRYPT_ROUNDS) || 12,
@@ -17,9 +9,6 @@ const CONFIG = {
   DEBUG_MODE: process.env.DEBUG_MODE === 'true'
 };
 
-// ==========================================
-// FUNZIONI UTILITY
-// ==========================================
 
 function log(message, type = 'info') {
   const timestamp = new Date().toISOString();
@@ -104,7 +93,7 @@ async function createUserSessionsTable(db) {
     CREATE TABLE IF NOT EXISTS user_sessions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL,
-      session_token TEXT UNIQUE NOT NULL, 
+      session_token TEXT UNIQUE NOT NULL,
       refresh_token TEXT UNIQUE,
       device_info TEXT,
       ip_address TEXT,
@@ -539,10 +528,6 @@ async function initUsersDatabase() {
     process.exit(1);
   }
 }
-
-// ==========================================
-// ESECUZIONE
-// ==========================================
 
 if (require.main === module) {
   initUsersDatabase();

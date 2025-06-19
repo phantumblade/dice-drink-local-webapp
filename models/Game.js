@@ -1,13 +1,9 @@
-// SCOPO: Definisce la struttura di un "gioco da tavolo" e metodi di utilità
-// RELAZIONI: Usato da gamesDao.js per restituire oggetti strutturati
-
 class Game {
   constructor(data) {
-    // Mappa i campi del database agli attributi dell'oggetto
     this.id = data.id;
     this.name = data.name;
     this.description = data.description;
-    this.minPlayers = data.min_players;        // Converte snake_case -> camelCase
+    this.minPlayers = data.min_players;
     this.maxPlayers = data.max_players;
     this.rentalPrice = data.rental_price;
     this.durationMinutes = data.duration_minutes;
@@ -17,9 +13,7 @@ class Game {
     this.createdAt = data.created_at;
   }
 
-  // METODI DI UTILITÀ: Trasformano i dati grezzi in formato user-friendly
 
-  // Restituisce "3-4 giocatori" invece di numeri separati
   getPlayerRange() {
     if (this.minPlayers === this.maxPlayers) {
       return `${this.minPlayers} giocatori`;
@@ -27,7 +21,7 @@ class Game {
     return `${this.minPlayers}-${this.maxPlayers} giocatori`;
   }
 
-  // Converte minuti in formato leggibile: "1h 30min"
+  // Converte minuti in formato leggibile con ore
   getDurationFormatted() {
     if (!this.durationMinutes) return 'Non specificato';
 
@@ -51,7 +45,6 @@ class Game {
     return levels[this.difficultyLevel] || 'Non specificato';
   }
 
-  // IMPORTANTE: Calcola prezzo per giocatore (per sessioni aperte)
   getPricePerPlayer(actualPlayers = null) {
     const players = actualPlayers || this.minPlayers;
     return (this.rentalPrice / players).toFixed(2);

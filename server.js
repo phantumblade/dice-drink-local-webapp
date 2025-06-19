@@ -1,7 +1,3 @@
-// server.js
-// SCOPO: Entry point dell'applicazione - configura Express, middleware, routes
-// RELAZIONI: Importa tutte le routes, avvia il server, gestisce errori globali
-
 const express = require('express');
 const path = require('path');
 const openDb = require('./db');
@@ -10,14 +6,9 @@ async function init() {
   const app = express();
   const port = process.env.PORT || 3000;
 
-  // ==========================================
-  // MIDDLEWARE GLOBALI
-  // ==========================================
 
-  // Parse JSON nel body delle richieste
   app.use(express.json());
 
-  // Serve file statici dalla cartella public (CSS, JS, immagini)
 app.use(express.static('public', {
   setHeaders: (res, path, stat) => {
     if (path.endsWith('.js')) {
@@ -29,42 +20,35 @@ app.use(express.static('public', {
   }
 }));
 
-  // ==========================================
-  // IMPORTA E REGISTRA LE ROUTES
-  // ==========================================
 
-  // 🎮 GAMES API - Routes per giochi da tavolo
+  // GAMES API - Routes per giochi da tavolo
   const gamesRouter = require('./routes/games');
   app.use('/api/games', gamesRouter);
 
-  // 🍹 DRINKS API - Routes per drink e bevande
+  // DRINKS API - Routes per drink e bevande
   const drinksRouter = require('./routes/drinks');
   app.use('/api/drinks', drinksRouter);
 
-  // 🍿 SNACKS API - Routes per snack e cibo
+  // SNACKS API - Routes per snack e cibo
   const snacksRouter = require('./routes/snacks');
   app.use('/api/snacks', snacksRouter);
 
-  // 🔐 AUTH API - Routes per autenticazione (login, register, logout)
+  // AUTH API - Routes per autenticazione (login, register, logout)
   const authRoutes = require('./routes/auth');
   app.use('/api/auth', authRoutes);
 
-  // 👤 USERS API - Routes per gestione profilo utente
+  // USERS API - Routes per gestione profilo utente
   const usersRoutes = require('./routes/users');
   app.use('/api/users', usersRoutes);
 
-  // 👑 ADMIN API - Routes per pannello amministrativo
+  // ADMIN API - Routes per pannello amministrativo
   const adminRoutes = require('./routes/admin');
   app.use('/api/admin', adminRoutes);
 
 
 
-  // ==========================================
-  // VERIFICA DATABASE (non crea più tabelle qui)
-  // ==========================================
 
-  // Verifica solo che i database siano accessibili
-  // Le tabelle vengono create da initDb.js, initDrinksDb.js e initSnacksDb.js
+  // Verifica che i database siano accessibili
   try {
     const db = await openDb();
 
@@ -104,10 +88,6 @@ app.use(express.static('public', {
     console.log('⚠️  Impossibile verificare il database');
     console.log('💡 Assicurati di aver eseguito: node initDb.js, node initDrinksDb.js e node initSnacksDb.js');
   }
-
-  // ==========================================
-  // ENDPOINT DI UTILITÀ
-  // ==========================================
 
   // Health check per verificare che l'API funzioni
   app.get('/api/health', async (req, res) => {
@@ -281,10 +261,6 @@ app.use(express.static('public', {
     console.log('💡 Se vedi errori, esegui: node initDb.js, node initDrinksDb.js e node initSnacksDb.js');
   });
 }
-
-// ==========================================
-// GESTIONE ERRORI DI AVVIO
-// ==========================================
 
 init().catch(err => {
   console.error('❌ ERRORE FATALE - Impossibile avviare il server:');

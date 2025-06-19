@@ -1,10 +1,7 @@
-// public/js/footer.js
 
 export function buildFooter() {
-  // <footer>
   const footer = document.createElement('footer');
 
-  // <div class="container">
   const container = document.createElement('div');
   container.className = 'footer-container';
 

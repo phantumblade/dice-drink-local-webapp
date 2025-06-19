@@ -1,32 +1,24 @@
-// SCOPO: Definisce la struttura di un "drink" e metodi di utilità
-// RELAZIONI: Usato da drinksDao.js per restituire oggetti strutturati
-
 class Drink {
   constructor(data) {
-    // Mappa i campi del database agli attributi dell'oggetto
     this.id = data.id;
     this.name = data.name;
     this.description = data.description;
-    this.isAlcoholic = data.is_alcoholic;     // Converte snake_case -> camelCase
+    this.isAlcoholic = data.is_alcoholic;
     this.baseSpirit = data.base_spirit;
     this.price = data.price;
     this.imageUrl = data.image_url;
     this.createdAt = data.created_at;
   }
 
-  // METODI DI UTILITÀ: Trasformano i dati grezzi in formato user-friendly
 
-  // Restituisce "Alcolico" o "Analcolico"
   getAlcoholType() {
     return this.isAlcoholic ? 'Alcolico' : 'Analcolico';
   }
 
-  // Restituisce l'icona appropriata per il tipo di drink
   getTypeIcon() {
     return this.isAlcoholic ? '🍸' : '🥤';
   }
 
-  // Restituisce la categoria del base spirit in italiano
   getSpiritCategory() {
     const categories = {
       'gin': 'Gin',

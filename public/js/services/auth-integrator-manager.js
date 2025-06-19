@@ -1,4 +1,3 @@
-// public/js/services/auth-integration-manager.js
 // Coordinatore principale per tutti i sistemi di autenticazione
 
 console.log('🎯 AuthIntegrationManager caricato');

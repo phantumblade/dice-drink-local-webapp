@@ -1,12 +1,7 @@
-// routes/auth.js
-// SCOPO: Routes per autenticazione - login, register, reset password, email verification
-// RELAZIONI: Usa UsersDao, User model, auth middleware per gestione completa auth
-
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 
-// Import dei nostri moduli
 const { User } = require('../models/User');
 const UsersDao = require('../daos/usersDao');
 const {
@@ -17,10 +12,6 @@ const {
   logSecurityEvent,
   getClientIdentifier
 } = require('../middleware/auth');
-
-// ==========================================
-// CONFIGURAZIONE DA ENVIRONMENT
-// ==========================================
 
 const CONFIG = {
   // Email settings
@@ -35,13 +26,8 @@ const CONFIG = {
   // URLs frontend
   FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:3000',
 
-  // Debug
   DEBUG_MODE: process.env.DEBUG_MODE === 'true'
 };
-
-// ==========================================
-// UTILITY FUNCTIONS
-// ==========================================
 
 function debugLog(message, data = null) {
   if (CONFIG.DEBUG_MODE) {
@@ -76,8 +62,6 @@ async function sendEmail(to, subject, content, type = 'verification') {
     return { success: true, mock: true };
   }
 
-  // TODO: Implementare invio email reale con nodemailer
-  // Qui andrà l'implementazione con nodemailer quando necessario
   debugLog(`Real email sending not implemented yet`, { to, subject, type });
   return { success: false, error: 'Email sending not implemented' };
 }
@@ -422,7 +406,7 @@ router.post('/refresh', async (req, res) => {
       message: 'Token aggiornato con successo',
       tokens: {
         accessToken: newAccessToken,
-        refreshToken, // Mantieni lo stesso refresh token
+        refreshToken,
         expiresIn: process.env.JWT_ACCESS_EXPIRES || '15m'
       },
       user: user.getPublicProfile(),
@@ -970,14 +954,5 @@ router.post('/test-admin-token', async (req, res) => {
     });
   }
 });
-
-// ISTRUZIONI PER L'USO:
-// 1. POST http://localhost:3000/api/auth/test-admin-token
-// 2. Copia il token dalla risposta
-// 3. Usalo come Bearer token nelle richieste protette
-
-// ==========================================
-// EXPORTS
-// ==========================================
 
 module.exports = router;

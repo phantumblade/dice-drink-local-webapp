@@ -1,10 +1,3 @@
-// COSA FA: Espone endpoint HTTP per frontend (/api/games)
-// RELAZIONI: Usa GamesDao per dati, valida input, gestisce errori
-
-// routes/games.js
-// SCOPO: Espone endpoint HTTP per gestire i giochi da tavolo
-// RELAZIONI: Usa gamesDao.js per operazioni database, chiamato da server.js
-
 const express = require('express');
 const GamesDao = require('../daos/gamesDao');
 const { requireAdmin } = require('../middleware/auth');
@@ -15,8 +8,6 @@ const router = express.Router();
 // ==========================================
 
 // GET /api/games - Lista tutti i giochi con filtri opzionali
-// Query params: category, players, difficulty, maxDuration, orderBy, orderDir, limit, offset
-// Esempio: /api/games?category=Strategia&players=4&limit=10
 router.get('/', async (req, res, next) => {
   try {
     // Estrae i filtri dalla query string
@@ -53,8 +44,6 @@ router.get('/', async (req, res, next) => {
 });
 
 // GET /api/games/popular - Giochi più popolari/consigliati
-// Query param: limit (default 10)
-// Esempio: /api/games/popular?limit=5
 router.get('/popular', async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit) || 10;
@@ -66,7 +55,6 @@ router.get('/popular', async (req, res, next) => {
 });
 
 // GET /api/games/categories - Lista tutte le categorie disponibili
-// Esempio risposta: ["Strategia", "Party Game", "Cooperativo"]
 router.get('/categories', async (req, res, next) => {
   try {
     const categories = await GamesDao.getCategories();
@@ -77,8 +65,6 @@ router.get('/categories', async (req, res, next) => {
 });
 
 // GET /api/games/search?q=termine - Ricerca per nome/descrizione
-// Query param: q (termine di ricerca obbligatorio)
-// Esempio: /api/games/search?q=catan
 router.get('/search', async (req, res, next) => {
   try {
     const searchTerm = req.query.q;
@@ -99,7 +85,6 @@ router.get('/search', async (req, res, next) => {
 });
 
 // GET /api/games/:id - Dettagli di un gioco specifico
-// Esempio: /api/games/1
 router.get('/:id', async (req, res, next) => {
   try {
     const gameId = parseInt(req.params.id);
@@ -136,9 +121,6 @@ router.get('/:id', async (req, res, next) => {
 // POST /api/games - Crea un nuovo gioco (SOLO ADMIN)
 router.post('/', requireAdmin, async (req, res, next) => {
   try {
-    // TODO: Aggiungere middleware di autenticazione admin
-    // router.post('/', requireAdmin, async (req, res, next) => {
-
     const gameData = req.body;
 
     // Validazione campi obbligatori
@@ -192,8 +174,6 @@ router.post('/', requireAdmin, async (req, res, next) => {
 // PUT /api/games/:id - Aggiorna un gioco esistente (SOLO ADMIN)
 router.put('/:id', requireAdmin, async (req, res, next) => {
   try {
-    // TODO: Aggiungere middleware di autenticazione admin
-
     const gameId = parseInt(req.params.id);
     if (isNaN(gameId)) {
       return res.status(400).json({ error: 'ID gioco non valido' });
@@ -238,8 +218,6 @@ router.put('/:id', requireAdmin, async (req, res, next) => {
 // DELETE /api/games/:id - Elimina un gioco (SOLO ADMIN)
 router.delete('/:id', requireAdmin, async (req, res, next) => {
   try {
-    // TODO: Aggiungere middleware di autenticazione admin
-
     const gameId = parseInt(req.params.id);
     if (isNaN(gameId)) {
       return res.status(400).json({ error: 'ID gioco non valido' });

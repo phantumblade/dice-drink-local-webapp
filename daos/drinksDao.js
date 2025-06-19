@@ -1,6 +1,3 @@
-// COSA FA: Operazioni CRUD sui drink (trova, crea, aggiorna, elimina)
-// RELAZIONI: Usa db.js per connessione, restituisce oggetti Drink
-
 const openDb = require('../db');
 const Drink = require('../models/Drink');
 
@@ -177,10 +174,8 @@ class DrinksDao {
       throw new Error('Nessun campo da aggiornare fornito');
     }
 
-    // Aggiungi l'ID alla fine dei parametri
     params.push(id);
 
-    // Costruisci e esegui la query dinamica
     const sql = `UPDATE drinks SET ${fieldsToUpdate.join(', ')} WHERE id = ?`;
 
     try {
@@ -268,10 +263,6 @@ class DrinksDao {
     }
   }
 
-} // ← Fine della classe DrinksDao
-
-// ==========================================
-// EXPORTS
-// ==========================================
+}
 
 module.exports = DrinksDao;

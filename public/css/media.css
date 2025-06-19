@@ -1,51 +1,29 @@
 /* -----------------------------------------
-   RESPONSIVE NAVBAR SYSTEM
-   Sistema responsivo progressivo
+   STILE PER LE MEDIA QUERY
    ----------------------------------------- */
 
-/* FASE 1: TABLET (768px - 1199px) - Nasconde il titolo */
 @media (max-width: 1199px) {
   .navbar-title {
-    display: none; /* Prima cosa a sparire */
+    display: none;
   }
 
   .navbar-logo {
-    margin-right: 0; /* Rimuove spazio del titolo */
+    margin-right: 0;
   }
 
   .navbar {
-    padding: 10px 15px; /* Riduce padding laterale */
+    padding: 10px 15px;
   }
 }
 
-/* FASE 2: MOBILE MEDIUM (481px - 767px) - Ricerca diventa icona */
 @media (max-width: 767px) {
-  /* Nasconde la barra di ricerca normale */
   .navbar-search {
     display: none;
   }
 
-  /* Container ricerca diventa flessibile */
   .navbar-search-container {
     width: auto;
     max-width: none;
-  }
-
-  /* Icona lente di ingrandimento */
-  .navbar-search-container::before {
-    content: '🔍';
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 46px;
-    height: 46px;
-    font-size: 18px;
-    cursor: pointer;
-    border: 1px solid var(--color-text);
-    border-radius: 50%;
-    background-color: var(--color-background);
-    box-shadow: 2px 2px 0 2px var(--color-text);
-    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.1s ease;
   }
 
   .navbar-search-container::before:hover {
@@ -54,11 +32,10 @@
     box-shadow: 3px 3px 0 2px var(--color-text);
   }
 
-  /* Barra di ricerca espandibile */
   .navbar-search-container.expanded .navbar-search {
     display: block;
     position: absolute;
-    top: 60px; /* Sotto la navbar */
+    top: 60px;
     right: 0;
     width: 280px;
     z-index: 1002;
@@ -81,28 +58,25 @@
     }
   }
 
-  /* Links rimangono della stessa dimensione ma gap ridotto */
   .navbar-links {
-    gap: 10px; /* Riduce leggermente il gap */
+    gap: 10px; /
   }
 
   .navbar-links a {
-    padding: 0.4em 0.8em; /* Riduce leggermente il padding */
-    font-size: 0.85rem; /* Leggermente più piccolo */
+    padding: 0.4em 0.8em;/
+    font-size: 0.85rem;
   }
 }
 
-/* FASE 3: MOBILE SMALL (320px - 480px) - Layout a 2 righe */
 @media (max-width: 480px) {
   .navbar {
-    height: auto; /* Altezza variabile */
+    height: auto;
     min-height: 80px;
     flex-direction: column;
     padding: 8px 15px;
     gap: 10px;
   }
 
-  /* RIGA 1: Logo + Ricerca + Profilo */
   .navbar-top-row {
     display: flex;
     justify-content: space-between;
@@ -111,20 +85,18 @@
     height: 60px;
   }
 
-  /* RIGA 2: Links */
   .navbar-bottom-row {
     display: flex;
     justify-content: center;
     width: 100%;
   }
 
-  /* Riorganizza le sezioni */
   .navbar-left {
     flex: 0 0 auto;
   }
 
   .navbar-center {
-    order: 3; /* Va nella seconda riga */
+    order: 3;
     width: 100%;
     justify-content: center;
   }
@@ -134,14 +106,12 @@
     gap: 15px;
   }
 
-  /* Titolo ritorna se c'è spazio */
   .navbar-title {
-    display: inline; /* Riappare */
-    font-size: 1.4rem; /* Più piccolo */
+    display: inline;
+    font-size: 1.4rem;
     margin-left: 8px;
   }
 
-  /* Links mantengono dimensione originale */
   .navbar-links {
     flex-wrap: wrap;
     justify-content: center;
@@ -149,25 +119,23 @@
   }
 
   .navbar-links a {
-    padding: 0.5em 1em; /* Dimensione originale */
-    font-size: 0.9rem; /* Dimensione originale */
+    padding: 0.5em 1em;
+    font-size: 0.9rem;
     min-width: auto;
   }
 
-  /* Ricerca espandibile nella nuova posizione */
   .navbar-search-container.expanded .navbar-search {
-    top: 70px; /* Aggiustato per la nuova altezza */
+    top: 70px;
     right: 15px;
-    width: calc(100vw - 30px); /* Full width mobile */
+    width: calc(100vw - 30px);
     max-width: 300px;
   }
 
 }
 
-/* FASE 4: EXTRA SMALL DEVICES (sotto 320px) */
 @media (max-width: 319px) {
   .navbar-title {
-    display: none; /* Nascondi titolo su schermi tiny */
+    display: none;
   }
 
   .navbar-links {
@@ -180,7 +148,7 @@
   }
 
   .navbar-logo {
-    height: 45px; /* Logo più piccolo */
+    height: 45px;
   }
 
   span.material-symbols-rounded.navbar-profile-icon {
@@ -191,12 +159,11 @@
 
 /* -----------------------------------------
    RESPONSIVE DROPDOWNS
-   Mantiene funzionalità dropdown su mobile
    ----------------------------------------- */
 @media (max-width: 480px) {
   .dropdown-menu {
     position: fixed;
-    top: 140px; /* Sotto la navbar a 2 righe */
+    top: 140px;
     left: 50%;
     transform: translateX(-50%);
     width: calc(100vw - 30px);
@@ -228,7 +195,6 @@
   }
 }
 
-/* Responsive: su mobile, meno padding */
 @media (max-width: 600px) {
   .newsletter-form {
     min-width: unset;
@@ -265,13 +231,13 @@
 
 @media (max-width: 768px) {
   .welcome-features {
-    grid-template-columns: 1fr;    /* una sola colonna */
-    justify-items: center;         /* centriamo la cella */
-    text-align: center;            /* all’interno, testo centrato */
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
   }
   .welcome-features li {
-    flex-direction: column;        /* icona sopra testo */
-    gap: 0.5rem;                   /* spazio tra icona e testo */
+    flex-direction: column;
+    gap: 0.5rem;
   }
 }
 
@@ -286,46 +252,46 @@
     gap: 0.5rem;
   }
   .welcome-features li {
-    font-size: 1rem;               /* riduciamo leggermente il font su mobile */
+    font-size: 1rem;
   }
   .welcome-features li i {
-    font-size: 1.2rem;             /* icone un po’ più piccole su mobile */
+    font-size: 1.2rem;
   }
 }
 
 @media (max-width: 992px) {
   .welcome-grid {
-    grid-template-columns: 1fr;   /* diventa una colonna sola su tablet */
+    grid-template-columns: 1fr;
     text-align: center;
   }
   .welcome-image {
-    max-width: 350px;            /* leggermente meno larga su tablet */
+    max-width: 350px;
     margin: 0 auto;
   }
   .welcome-left-col {
-    margin-bottom: 2rem;         /* spazio tra testo e immagine */
+    margin-bottom: 2rem;
   }
 }
 
 @media (max-width: 576px) {
   .welcome-title {
-    font-size: 2.5rem;           /* riduci ancora su schermi molto piccoli */
+    font-size: 2.5rem;
   }
   .welcome-tagline {
     font-size: 1.5rem;
   }
   .welcome-description {
     font-size: 1.1rem;
-    text-align: center;          /* testo centrato su mobile */
+    text-align: center;
   }
   .welcome-features li {
     font-size: 1rem;
   }
   .welcome-image {
-    max-width: 100%;             /* occupa tutta la larghezza disponibile */
+    max-width: 100%;
   }
   .welcome-cta-btn {
-    width: 100%;                 /* bottone a tutta larghezza */
+    width: 100%;
     padding: 0.75rem 1rem;
     font-size: 1.1rem;
   }
@@ -417,7 +383,7 @@
   }
 }
 
-//=========REVIEWS SECTION===========
+//=========SEZIONE RECENSIONI==========
 
 @media (max-width: 768px) {
   .reviews-section {
@@ -916,7 +882,6 @@
         grid-template-columns: 1fr;
     }
 
-    /* ✅ RESPONSIVE EMPTY STATE */
     .empty-content {
         flex-direction: column;
         text-align: center;
@@ -954,7 +919,6 @@
         border-radius: 6px;
     }
 
-    /* ✅ MOBILE COMPACT */
     .empty-selection-section {
         padding: 1rem 1.5rem;
     }
@@ -1057,7 +1021,6 @@
     }
 }
 
-/* Mobile specifico per menu utente */
 @media (max-width: 768px) {
     .user-menu {
         min-width: 280px;
@@ -1131,14 +1094,7 @@
     }
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    .user-menu {
-        background: linear-gradient(145deg, #0a0a0a 0%, #1a1a1a 100%);
-    }
-}
 
-/* Mobile specifico per menu utente */
 @media (max-width: 768px) {
     .user-menu {
         min-width: 280px;
@@ -1219,11 +1175,7 @@
     }
 }
 
-/* ==========================================
-   ♿ ACCESSIBILITÀ
-   ========================================== */
 
-/* Movimento ridotto per utenti con preferenze */
 @media (prefers-reduced-motion: reduce) {
     .dice-booking-modal-overlay,
     .dice-success-modal,
@@ -1235,7 +1187,6 @@
     }
 }
 
-/* Contrasto alto */
 @media (prefers-contrast: high) {
     .dice-success-modal {
         border: 2px solid #ffffff;
@@ -1251,7 +1202,6 @@
 }
 
 
-/* TABLET */
 @media (max-width: 1024px) {
     .auth-modal {
         max-width: 800px;
@@ -1266,7 +1216,6 @@
     }
 }
 
-/* MOBILE GRANDE */
 @media (max-width: 768px) {
     .auth-modal-overlay {
         padding: 16px;
@@ -1294,7 +1243,6 @@
         overflow-y: auto;
     }
 
-    /* Logo mobile centrato */
     .auth-modal-right::before {
         content: "🎲 Dice&Drink";
         font-size: 28px;
@@ -1341,7 +1289,6 @@
     }
 }
 
-/* MOBILE PICCOLO */
 @media (max-width: 480px) {
     .auth-modal-overlay {
         padding: 12px;
@@ -1371,14 +1318,14 @@
 
     .form-input {
         padding: 16px;
-        font-size: 16px; /* Evita zoom su iOS */
+        font-size: 16px;
         margin-bottom: 14px;
     }
 
     .auth-button {
         padding: 16px;
         font-size: 16px;
-        min-height: 50px; /* Più accessibile su mobile */
+        min-height: 50px;
     }
 
     .auth-button.social {
@@ -1416,7 +1363,6 @@
     }
 }
 
-/* MOBILE MOLTO PICCOLO */
 @media (max-width: 360px) {
     .auth-modal-overlay {
         padding: 8px;
@@ -1451,7 +1397,6 @@
     }
 }
 
-/* LANDSCAPE MOBILE */
 @media (max-height: 500px) and (orientation: landscape) {
     .auth-modal-overlay {
         padding: 8px;
@@ -1524,7 +1469,6 @@
     }
 }
 
-/* PREFERS REDUCED MOTION */
 @media (prefers-reduced-motion: reduce) {
     .auth-modal-overlay,
     .auth-modal,
@@ -1641,10 +1585,6 @@
         font-size: 1rem;
     }
 }
-
-/* ==========================================
-   ACCESSIBILITÀ
-   ========================================== */
 @media (prefers-reduced-motion: reduce) {
     .animate-ready,
     .value-card,
@@ -1662,7 +1602,6 @@
     }
 }
 
-/* High contrast support */
 @media (prefers-contrast: high) {
     .value-card,
     .team-member {

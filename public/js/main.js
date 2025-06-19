@@ -1,31 +1,11 @@
-// ==========================================
-// MAIN.JS - APP ENTRY POINT & ROUTER + AUTH SYSTEM
-// ==========================================
-//
-// SCOPO:
-// - Setup iniziale dell'applicazione SPA
-// - Gestione routing client-side tra pagine con Page.js
-// - Configurazione layout fisso (navbar + footer)
-// - Sistema di autenticazione integrato
-// - Gestione ruoli utente e icone dinamiche
-// - Orchestrazione generale dell'app
-
-// ==========================================
-// IMPORT PAGE.JS ROUTER (METODO ES6 DAL PDF)
-// ==========================================
 import page from "//unpkg.com/page/page.mjs";
 
-// Import esistenti
 import { createNavbar } from './components/navbar.js';
 import { buildFooter } from './components/footer.js';
 import { showHomepage } from './pages/homepage.js';
 import { showCatalog } from './pages/catalog.js';
 import { showBookings } from './pages/bookings.js';
 import { showAboutUs } from './pages/aboutus.js';
-
-// ==========================================
-// SISTEMA RUOLI E ICONE UTENTE
-// ==========================================
 
 const ROLE_ICONS = {
     guest: {
@@ -83,7 +63,6 @@ class UserRoleManager {
     }
 
     setupEventListeners() {
-        // Integrazione con SimpleAuth se disponibile
         if (window.SimpleAuth) {
             const originalUpdateUI = window.SimpleAuth.updateUI;
             window.SimpleAuth.updateUI = () => {
@@ -283,7 +262,7 @@ class AuthRouteTester {
     // Test rapidi per demo
     async quickLoginDemo(userType = 'customer') {
         const testUsers = {
-            demo: null, // Usa SimpleAuth demo
+            demo: null,
             customer: {
                 email: 'customer@diceanddrink.com',
                 password: 'CustomerDemo2025!'
@@ -432,7 +411,6 @@ class AuthIntegrationManager {
 
         const body = document.body;
 
-        // Rimuovi classi role esistenti
         body.classList.remove('role-guest', 'role-customer', 'role-staff', 'role-admin');
 
         // Aggiungi classe basata sul ruolo
@@ -475,7 +453,6 @@ class AuthIntegrationManager {
             console.log('✅ Sistema auth resetttato');
         };
 
-        // Pannello debug (Ctrl+Shift+D)
         document.addEventListener('keydown', (e) => {
             if (e.ctrlKey && e.shiftKey && e.key === 'D') {
                 e.preventDefault();
@@ -713,7 +690,6 @@ class DiceRouterManager {
         }
     }
 
-    // Metodo per navigazione programmatica
     navigateTo(path) {
         page(path);
     }
@@ -728,10 +704,7 @@ class DiceRouterManager {
 // SISTEMA ROUTING CLIENT-SIDE (COMPATIBILITÀ)
 // ==========================================
 
-/**
- * Router principale dell'applicazione
- * AGGIORNATO: Ora usa Page.js ma mantiene compatibilità
- */
+
 window.showPage = (pageId) => {
     console.log(`🔗 Compatibilità showPage(${pageId}) -> Page.js routing`);
 
@@ -923,7 +896,7 @@ CARATTERISTICHE ROUTING:
 });
 
 // ==========================================
-// DEBUG UTILITIES (solo sviluppo)
+// DEBUG UTILITIES 
 // ==========================================
 if (window.location.hostname === 'localhost') {
     window.debugRouter = () => {

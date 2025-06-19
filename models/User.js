@@ -1,45 +1,33 @@
-// models/User.js
-// SCOPO: Modello User con validazioni, sicurezza e metodi di business logic
-// RELAZIONI: Usato da DAO e routes per gestione completa utenti
 
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
-// ==========================================
-// CONFIGURAZIONE SICUREZZA DA ENV
-// ==========================================
 
 const SECURITY_CONFIG = {
-  // Bcrypt rounds da environment
   BCRYPT_ROUNDS: parseInt(process.env.BCRYPT_ROUNDS) || 12,
 
-  // JWT Token expiration da environment
   ACCESS_TOKEN_EXPIRES: process.env.JWT_ACCESS_EXPIRES || '15m',
   REFRESH_TOKEN_EXPIRES: process.env.JWT_REFRESH_EXPIRES || '7d',
   VERIFICATION_TOKEN_EXPIRES: process.env.JWT_VERIFY_EXPIRES || '24h',
   RESET_TOKEN_EXPIRES: process.env.JWT_RESET_EXPIRES || '1h',
 
-  // Rate limiting da environment
   MAX_FAILED_ATTEMPTS: parseInt(process.env.MAX_FAILED_LOGIN_ATTEMPTS) || 5,
-  LOCK_TIME: parseInt(process.env.ACCOUNT_LOCK_TIME) || 15, // minuti
+  LOCK_TIME: parseInt(process.env.ACCOUNT_LOCK_TIME) || 15, //15 minuti
 
-  // Password requirements
   MIN_PASSWORD_LENGTH: 8,
   PASSWORD_REGEX: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
 
-  // JWT Secret da environment
   JWT_SECRET: process.env.JWT_SECRET || 'dice-and-drink-fallback-secret-2025'
 };
 
-// Warning se usando secret di default
 if (SECURITY_CONFIG.JWT_SECRET === 'dice-and-drink-fallback-secret-2025') {
   console.warn('⚠️  SECURITY WARNING: Using default JWT secret! Set JWT_SECRET in .env for production!');
 }
 
 // ==========================================
-// SISTEMA PERMESSI GRANULARE
+// SISTEMA PERMESSI
 // ==========================================
 
 const ROLE_PERMISSIONS = {
@@ -70,7 +58,6 @@ const ROLE_PERMISSIONS = {
   ],
 
   staff: [
-    // Tutti i permessi customer
     ...[], // Popolato dopo la definizione
 
     // Gestione prenotazioni
@@ -227,7 +214,7 @@ class User {
   static validatePhone(phone) {
     if (!phone) return true; // Opzionale
 
-    // Regex per telefono italiano/internazionale
+    // Regex per telefono
     const phoneRegex = /^[\+]?[1-9][\d\s\-\(\)]{8,20}$/;
     if (!phoneRegex.test(phone)) {
       throw new Error('Formato telefono non valido');
@@ -584,7 +571,6 @@ class User {
   // ==========================================
 
   toJSON() {
-    // Non includere mai password hash o token sensibili
     const safeData = { ...this };
     delete safeData.passwordHash;
     delete safeData.verificationToken;
@@ -622,10 +608,6 @@ class User {
 
     return dbObject;
   }
-
-  // ==========================================
-  // STATIC UTILITY METHODS
-  // ==========================================
 
   static sanitizeEmail(email) {
     if (!email) return null;
@@ -676,9 +658,6 @@ class User {
     return 'forte';
   }
 
-  // ==========================================
-  // CONFIGURAZIONE E DEBUG
-  // ==========================================
 
   static getSecurityConfig() {
     return { ...SECURITY_CONFIG };
@@ -691,10 +670,6 @@ class User {
     return { ...ROLE_PERMISSIONS };
   }
 }
-
-// ==========================================
-// EXPORTS
-// ==========================================
 
 module.exports = {
   User,

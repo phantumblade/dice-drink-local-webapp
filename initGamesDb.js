@@ -1,6 +1,3 @@
-// SCOPO: Inizializza database pulito con SOLO tabella games e dati di esempio
-// RELAZIONI: Usa db.js per connessione, eseguito manualmente con "node initDb.js"
-
 const openDb = require('./db');
 
 async function init() {
@@ -8,17 +5,11 @@ async function init() {
 
   const db = await openDb();
 
-  // ==========================================
-  // PULIZIA: Elimina tabelle vecchie
-  // ==========================================
 
   console.log('🗑️  Pulizia vecchie tabelle...');
   await db.exec(`DROP TABLE IF EXISTS products;`);  // Rimuovi vecchia tabella generica
   await db.exec(`DROP TABLE IF EXISTS games;`);     // Rimuovi per ricreare pulita
 
-  // ==========================================
-  // CREAZIONE TABELLA GAMES (nuova struttura)
-  // ==========================================
 
   console.log('📊 Creazione tabella games...');
   await db.exec(`
@@ -37,9 +28,6 @@ async function init() {
     );
   `);
 
-  // ==========================================
-  // DATI DI ESEMPIO: 15 GIOCHI REALISTICI
-  // ==========================================
 
   console.log('🎮 Inserimento giochi di esempio...');
 

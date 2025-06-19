@@ -1,6 +1,3 @@
-// js/pages/bookings.js
-// SCOPO: Pagina prenotazioni tavolo per giochi, drink e snack
-// RELAZIONI: Chiamata da main.js via showPage('prenotazioni'), usa sistema auth
 
 console.log('🎮 Caricamento pagina prenotazioni...');
 
@@ -16,10 +13,10 @@ const BOOKINGS_CONFIG = {
     },
 DEFAULT_BOOKING: {
     date: new Date().toISOString().split('T')[0], // Solo la data di oggi come minimo
-    time: '',        // Vuoto - utente deve scegliere
-    duration: '',    // Vuoto - utente deve scegliere
-    players: '',     // Vuoto - utente deve scegliere
-    tableId: null,   // Assegnazione automatica sempre
+    time: '',
+    duration: '',
+    players: '',
+    tableId: null,
     specialRequests: ''
 },
     TIME_SLOTS: [
@@ -79,22 +76,21 @@ class BookingsPageManager {
     }
 
     // ==========================================
-    // GESTIONE DATI SELEZIONATI - ✅ MIGLIORATA
+    // GESTIONE DATI SELEZIONATI
     // ==========================================
 
-// ✅ NUOVO metodo per BookingsPageManager in bookings.js
 getSelectedItemsFromStorage() {
     console.log('🔍 FASE 1: Controllo storage per elementi selezionati...');
 
     try {
-        // ✅ CHIAVE CORRETTA: stesso del catalog.js
+        // CHIAVE CORRETTA: stesso del catalog.js
         const catalogSelection = sessionStorage.getItem('catalogSelection');
 
         if (catalogSelection) {
             const parsed = JSON.parse(catalogSelection);
             console.log('✅ Elementi trovati nel catalogSelection:', parsed);
 
-            // ✅ VALIDAZIONE STRUTTURA: Assicura che abbia la struttura corretta
+            // VALIDAZIONE STRUTTURA: Assicura che abbia la struttura corretta
             const validatedCart = {
                 games: Array.isArray(parsed.games) ? parsed.games : [],
                 drinks: Array.isArray(parsed.drinks) ? parsed.drinks : [],
@@ -111,7 +107,6 @@ getSelectedItemsFromStorage() {
             return validatedCart;
         }
 
-        // ✅ FALLBACK: Prova con localStorage
         const bookingItems = localStorage.getItem('bookingItems');
         if (bookingItems) {
             const parsed = JSON.parse(bookingItems);
@@ -123,7 +118,6 @@ getSelectedItemsFromStorage() {
         console.error('❌ Errore parsing storage:', error);
     }
 
-    // ✅ RITORNA STRUTTURA VUOTA (non mock data)
     console.log('📭 Nessun elemento trovato - carrello vuoto');
     return {
         games: [],
@@ -133,7 +127,6 @@ getSelectedItemsFromStorage() {
 }
 
 setupStorageListener() {
-    // Listener per storage events (da altre pagine/schede)
     window.addEventListener('storage', (e) => {
         if (e.key === 'catalogSelection') {
             console.log('🔄 Storage aggiornato da altra scheda, ricarico carrello...');
@@ -149,7 +142,7 @@ setupStorageListener() {
         }, 100);
     });
 
-    // ✅ NUOVO: Controllo periodico ogni 2 secondi per catturare aggiornamenti
+    // NUOVO: Controllo periodico ogni 2 secondi per catturare aggiornamenti
     this.cartCheckInterval = setInterval(() => {
         const currentStorage = sessionStorage.getItem('catalogSelection');
         const currentStringified = JSON.stringify(this.selectedItems);
@@ -169,10 +162,9 @@ setupStorageListener() {
 
 // ==========================================
 // 2. NUOVO METODO PER REFRESH AUTOMATICO
-// Aggiungere a BookingsPageManager in bookings.js
 // ==========================================
 
-// ✅ NUOVO metodo per forzare reload del carrello
+//  metodo per forzare reload del carrello
 refreshCartFromStorage() {
     console.log('🔄 Refresh carrello dal storage...');
 
@@ -352,7 +344,7 @@ refreshCartFromStorage() {
     }
 
     // ==========================================
-    // ✅ SEZIONE ELEMENTI SELEZIONATI MIGLIORATA
+    // SEZIONE ELEMENTI SELEZIONATI MIGLIORATA
     // ==========================================
 
     createSelectedItemsHTML() {
@@ -431,7 +423,6 @@ refreshCartFromStorage() {
                 </div>
                 <ul class="item-list">
                     ${items.map(item => {
-                        // ✅ FIX: Gestione quantità e prezzo migliorata
                         const quantity = item.quantity || 1;
                         const unitPrice = item.price || 0;
                         const totalPrice = unitPrice * quantity;
@@ -459,11 +450,6 @@ refreshCartFromStorage() {
         `;
     }
 
-    // ==========================================
-// 5. NUOVO METODO PER RIMOZIONE ITEMS
-// Aggiungere a BookingsPageManager
-// ==========================================
-
 removeItemFromCart(category, itemId) {
     console.log(`🗑️ Rimuovendo item ${itemId} dalla categoria ${category}`);
 
@@ -482,7 +468,6 @@ removeItemFromCart(category, itemId) {
     if (newLength < originalLength) {
         console.log(`✅ Item rimosso da ${category}`);
 
-        // ✅ Salva nel storage (IMPORTANTE: stessa chiave del catalog!)
         try {
             sessionStorage.setItem('catalogSelection', JSON.stringify(this.selectedItems));
             localStorage.setItem('bookingItems', JSON.stringify(this.selectedItems));
@@ -593,7 +578,6 @@ removeItemFromCart(category, itemId) {
     // ==========================================
 
     setupEvents() {
-        // Form inputs
         const dateInput = document.getElementById('booking-date');
         const timeSelect = document.getElementById('booking-time');
         const durationSelect = document.getElementById('booking-duration');
@@ -653,10 +637,6 @@ removeItemFromCart(category, itemId) {
 
         return isValid;
     }
-
-    // ==========================================
-    // ✅ NUOVI METODI PER GESTIONE SELEZIONI
-    // ==========================================
 
     getTotalItemsCount() {
         return this.selectedItems.games.length +
@@ -783,9 +763,6 @@ removeItemFromCart(category, itemId) {
         }
     }
 
-// SOSTITUZIONE per il metodo submitBooking in bookings.js
-// Trova questo metodo e sostituisci la sezione "Prepara i dati per l'invio"
-
 async submitBooking() {
     const confirmBtn = document.getElementById('confirm-booking-btn');
 
@@ -800,9 +777,6 @@ async submitBooking() {
         console.log('🎯 ===== INIZIO PROCESSO PRENOTAZIONE =====');
         console.log('📊 Timestamp:', new Date().toISOString());
 
-        // ==========================================
-        // 🔍 FASE 1: ANALISI COMPLETA SISTEMA AUTH
-        // ==========================================
         console.log('🔍 FASE 1: Analisi Sistema di Autenticazione');
 
         // Inventario completo di tutti i sistemi auth possibili
@@ -851,9 +825,6 @@ async submitBooking() {
             });
         }
 
-        // ==========================================
-        // 🎯 FASE 2: AUTO-RECOVERY INTELLIGENTE
-        // ==========================================
         console.log('🎯 FASE 2: Auto-Recovery Dati Utente');
 
         let userId = null;
@@ -913,7 +884,7 @@ async submitBooking() {
         });
 
         // ==========================================
-        // 🛡️ FASE 3: VALIDAZIONE AUTENTICAZIONE
+        // VALIDAZIONE AUTENTICAZIONE
         // ==========================================
         console.log('🛡️ FASE 3: Validazione Autenticazione');
 
@@ -948,7 +919,7 @@ async submitBooking() {
         });
 
         // ==========================================
-        // 📊 FASE 4: PREPARAZIONE DATI PRENOTAZIONE
+        // PREPARAZIONE DATI PRENOTAZIONE
         // ==========================================
         console.log('📊 FASE 4: Preparazione Dati Prenotazione');
 
@@ -1011,7 +982,7 @@ async submitBooking() {
         });
 
         // ==========================================
-        // 🌐 FASE 5: CHIAMATA API
+        // CHIAMATA API
         // ==========================================
         console.log('🌐 FASE 5: Chiamata API');
 
@@ -1049,7 +1020,7 @@ async submitBooking() {
         });
 
         // ==========================================
-        // 📋 FASE 6: ELABORAZIONE RISPOSTA
+        // ELABORAZIONE RISPOSTA
         // ==========================================
         console.log('📋 FASE 6: Elaborazione Risposta');
 
@@ -1073,9 +1044,6 @@ async submitBooking() {
             throw new Error(errorMessage);
         }
 
-        // ==========================================
-        // 🎉 FASE 7: SUCCESSO E CLEANUP
-        // ==========================================
         console.log('🎉 FASE 7: Prenotazione Completata con Successo');
 
         const pricing = this.calculateTotalPrice();
@@ -1113,7 +1081,6 @@ async submitBooking() {
         console.error('📊 Stack trace:', error.stack);
         console.error('⏰ Timestamp:', new Date().toISOString());
 
-        // Messaggio user-friendly basato sul tipo di errore
         let userMessage = error.message;
 
         if (error.message.includes('non identificato') || error.message.includes('autenticazione')) {
@@ -1149,10 +1116,6 @@ async submitBooking() {
     }
 }
 
-    // ========================================
-// AGGIUNGI QUESTI METODI alla classe BookingsPageManager
-// POSIZIONE: Prima della chiusura della classe (prima dell'ultima })
-// ========================================
 
 // ==========================================
 // METODI PER IL MODALE DI SUCCESSO
@@ -1161,7 +1124,6 @@ async submitBooking() {
 showSuccessModal(result, bookingData, pricing) {
     console.log('🎉 Mostrando modale di successo:', { result, bookingData, pricing });
 
-    // Estrai dati dal result e bookingData
     const confirmationCode = result.booking?.confirmation_code || result.confirmation_code || 'DCK' + Date.now();
     const bookingId = result.booking?.id || result.id;
 
@@ -1169,7 +1131,6 @@ showSuccessModal(result, bookingData, pricing) {
     const formattedDate = this.formatDate(bookingData.booking_date);
     const formattedTime = bookingData.booking_time || '18:00';
 
-    // Costruisci HTML del modale con dati reali
     const modalHTML = `
         <div class="dice-booking-modal-overlay" id="booking-success-modal">
             <div class="dice-success-modal">
@@ -1318,10 +1279,8 @@ showSuccessModal(result, bookingData, pricing) {
         </div>
     `;
 
-    // Inserisci il modale nel DOM
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-    // Aggiungi listener per chiusura con ESC
     this.addModalKeyListener();
 
     console.log('✅ Modale di successo mostrato');
@@ -1498,10 +1457,6 @@ removeModalKeyListener() {
         return { success: true, id: Date.now() };
     }
 
-    // ==========================================
-    // UTILITY METHODS
-    // ==========================================
-
     generateConfirmationCode() {
         const prefix = 'DCK';
         const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -1535,7 +1490,6 @@ removeModalKeyListener() {
 
     showError(message) {
         console.error('❌ Errore prenotazioni:', message);
-        // Implementare UI per errori se necessario
     }
 }
 
@@ -1560,7 +1514,7 @@ export function showBookings() {
     const manager = window.bookingsPageManager;
 
     try {
-        // ✅ FORZA REFRESH DEL CARRELLO PRIMA DEL RENDER
+        // FORZA REFRESH DEL CARRELLO PRIMA DEL RENDER
         console.log('🔄 Refresh carrello prima del render...');
         manager.refreshCartFromStorage();
 
@@ -1570,7 +1524,7 @@ export function showBookings() {
         // Setup eventi e inizializzazioni
         manager.setupEvents();
 
-        // ✅ SECONDO REFRESH DOPO IL RENDER (per sicurezza)
+        // SECONDO REFRESH DOPO IL RENDER (per sicurezza)
         setTimeout(() => {
             console.log('🔄 Secondo refresh carrello post-render...');
             manager.refreshCartFromStorage();
@@ -1707,7 +1661,6 @@ window.debugBookingsState = function() {
         console.log('❌ Manager non inizializzato');
     }
 
-    // Controlla storage
     console.log('💾 Storage sessionStorage:', sessionStorage.getItem('catalogSelection'));
     console.log('💾 Storage localStorage:', localStorage.getItem('bookingItems'));
 };

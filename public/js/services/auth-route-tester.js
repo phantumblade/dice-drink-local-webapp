@@ -1,4 +1,3 @@
-// public/js/services/auth-route-tester.js
 // Sistema per testare tutte le rotte di autenticazione e registrazione
 
 console.log('🧪 AuthRouteTester caricato');
@@ -312,7 +311,7 @@ class AuthRouteTester {
             await this.delay(TEST_CONFIG.DEMO_DELAY);
 
             // 3. Test Verifica Token
-            console.log('\n🎟️ STEP 3: Verifica Token');
+            console.log('\n STEP 3: Verifica Token');
             const tokenResult = await this.testTokenVerification(loginResult.tokens.accessToken);
             this.testResults.push({ step: 'token_verification', ...tokenResult });
 

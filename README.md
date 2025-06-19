@@ -77,7 +77,7 @@ Consulta [`/api/health`](http://localhost:3000/api/health) per l'elenco completo
 
 ## 📽️ Video dimostrativo
 
-- [YouTube Demo](https://youtu.be/your-demo-link) *(sostituisci con il tuo link)*
+- [YouTube Demo](https://youtu.be/xztiRkXSNmI) *(sostituisci con il tuo link)*
 - Durata suggerita: **3–5 minuti**
 - Mostra layout, struttura del progetto e funzionalità principali.
 

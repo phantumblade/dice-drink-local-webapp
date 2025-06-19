@@ -1,13 +1,6 @@
-// COSA FA: Operazioni CRUD sui giochi (trova, crea, aggiorna, elimina)
-// RELAZIONI: Usa db.js per connessione, restituisce oggetti con campi convertiti
-
 const openDb = require('../db');
 
 class GamesDao {
-
-  // ==========================================
-  // UTILITY: CONVERSIONE CAMPI DB → API
-  // ==========================================
 
   static convertDbRowToApiFormat(row) {
     if (!row) return null;
@@ -22,7 +15,7 @@ class GamesDao {
       durationMinutes: row.duration_minutes,
       difficultyLevel: row.difficulty_level,
       category: row.category,
-      imageUrl: row.image_url,  // ← FIX PRINCIPALE: conversione snake_case → camelCase
+      imageUrl: row.image_url,
       createdAt: row.created_at,
       updatedAt: row.updated_at
     };
@@ -78,7 +71,6 @@ class GamesDao {
     const rows = await db.all(sql, params);
     await db.close();
 
-    // ✅ FIX: Conversione esplicita campi
     return rows.map(row => this.convertDbRowToApiFormat(row));
   }
 
@@ -88,7 +80,6 @@ class GamesDao {
     const row = await db.get('SELECT * FROM games WHERE id = ?', [id]);
     await db.close();
 
-    // ✅ FIX: Conversione esplicita campi
     return this.convertDbRowToApiFormat(row);
   }
 
@@ -100,19 +91,15 @@ class GamesDao {
     const rows = await db.all(sql, [searchPattern, searchPattern]);
     await db.close();
 
-    // ✅ FIX: Conversione esplicita campi
     return rows.map(row => this.convertDbRowToApiFormat(row));
   }
 
-  // Ottieni giochi popolari (i più noleggiati - per ora ordinati per nome)
   static async getPopular(limit = 10) {
     const db = await openDb();
-    // TODO: quando avremo tabella prenotazioni, ordinare per numero di noleggi
     const sql = 'SELECT * FROM games ORDER BY name LIMIT ?';
     const rows = await db.all(sql, [limit]);
     await db.close();
 
-    // ✅ FIX: Conversione esplicita campi
     return rows.map(row => this.convertDbRowToApiFormat(row));
   }
 
@@ -152,24 +139,22 @@ class GamesDao {
     const fieldsToUpdate = [];
     const params = [];
 
-    // ✅ FIX: Mappa i campi del JSON ai nomi delle colonne del database
-    // Ora supporta ENTRAMBI i formati: camelCase E snake_case
     const fieldMapping = {
       name: 'name',
       description: 'description',
       minPlayers: 'min_players',
-      min_players: 'min_players',  // ← Supporto snake_case
+      min_players: 'min_players',
       maxPlayers: 'max_players',
-      max_players: 'max_players',  // ← Supporto snake_case
+      max_players: 'max_players',
       rentalPrice: 'rental_price',
-      rental_price: 'rental_price', // ← Supporto snake_case
+      rental_price: 'rental_price',
       durationMinutes: 'duration_minutes',
-      duration_minutes: 'duration_minutes', // ← Supporto snake_case
+      duration_minutes: 'duration_minutes',
       difficultyLevel: 'difficulty_level',
-      difficulty_level: 'difficulty_level', // ← Supporto snake_case
+      difficulty_level: 'difficulty_level',
       category: 'category',
       imageUrl: 'image_url',
-      image_url: 'image_url'  // ← Supporto snake_case
+      image_url: 'image_url'
     };
 
     // Costruisci la query solo per i campi forniti
@@ -249,7 +234,6 @@ class GamesDao {
     }
   }
 
-  // ✅ FIX: getMostPopularGames ora include image_url e converte i campi
   static async getMostPopularGames(limit = 5) {
     try {
       const db = await openDb();
@@ -269,7 +253,6 @@ class GamesDao {
       `, [limit]);
       await db.close();
 
-      // ✅ FIX: Conversione campi per dashboard
       return result.map(row => this.convertDbRowToApiFormat(row));
     } catch (error) {
       console.error('Error getting popular games:', error);
@@ -290,7 +273,7 @@ class GamesDao {
       `);
       await db.close();
 
-      // Converti i nomi per coerenza API
+      // Converti i nomi per coerenza
       return {
         totalGames: result.total_games,
         totalCategories: result.total_categories,
@@ -303,10 +286,6 @@ class GamesDao {
     }
   }
 
-} // ← Fine della classe GamesDao
-
-// ==========================================
-// EXPORTS
-// ==========================================
+}
 
 module.exports = GamesDao;

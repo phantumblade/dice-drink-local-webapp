@@ -1,6 +1,3 @@
-/* -----------------------------------------
-   1. Variabili globali (tema chiaro di default)
-   ----------------------------------------- */
 :root {
   --color-primary:      #6633cc;
   --color-primary-alt:  #522da0;
@@ -26,19 +23,15 @@
 }
 
 
-/* -----------------------------------------
-   3. Reset/Global styles (background + testo)
-   ----------------------------------------- */
 body {
-  background-color: var(--color-background); /* leave full-page primary */
-  padding-top: 80px; /* reserve space for fixed navbar */
+  background-color: var(--color-background);
+  padding-top: 80px;
   color: var(--color-text);
   margin: 0;
   font-family: "Marlin Soft Basic", Arial, sans-serif;
   line-height: 1.5;
 }
 
-/* Link globali */
 a {
   color: var(--color-link);
   text-decoration: none;
@@ -50,7 +43,7 @@ a:hover {
 
 
 /* -----------------------------------------
-   4. .navbar (usa le custom properties)
+   4. .navbar
    ----------------------------------------- */
 .navbar {
   display: flex;
@@ -63,12 +56,12 @@ a:hover {
   top: 0;
   left: 0;
   right: 0;
-  height: 80px; /* or match your actual navbar height */
+  height: 80px;
   z-index: 1000;
-  flex-wrap: nowrap; /* FIX: Evita il wrap di default */
+  flex-wrap: nowrap;
 }
 
-/* Tre contenitori ("left", "center", "right") */
+/* Tre contenitori */
 .navbar-left,
 .navbar-center,
 .navbar-right {
@@ -85,25 +78,18 @@ a:hover {
 }
 
 .navbar-links a {
-  /* 1) Display e base */
-  display: inline-block;                         /* Consente padding, margini e dimensioni */
-  appearance: none;                              /* Elimina lo stile nativo (soprattutto su mobile) */
-  text-decoration: none;                         /* Rimuove la sottolineatura */
+  display: inline-block;
+  appearance: none;
+  text-decoration: none;
   font-size: 0.9rem;
   font-weight: bold;
-
-  /* 2) Colori e sfondo */
-  border: 1px solid var(--color-text);           /* Bordo basato sul testo (chiaro o scuro) */
-  background-color: var(--color-background);     /* Sfondo coerente col tema */
-  color: var(--color-primary);                      /* Testo sempre leggibile */
-  box-shadow: 2px 2px 0 2px var(--color-text);    /* Effetto rilievo (ombra esterna) */
-
-  /* 3) Dimensioni e spazi */
+  border: 1px solid var(--color-text);
+  background-color: var(--color-background);
+  color: var(--color-primary);
+  box-shadow: 2px 2px 0 2px var(--color-text);
   padding: 0.5em 1em;
   border-radius: 0.4em;
-  margin: 0 0.25em;     /* Leggero spazio orizzontale tra i bottoni */
-
-  /* 4) Transizioni e cursore */
+  margin: 0 0.25em;
   cursor: pointer;
   transition:
     background-color 0.2s ease,
@@ -113,18 +99,17 @@ a:hover {
 }
 
 .navbar-links a:hover {
-  background-color: var(--color-secondary);    /* Colore secondario più vivace */
-  color: var(--color-background);                /* Testo invertito rispetto allo sfondo */
+  background-color: var(--color-secondary);
+  color: var(--color-background);
 }
 
 .navbar-links a:active {
   box-shadow:
-    -2px -2px 0 2px var(--color-text),           /* Ombra posteriore */
-    inset 2px 2px 6px rgba(0, 0, 0, 0.5);         /* Ombra interna per effetto "pressione" */
-  transform: translate(2px, 2px);                 /* Sposta leggermente per simulare click */
+    -2px -2px 0 2px var(--color-text),
+    inset 2px 2px 6px rgba(0, 0, 0, 0.5);
+  transform: translate(2px, 2px);
 }
 
-/* Dropdown per voce Catalogo */
 .has-dropdown {
   position: relative;
   padding-bottom: 8px;
@@ -140,23 +125,18 @@ a:hover {
 .dropdown-menu {
   display: none;
   position: absolute;
-  top: calc(100% + 8px); /* posiziona sotto il link padre, con 8px di gap */
+  top: calc(100% + 8px);
   background-color: var(--color-primary) !important;
   border-radius: 4px;
-  /* Spaziatura interna: altezza ridotta, più spazio orizzontale */
-  padding: 8px 32px;   /* → 8px in alto e in basso; 32px a sinistra/destra */
-  min-width: 230px;              /* → larghezza minima del dropdown */
+  padding: 8px 32px;
+  min-width: 230px;
   z-index: 1001;
-  /* Remove default list styling within dropdown */
   list-style: none;
   padding: 0;
   margin: 0;
-  /* Use flex layout for items */
   flex-direction: column;
   align-items: center;
-  /* Remove box-shadow for dropdown panel */
-  box-shadow: none !important; /* FIX: era "non" */
-  /* Add stylized borders */
+  box-shadow: none !important;
 }
 
 .dropdown-item {
@@ -170,8 +150,8 @@ a:hover {
   text-decoration: none;
   color: var(--color-text);
   font-size: 1em;
-  min-width: 180px;   /* → garantisce che ogni bottone sia almeno 180px largo */
-  white-space: nowrap; /* → impedisce l'andare a capo */
+  min-width: 180px;
+  white-space: nowrap;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
@@ -184,14 +164,11 @@ a:hover {
   color: var(--color-background) !important;
 }
 
-/* Quando il JS imposta la classe "open" sul padre, mostriamo il menu */
 .has-dropdown.open > .dropdown-menu {
-  display: flex;           /* o "block" se preferisci */
-  flex-direction: column;   /* hai già questa regola nel tuo file */
-  /* ...tutte le altre regole di styling che già avevi (padding, background, ecc.) */
+  display: flex;
+  flex-direction: column;
 }
 
-/* E, se vuoi, fai ruotare l'arrow in corrispondenza di "open" */
 .has-dropdown.open .dropdown-arrow {
   transform: rotate(180deg);
 }
@@ -201,12 +178,10 @@ a:hover {
   margin-right: 10px;
 }
 
-/* Applico lo shake all'hover, oppure solo al caricamento della pagina */
 .navbar-logo:hover {
   animation: shake 0.5s ease;
 }
 
-/* Oppure: all'avvio */
 .navbar-logo.animate-shake {
   animation: shake 0.5s ease;
 }
@@ -226,7 +201,6 @@ a:hover {
 }
 
 
-/* Icona profilo (font-based) */
 span.material-symbols-rounded.navbar-profile-icon {
   display: inline-flex;
   align-items: center;
@@ -251,7 +225,6 @@ span.material-symbols-rounded.navbar-profile-icon:hover {
   background-color: var(--color-secondary);
   color: var(--color-background);
 }
-/* Effetto :active per tutti i ruoli in una volta sola */
 span.material-symbols-rounded.navbar-profile-icon:active,
 span.material-symbols-rounded.navbar-profile-icon.role-guest:active,
 span.material-symbols-rounded.navbar-profile-icon.role-customer:active,
@@ -280,18 +253,11 @@ span.material-symbols-rounded.navbar-profile-icon.role-staff {
     color: var(--role-staff-color);
 }
 
-/* Admin - Rosso con effetti speciali */
+/* Admin - Rosso */
 span.material-symbols-rounded.navbar-profile-icon.role-admin {
     color: var(--role-admin-color);
 }
 
-
-/* -----------------------------------------
-   JAVASCRIPT HELPER CLASSES
-   Per gestire stati dinamici
-   ----------------------------------------- */
-
-/* Overlay per chiudere ricerca cliccando fuori */
 .search-overlay {
   position: fixed;
   top: 0;
@@ -302,7 +268,6 @@ span.material-symbols-rounded.navbar-profile-icon.role-admin {
   z-index: 1001;
 }
 
-/* Quando la ricerca è aperta */
 .search-expanded {
   position: relative;
 }
@@ -311,9 +276,6 @@ span.material-symbols-rounded.navbar-profile-icon.role-admin {
   display: block !important;
 }
 
-/* -----------------------------------------
-   5. Altri componenti (per uniformità)
-   ----------------------------------------- */
 button,
 input[type="button"],
 input[type="submit"] {
@@ -336,17 +298,11 @@ input[type="submit"]:hover {
 
 
 
-/*--FOOTER--*/
-
 /* =========================
    Layout Footer
    ========================= */
 
-/* Contenitore principale del footer:
-   - larghezza massima 1200px, centrato orizzontalmente
-   - flexbox con wrap per schermi stretti (<768px) e tre colonne affiancate su desktop
-   - padding orizzontale per non attaccare il contenuto ai bordi
-*/
+
 .footer-container {
   max-width: 1500px;
   margin: 0 auto;
@@ -363,21 +319,17 @@ input[type="submit"]:hover {
   width: 100%;
   text-align: center;
   margin-bottom: 2rem;
-  line-height: 2.2; /* aumenta lo spazio verticale tra le righe */
+  line-height: 2.2;
 
 }
 
-/* =========================
-   Stile degli elementi all’interno del footer
-   (esempi di lista, link, icone, ecc.)
-   ========================= */
+
 
 footer {
   padding: 2rem 0;
   background-color: #212529;
 }
 
-/* Link di testo del footer */
 .footer-column .nav-item .nav-link {
   color: #6c757d;
   text-decoration: none;
@@ -386,17 +338,17 @@ footer {
 }
 
 .footer-column .nav-item .nav-link:hover {
-  color: #bdbdbd; /* oppure un grigio più chiaro tipo #e0e0e0 */
+  color: #bdbdbd;
 }
 
 .footer-column .nav-item .nav-link::after {
   content: "";
   position: absolute;
   left: 0;
-  bottom: -4px; /* posiziona la sottolineatura sotto il testo */
+  bottom: -4px
   width: 0;
   height: 2px;
-  background: #bdbdbd; /* colore della sottolineatura */
+  background: #bdbdbd;
   transition: width 0.25s;
 }
 
@@ -404,7 +356,6 @@ footer {
   width: 100%;
 }
 
-/* Titoli di sezione nel footer */
 .footer-column .nav-item span.footer-title {
   font-size: large;
   font-weight: 700;
@@ -413,18 +364,18 @@ footer {
 }
 
 .footer-container > .footer-row + .text-center {
-  margin: 2.5rem 0 1.5rem 0; /* spazio sopra e sotto il separatore */
+  margin: 2.5rem 0 1.5rem 0;
 }
 
 .footer-container > .footer-row + .footer-row {
-  margin-top: 2.5rem; /* spazio tra le due righe principali */
+  margin-top: 2.5rem;
 }
 
-/* Elenco orizzontale (ad es. lista di social buttons) */
+
 ul.social-buttons {
   display: flex;
-  justify-content: flex-start; /* o center se vuoi centrarli */
-  gap: 10px; /* spazio tra i bottoni */
+  justify-content: flex-start;
+  gap: 10px;
   padding: 0;
   margin: 0;
   list-style: none;
@@ -438,12 +389,11 @@ footer ul li {
 }
 
 ul.social-buttons li a {
-  /* Flexbox per centrare */
   display: flex;
-  align-items: center;          /* Centra verticalmente */
-  justify-content: center;      /* Centra orizzontalmente */
-  font-size: 24px;              /* Ingrandisci l’icona */
-  width: 48px;                  /* Più grande */
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  width: 48px;
   height: 48px;
   transition: all 0.3s;
   color: #fff;
@@ -473,7 +423,6 @@ ul.social-buttons li a[data-tooltip]:hover::before {
 }
 
 
-/* Tooltip di default: nascosto */
 ul.social-buttons li a[data-tooltip]::after,
 ul.social-buttons li a[data-tooltip]::before {
   opacity: 0;
@@ -485,7 +434,6 @@ ul.social-buttons li a[data-tooltip]:hover::before {
   opacity: 1;
 }
 
-/* Link rapidi in fondo */
 footer .quick-links {
   font-size: 90%;
   line-height: 40px;
@@ -494,7 +442,6 @@ footer .quick-links {
   font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-/* Icona separatrice */
 .fa-ellipsis-h {
   color: white;
   align-item: center;
@@ -517,7 +464,6 @@ footer .quick-links {
 /* -----------------------------------------
    Hover effects for social media icons
    ----------------------------------------- */
-/* Stili per i bottoni social */
 .social-buttons {
   position: relative;
   margin: 0;
@@ -541,10 +487,9 @@ footer .quick-links {
   text-decoration: none;
 }
 
-/* Tooltip base */
 .tooltip {
   position: absolute;
-  bottom: -35px; /* Posiziona sotto il bottone */
+  bottom: -35px;
   left: 50%;
   transform: translateX(-50%);
   color: white;
@@ -559,7 +504,6 @@ footer .quick-links {
   pointer-events: none;
 }
 
-/* Tooltip specifici per ogni social - colori aggiornati */
 .social-twitter .tooltip {
   background-color: #1da1f2;
 }
@@ -592,7 +536,6 @@ footer .quick-links {
   border-bottom-color: #e1306c;
 }
 
-/* Freccetta del tooltip */
 .tooltip::before {
   content: '';
   position: absolute;
@@ -606,11 +549,10 @@ footer .quick-links {
   border-bottom: 5px solid;
 }
 
-/* Mostra tooltip al hover */
 .social-icon:hover .tooltip {
   opacity: 1;
   visibility: visible;
-  bottom: -40px; /* Leggero movimento verso il basso */
+  bottom: -40px;
 }
 
 /* Stili specifici per ogni social */
@@ -654,7 +596,6 @@ footer .quick-links {
   transform: translateY(-2px);
 }
 
-/* Assicurati che il contenitore padre abbia overflow visible */
 .footer-social-column {
   overflow: visible;
 }
@@ -685,7 +626,6 @@ footer .quick-links {
   max-width: 420px;
 }
 
-/* Titolo newsletter */
 .footer-title {
   font-size: 2rem;
   font-weight: 800;
@@ -695,7 +635,6 @@ footer .quick-links {
   text-transform: uppercase;
 }
 
-/* Sottotitolo newsletter */
 .footer-subtitle {
   font-size: 1.2rem;
   color: #6c6e7e;
@@ -704,7 +643,6 @@ footer .quick-links {
   line-height: 1.3;
 }
 
-/* Input email minimal */
 .newsletter-form input[type="email"] {
   width: 100%;
   border: none;
@@ -722,7 +660,6 @@ footer .quick-links {
   border-bottom: 3px solid var(--color-primary, #6633cc);
 }
 
-/* Bottone iscriviti minimal */
 .newsletter-form button {
   align-self: flex-end;
   background: var(--color-primary, #6633cc);
@@ -738,14 +675,10 @@ footer .quick-links {
   margin-top: 0.5em;
 }
 
-/* =========================
-   Newsletter Footer - versione compatta e dark
-   ========================= */
-
 .newsletter-form {
   margin: -4px;
   padding: 1.2em 1.2em 2em 1.2em;
-  background: #181b1f; /* più scuro del footer */
+  background: #181b1f;
   border-radius: 18px;
   box-shadow: 0 4px 16px 0 rgba(0,0,0,0.1);
   display: flex;
@@ -754,7 +687,6 @@ footer .quick-links {
   min-width: 0;
   max-width: 340px;
   width: 19rem;
-  /* Allinea con le altre colonne */
 }
 
 .newsletter-form .newsletter-title {
@@ -772,7 +704,7 @@ footer .quick-links {
   margin-bottom: 0.9em;
   font-weight: 400;
   text-align: left;
-line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
+line-height: 1.4;
 }
 
 .newsletter-form input[type="email"] {
@@ -814,21 +746,14 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   background: var(--color-primary-alt,);
   color: var(--color-navbar-text);
 }
-
-/* -----------------------------------------
-   Separator
-   ----------------------------------------- */
 .footer-separator {
   border: none;
-  border-top: 1.5px solid #34373c; /* colore sottile e elegante */
-  margin: 12px 12px;     /* spazio sopra e sotto, e dai bordi */
-  width: calc(100% - 48px);        /* lascia 24px per lato */
+  border-top: 1.5px solid #34373c;
+  margin: 12px 12px;
+  width: calc(100% - 48px);
   background: transparent;
 }
 
-/* -----------------------------------------
-   Footer legale (copyright, link utili, ecc.)
-   ----------------------------------------- */
 .footer-legal-column {
   display: flex;
   flex-direction: column;
@@ -875,39 +800,33 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
    Sezione 2 – Welcome + CTA
    ========================= */
 
-/* Container generale della sezione */
 .welcome-section {
   padding: 2rem 2rem;
-  overflow: hidden;            /* in caso di animazioni/zoom immagini */
+  overflow: hidden;
 }
 
-/* Contenitore interno e padding */
 .welcome-container {
   max-width: 1200px;
   margin: 0 auto;
-  text-align: center;          /* di default tutto centrato */
+  text-align: center;
 }
 
-/* Titolo principale (centrato, grande) */
+
 .welcome-title {
-  font-size: 3rem;             /* più grande di prima */
+  font-size: 3rem;
   font-weight: 700;
   color: #2c3e50;
   margin-bottom: 0.5rem;
 }
 
-/* Tagline sotto il titolo */
 .welcome-tagline {
-  font-size: 1.75rem;          /* 1.75rem su desktop */
+  font-size: 1.75rem;
   font-weight: 400;
   color: rgba(44, 62, 80, 0.9);
   margin-bottom: 2rem;
   font-style: italic;
 }
 
-/* =========================
-   Grid a due colonne
-   ========================= */
 .welcome-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -916,18 +835,16 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   margin-bottom: 2.5rem;
 }
 
-/* Colonna di sinistra (testo + features) */
 .welcome-left-col {
-  text-align: left;            /* testo allineato a sinistra */
+  text-align: left;
 }
 
-/* Descrizione (paragrafo) */
 .welcome-description {
-  font-size: 1.3rem;           /* da 1.2rem a 1.3rem */
+  font-size: 1.3rem;
   color: rgba(44, 62, 80, 0.85);
   line-height: 1.6;
   margin-bottom: 1.5rem;
-  max-width: 600px;            /* limita la larghezza per migliorare la leggibilità */
+  max-width: 600px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -940,7 +857,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   padding: 0;
   margin: 0 0 2rem 0;
   display: grid;
-  /* Su desktop: fino a due colonne affiancate, min 240px ognuna */
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1rem 2rem;
 }
@@ -952,14 +868,12 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   align-items: center;
   gap: 0.5rem;
   line-height: 1.4;
-  /* NON forziamo qui il white-space: nowrap,
-     lasciamo che il testo si adatti in modo naturale */
 }
 
 .welcome-features li i {
   color: #6c5ce7;
   font-size: 1.3rem;
-  flex-shrink: 0;              /* blocca l’icona a non rimpicciolirsi */
+  flex-shrink: 0;
 }
 
 
@@ -969,11 +883,11 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 
 .welcome-image {
   width: 100%;
-  max-width: 450px;            /* ingrandita rispetto al precedente 400 */
+  max-width: 450px;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   transition: transform 0.5s ease, box-shadow 0.5s ease, filter 0.5s ease;
-  filter: brightness(0.9) contrast(1.05); /* leggero filtro per maggiore profondità */
+  filter: brightness(0.9) contrast(1.05);
   object-fit: cover;
 }
 
@@ -992,7 +906,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   border: none;
   border-radius: 8px;
   padding: 0.85rem 1.75rem;
-  font-size: 1.2rem;           /* da 1.1rem a 1.2rem */
+  font-size: 1.2rem;
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
@@ -1005,7 +919,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   font-size: 1.3rem;
 }
 
-/* Overlay animato (entra e esce in modo fluido) */
 .welcome-cta-btn::before {
   content: '';
   position: absolute;
@@ -1039,7 +952,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   cursor: pointer;
 }
 .scroll-down-indicator i {
-  font-size: 1.7rem;           /* un po’ più grande della versione precedente */
+  font-size: 1.7rem;
   color: #6c5ce7;
   animation: bounce 2s infinite;
 }
@@ -1063,12 +976,8 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
    Sezione 3 – Come funziona il locale
    =======================================*/
 
-/* =======================================
-   EXPANDABLE CARDS - STILI PRINCIPALI
-   ======================================= */
 
 .expandable-cards-section {
-    /* Invece di display:flex in riga, lo trasformiamo in colonna */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -1078,7 +987,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     overflow: visible;
 }
 
-/* Intestazione sopra le card */
 .expandable-section-title {
     font-size: 2.75rem;
     font-weight: 700;
@@ -1095,7 +1003,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     margin: 1rem auto 4rem;
 }
 
-/* Sottolineatura ondulata solo sullo span */
 .expandable-section-intro .highlight-passi {
   text-decoration-line: underline;
   text-decoration-style: wavy;
@@ -1119,31 +1026,25 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     gap: 30px;
     align-items: flex-start;
     justify-content: center;
-    overflow: visible; /* permette al badge di fuoriscire */
-    /* rimuovere padding-top/margin-top per le card */
+    overflow: visible;
     padding-top: 0;
 }
 
-/* =======================================
-   CARD BASE
-   ======================================= */
 
 .card {
     background: white;
     border-radius: 12px;
-        border: 1px solid #e9ecef; /* bordo per evitare overflow */
+        border: 1px solid #e9ecef;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
-    overflow: visible; /* badge visibile */
+    overflow: visible;
     transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     cursor: pointer;
     position: relative;
     flex: 1;
     max-width: 450px;
     min-height: 280px;
-    /* nessun margin-top */
     margin-top: 0;
-
-      /* disattiva il highlight predefinito al tap sui WebKit (iOS, Android) */
+    /* disattiva il highlight predefinito al tap sui WebKit (iOS, Android) */
   -webkit-tap-highlight-color: transparent;
   /* rimuove l’outline di focus */
   outline: none;
@@ -1160,10 +1061,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     box-shadow: 0 8px 35px rgba(0, 0, 0, 0.10);
 }
 
-/* =======================================
-   SEZIONE PRINCIPALE CARD
-   ======================================= */
-
 .card-main {
     padding: 30px 30px 20px;
     display: flex;
@@ -1176,19 +1073,14 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     justify-content: center;
     border-radius: 12px;
     overflow: hidden;
-    /* nessun margin-top */
     margin-top: 0;
 }
 
-/* =======================================
-   NUMERO CARD (BADGE)
-   ======================================= */
-
 .card-number {
     position: absolute;
-    top: 0;                              /* allinea al bordo superiore card */
+    top: 0;
     left: 50%;
-    transform: translate(-50%, -50%);    /* metà dentro, metà fuori */
+    transform: translate(-50%, -50%);
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -1212,9 +1104,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     color: var(--color-background);
 }
 
-/* =======================================
-   ICONA CARD
-   ======================================= */
 
 .card-icon {
     margin: 30px 0 25px;
@@ -1230,10 +1119,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     color: #6c5ce7;
 }
 
-/* =======================================
-   TESTO CARD
-   ======================================= */
-
 .card-title {
     font-size: 22px;
     font-weight: 700;
@@ -1245,10 +1130,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     color: #718096;
     margin-bottom: 25px;
 }
-
-/* =======================================
-   FRECCIA DI ESPANSIONE
-   ======================================= */
 
 .expand-arrow {
     display: flex;
@@ -1263,9 +1144,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transform: rotate(180deg);
 }
 
-/* =======================================
-   SEZIONE ESPANDIBILE
-   ======================================= */
 
 .card-expanded {
     max-height: 0;
@@ -1292,15 +1170,15 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 .card-features { list-style: none; margin-bottom: 25px; padding: 0; }
 .card-features li { position: relative; padding-left: 24px; margin-bottom: 8px; color: #718096; }
 .card-features li::before {
-  content: "\f525";                  /* codice Unicode di fa-dice-one */
-  font-family: "Font Awesome 6 Free";/* o la tua versione di FA */
-  font-weight: 900;                  /* solid */
+  content: "\f525";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
   position: absolute;
   left: 0;
   top: 0;
-  font-size: 1rem;                   /* regola come vuoi */
+  font-size: 1rem;
   color: #718096;
-  opacity: 0.8;                    /* colore dell’icona */
+  opacity: 0.8;
 }
 .card-button {
     padding: 0.75rem 1.5rem;
@@ -1326,14 +1204,10 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 
 
 /* =======================================
-   4 - Sezione Catalogo – Filtri + Griglia
+   4 - Sezione Catalogo
    =======================================*/
 
-/* ======================================
-   Sezione Catalogo Filtri
-   ======================================*/
 
-/* Container titolo + filtri */
 .catalog-header {
   text-align: center;
   margin-top: 4rem;
@@ -1350,7 +1224,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   margin: 0;
 }
 
-/* Lista filtri */
 .catalog-filters {
   display: inline-flex;
   gap: 0.75rem;
@@ -1359,7 +1232,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   overflow: visible;
 }
 
-/* Base comune a tutti i bottoni filtro */
 .catalog-filter-btn {
   display: inline-flex;
   align-items: center;
@@ -1378,7 +1250,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   user-select: none;
 }
 
-/* Stato inattivo: vetro opaco e testo grigio chiaro */
 .catalog-filter-btn:not(.active) {
   background: rgba(255, 255, 255, 0.2);
   color: rgba(44, 62, 80, 0.6);
@@ -1391,7 +1262,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   transform: translateY(-2px);
 }
 
-/* Stato attivo: colore brand e dimensione uguale al titolo */
 .catalog-filter-btn.active {
   background: #6c5ce7;
   color: #fff;
@@ -1414,7 +1284,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
    Sezione Catalogo Prodotti – Griglia di Prodotti
    ======================================= */
 
-/* Contenitore griglia: linee di delimitazione e spaziatura */
 .catalog-list {
   position: relative;
   display: grid;
@@ -1490,7 +1359,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   box-shadow: 0 2px 20px var(--color-primary);
 }
 
-/* "Sfoglia intero catalogo" button aligned right */
 .browse-catalog-btn {
   display: flex;
   align-items: center;
@@ -1527,19 +1395,12 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   transform: translateX(6px);
 }
 
-
-
-
 /* =======================================
-   Sezione 5 – Recensioni (Slider infinito)
+   Sezione 5 – Recensioni (statico)
    ======================================= */
 
-/* ===============================
-   SEZIONE RECENSIONI - INFINITE SCROLL
-   =============================== */
-
 .reviews-section {
-  padding: 100px 0 0 0; /* Più spazio sotto per contenere gli avatar */
+  padding: 100px 0 0 0;
   overflow: hidden;
   position: relative;
 }
@@ -1565,13 +1426,12 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 
 .reviews-slider {
   position: relative;
-  overflow: visible; /* Cambiato da hidden per permettere agli avatar di essere visibili */
+  overflow: visible;
   width: 100%;
-  height: 280px; /* Aumentato per contenere l'avatar che sporge */
+  height: 280px;
   margin: 0 auto;
-  padding: 40px 0; /* Spazio per gli avatar */
+  padding: 40px 0;
 
-  /* Gradienti fade sui bordi più eleganti */
   &::before,
   &::after {
     content: "";
@@ -1605,15 +1465,15 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 .reviews-slide-track {
   display: flex;
   animation: scrollReviews 30s linear infinite;
-  width: calc(280px * 10); /* Larghezza aumentata per più spazio */
-  padding: 0; /* Reset padding */
+  width: calc(280px * 10);
+  padding: 0;
 }
 
 .reviews-slide {
   flex-shrink: 0;
-  width: 260px; /* Aumentato per più eleganza */
+  width: 260px;
   margin: 0 10px;
-  height: 240px; /* Altezza fissa per la card */
+  height: 240px;
 }
 
 .review-card {
@@ -1730,7 +1590,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   position: relative;
 }
 
-/* Effetto gradient per il testo che si taglia */
 .review-text::after {
   content: "";
   position: absolute;
@@ -1742,23 +1601,20 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   pointer-events: none;
 }
 
-/* Animazione scroll infinito migliorata */
 @keyframes scrollReviews {
   0% {
     transform: translateX(0);
   }
   100% {
-    transform: translateX(calc(-280px * 5)); /* Corretto per la nuova larghezza */
+    transform: translateX(calc(-280px * 5));
   }
 }
 
-/* Tutte le sezioni principali della homepage partono nascoste */
 .homepage > * {
   opacity: 0;
   transform: translateY(30px);
 }
 
-/* Quando la homepage ha la classe show, animali a cascata */
 .homepage.show > * {
   animation: appearUp 0.7s cubic-bezier(.4,0,.2,1) forwards;
 }
@@ -1776,17 +1632,9 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
   }
 }
 
-
-
-
-
 /*===================================================
-        CATALOGO - VERSIONE AGGIORNATA
+        CATALOGO  COMPLETO
 =====================================================*/
-
-/* ==========================================
-   LAYOUT PRINCIPALE CATALOGO
-   ========================================== */
 
 .catalog-page {
     background: var(--color);
@@ -1794,10 +1642,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     padding: 2rem;
     margin: 0 auto;
 }
-
-/* ==========================================
-   HEADER CATALOGO
-   ========================================== */
 
 .catalog-title {
     color: #2c3e50;
@@ -1816,10 +1660,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     margin-bottom: 2rem;
     line-height: 1.6;
 }
-
-/* ==========================================
-   FILTRI SWITCH
-   ========================================== */
 
 .filter-switch {
     display: flex;
@@ -1864,10 +1704,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transform: translateY(-1px);
 }
 
-/* ==========================================
-   STATS BAR CON FILTRI AVANZATI
-   ========================================== */
-
 .stats-bar {
     background: #ffffff;
     border-radius: 12px;
@@ -1900,17 +1736,14 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     color: #6633cc;
 }
 
-/* ==========================================
-   FILTRI AVANZATI (NUOVO)
-   ========================================== */
 
 .advanced-filters {
-    display: grid;                              /* da flex a grid */
-    grid-template-columns: repeat(2, auto);     /* 2 colonne */
-    grid-template-rows: repeat(2, auto);        /* 2 righe */
-    gap: 0.5rem;                                /* spazio più piccolo */
-    justify-content: center;                    /* centrati orizzontalmente */
-    margin: 0 1rem;                             /* un po’ di margine laterale */
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    grid-template-rows: repeat(2, auto);
+    gap: 0.5rem;
+    justify-content: center;
+    margin: 0 1rem;
 }
 
 .filter-chip {
@@ -2000,13 +1833,9 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     pointer-events: none;
 }
 
-/* ==========================================
-   ITEMS GRID - CARD PIÙ LARGHE
-   ========================================== */
 
 .items-grid {
     display: grid;
-    /* Card più larghe per i drink */
     grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
     gap: 2rem;
     margin-bottom: 2rem;
@@ -2014,9 +1843,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     grid-auto-rows: minmax(500px, auto);
 }
 
-/* ==========================================
-   ITEM CARDS
-   ========================================== */
 
 .item-card {
     background: #ffffff;
@@ -2037,13 +1863,8 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
 }
 
-/* ==========================================
-   ITEM IMAGE - PIÙ ALTA
-   ========================================== */
-
 .item-image {
     position: relative;
-    /* Immagine più alta per i drink */
     height: 240px;
     background-size: cover;
     background-position: center;
@@ -2075,10 +1896,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transform: scale(1.1);
 }
 
-/* ==========================================
-   ITEM CONTENT
-   ========================================== */
-
 .item-content {
     padding: 1.5rem;
     display: flex;
@@ -2101,10 +1918,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     overflow: hidden;
 }
 
-/* ==========================================
-   CATEGORY TAGS - COLORI DIVERSI
-   ========================================== */
-
 .item-category {
     display: inline-block;
     color: #ffffff;
@@ -2121,27 +1934,22 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     align-self: flex-start;
 }
 
-/* Tag per giochi */
 .game-card .item-category {
     background: linear-gradient(135deg, #6633cc, #B2456B);
 }
 
-/* Tag per drink alcolici */
 .drink-card .item-category.alcoholic {
     background: linear-gradient(135deg, #DC2626, #EF4444);
 }
 
-/* Tag per drink analcolici */
 .drink-card .item-category.non-alcoholic {
     background: linear-gradient(135deg, #10B981, #34D399);
 }
 
-/* Tag per snack dolci */
 .snack-card .item-category.sweet {
     background: linear-gradient(135deg, #F59E0B, #FCD34D);
 }
 
-/* Tag per snack salati */
 .snack-card .item-category.savory {
     background: linear-gradient(135deg, #3B82F6, #60A5FA);
 }
@@ -2192,10 +2000,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     letter-spacing: 0.5px;
 }
 
-/* ==========================================
-   ACTION BUTTONS
-   ========================================== */
-
 .rent-btn {
     width: 100%;
     padding: 1rem;
@@ -2218,10 +2022,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
-
-/* ==========================================
-   MODAL
-   ========================================== */
 
 .modal-overlay {
     position: fixed;
@@ -2442,24 +2242,13 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     margin-bottom: 1rem;
 }
 
-
-/* ==========================================
-   VARIANTI PER TIPI DI CARD
-   ========================================== */
-
-/* Card Drink specifiche */
 .drink-card .expand-btn:hover {
     background: #FF6B6B;
 }
 
-/* Card Snack specifiche */
 .snack-card .expand-btn:hover {
     background: #4ECDC4;
 }
-
-/* ==========================================
-   LOADING STATES
-   ========================================== */
 
 .loading {
     display: flex;
@@ -2481,10 +2270,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     margin-right: 0.5rem;
 }
 
-/* ==========================================
-   ACCESSIBILITY IMPROVEMENTS
-   ========================================== */
-
 .filter-btn:focus,
 .expand-btn:focus,
 .rent-btn:focus,
@@ -2502,22 +2287,19 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     box-shadow: 0 0 0 3px rgba(102, 51, 204, 0.1);
 }
 
-/* High contrast mode support */
 
 /* ==========================================
-   🛒 CARRELLO POPUP LATERALE - CLASSI SPECIFICHE
+    CARRELLO POPUP LATERALE
    ========================================== */
 
-/* Rimuovi il padding bottom aggiunto prima */
 .catalog-page {
-    padding-bottom: 2rem !important; /* Ripristina padding normale */
+    padding-bottom: 2rem !important;
 }
 
-/* Carrello come popup laterale */
 .catalog-cart-box {
     position: fixed;
     top: 60%;
-    right: -400px; /* Nascosto inizialmente */
+    right: -400px;
     transform: translateY(-50%);
     width: 380px;
     max-width: 90vw;
@@ -2531,24 +2313,20 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     border-left: 4px solid #6633cc;
 }
 
-/* Carrello visibile quando ha contenuto */
 .catalog-cart-box:not([style*="display: none"]) {
     right: 0;
 }
 
-/* Override per forzare la visibilità quando necessario */
 .catalog-cart-box[data-user-authenticated="true"] {
     display: block !important;
     right: 0 !important;
 }
 
-/* Nascondi esplicitamente per guest */
 .catalog-cart-box[data-user-authenticated="false"] {
     display: none !important;
     right: -400px !important;
 }
 
-/* Animazione di entrata più fluida */
 .catalog-cart-box.show {
     right: 0 !important;
     opacity: 1;
@@ -2563,7 +2341,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Debug styles (rimuovere in produzione) */
 .catalog-cart-box[data-debug="true"]::before {
     content: "AUTH: " attr(data-user-authenticated) " | ITEMS: " attr(data-cart-items);
     position: absolute;
@@ -2578,7 +2355,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 
-/* Header compatto */
 .cart-box-header {
     background: linear-gradient(135deg, #6633cc, #522da0);
     color: #ffffff;
@@ -2637,7 +2413,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transform: scale(1.1);
 }
 
-/* Contenuto scrollabile */
 .cart-box-content {
     padding: 1rem 1.5rem;
     max-height: calc(80vh - 120px);
@@ -2705,7 +2480,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     margin-bottom: 0.75rem;
 }
 
-/* Lista items compatta */
 .cart-item-list {
     list-style: none;
     margin: 0;
@@ -2855,7 +2629,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     font-weight: 700;
 }
 
-/* Azioni compatte - CLASSI SPECIFICHE */
 .cart-box-actions {
     display: grid;
     grid-template-columns: auto 1fr;
@@ -2921,11 +2694,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     background: linear-gradient(135deg, #45a049, #5cbf60);
 }
 
-/* ==========================================
-   🎯 TRIGGER BUTTON - FLOATING
-   ========================================== */
-
-/* Badge carrello floating */
 .cart-badge {
     position: absolute;
     top: -6px;
@@ -2949,10 +2717,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     50% { transform: scale(1.15); }
 }
 
-/* ==========================================
-   ANIMAZIONI E STATI
-   ========================================== */
-
 /* Animazione ingresso */
 @keyframes cartSlideIn {
     from {
@@ -2969,7 +2733,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     animation: cartSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Overlay semi-trasparente opzionale */
 .cart-overlay {
     position: fixed;
     top: 0;
@@ -2988,10 +2751,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     pointer-events: all;
 }
 
-/* ==========================================
-   ACCESSIBILITÀ
-   ========================================== */
-
 .cart-qty-btn:focus,
 .cart-item-remove:focus,
 .cart-btn-clear:focus,
@@ -3002,13 +2761,13 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 /* ==========================================
-   🎯 MODAL QUANTITÀ - CLASSI SPECIFICHE
+   MODAL QUANTITÀ
    ========================================== */
 
 .quantity-modal .modal-overlay {
     background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(15px);
-    z-index: 1200; /* Sopra il carrello */
+    z-index: 1200;
 }
 
 .quantity-modal .modal-content {
@@ -3061,10 +2820,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transform: scale(1.1) rotate(90deg);
     box-shadow: 0 6px 20px rgba(244, 67, 54, 0.5);
 }
-
-/* ==========================================
-   HEADER MODAL CON PRODOTTO
-   ========================================== */
 
 .quantity-modal-header {
     display: flex;
@@ -3130,10 +2885,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     box-shadow: 0 2px 10px rgba(102, 51, 204, 0.1);
 }
 
-/* ==========================================
-   SELETTORE QUANTITÀ GAMING
-   ========================================== */
-
 .quantity-selector {
     text-align: center;
     margin-bottom: 2.5rem;
@@ -3163,7 +2914,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-/* CLASSE SPECIFICA PER BOTTONI QUANTITÀ */
 .quantity-control-btn {
     width: 50px;
     height: 50px;
@@ -3260,10 +3010,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     font-weight: 800;
 }
 
-/* ==========================================
-   AZIONI MODAL - CLASSI SPECIFICHE
-   ========================================== */
-
 .quantity-actions {
     display: grid;
     grid-template-columns: auto 1fr;
@@ -3271,7 +3017,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     padding: 0 2rem 2rem;
 }
 
-/* CLASSE SPECIFICA PER BOTTONE ANNULLA */
 .quantity-cancel-btn {
     padding: 1rem 1.5rem;
     background: linear-gradient(135deg, #718096, #5a6c7d);
@@ -3294,7 +3039,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     box-shadow: 0 6px 20px rgba(113, 128, 150, 0.4);
 }
 
-/* CLASSE SPECIFICA PER BOTTONE AGGIUNGI */
 .quantity-add-btn {
     padding: 1rem 2rem;
     background: linear-gradient(135deg, #6633cc, #B2456B);
@@ -3343,10 +3087,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     font-size: 1.1rem;
 }
 
-/* ==========================================
-   ANIMAZIONI MODAL
-   ========================================== */
-
 @keyframes quantityModalAppear {
     from {
         opacity: 0;
@@ -3361,11 +3101,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 .quantity-modal.active .modal-content {
     animation: quantityModalAppear 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
-
-/* ==========================================
-   ACCESSIBILITÀ MODAL
-   ========================================== */
 
 .quantity-control-btn:focus,
 #quantity-input:focus,
@@ -3410,17 +3145,9 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 
 
 //=======================================
-//  PRENOTAZIONE TAVOLO - MIGLIORATA
+//  PRENOTAZIONE TAVOLO
 //=======================================
 
-/* ==========================================
-   BOOKINGS PAGE STYLES - VERSIONE MIGLIORATA
-   Da sostituire nel file style.css principale
-   ========================================== */
-
-/* ==========================================
-   LAYOUT PRINCIPALE PRENOTAZIONI
-   ========================================== */
 .bookings-page {
     max-width: 1200px;
     margin: 0 auto;
@@ -3489,7 +3216,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     box-shadow: 0 4px 20px rgba(102, 126, 234, 0.05);
 }
 
-/* ✅ SEZIONE VUOTA COMPATTA */
 .empty-selection-section {
     padding: 1.5rem 2rem;
     margin-bottom: 1.5rem;
@@ -3512,7 +3238,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     font-size: 1.3rem;
 }
 
-/* ✅ CONTATORE ELEMENTI */
 .items-count {
     font-size: 0.9rem;
     font-weight: 400;
@@ -3568,17 +3293,14 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     background: #fafbff;
 }
 
-/* Rimuovi lo stile esistente della textarea e applica uno stile più semplice */
 .form-section .textarea {
-    /* Reset dello stile precedente */
     min-height: 80px;
     resize: vertical;
     font-family: inherit;
 
-    /* Nuovo stile semplice come gli altri input */
     padding: 14px 18px;
     border: 2px solid #e2e8f0;
-    border-radius: 8px; /* Più semplice, meno arrotondato */
+    border-radius: 8px;
     font-size: 1rem;
     transition: all 0.3s ease;
     background: white;
@@ -3599,10 +3321,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     font-weight: 400;
 }
 
-
-/* ==========================================
-   ✅ EMPTY STATE COMPATTO E ELEGANTE
-   ========================================== */
 .empty-selection-compact {
     display: flex;
     flex-direction: column;
@@ -3691,9 +3409,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     font-size: 0.9rem;
 }
 
-/* ==========================================
-   ✅ SELECTED ITEMS DISPLAY MIGLIORATO
-   ========================================== */
 .selected-items {
     background: linear-gradient(135deg, #f8fafff5, #fff);
     border: 1px solid rgba(102, 126, 234, 0.12);
@@ -3849,7 +3564,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transform: scale(1.1);
 }
 
-/* ✅ BOTTONE RIMOZIONE ELEMENTO - Flat */
 .booking-item-remove {
     background: #fed7d7;
     color: #c53030;
@@ -3870,7 +3584,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     color: #9b2c2c;
 }
 
-/* ✅ AZIONI SELEZIONE */
 .selection-actions {
     display: flex;
     justify-content: center;
@@ -3918,7 +3631,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 /* ==========================================
-   PRICING SUMMARY
+   PREZZO PRENOTAZIONE TOTALE
    ========================================== */
 .pricing-summary {
     background: #6c5ce7;
@@ -3952,10 +3665,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     font-size: 1.3rem;
     font-weight: 700;
 }
-
-/* ==========================================
-   BOOKING BUTTONS - FLAT DESIGN SEMPLICE
-   ========================================== */
 .booking-action-buttons {
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;
@@ -3989,7 +3698,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     box-shadow: none;
 }
 
-/* ✅ BOTTONE INDIETRO - Flat grigio */
 .booking-btn-back {
     background: #f8f9fa;
     color: #6c757d;
@@ -4003,7 +3711,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transform: translateY(-1px);
 }
 
-/* ✅ BOTTONE PRINCIPALE - Flat viola */
 .booking-btn-primary {
     background: #6c5ce7;
     color: white;
@@ -4026,7 +3733,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transform: none;
 }
 
-/* ✅ BOTTONE ANNULLA - Flat rosso */
 .booking-btn-cancel {
     background: #fc8181;
     color: white;
@@ -4048,9 +3754,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     opacity: 0.9;
 }
 
-/* ==========================================
-   LOADING STATE
-   ========================================== */
 .loading {
     display: inline-block;
     width: 20px;
@@ -4067,9 +3770,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     }
 }
 
-/* ==========================================
-   ERROR PAGE
-   ========================================== */
 .error-page {
     text-align: center;
     padding: 3rem;
@@ -4088,11 +3788,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     color: #666;
     margin-bottom: 2rem;
 }
-
-
-/* ==========================================
-   ANIMATION ENHANCEMENTS
-   ========================================== */
 .booking-wizard {
     animation: slideUp 0.6s ease-out;
 }
@@ -4139,10 +3834,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
         box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.08);
     }
 }
-
-/* ==========================================
-   ACCESSIBILITY IMPROVEMENTS
-   ========================================== */
 .form-input:focus,
 .form-select:focus,
 .booking-btn:focus,
@@ -4162,10 +3853,9 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 
 
 /* ==========================================
-   NOTIFICHE ELEGANTI DICE & DRINK
+   NOTIFICHE POPUP
    ========================================== */
 
-/* Toast Notification */
 .auth-notification {
     position: fixed;
     bottom: 30px;
@@ -4195,7 +3885,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     opacity: 0;
 }
 
-/* Varianti per tipo */
 .auth-notification.success {
     background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
     border-color: rgba(255, 255, 255, 0.2);
@@ -4216,7 +3905,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Header della notifica */
 .notification-header {
     display: flex;
     align-items: center;
@@ -4269,7 +3957,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transform: scale(1.1);
 }
 
-/* Messaggio della notifica */
 .notification-message {
     font-size: 15px;
     margin: 0;
@@ -4278,7 +3965,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     white-space: pre-line;
 }
 
-/* Animazione dell'icona */
 .notification-icon i {
     animation: bounce 2s infinite;
 }
@@ -4294,11 +3980,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
         transform: translateY(-2px);
     }
 }
-
-
-/* ==========================================
-   MENU UTENTE ELEGANTE
-   ========================================== */
 
 .user-menu-overlay {
     position: fixed;
@@ -4337,7 +4018,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transform: scale(1);
 }
 
-/* Header del menu utente */
 .user-menu-header {
     padding: 24px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -4400,7 +4080,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transform: scale(1.1);
 }
 
-/* Opzioni del menu */
 .user-menu-options {
     padding: 12px;
 }
@@ -4446,11 +4125,8 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     text-align: left;
 }
 
-/* ==========================================
-   MODAL AUTH ESISTENTE - AGGIORNAMENTI
-   ========================================== */
 
-/* Miglioramenti al modal esistente per coerenza */
+/* Miglioramenti al modal esistente */
 .auth-modal-overlay {
     backdrop-filter: blur(10px);
 }
@@ -4459,7 +4135,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
 }
 
-/* Migliori transizioni per i bottoni */
 .auth-button {
     transition: all 0.3s ease;
 }
@@ -4493,18 +4168,11 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
-/* Focus states per accessibilità */
 .user-menu-option:focus,
 .notification-close:focus {
     outline: 2px solid #6c5ce7;
     outline-offset: 2px;
 }
-
-/* ==========================================
-   ANIMAZIONI AVANZATE
-   ========================================== */
-
-/* Pulso per icone attive */
 .notification-icon.pulse {
     animation: pulse 2s infinite;
 }
@@ -4524,7 +4192,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     }
 }
 
-/* Shake per errori */
 .auth-notification.error .notification-icon {
     animation: shake 0.5s ease-in-out;
 }
@@ -4569,16 +4236,14 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     }
 }
 
-/* Badge per icone nella navbar */
 .nav-buttons {
     position: relative;
 }
 
-/* ==========================================
-   NOTIFICHE ELEGANTI DICE & DRINK
-   ========================================== */
+/* ==================
+   NOTIFICHE
+   ===================*/
 
-/* Toast Notification */
 .auth-notification {
     position: fixed;
     bottom: 30px;
@@ -4608,7 +4273,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     opacity: 0;
 }
 
-/* Varianti per tipo */
 .auth-notification.success {
     background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
     border-color: rgba(255, 255, 255, 0.2);
@@ -4629,7 +4293,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Header della notifica */
 .notification-header {
     display: flex;
     align-items: center;
@@ -4682,7 +4345,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transform: scale(1.1);
 }
 
-/* Messaggio della notifica */
 .notification-message {
     font-size: 15px;
     margin: 0;
@@ -4691,7 +4353,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     white-space: pre-line;
 }
 
-/* Animazione dell'icona */
 .notification-icon i {
     animation: bounce 2s infinite;
 }
@@ -4707,10 +4368,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
         transform: translateY(-2px);
     }
 }
-
-/* ==========================================
-   MENU UTENTE ELEGANTE
-   ========================================== */
 
 .user-menu-overlay {
     position: fixed;
@@ -4749,7 +4406,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transform: scale(1);
 }
 
-/* Header del menu utente */
 .user-menu-header {
     padding: 24px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -4812,7 +4468,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transform: scale(1.1);
 }
 
-/* Opzioni del menu */
 .user-menu-options {
     padding: 12px;
 }
@@ -4858,11 +4513,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     text-align: left;
 }
 
-/* ==========================================
-   MODAL AUTH ESISTENTE - AGGIORNAMENTI
-   ========================================== */
-
-/* Miglioramenti al modal esistente per coerenza */
+/* Miglioramenti al modale */
 .auth-modal-overlay {
     backdrop-filter: blur(10px);
 }
@@ -4871,7 +4522,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
 }
 
-/* Migliori transizioni per i bottoni */
 .auth-button {
     transition: all 0.3s ease;
 }
@@ -4905,18 +4555,12 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
-/* Focus states per accessibilità */
 .user-menu-option:focus,
 .notification-close:focus {
     outline: 2px solid #6c5ce7;
     outline-offset: 2px;
 }
 
-/* ==========================================
-   ANIMAZIONI AVANZATE
-   ========================================== */
-
-/* Pulso per icone attive */
 .notification-icon.pulse {
     animation: pulse 2s infinite;
 }
@@ -4949,10 +4593,9 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 
 
 /* ========================================
-   BOOKING SUCCESS MODAL
+   MODALE DI SUCCESSO PRENOTAZIONE
    ======================================== */
 
-/* Cambia completamente lo stile del modale per renderlo uguale al modale auth */
 .dice-booking-modal-overlay {
     position: fixed;
     top: 0;
@@ -4968,7 +4611,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     animation: authModalFadeIn 0.3s ease;
 }
 
-/* Animazioni specifiche per il modale */
 @keyframes diceBookingModalFadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -4991,7 +4633,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     70% { transform: translateY(-5px); }
 }
 
-/* Modal principale - Stesso stile del modale auth */
 .dice-success-modal {
     background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
     border-radius: 20px;
@@ -5018,7 +4659,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     }
 }
 
-/* Header del modale */
 .dice-modal-header {
     text-align: center;
     margin-bottom: 32px;
@@ -5064,7 +4704,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     font-family: inherit;
 }
 
-/* Codice conferma - Stile auth */
 .dice-confirmation-code {
     background: rgba(255, 255, 255, 0.05);
     border: 2px solid #6c5ce7;
@@ -5102,7 +4741,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     user-select: all;
 }
 
-/* Layout griglia */
 .dice-content-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -5110,7 +4748,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     margin: 24px 0;
 }
 
-/* Sezioni dettagli e ordine - Stesso background auth */
 .dice-booking-details,
 .dice-order-summary {
     background: rgba(255, 255, 255, 0.03);
@@ -5135,7 +4772,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     color: #6c5ce7;
 }
 
-/* Elementi dettaglio */
 .dice-detail-item {
     display: flex;
     justify-content: space-between;
@@ -5169,7 +4805,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     font-family: inherit;
 }
 
-/* Sezioni ordine */
 .dice-order-section {
     margin-bottom: 20px;
 }
@@ -5230,7 +4865,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     font-family: inherit;
 }
 
-/* Sezione totale - Colori auth */
 .dice-total-section {
     background: rgba(102, 126, 234, 0.15);
     border-radius: 8px;
@@ -5258,7 +4892,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     font-family: inherit;
 }
 
-/* Notifica email - Colori auth */
 .dice-email-notice {
     background: rgba(102, 126, 234, 0.1);
     border-radius: 12px;
@@ -5288,7 +4921,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     color: #ffffff;
 }
 
-/* Azioni del modale - Stile auth */
 .dice-modal-actions {
     display: flex;
     gap: 12px;
@@ -5348,7 +4980,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transform: translateY(0);
 }
 
-/* Pulsante chiudi - Stile auth */
 .dice-close-btn {
     position: absolute;
     top: 20px;
@@ -5378,7 +5009,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     outline-offset: 2px;
 }
 
-/* Scrollbar personalizzata per il modale */
 .dice-success-modal::-webkit-scrollbar {
     width: 8px;
 }
@@ -5403,13 +5033,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     scrollbar-color: #6c5ce7 rgba(255, 255, 255, 0.1);
 }
 
-/* ==========================================
-   AUTH MODAL CSS - CLEAN CARD STYLE
-   Design con card sinistra pulita + logo
-   OTTIMIZZATO PER MOBILE
-   ========================================== */
-
-/* OVERLAY MODALE */
 .auth-modal-overlay {
     position: fixed;
     top: 0;
@@ -5434,7 +5057,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     visibility: visible;
 }
 
-/* CONTAINER PRINCIPALE - CARD STYLE */
 .auth-modal {
     background: transparent;
     border: none;
@@ -5455,7 +5077,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transform: translateY(0) scale(1);
 }
 
-/* BOTTONE CHIUSURA */
 .auth-modal-close {
     position: absolute;
     top: 16px;
@@ -5484,7 +5105,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     outline: none;
 }
 
-/* SEZIONE SINISTRA - CARD CON LOGO */
 .auth-modal-left {
     flex: 1;
     display: flex;
@@ -5513,14 +5133,12 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     padding: 40px 20px;
 }
 
-/* LOGO GRANDE */
 .background-img {
     width: 480px;
     object-fit: contain;
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 }
 
-/* OVERLAY TEXT */
 .overlay-text {
     position: absolute;
     top: 0;
@@ -5551,7 +5169,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-/* SEZIONE DESTRA - FORM */
 .auth-modal-right {
     flex: 1;
     padding: 40px;
@@ -5565,7 +5182,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     overflow-y: auto;
 }
 
-/* CONTAINER FORM */
 .auth-form-container {
     flex: 1;
     display: flex;
@@ -5576,7 +5192,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     width: 100%;
 }
 
-/* TITOLI FORM */
 .form-title {
     margin-bottom: 8px;
     font-size: 26px;
@@ -5599,7 +5214,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     text-decoration: underline;
 }
 
-/* FORM STYLING */
 .auth-form {
     display: none;
 }
@@ -5610,14 +5224,12 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     gap: 1rem;
 }
 
-/* ROW PER NOME/COGNOME */
 .form-row {
     display: flex;
     gap: 12px;
     margin-bottom: 12px;
 }
 
-/* INPUT STYLING */
 .form-input {
     width: 100%;
     padding: 14px 16px;
@@ -5641,7 +5253,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     color: #999;
 }
 
-/* CHECKBOX STYLING */
 .checkbox-container {
     display: flex;
     align-items: flex-start;
@@ -5675,7 +5286,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     text-decoration: underline;
 }
 
-/* BOTTONI */
 .auth-button {
     width: 100%;
     padding: 16px;
@@ -5722,7 +5332,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     transform: none;
 }
 
-/* LOADING STATE */
 .auth-button.loading {
     color: transparent;
     position: relative;
@@ -5746,7 +5355,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     to { transform: rotate(360deg); }
 }
 
-/* DIVIDER */
 .divider {
     text-align: center;
     margin: 24px 0;
@@ -5773,7 +5381,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     z-index: 2;
 }
 
-/* BOTTONI SOCIAL */
 .social-buttons {
     display: flex;
     gap: 12px;
@@ -5804,7 +5411,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     font-size: 1rem;
 }
 
-/* MESSAGGI DI ERRORE */
 .error-message {
     background: rgba(239, 68, 68, 0.15);
     border: 1px solid #ef4444;
@@ -5833,7 +5439,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     }
 }
 
-/* SCROLLBAR STYLING */
 .auth-modal::-webkit-scrollbar,
 .auth-modal-right::-webkit-scrollbar {
     width: 6px;
@@ -5856,7 +5461,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     background: #a98dff;
 }
 
-/* ACCESSIBILITÀ */
 .auth-button:focus,
 .form-input:focus,
 .form-subtitle a:focus {
@@ -5865,21 +5469,13 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 /* ==========================================
-   ABOUT US PAGE STYLES
-   Coerente con il design esistente di Dice & Drink
+   ABOUT US
    ========================================== */
 
-/* ==========================================
-   LAYOUT BASE ABOUT
-   ========================================== */
-.about-page {
+   .about-page {
     background: var(--color-bg, #f8f9fa);
     min-height: 100vh;
 }
-
-/* ==========================================
-   HERO SECTION
-   ========================================== */
 .about-hero {
     background: #6c5ce7;
     color: white;
@@ -5930,9 +5526,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     font-weight: 300;
 }
 
-/* ==========================================
-   SEZIONI COMUNI
-   ========================================== */
 .about-story,
 .about-values,
 .about-team,
@@ -5984,10 +5577,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     color: #6633cc;
     font-size: 2rem;
 }
-
-/* ==========================================
-   STORY SECTION
-   ========================================== */
 .story-container {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -6031,10 +5620,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     font-size: 3rem;
     margin-bottom: 0.5rem;
 }
-
-/* ==========================================
-   VALUES SECTION
-   ========================================== */
 .values-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -6080,10 +5665,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     color: #718096;
     line-height: 1.6;
 }
-
-/* ==========================================
-   TEAM SECTION
-   ========================================== */
 .team-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -6136,9 +5717,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     font-size: 0.95rem;
 }
 
-/* ==========================================
-   LOCATION SECTION
-   ========================================== */
 .location-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -6196,9 +5774,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     opacity: 0.7;
 }
 
-/* ==========================================
-   CTA SECTION
-   ========================================== */
 .about-cta {
     background: #6c5ce7;
     color: white;
@@ -6246,9 +5821,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     flex-wrap: wrap;
 }
 
-/* ==========================================
-   BUTTONS COERENTI
-   ========================================== */
 .btn-primary,
 .btn-secondary,
 .btn-outline {
@@ -6306,9 +5878,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     font-size: 1.1rem;
 }
 
-/* ==========================================
-   ANIMAZIONI
-   ========================================== */
 .animate-ready {
     opacity: 0;
     transform: translateY(50px);

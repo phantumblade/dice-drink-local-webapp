@@ -1,6 +1,3 @@
-// COSA FA: Espone endpoint HTTP per frontend (/api/snacks)
-// RELAZIONI: Usa SnacksDao per dati, valida input, gestisce errori
-
 const express = require('express');
 const SnacksDao = require('../daos/snacksDao');
 const { requireAdmin } = require('../middleware/auth');
@@ -13,8 +10,6 @@ const router = express.Router();
 // ==========================================
 
 // GET /api/snacks - Lista tutti gli snack con filtri opzionali
-// Query params: sweet, mainIngredient, minPrice, maxPrice, suggestedGame, orderBy, orderDir, limit, offset
-// Esempio: /api/snacks?sweet=true&mainIngredient=cioccolato&limit=5
 router.get('/', async (req, res, next) => {
   try {
     // Estrae i filtri dalla query string
@@ -52,8 +47,6 @@ router.get('/', async (req, res, next) => {
 });
 
 // GET /api/snacks/recommended - Snack consigliati (economici di ogni categoria)
-// Query param: limit (default 6)
-// Esempio: /api/snacks/recommended?limit=4
 router.get('/recommended', async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit) || 6;
@@ -65,7 +58,6 @@ router.get('/recommended', async (req, res, next) => {
 });
 
 // GET /api/snacks/sweet - Solo snack dolci
-// Esempio: /api/snacks/sweet
 router.get('/sweet', async (req, res, next) => {
   try {
     const snacks = await SnacksDao.findSweet();
@@ -76,7 +68,6 @@ router.get('/sweet', async (req, res, next) => {
 });
 
 // GET /api/snacks/savory - Solo snack salati
-// Esempio: /api/snacks/savory
 router.get('/savory', async (req, res, next) => {
   try {
     const snacks = await SnacksDao.findSavory();
@@ -87,7 +78,6 @@ router.get('/savory', async (req, res, next) => {
 });
 
 // GET /api/snacks/game-friendly - Snack facili da mangiare durante il gioco
-// Esempio: /api/snacks/game-friendly
 router.get('/game-friendly', async (req, res, next) => {
   try {
     const snacks = await SnacksDao.getGameFriendly();
@@ -98,7 +88,6 @@ router.get('/game-friendly', async (req, res, next) => {
 });
 
 // GET /api/snacks/ingredients - Lista tutti gli ingredienti principali disponibili
-// Esempio risposta: ["formaggio", "cioccolato", "mais", "patate"]
 router.get('/ingredients', async (req, res, next) => {
   try {
     const ingredients = await SnacksDao.getMainIngredients();
@@ -109,8 +98,6 @@ router.get('/ingredients', async (req, res, next) => {
 });
 
 // GET /api/snacks/time/:timeOfDay - Snack per momento della giornata
-// Parametri: aperitivo, merenda, fine-serata
-// Esempio: /api/snacks/time/aperitivo
 router.get('/time/:timeOfDay', async (req, res, next) => {
   try {
     const timeOfDay = req.params.timeOfDay.replace('-', ' '); // "fine-serata" -> "fine serata"
@@ -132,7 +119,6 @@ router.get('/time/:timeOfDay', async (req, res, next) => {
 });
 
 // GET /api/snacks/price-range/:min/:max - Snack in una fascia di prezzo
-// Esempio: /api/snacks/price-range/4/6
 router.get('/price-range/:min/:max', async (req, res, next) => {
   try {
     const minPrice = parseFloat(req.params.min);
@@ -155,8 +141,6 @@ router.get('/price-range/:min/:max', async (req, res, next) => {
 });
 
 // GET /api/snacks/search?q=termine - Ricerca per nome/descrizione
-// Query param: q (termine di ricerca obbligatorio)
-// Esempio: /api/snacks/search?q=cioccolato
 router.get('/search', async (req, res, next) => {
   try {
     const searchTerm = req.query.q;
@@ -177,7 +161,6 @@ router.get('/search', async (req, res, next) => {
 });
 
 // GET /api/snacks/ingredient/:ingredient - Snack per ingrediente specifico
-// Esempio: /api/snacks/ingredient/cioccolato
 router.get('/ingredient/:ingredient', async (req, res, next) => {
   try {
     const ingredient = req.params.ingredient;
@@ -189,7 +172,6 @@ router.get('/ingredient/:ingredient', async (req, res, next) => {
 });
 
 // GET /api/snacks/game/:gameType - Snack per tipologia di gioco
-// Esempio: /api/snacks/game/strategia
 router.get('/game/:gameType', async (req, res, next) => {
   try {
     const gameType = req.params.gameType;
@@ -201,7 +183,6 @@ router.get('/game/:gameType', async (req, res, next) => {
 });
 
 // GET /api/snacks/drink/:drinkName - Snack abbinati a un drink specifico
-// Esempio: /api/snacks/drink/negroni
 router.get('/drink/:drinkName', async (req, res, next) => {
   try {
     const drinkName = req.params.drinkName;
@@ -213,7 +194,6 @@ router.get('/drink/:drinkName', async (req, res, next) => {
 });
 
 // GET /api/snacks/:id - Dettagli di uno snack specifico
-// Esempio: /api/snacks/1
 router.get('/:id', async (req, res, next) => {
   try {
     const snackId = parseInt(req.params.id);
@@ -250,9 +230,6 @@ router.get('/:id', async (req, res, next) => {
 // POST /api/snacks - Crea un nuovo snack (SOLO ADMIN)
 router.post('/', requireAdmin, async (req, res, next) => {
   try {
-    // TODO: Aggiungere middleware di autenticazione admin
-    // router.post('/', requireAdmin, async (req, res, next) => {
-
     const snackData = req.body;
 
     // Validazione campi obbligatori
@@ -298,8 +275,6 @@ router.post('/', requireAdmin, async (req, res, next) => {
 // PUT /api/snacks/:id - Aggiorna uno snack esistente (SOLO ADMIN)
 router.put('/:id', requireAdmin, async (req, res, next) => {
   try {
-    // TODO: Aggiungere middleware di autenticazione admin
-
     const snackId = parseInt(req.params.id);
     if (isNaN(snackId)) {
       return res.status(400).json({ error: 'ID snack non valido' });
@@ -338,8 +313,6 @@ router.put('/:id', requireAdmin, async (req, res, next) => {
 // DELETE /api/snacks/:id - Elimina uno snack (SOLO ADMIN)
 router.delete('/:id', requireAdmin, async (req, res, next) => {
   try {
-    // TODO: Aggiungere middleware di autenticazione admin
-
     const snackId = parseInt(req.params.id);
     if (isNaN(snackId)) {
       return res.status(400).json({ error: 'ID snack non valido' });

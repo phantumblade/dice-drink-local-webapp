@@ -1,5 +1,3 @@
-// public/js/services/user-role-manager.js
-// Sistema per gestire icone dinamiche in base al ruolo utente
 
 console.log('🎭 UserRoleManager caricato');
 
@@ -242,7 +240,6 @@ class UserRoleManager {
 // INTEGRAZIONE CON SISTEMA AUTH ESISTENTE
 // ==========================================
 
-// Estendi SimpleAuth con gestione ruoli
 if (window.SimpleAuth) {
     // Hook nel login esistente
     const originalLogin = window.SimpleAuth.login;

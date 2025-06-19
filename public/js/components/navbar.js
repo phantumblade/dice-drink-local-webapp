@@ -1,6 +1,4 @@
-// js/navbar.js
 
-// Esporta la funzione per creare la navbar
 export function createNavbar() {
   // Crea l'elemento <nav>
   const nav = document.createElement('nav');
@@ -8,6 +6,7 @@ export function createNavbar() {
   nav.classList.add('navbar');
 
   // --- Sezione sinistra: logo + titolo ---
+
   // Crea il contenitore per la sezione sinistra
   const leftSection = document.createElement('div');
   // Aggiunge la classe CSS per la sezione sinistra
@@ -16,13 +15,12 @@ export function createNavbar() {
   // Crea l'elemento immagine per il logo
   const logo = document.createElement('img');
   // Imposta il percorso dell'immagine del logo
-  logo.src = '/assets/Logo.png'; // metti il path corretto
+  logo.src = '/assets/Logo.png';
   // Imposta il testo alternativo per l'immagine
   logo.alt = 'Logo Dice & Drink';
   // Aggiunge la classe CSS al logo
   logo.classList.add('navbar-logo');
 
-  // ✅ AGGIORNATO: Logo ora usa Page.js router
   logo.style.cursor = 'pointer';
   logo.addEventListener('click', (e) => {
     e.preventDefault();
@@ -42,7 +40,6 @@ export function createNavbar() {
   // Aggiunge la classe CSS al titolo
   title.classList.add('navbar-title');
 
-  // ✅ AGGIORNATO: Titolo cliccabile per tornare home
   title.style.cursor = 'pointer';
   title.addEventListener('click', (e) => {
     e.preventDefault();
@@ -58,12 +55,12 @@ export function createNavbar() {
   leftSection.appendChild(title);
 
   // --- Sezione centrale: link di navigazione ---
+
   // Crea il contenitore per la sezione centrale
   const centerSection = document.createElement('div');
   // Aggiunge la classe CSS per la sezione centrale
   centerSection.classList.add('navbar-center');
 
-  // ✅ AGGIORNATO: Pagine con URL reali per Page.js
   const pages = [
     {
       name: 'Catalogo',
@@ -96,7 +93,6 @@ export function createNavbar() {
   // Aggiunge la classe CSS alla lista
   ul.classList.add('navbar-links');
 
-  // Per ogni pagina definita...
   pages.forEach(page => {
     // Crea un elemento <li>
     const li = document.createElement('li');
@@ -107,9 +103,7 @@ export function createNavbar() {
         li.classList.add('has-dropdown');
     }
 
-    // ✅ AGGIORNATO: Crea link con href reale
     const a = document.createElement('a');
-    // Imposta l'attributo href REALE per Page.js
     a.href = page.href;
     // Imposta il testo del link
     a.textContent = page.name;
@@ -118,34 +112,26 @@ export function createNavbar() {
     // Salva l'id della pagina come data attribute per compatibilità
     a.dataset.page = page.id;
 
-    // Se ha dropdown, aggiungiamo anche la freccia
     if (page.hasDropdown) {
       const arrow = document.createElement('span');
       arrow.classList.add('dropdown-arrow');
-      arrow.textContent = '▾'; // simbolo freccia verso il basso
+      arrow.textContent = '▾';
       a.appendChild(arrow);
     }
 
-    // ✅ AGGIORNATO: Gestione click per dropdown
     a.addEventListener('click', (e) => {
-      // Se la voce ha dropdown, previeni navigazione immediata
       if (page.hasDropdown) {
         e.preventDefault();
-        // Non navigare, lascia che l'hover gestisca il dropdown
-        // Page.js gestirà automaticamente i link dei sottomenu
       }
-      // Se NON ha dropdown, Page.js gestirà automaticamente la navigazione
     });
 
     // Aggiunge il link al <li>
     li.appendChild(a);
 
-    // ✅ AGGIORNATO: Dropdown con link href reali
     if (page.hasDropdown) {
       const dropdownMenu = document.createElement('ul');
       dropdownMenu.classList.add('dropdown-menu');
 
-      // Definiamo le sottovoci con URL reali
       let submenuItems;
       if (page.id === 'catalogo') {
         submenuItems = [
@@ -191,15 +177,11 @@ export function createNavbar() {
         const subLi = document.createElement('li');
         subLi.classList.add('dropdown-item');
 
-        // ✅ AGGIORNATO: Link dropdown con href reale
         const subA = document.createElement('a');
-        subA.href = sub.href; // URL reale per Page.js
+        subA.href = sub.href;
         subA.textContent = sub.name;
         subA.classList.add('dropdown-link');
-        subA.dataset.page = sub.id; // Mantieni per compatibilità
-
-        // ✅ RIMOSSO: addEventListener click non più necessario
-        // Page.js gestirà automaticamente la navigazione
+        subA.dataset.page = sub.id;
 
         subLi.appendChild(subA);
         dropdownMenu.appendChild(subLi);
@@ -216,12 +198,12 @@ export function createNavbar() {
   centerSection.appendChild(ul);
 
   // --- Sezione destra: ricerca + icona profilo ---
+
   // Crea il contenitore per la sezione destra
   const rightSection = document.createElement('div');
   // Aggiunge la classe CSS per la sezione destra
   rightSection.classList.add('navbar-right');
 
-  // ✅ AGGIORNATO: Icona profilo migliorata
   const profileIcon = document.createElement('span');
   profileIcon.classList.add('material-symbols-rounded', 'navbar-profile-icon');
   profileIcon.textContent = 'person_add';
@@ -267,28 +249,23 @@ export function createNavbar() {
   // Aggiunge la sezione destra alla navbar
   nav.appendChild(rightSection);
 
-  // ✅ AGGIUNTO: Setup indicatore pagina attiva dopo creazione
   setupActivePageIndicator(nav);
 
   // Ritorna l'elemento navbar completo
   return nav;
 }
 
-// ✅ NUOVO: Funzione per gestire indicatore pagina attiva
 function setupActivePageIndicator(navbar) {
   // Funzione per aggiornare lo stato attivo dei link
   function updateActiveState() {
-    // Rimuovi active da tutti i link
     navbar.querySelectorAll('.navbar-link, .dropdown-link').forEach(link => {
       link.classList.remove('active');
-      // Rimuovi anche da parent li
       link.closest('li')?.classList.remove('active');
     });
 
     // Ottieni il path corrente
     const currentPath = window.location.pathname;
 
-    // Trova il link corrispondente al path corrente
     const activeLink = navbar.querySelector(`a[href="${currentPath}"]`);
 
     if (activeLink) {
@@ -309,7 +286,6 @@ function setupActivePageIndicator(navbar) {
   // Aggiorna stato iniziale
   setTimeout(updateActiveState, 100);
 
-  // Ascolta i cambi di rotta di Page.js
   let lastPath = window.location.pathname;
   const observer = new MutationObserver(() => {
     if (window.location.pathname !== lastPath) {
@@ -318,10 +294,8 @@ function setupActivePageIndicator(navbar) {
     }
   });
 
-  // Ascolta anche eventi popstate (back/forward)
   window.addEventListener('popstate', updateActiveState);
 
-  // Backup: controlla periodicamente (fallback)
   setInterval(() => {
     if (window.location.pathname !== lastPath) {
       lastPath = window.location.pathname;
@@ -330,7 +304,6 @@ function setupActivePageIndicator(navbar) {
   }, 1000);
 }
 
-// ✅ AGGIUNTO: Utility per debugging
 if (window.location.hostname === 'localhost') {
   window.debugNavbar = () => {
     console.log('🔍 Navbar Debug Info:');

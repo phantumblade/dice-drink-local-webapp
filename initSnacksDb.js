@@ -1,6 +1,3 @@
-// SCOPO: Crea tabella snacks e inserisce dati iniziali
-// ESEGUIRE UNA SOLA VOLTA: node initSnacksDb.js
-
 const openDb = require('./db');
 
 async function initSnacksDatabase() {
@@ -159,7 +156,6 @@ async function initSnacksDatabase() {
   }
 }
 
-// Esegui se chiamato direttamente
 if (require.main === module) {
   initSnacksDatabase();
 }

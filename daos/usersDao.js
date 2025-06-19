@@ -1,14 +1,6 @@
-// daos/usersDao.js
-// SCOPO: Data Access Object per operazioni database degli utenti
-// RELAZIONI: Usa User model, fornisce dati a routes, gestisce sessioni e audit
-
 require('dotenv').config();
 const openDb = require('../db');
 const { User } = require('../models/User');
-
-// ==========================================
-// CONFIGURAZIONE DA ENVIRONMENT
-// ==========================================
 
 const CONFIG = {
   DEBUG_MODE: process.env.DEBUG_MODE === 'true',
@@ -16,10 +8,6 @@ const CONFIG = {
   CLEANUP_ENABLED: process.env.FEATURE_AUTO_CLEANUP === 'true',
   AUDIT_RETENTION_DAYS: parseInt(process.env.AUDIT_LOG_RETENTION_DAYS) || 90
 };
-
-// ==========================================
-// UTILITY FUNCTIONS
-// ==========================================
 
 function debugLog(message, data = null) {
   if (CONFIG.DEBUG_MODE) {
@@ -34,10 +22,6 @@ function handleError(operation, error) {
   }
   throw error;
 }
-
-// ==========================================
-// CRUD OPERATIONS - USERS
-// ==========================================
 
 class UsersDao {
 
@@ -595,7 +579,7 @@ class UsersDao {
         throw new Error('Credenziali non valide');
       }
 
-      // Login riuscito - reset failed attempts e update last login
+      // Login riuscito
       await UsersDao.updateLoginSuccess(user.id);
 
       if (CONFIG.AUDIT_ENABLED) {
@@ -1066,9 +1050,6 @@ class UsersDao {
     }
   }
 
-  // AGGIUNGI queste funzioni al usersDao.js PRIMA di module.exports
-
-// Funzione per admin users con filtri e paginazione avanzata
 static async getUsersWithFilters(filters, pagination) {
   debugLog('getUsersWithFilters called', { filters, pagination });
 
@@ -1125,7 +1106,6 @@ static async getUsersWithFilters(filters, pagination) {
     query += ' LIMIT ? OFFSET ?';
     params.push(limit, offset);
 
-    // Esegui entrambe le query
     const [users, countResult] = await Promise.all([
       db.all(query, params),
       db.get(countQuery, countParams)
@@ -1160,7 +1140,6 @@ static async getUsersWithFilters(filters, pagination) {
   }
 }
 
-// Funzioni aggiuntive per bookings (placeholder sicuri)
 static async getUserBookings(userId, options = {}) {
   debugLog('getUserBookings called', { userId, options });
 
@@ -1240,7 +1219,6 @@ static async getBookingsWithFilters(filters, pagination) {
   try {
     const db = await openDb();
 
-    // ✅ CORREZIONE 1: Usa la tabella CORRETTA user_bookings (non bookings)
     const tableExists = await db.get(`
       SELECT name FROM sqlite_master
       WHERE type='table' AND name='user_bookings'
@@ -1259,7 +1237,6 @@ static async getBookingsWithFilters(filters, pagination) {
       };
     }
 
-    // ✅ CORREZIONE 2: Query COUNT separata per totale reale
     let countQuery = `
       SELECT COUNT(*) as total
       FROM user_bookings ub
@@ -1268,7 +1245,6 @@ static async getBookingsWithFilters(filters, pagination) {
     `;
     const countParams = [];
 
-    // ✅ CORREZIONE 3: Query principale con JOIN per dati utente
     let query = `
       SELECT
         ub.*,
@@ -1283,7 +1259,6 @@ static async getBookingsWithFilters(filters, pagination) {
     `;
     const params = [];
 
-    // ✅ CORREZIONE 4: Applica filtri a ENTRAMBE le query (count + main)
 
     // Filtro per status
     if (filters.status && filters.status !== 'all') {
@@ -1346,7 +1321,6 @@ static async getBookingsWithFilters(filters, pagination) {
       countParams.push(searchTerm, searchTerm, searchTerm, searchTerm);
     }
 
-    // ✅ CORREZIONE 5: Esegui COUNT per totale reale
     console.log('[UsersDao] Executing count query:', countQuery);
     console.log('[UsersDao] Count params:', countParams);
 
@@ -1355,14 +1329,12 @@ static async getBookingsWithFilters(filters, pagination) {
 
     console.log(`[UsersDao] Total bookings found: ${totalItems}`);
 
-    // ✅ CORREZIONE 6: Ordinamento sicuro
     const allowedSortBy = ['booking_date', 'booking_time', 'created_at', 'status', 'customer_name'];
     const sortBy = allowedSortBy.includes(pagination.sortBy) ? pagination.sortBy : 'ub.booking_date';
     const sortOrder = pagination.sortOrder === 'ASC' ? 'ASC' : 'DESC';
 
     query += ` ORDER BY ${sortBy} ${sortOrder}, ub.booking_time ${sortOrder}`;
 
-    // ✅ CORREZIONE 7: Paginazione corretta con limiti realistici
     const limit = Math.min(Math.max(parseInt(pagination.limit) || 25, 1), 1000); // Max 1000 per sicurezza
     const currentPage = Math.max(parseInt(pagination.page) || 1, 1);
     const offset = (currentPage - 1) * limit;
@@ -1373,12 +1345,10 @@ static async getBookingsWithFilters(filters, pagination) {
     console.log('[UsersDao] Executing main query:', query);
     console.log('[UsersDao] Main params:', params);
 
-    // ✅ CORREZIONE 8: Esegui query principale
     const bookings = await db.all(query, params);
 
     await db.close();
 
-    // ✅ CORREZIONE 9: Calcola paginazione corretta
     const totalPages = Math.ceil(totalItems / limit);
 
     const result = {
@@ -1388,7 +1358,6 @@ static async getBookingsWithFilters(filters, pagination) {
       totalItems,
       hasNext: currentPage < totalPages,
       hasPrev: currentPage > 1,
-      // Debug info (rimuovi in produzione)
       debug: {
         filters,
         pagination,
@@ -1409,7 +1378,6 @@ static async getBookingsWithFilters(filters, pagination) {
   } catch (error) {
     console.error('[UsersDao] Error in getBookingsWithFilters:', error);
 
-    // ✅ CORREZIONE 10: Fallback che non nasconde l'errore
     throw new Error(`Errore caricamento prenotazioni: ${error.message}`);
   }
 }
@@ -1420,7 +1388,6 @@ static async updateBookingStatus(bookingId, status, updateData = {}) {
   try {
     const db = await openDb();
 
-    // ✅ Usa sempre user_bookings (già corretto nel codice originale)
     const tableExists = await db.get(`
       SELECT name FROM sqlite_master
       WHERE type='table' AND name='user_bookings'
@@ -1431,7 +1398,6 @@ static async updateBookingStatus(bookingId, status, updateData = {}) {
       throw new Error('Tabella prenotazioni non trovata');
     }
 
-    // ✅ Aggiorna stato base
     const result = await db.run(
       'UPDATE user_bookings SET status = ?, updated_at = datetime("now") WHERE id = ?',
       [status, bookingId]
@@ -1442,7 +1408,6 @@ static async updateBookingStatus(bookingId, status, updateData = {}) {
       throw new Error('Prenotazione non trovata o già aggiornata');
     }
 
-    // ✅ Aggiorna campi aggiuntivi se forniti
     if (Object.keys(updateData).length > 0) {
       const updateFields = [];
       const updateValues = [];
@@ -1466,7 +1431,7 @@ static async updateBookingStatus(bookingId, status, updateData = {}) {
       }
     }
 
-    // ✅ Recupera prenotazione aggiornata con dati utente
+    // Recupera prenotazione aggiornata con dati utente
     const updatedBooking = await db.get(
       `SELECT ub.*, u.email, u.first_name, u.last_name, u.phone,
               (u.first_name || ' ' || u.last_name) as customer_name
@@ -1478,13 +1443,13 @@ static async updateBookingStatus(bookingId, status, updateData = {}) {
 
     await db.close();
 
-    // ✅ Log audit se abilitato
+    // Log audit se abilitato
     if (CONFIG.AUDIT_ENABLED && updatedBooking) {
       await UsersDao.logAuditEvent(updatedBooking.user_id, 'booking_status_updated', null, null, {
         bookingId,
-        oldStatus: status, // Idealmente dovremmo salvare il vecchio status
+        oldStatus: status,
         newStatus: status,
-        updatedBy: 'staff', // Dovrebbe essere passato come parametro
+        updatedBy: 'staff',
         additionalData: updateData
       });
     }
@@ -1651,7 +1616,7 @@ static async softDeleteUser(userId) {
 // Rimuovi elemento da wishlist
 static async removeFromWishlist(userId, wishlistItemId) {
   try {
-    const db = await openDb();  // ← Apri connessione
+    const db = await openDb();
     const result = await db.run(
       `DELETE FROM user_wishlist
        WHERE user_id = ? AND id = ?`,
@@ -1664,9 +1629,6 @@ static async removeFromWishlist(userId, wishlistItemId) {
     throw new Error('Errore rimozione da wishlist');
   }
 }
-  // ==========================================
-  // AUDIT LOG
-  // ==========================================
 
   static async logAuditEvent(userId, action, ipAddress = null, userAgent = null, details = {}) {
     if (!CONFIG.AUDIT_ENABLED) return;
@@ -1858,8 +1820,6 @@ static async getTotalUsersCount() {
     console.log('[UsersDao] getActiveUsersCount called', { days });
     const db = await openDb();
 
-    // VERSIONE SICURA: conta tutti gli utenti attivi (non eliminati)
-    // Dato che non abbiamo la colonna last_login, usiamo created_at
     const result = await db.get(`
       SELECT COUNT(*) as count
       FROM users
@@ -1871,7 +1831,6 @@ static async getTotalUsersCount() {
     return result.count;
   } catch (error) {
     console.error('[UsersDao] Error in getActiveUsersCount:', error);
-    // FALLBACK: restituisci il totale utenti se c'è errore
     return await this.getTotalUsersCount();
   }
 }
@@ -1900,7 +1859,7 @@ static async getTotalUsersCount() {
   } catch (error) {
     console.error('[UsersDao] Error in getTotalBookingsCount:', error);
     await db.close();
-    return 0; // Fallback sicuro
+    return 0;
   }
 }
 
@@ -1932,7 +1891,7 @@ static async getTotalUsersCount() {
   } catch (error) {
     console.error('[UsersDao] Error in getTodayBookingsCount:', error);
     await db.close();
-    return 0; // Fallback sicuro
+    return 0;
   }
 }
 
@@ -2007,11 +1966,6 @@ static async getLoginStats(days = 30) {
   }
 }
 
-
-
-// SOSTITUZIONE per getBookingTrends() in usersDao.js
-// Trova questa funzione e sostituiscila con la versione sicura:
-
 static async getBookingTrends(days = 7) {
   try {
     console.log('[UsersDao] getBookingTrends called', { days });
@@ -2039,7 +1993,7 @@ static async getBookingTrends(days = 7) {
       return trends;
     }
 
-    // Se la tabella esiste, esegui la query vera
+    // Se la tabella esiste, esegui la query
     const result = await db.all(`
       SELECT
         DATE(created_at) as date,
@@ -2056,7 +2010,6 @@ static async getBookingTrends(days = 7) {
 
   } catch (error) {
     console.error('[UsersDao] Error in getBookingTrends:', error);
-    // FALLBACK: restituisce array vuoto con date
     const trends = [];
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date();
@@ -2082,25 +2035,21 @@ static async getBookingTrends(days = 7) {
     try {
       const db = await openDb();
 
-      // Cleanup expired verification tokens (older than 24h)
       const verificationCleanup = await db.run(
         `UPDATE users SET verification_token = NULL
          WHERE verification_token IS NOT NULL
          AND created_at < datetime('now', '-24 hours')`
       );
 
-      // Cleanup expired reset tokens
       const resetCleanup = await db.run(
         `UPDATE users SET reset_token = NULL, reset_expires = NULL
          WHERE reset_expires < datetime('now')`
       );
 
-      // Cleanup expired sessions
       const sessionCleanup = await db.run(
         'DELETE FROM user_sessions WHERE expires_at < datetime("now")'
       );
 
-      // Cleanup old audit logs
       const auditCleanup = await db.run(
         'DELETE FROM user_audit_log WHERE timestamp < datetime("now", "-? days")',
         [CONFIG.AUDIT_RETENTION_DAYS]
@@ -2195,9 +2144,4 @@ static async getBookingTrends(days = 7) {
 
 
 }
-
-// ==========================================
-// EXPORTS
-// ==========================================
-
 module.exports = UsersDao;

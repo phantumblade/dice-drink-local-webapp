@@ -1,8 +1,3 @@
-// js/pages/catalog.js
-// SCOPO: Pagina catalogo per giochi, drink e snack con sistema carrello completo
-// RELAZIONI: Chiamata da main.js, usa API /api/games, /api/drinks, /api/snacks
-// ✅ NUOVO: Sistema carrello completo + Box carrello fisso
-
 console.log('🎮 Caricamento pagina catalogo con sistema carrello...');
 
 
@@ -60,15 +55,10 @@ const IMAGE_CONFIG = {
 };
 
 // ==========================================
-// ✅ FUNZIONI GESTIONE IMMAGINI LOCALI
+//  FUNZIONI GESTIONE IMMAGINI LOCALI
 // ==========================================
 
-/**
- * Ottiene l'URL corretto dell'immagine con fallback a file locali
- * @param {Object} item - L'item (game, drink, snack)
- * @param {string} category - Categoria (games, drinks, snacks)
- * @returns {string} URL dell'immagine da usare
- */
+
 function getImageUrlWithLocalFallback(item, category) {
     // Se l'item ha un imageUrl valido, prova a usarlo
     if (item.imageUrl && item.imageUrl.trim() !== '' && !item.imageUrl.includes('undefined')) {
@@ -79,11 +69,7 @@ function getImageUrlWithLocalFallback(item, category) {
     return getLocalDefaultUrl(category);
 }
 
-/**
- * Ottiene l'URL del default locale per una categoria
- * @param {string} category - Categoria (games, drinks, snacks, giochi, drink, snack)
- * @returns {string} URL del default locale
- */
+
 function getLocalDefaultUrl(category) {
     // Normalizza categoria
     const normalizedCategory = category === 'giochi' ? 'games' :
@@ -93,11 +79,6 @@ function getLocalDefaultUrl(category) {
     return IMAGE_CONFIG.LOCAL_DEFAULTS[normalizedCategory] || IMAGE_CONFIG.LOCAL_DEFAULTS.games;
 }
 
-/**
- * Ottiene il fallback CSS/SVG se mancano anche i file locali
- * @param {string} category - Categoria
- * @returns {string} Data URL SVG
- */
 function getCSSFallbackUrl(category) {
     const normalizedCategory = category === 'giochi' ? 'games' :
                               category === 'drink' ? 'drinks' :
@@ -106,11 +87,7 @@ function getCSSFallbackUrl(category) {
     return IMAGE_CONFIG.CSS_FALLBACK[normalizedCategory] || IMAGE_CONFIG.CSS_FALLBACK.games;
 }
 
-/**
- * Configura il fallback automatico per un elemento immagine
- * @param {HTMLElement} element - Elemento con background-image
- * @param {string} category - Categoria per il fallback
- */
+
 function setupLocalImageFallback(element, category) {
     const bgImage = element.style.backgroundImage;
     if (!bgImage || bgImage === 'none') return;
@@ -153,11 +130,6 @@ function setupLocalImageFallback(element, category) {
         });
 }
 
-/**
- * Controlla se un'immagine esiste
- * @param {string} url - URL dell'immagine
- * @returns {Promise<boolean>} True se esiste
- */
 function checkImageExists(url) {
     return new Promise((resolve) => {
         // Se è un data URL (SVG), ritorna sempre true
@@ -188,7 +160,7 @@ function checkImageExists(url) {
 }
 
 // ==========================================
-// ✅ SETUP AUTOMATICO FALLBACK
+// SETUP AUTOMATICO FALLBACK
 // ==========================================
 
 function setupAllLocalImageFallbacks() {
@@ -228,7 +200,6 @@ class CatalogPageManager {
         this.searchTerm = '';
         this.selectedFilters = [];
 
-        // ✅ NUOVO: Sistema carrello
         this.cart = this.loadCartFromStorage();
 
         console.log('✅ CatalogPageManager inizializzato con carrello');
@@ -261,7 +232,7 @@ class CatalogPageManager {
     }
 
     // ==========================================
-    // ✅ SISTEMA CARRELLO COMPLETO
+    // SISTEMA CARRELLO COMPLETO
     // ==========================================
 
     loadCartFromStorage() {
@@ -470,7 +441,6 @@ class CatalogPageManager {
     }
 
     showCartNotification(item, quantity, action) {
-        // Usa il sistema di notifiche esistente se disponibile
         if (window.NotificationSystem) {
             const messages = {
                 added: `✅ ${item.name} aggiunto al carrello${quantity > 1 ? ` (${quantity}x)` : ''}`,
@@ -489,7 +459,7 @@ class CatalogPageManager {
     }
 
     // ==========================================
-    // ✅ MODAL QUANTITÀ PER DRINK/SNACK
+    // MODAL QUANTITÀ PER DRINK/SNACK
     // ==========================================
 
     showQuantityModal(item) {
@@ -1024,7 +994,6 @@ createCartCategoryHTML(category, title, icon) {
 
     goToBookings() {
         console.log('🎯 Reindirizzamento alle prenotazioni con carrello...');
-        // Il carrello è già salvato nel sessionStorage, bookings.js lo leggerà automaticamente
         window.showPage('prenotazioni');
     }
 
@@ -1113,7 +1082,7 @@ createCartCategoryHTML(category, title, icon) {
         // 4) Inizializza click sui chip di filtro
         this.setupFilterChipEvents();
 
-        // 5) ✅ NUOVO: Setup eventi carrello
+        // 5)Setup eventi carrello
         this.updateCartUI();
     }
 
@@ -1122,7 +1091,7 @@ createCartCategoryHTML(category, title, icon) {
             chip.addEventListener('click', e => this.handleFilterChipClick(e));
         });
 
-        // ✅ NUOVO: Forza aggiornamento UI carrello all'inizio
+        // Forza aggiornamento UI carrello all'inizio
         this.updateCartUI();
     }
 
@@ -1141,7 +1110,7 @@ createCartCategoryHTML(category, title, icon) {
     }
 
     // ==========================================
-    // ✅ METODI AZIONI UTENTE - CON CARRELLO
+    // METODI AZIONI UTENTE - CON CARRELLO
     // ==========================================
 
     async switchCategory(category) {
@@ -1149,18 +1118,15 @@ createCartCategoryHTML(category, title, icon) {
 
         if (category === this.currentCategory) return;
 
-        // Update UI button states
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.classList.remove('active');
         });
         document.querySelector(`[data-category="${category}"]`).classList.add('active');
 
-        // Update category and reload data
         this.currentCategory = category;
         this.searchTerm = '';
 
         try {
-            // Show loading
             const itemsGrid = document.getElementById('itemsGrid');
             if (itemsGrid) {
                 itemsGrid.innerHTML = '<div class="loading">Caricamento...</div>';
@@ -1176,7 +1142,6 @@ createCartCategoryHTML(category, title, icon) {
     }
 
     refreshFullUI() {
-        // Update stats bar
         const statsBar = document.querySelector('.stats-bar');
         if (statsBar) {
             const newStatsHTML = this.createStatsBarHTML();
@@ -1187,13 +1152,10 @@ createCartCategoryHTML(category, title, icon) {
             statsBar.parentNode.replaceChild(newStatsBar, statsBar);
         }
 
-        // Update items grid
         this.refreshItemsGrid();
 
-        // ✅ Update cart box
         this.updateCartUI();
 
-        // Re-setup search event
         const searchInput = document.querySelector('.search-input');
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {
@@ -1202,7 +1164,6 @@ createCartCategoryHTML(category, title, icon) {
             });
         }
 
-        // Re-setup filter events
         this.setupFilterChipEvents();
     }
 
@@ -1239,7 +1200,6 @@ createCartCategoryHTML(category, title, icon) {
         const modalStats = document.getElementById('modalStats');
         const modalActionBtn = document.getElementById('modalActionBtn');
 
-        // Populate modal content
         if (this.currentCategory === 'giochi') {
             this.populateGameModal(item, modalImage, modalTitle, modalDescription, modalStats, modalActionBtn);
         } else if (this.currentCategory === 'drink') {
@@ -1248,7 +1208,6 @@ createCartCategoryHTML(category, title, icon) {
             this.populateSnackModal(item, modalImage, modalTitle, modalDescription, modalStats, modalActionBtn);
         }
 
-        // Show modal
         modal.classList.add('active');
         this.isModalOpen = true;
         document.body.style.overflow = 'hidden';
@@ -1262,20 +1221,20 @@ createCartCategoryHTML(category, title, icon) {
     }
 
     // ==========================================
-    // ✅ NUOVI HANDLER PER CARRELLO
+    // NUOVI HANDLER PER CARRELLO
     // ==========================================
 
     handleRentGame(gameId) {
         console.log(`🎮 Tentativo noleggio gioco ${gameId}`);
 
-        // 🔐 CONTROLLO AUTENTICAZIONE
+        // CONTROLLO AUTENTICAZIONE
         if (!this.isAuthenticated) {
             console.log('❌ Utente non autenticato per noleggio, mostra modal login');
             this.openAuthModal();
             return;
         }
 
-        // ✅ Utente autenticato, aggiungi al carrello
+        // Utente autenticato, aggiungi al carrello
         const game = this.currentItems.find(g => g.id == gameId);
         if (game) {
             this.addToCart(game, 1, 'games');
@@ -1287,14 +1246,14 @@ createCartCategoryHTML(category, title, icon) {
     handleOrderDrink(drinkId) {
         console.log(`🍻 Tentativo ordine drink ${drinkId}`);
 
-        // 🔐 CONTROLLO AUTENTICAZIONE
+        // CONTROLLO AUTENTICAZIONE
         if (!this.isAuthenticated) {
             console.log('❌ Utente non autenticato per ordine, mostra modal login');
             this.openAuthModal();
             return;
         }
 
-        // ✅ Utente autenticato, mostra modal quantità
+        // Utente autenticato, mostra modal quantità
         const drink = this.currentItems.find(d => d.id == drinkId);
         if (drink) {
             this.showQuantityModal(drink);
@@ -1306,14 +1265,14 @@ createCartCategoryHTML(category, title, icon) {
     handleOrderSnack(snackId) {
         console.log(`🍿 Tentativo ordine snack ${snackId}`);
 
-        // 🔐 CONTROLLO AUTENTICAZIONE
+        // CONTROLLO AUTENTICAZIONE
         if (!this.isAuthenticated) {
             console.log('❌ Utente non autenticato per ordine, mostra modal login');
             this.openAuthModal();
             return;
         }
 
-        // ✅ Utente autenticato, mostra modal quantità
+        // Utente autenticato, mostra modal quantità
         const snack = this.currentItems.find(s => s.id == snackId);
         if (snack) {
             this.showQuantityModal(snack);
@@ -1989,7 +1948,7 @@ if (typeof window !== 'undefined') {
 }
 
 // ==========================================
-// ✅ EXPORT FUNZIONI IMMAGINI GLOBALI
+// EXPORT FUNZIONI IMMAGINI GLOBALI
 // ==========================================
 
 if (typeof window !== 'undefined') {
@@ -2082,15 +2041,3 @@ if (typeof window !== 'undefined') {
     }
 }
 
-// ==========================================
-// FINE FILE CATALOG.JS
-// ==========================================
-
-/*
-🎮 DICE & DRINK - CATALOG.JS
-Versione completa con sistema carrello
-Creato per: Board Game Café SPA
-Funzionalità: Catalogo multi-categoria + Carrello + Auth + Modal
-Compatibilità: ES6+, Vanilla JS, No Framework
-Stato: PRODUCTION READY ✅
-*/

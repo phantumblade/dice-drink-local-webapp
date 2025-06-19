@@ -1,13 +1,8 @@
-// routes/users.js
-// SCOPO: Routes per gestione profili utente, preferenze, prenotazioni, wishlist
-// RELAZIONI: Usa UsersDao, auth middleware, gestisce dati personali utenti
-
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const bcryptjs = require('bcryptjs');
 
-// Import dei nostri moduli
 const { User } = require('../models/User');
 const UsersDao = require('../daos/usersDao');
 const {
@@ -18,9 +13,6 @@ const {
   getClientIdentifier
 } = require('../middleware/auth');
 
-// ==========================================
-// CONFIGURAZIONE DA ENVIRONMENT
-// ==========================================
 
 const CONFIG = {
   DEBUG_MODE: process.env.DEBUG_MODE === 'true',
@@ -30,9 +22,6 @@ const CONFIG = {
   FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:3000'
 };
 
-// ==========================================
-// UTILITY FUNCTIONS
-// ==========================================
 
 function debugLog(message, data = null) {
   if (CONFIG.DEBUG_MODE) {
@@ -138,11 +127,6 @@ async function logSecurityEvent(req, event, details = {}) {
   }
 }
 
-// ==========================================
-// MIDDLEWARE SPECIFICI
-// ==========================================
-
-// Middleware per verificare ownership del profilo
 // Middleware per verificare ownership del profilo O staff/admin access
 const requireProfileOwnership = [
   requireAuth,
@@ -192,14 +176,6 @@ const canViewUserProfile = [
   }
 ];
 
-// ==========================================
-// ROUTES PROFILO UTENTE
-// ==========================================
-
-// ==========================================
-// MODIFICA ALLA ROUTE GET /api/users/:userId in routes/users.js
-// SOSTITUIRE la route esistente con questa versione estesa per dashboard
-// ==========================================
 
 // GET /api/users/:userId - Visualizza profilo utente + dati dashboard
 router.get('/:userId', canViewUserProfile, async (req, res) => {
@@ -232,18 +208,10 @@ router.get('/:userId', canViewUserProfile, async (req, res) => {
     const isAdmin = req.user.role === 'admin';
     const isStaff = req.user.role === 'staff';
 
-    // ==========================================
-    // DATI DASHBOARD SPECIFICI PER RUOLO
-    // ==========================================
-
     if (isOwnProfile || isAdmin) {
 
-      // ==========================================
-      // CUSTOMER - Dati personali
-      // ==========================================
         if (user.role === 'customer') {
         try {
-            // ✅ USA IL NUOVO METODO CON FALLBACK
             const preferences = await loadUserPreferencesWithFallback(userId);
             profile.preferences = preferences;
 
@@ -255,7 +223,6 @@ router.get('/:userId', canViewUserProfile, async (req, res) => {
             complexity: preferences.max_game_complexity
             });
 
-            // 📊 STATISTICHE CUSTOMER DAL DATABASE REALE
             const userBookings = await UsersDao.getUserBookings(userId);
 
             // Calcola statistiche reali
@@ -321,8 +288,6 @@ router.get('/:userId', canViewUserProfile, async (req, res) => {
       // ==========================================
       else if (user.role === 'staff' || user.role === 'admin') {
         try {
-          // 📊 STATISTICHE STAFF DAL DATABASE REALE
-
           // Conteggio utenti totali attivi
           const totalUsersResult = await UsersDao.executeQuery(
             'SELECT COUNT(*) as count FROM users WHERE is_active = 1'
@@ -363,7 +328,6 @@ router.get('/:userId', canViewUserProfile, async (req, res) => {
             profile.stats.monthlySessions = monthlySessions;
             profile.stats.catalogGames = catalogGames;
 
-            // 🏆 DATI SISTEMA AVANZATI PER ADMIN
             profile.systemStats = await getAdminSystemStats();
           }
 
@@ -405,14 +369,12 @@ router.get('/:userId', canViewUserProfile, async (req, res) => {
     });
 
     res.json({
-    // ✅ STRUTTURA CORRETTA PER DASHBOARD.JS
     user: profile,
     role: user.role,
-    preferences: profile.preferences, // ✅ AGGIUNTO: le preferenze a livello root
-    stats: profile.stats, // ✅ AGGIUNTO: le stats a livello root
-    recentBookings: profile.recentBookings || [], // ✅ AGGIUNTO: le prenotazioni a livello root
+    preferences: profile.preferences,
+    stats: profile.stats,
+    recentBookings: profile.recentBookings || [],
 
-    // Metadata per il frontend
     isOwnProfile,
     canEdit: isOwnProfile || isAdmin,
     success: true,
@@ -429,11 +391,6 @@ router.get('/:userId', canViewUserProfile, async (req, res) => {
     });
   }
 });
-
-// ==========================================
-// FUNZIONI HELPER PER STATISTICHE SISTEMA (ADMIN)
-// DA AGGIUNGERE PRIMA DI module.exports
-// ==========================================
 
 /**
  * Ottieni statistiche sistema avanzate per admin
@@ -531,7 +488,6 @@ async function loadUserPreferencesWithFallback(userId) {
       preferences = await UsersDao.getUserPreferences(userId);
     }
 
-    // Assicurati che i campi array esistano sempre
     const defaultPreferences = {
       favorite_game_categories: [],
       preferred_drink_types: [],
@@ -549,7 +505,6 @@ async function loadUserPreferencesWithFallback(userId) {
     // Merge con defaults per campi mancanti
     preferences = { ...defaultPreferences, ...preferences };
 
-    // Valida e correggi i tipi di dato
     if (typeof preferences.favorite_game_categories === 'string') {
       try {
         preferences.favorite_game_categories = JSON.parse(preferences.favorite_game_categories);
@@ -590,7 +545,6 @@ async function loadUserPreferencesWithFallback(userId) {
       }
     }
 
-    // Assicurati che siano array
     if (!Array.isArray(preferences.favorite_game_categories)) {
       preferences.favorite_game_categories = [];
     }
@@ -1229,9 +1183,6 @@ router.delete('/:userId/wishlist/:itemId', requireAuth, requireProfileOwnership,
   }
 });
 
-// ==========================================
-// ROUTES RATINGS
-// ==========================================
 
 // POST /api/users/:userId/ratings - Aggiungi rating
 router.post('/:userId/ratings', requireAuth, requireProfileOwnership, async (req, res) => {
@@ -1303,9 +1254,6 @@ router.post('/:userId/ratings', requireAuth, requireProfileOwnership, async (req
   }
 });
 
-// ==========================================
-// ROUTES AUDIT LOG (solo proprio)
-// ==========================================
 
 // GET /api/users/:userId/audit-log - Log audit personale
 router.get('/:userId/audit-log', requireAuth, requireProfileOwnership, async (req, res) => {
@@ -1332,9 +1280,5 @@ router.get('/:userId/audit-log', requireAuth, requireProfileOwnership, async (re
     });
   }
 });
-
-// ==========================================
-// EXPORTS
-// ==========================================
 
 module.exports = router;

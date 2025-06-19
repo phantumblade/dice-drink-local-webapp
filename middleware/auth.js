@@ -1,15 +1,6 @@
-// middleware/auth.js
-// SCOPO: Middleware per autenticazione JWT, controllo ruoli, rate limiting e sicurezza
-// POSIZIONE: Applicato in server.js tra express setup e routes
-// USO: app.use('/api/protected', requireAuth); oppure route-specific
-
 require('dotenv').config();
 const { User } = require('../models/User');
 const UsersDao = require('../daos/usersDao');
-
-// ==========================================
-// CONFIGURAZIONE DA ENVIRONMENT
-// ==========================================
 
 const CONFIG = {
   // Rate limiting da .env
@@ -42,15 +33,10 @@ const CONFIG = {
 };
 
 // ==========================================
-// RATE LIMITING STORAGE (in-memory)
-// In produzione usare Redis
+// RATE LIMITING STORAGE
 // ==========================================
 
 const rateLimitStore = new Map();
-
-// ==========================================
-// UTILITY FUNCTIONS
-// ==========================================
 
 function debugLog(message, data = null) {
   if (CONFIG.DEBUG_MODE) {
@@ -110,10 +96,6 @@ async function logSecurityEvent(req, event, details = {}) {
   }
 }
 
-// ==========================================
-// RATE LIMITING MIDDLEWARE
-// ==========================================
-
 function createRateLimiter(limitType) {
   return (req, res, next) => {
     // Skip se rate limiting disabilitato
@@ -168,12 +150,11 @@ function createRateLimiter(limitType) {
     clientData.attempts.push(now);
     rateLimitStore.set(key, clientData);
 
-    // Aggiungi headers informativi
     res.set({
       'X-RateLimit-Limit': limit.max,
       'X-RateLimit-Remaining': Math.max(0, limit.max - clientData.attempts.length),
       'X-RateLimit-Reset': new Date(now + limit.window).toISOString(),
-      'X-RateLimit-Window': Math.floor(limit.window / 1000) // secondi
+      'X-RateLimit-Window': Math.floor(limit.window / 1000)
     });
 
     debugLog(`Rate limit check passed`, {
@@ -197,7 +178,6 @@ const rateLimitPasswordReset = createRateLimiter('password_reset');
 // AUTENTICAZIONE JWT
 // ==========================================
 
-// Middleware per estrarre JWT opzionale (non fallisce se manca)
 function optionalAuth(req, res, next) {
   const authHeader = req.headers.authorization;
   const token = extractTokenFromHeader(authHeader);
@@ -277,7 +257,6 @@ function requireAuth(req, res, next) {
           });
         }
 
-        // Verifica email se richiesta dal business logic
         if (user.isEmailVerificationRequired()) {
           return res.status(403).json({
             error: 'Email non verificata',
@@ -287,9 +266,8 @@ function requireAuth(req, res, next) {
           });
         }
 
-        // Tutto ok - aggiungi user al request
         req.user = decoded;
-        req.userEntity = user; // User object completo se necessario
+        req.userEntity = user;
 
         debugLog('Auth required: user verified', {
           userId: user.id,
@@ -393,7 +371,7 @@ function requirePermission(permission) {
       return next();
     }
 
-    // Controlla permesso wildcard (es: read:*)
+    // Controlla permesso wildcard (es. "read:*")
     const [action, resource] = permission.split(':');
     const wildcardPermission = `${action}:*`;
 
@@ -443,7 +421,6 @@ function requireOwnership(getUserIdFromParams = (req) => req.params.userId) {
     const targetUserId = getUserIdFromParams(req);
     const currentUserId = req.user.userId;
 
-    // Conversione a numeri per confronto sicuro
     const targetId = parseInt(targetUserId);
     const currentId = parseInt(currentUserId);
 
@@ -574,7 +551,6 @@ function requestLogger(req, res, next) {
   const start = Date.now();
   const clientId = getClientIdentifier(req);
 
-  // Log request
   debugLog(`Request started`, {
     method: req.method,
     path: req.path,

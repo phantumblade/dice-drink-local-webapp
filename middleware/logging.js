@@ -1,9 +1,3 @@
-// middleware/logging.js
-// VERSIONE SEMPLICE per progetto universitario
-
-/**
- * Log eventi di sicurezza (login, register, ecc.)
- */
 async function logSecurityEvent(req, event, data = {}) {
   const timestamp = new Date().toLocaleString('it-IT');
   const ip = req.ip || req.connection.remoteAddress || 'unknown';
@@ -15,9 +9,6 @@ async function logSecurityEvent(req, event, data = {}) {
   });
 }
 
-/**
- * Log eventi di sistema (operazioni admin, errori, ecc.)
- */
 async function logSystemEvent(req, event, data = {}) {
   const timestamp = new Date().toLocaleString('it-IT');
 

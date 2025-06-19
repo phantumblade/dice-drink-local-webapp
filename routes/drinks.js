@@ -1,10 +1,3 @@
-// COSA FA: Espone endpoint HTTP per frontend (/api/drinks)
-// RELAZIONI: Usa DrinksDao per dati, valida input, gestisce errori
-
-// routes/drinks.js
-// SCOPO: Espone endpoint HTTP per gestire i drink
-// RELAZIONI: Usa drinksDao.js per operazioni database, chiamato da server.js
-
 const express = require('express');
 const DrinksDao = require('../daos/drinksDao');
 const { requireAdmin } = require('../middleware/auth');
@@ -16,8 +9,6 @@ const router = express.Router();
 // ==========================================
 
 // GET /api/drinks - Lista tutti i drink con filtri opzionali
-// Query params: alcoholic, baseSpirit, minPrice, maxPrice, orderBy, orderDir, limit, offset
-// Esempio: /api/drinks?alcoholic=true&baseSpirit=gin&limit=10
 router.get('/', async (req, res, next) => {
   try {
     // Estrae i filtri dalla query string
@@ -45,7 +36,6 @@ router.get('/', async (req, res, next) => {
         offset: parseInt(req.query.offset) || 0
       });
     } else {
-      // Risposta semplice: solo array di drink
       res.json(drinks);
     }
   } catch (err) {
@@ -54,8 +44,6 @@ router.get('/', async (req, res, next) => {
 });
 
 // GET /api/drinks/recommended - Drink consigliati (economici di ogni categoria)
-// Query param: limit (default 8)
-// Esempio: /api/drinks/recommended?limit=6
 router.get('/recommended', async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit) || 8;
@@ -67,7 +55,6 @@ router.get('/recommended', async (req, res, next) => {
 });
 
 // GET /api/drinks/alcoholic - Solo drink alcolici
-// Esempio: /api/drinks/alcoholic
 router.get('/alcoholic', async (req, res, next) => {
   try {
     const drinks = await DrinksDao.findByType(true);
@@ -78,7 +65,6 @@ router.get('/alcoholic', async (req, res, next) => {
 });
 
 // GET /api/drinks/non-alcoholic - Solo drink analcolici
-// Esempio: /api/drinks/non-alcoholic
 router.get('/non-alcoholic', async (req, res, next) => {
   try {
     const drinks = await DrinksDao.findByType(false);
@@ -89,7 +75,6 @@ router.get('/non-alcoholic', async (req, res, next) => {
 });
 
 // GET /api/drinks/base-spirits - Lista tutti i base spirits disponibili
-// Esempio risposta: ["gin", "vodka", "caffè", "tè chai"]
 router.get('/base-spirits', async (req, res, next) => {
   try {
     const baseSpirits = await DrinksDao.getBaseSpirits();
@@ -100,7 +85,6 @@ router.get('/base-spirits', async (req, res, next) => {
 });
 
 // GET /api/drinks/price-range/:min/:max - Drink in una fascia di prezzo
-// Esempio: /api/drinks/price-range/3/6
 router.get('/price-range/:min/:max', async (req, res, next) => {
   try {
     const minPrice = parseFloat(req.params.min);
@@ -123,8 +107,6 @@ router.get('/price-range/:min/:max', async (req, res, next) => {
 });
 
 // GET /api/drinks/search?q=termine - Ricerca per nome/descrizione
-// Query param: q (termine di ricerca obbligatorio)
-// Esempio: /api/drinks/search?q=gin
 router.get('/search', async (req, res, next) => {
   try {
     const searchTerm = req.query.q;
@@ -145,7 +127,6 @@ router.get('/search', async (req, res, next) => {
 });
 
 // GET /api/drinks/spirit/:spirit - Drink per base spirit specifico
-// Esempio: /api/drinks/spirit/gin
 router.get('/spirit/:spirit', async (req, res, next) => {
   try {
     const baseSpirit = req.params.spirit;
@@ -157,7 +138,6 @@ router.get('/spirit/:spirit', async (req, res, next) => {
 });
 
 // GET /api/drinks/:id - Dettagli di un drink specifico
-// Esempio: /api/drinks/1
 router.get('/:id', async (req, res, next) => {
   try {
     const drinkId = parseInt(req.params.id);
@@ -194,9 +174,6 @@ router.get('/:id', async (req, res, next) => {
 // POST /api/drinks - Crea un nuovo drink (SOLO ADMIN)
 router.post('/', requireAdmin, async (req, res, next) => {
   try {
-    // TODO: Aggiungere middleware di autenticazione admin
-    // router.post('/', requireAdmin, async (req, res, next) => {
-
     const drinkData = req.body;
 
     // Validazione campi obbligatori
@@ -242,8 +219,6 @@ router.post('/', requireAdmin, async (req, res, next) => {
 // PUT /api/drinks/:id - Aggiorna un drink esistente (SOLO ADMIN)
 router.put('/:id', requireAdmin, async (req, res, next) => {
   try {
-    // TODO: Aggiungere middleware di autenticazione admin
-
     const drinkId = parseInt(req.params.id);
     if (isNaN(drinkId)) {
       return res.status(400).json({ error: 'ID drink non valido' });
@@ -251,14 +226,12 @@ router.put('/:id', requireAdmin, async (req, res, next) => {
 
     const drinkData = req.body;
 
-    // Validazione prezzo se presente
     if (drinkData.price !== undefined && drinkData.price <= 0) {
       return res.status(400).json({
         error: 'Il prezzo deve essere maggiore di 0'
       });
     }
 
-    // Validazione tipo alcolico se presente
     if (drinkData.isAlcoholic !== undefined && typeof drinkData.isAlcoholic !== 'boolean') {
       return res.status(400).json({
         error: 'isAlcoholic deve essere true o false'
@@ -282,8 +255,6 @@ router.put('/:id', requireAdmin, async (req, res, next) => {
 // DELETE /api/drinks/:id - Elimina un drink (SOLO ADMIN)
 router.delete('/:id', requireAdmin, async (req, res, next) => {
   try {
-    // TODO: Aggiungere middleware di autenticazione admin
-
     const drinkId = parseInt(req.params.id);
     if (isNaN(drinkId)) {
       return res.status(400).json({ error: 'ID drink non valido' });

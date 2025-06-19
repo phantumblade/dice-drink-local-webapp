@@ -1,13 +1,10 @@
-// SCOPO: Definisce la struttura di uno "snack" e metodi di utilità
-// RELAZIONI: Usato da snacksDao.js per restituire oggetti strutturati
-
 class Snack {
   constructor(data) {
     // Mappa i campi del database agli attributi dell'oggetto
     this.id = data.id;
     this.name = data.name;
     this.description = data.description;
-    this.isSweet = data.is_sweet;                // Converte snake_case -> camelCase
+    this.isSweet = data.is_sweet;
     this.mainIngredient = data.main_ingredient;
     this.price = data.price;
     this.suggestedGame = data.suggested_game;
@@ -16,19 +13,15 @@ class Snack {
     this.createdAt = data.created_at;
   }
 
-  // METODI DI UTILITÀ: Trasformano i dati grezzi in formato user-friendly
 
-  // Restituisce "Dolce" o "Salato"
   getType() {
     return this.isSweet ? 'Dolce' : 'Salato';
   }
 
-  // Restituisce l'icona appropriata per il tipo di snack
   getTypeIcon() {
     return this.isSweet ? '🍫' : '🧀';
   }
 
-  // Restituisce la categoria dell'ingrediente principale
   getIngredientCategory() {
     const categories = {
       'formaggio': 'Latticini',
@@ -137,15 +130,15 @@ class Snack {
   // Restituisce il livello di "messiness" per la sicurezza dei giochi
   getMessinessLevel() {
     const messinessLevels = {
-      'olive': 1,        // Molto pulito
-      'formaggio': 1,    // Pulito se a cubetti
-      'mais': 2,         // Popcorn può fare briciole
-      'farina': 2,       // Biscotti = briciole leggere
-      'patate': 3,       // Chips possono ungere
-      'pane': 3,         // Bruschette possono cadere
-      'cioccolato': 4,   // Può sciogliersi
-      'zucchero': 4,     // Marshmallow appiccicosi
-      'mascarpone': 5    // Tiramisù richiede cucchiaino
+      'olive': 1,
+      'formaggio': 1,
+      'mais': 2,
+      'farina': 2,
+      'patate': 3,
+      'pane': 3,
+      'cioccolato': 4,
+      'zucchero': 4,
+      'mascarpone': 5   
     };
     return messinessLevels[this.mainIngredient] || 3;
   }

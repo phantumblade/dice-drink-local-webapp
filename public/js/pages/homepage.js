@@ -1,4 +1,3 @@
-// pages/homepage.js
 import { fetchCatalogPreview } from '../services/catalog-preview.js';
 
 // Sezione 2: Funzione per creare la sezione di benvenuto + Call to Action

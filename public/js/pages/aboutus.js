@@ -1,13 +1,6 @@
-// js/pages/about.js
-// SCOPO: Pagina About Us per Dice & Drink
-// RELAZIONI: Chiamata da main.js tramite routing Page.js
-// ✅ DESIGN: Coerente con homepage, semplice ma elegante
 
 console.log('📄 Caricamento pagina About Us...');
 
-/**
- * Funzione principale per mostrare la pagina About Us
- */
 export function showAboutUs() {
     console.log('🎯 Apertura pagina About Us');
 
@@ -26,9 +19,6 @@ export function showAboutUs() {
     console.log('✅ Pagina About Us caricata con successo');
 }
 
-/**
- * Crea l'HTML della pagina About Us
- */
 function createAboutHTML() {
     return `
         <div class="about-page">
@@ -227,9 +217,7 @@ function createAboutHTML() {
     `;
 }
 
-/**
- * Setup animazioni e interazioni
- */
+
 function setupAboutAnimations() {
     // Animazione di entrata per le sezioni
     const sections = document.querySelectorAll('.about-page section');
@@ -303,10 +291,9 @@ function setupParallaxEffect() {
 }
 
 // ==========================================
-// EXPORT E COMPATIBILITÀ
+// EXPORT
 // ==========================================
 
-// Support per AMD
 if (typeof define === 'function' && define.amd) {
     define([], function() {
         return { showAboutUs };

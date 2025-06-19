@@ -1,7 +1,3 @@
-// js/pages/dashboard.js
-// SCOPO: Dashboard utente con dati specifici per ruolo (customer/staff/admin)
-// RELAZIONI: Chiamata da main.js via showPage('dashboard'), usa sistema auth
-
 console.log('👤 Caricamento pagina dashboard...');
 
 // ==========================================
@@ -14,10 +10,10 @@ const DASHBOARD_CONFIG = {
         updateProfile: '/api/users/:userId',
         updatePassword: '/api/users/:userId/password',
         updateSettings: '/api/users/:userId/settings',
-        updatePreferences: '/api/users/:userId/preferences', // ✅ Già corretto
+        updatePreferences: '/api/users/:userId/preferences',
         userBookings: '/api/users/:userId/bookings',
         userStats: '/api/users/:userId/stats',
-        userPreferences: '/api/users/:userId/preferences', // ✅ Già corretto
+        userPreferences: '/api/users/:userId/preferences',
         exportUserData: '/api/users/:userId/export',
         bookingDetails: '/api/admin/bookings/:bookingId',
         confirmBooking: '/api/admin/bookings/:bookingId/confirm',
@@ -27,8 +23,6 @@ const DASHBOARD_CONFIG = {
         systemInventory: '/api/admin/analytics',
         systemStats: '/api/admin/system/stats',
         inventoryDetails: '/api/admin/inventory/details',
-
-        // ✅ NUOVI ENDPOINTS PER OPZIONI DISPONIBILI
         availableGameCategories: '/api/games/categories',
         availableDrinkTypes: '/api/drinks/types',
         availableTimeSlots: '/api/system/time-slots'
@@ -393,11 +387,6 @@ class DashboardPageManager {
 // SEZIONE STAFF
 // ==========================================
 
-// ==========================================
-// AGGIUNGERE AL TUO dashboard.js ESISTENTE
-// POSIZIONE: Dopo createCustomerSectionsHTML()
-// ==========================================
-
 createStaffSectionsHTML() {
         return `
             <!-- Gestione Prenotazioni Staff -->
@@ -460,21 +449,17 @@ async loadStaffBookings(status = 'pending') {
         const token = this.getAuthToken();
         const apiUrl = DASHBOARD_CONFIG.API_ENDPOINTS.allBookings;
 
-        // ✅ CORREZIONE 1: Costruzione parametri più robusta
         const queryParams = new URLSearchParams();
 
-        // Filtro status (importante: 'all' non deve essere inviato come parametro)
         if (status && status !== 'all') {
             queryParams.append('status', status);
         }
 
-        // ✅ CORREZIONE 2: Parametri paginazione per mostrare TUTTI i risultati
         queryParams.append('limit', '1000'); // Limite alto per vedere tutto
         queryParams.append('page', '1');
         queryParams.append('sortBy', 'booking_date');
         queryParams.append('sortOrder', 'ASC');
 
-        // ✅ CORREZIONE 3: URL finale con parametri
         const finalUrl = queryParams.toString() ? `${apiUrl}?${queryParams.toString()}` : apiUrl;
 
         console.log('🌐 Chiamata API prenotazioni completa:', {
@@ -483,7 +468,6 @@ async loadStaffBookings(status = 'pending') {
             params: Object.fromEntries(queryParams)
         });
 
-        // ✅ CORREZIONE 4: Chiamata con headers corretti
         const response = await fetch(finalUrl, {
             method: 'GET',
             headers: {
@@ -493,7 +477,6 @@ async loadStaffBookings(status = 'pending') {
             }
         });
 
-        // ✅ CORREZIONE 5: Gestione errori HTTP migliorata
         if (!response.ok) {
             const errorText = await response.text();
             console.error('❌ Errore HTTP:', {
@@ -507,17 +490,13 @@ async loadStaffBookings(status = 'pending') {
         const result = await response.json();
         console.log('✅ Risposta API completa:', result);
 
-        // ✅ CORREZIONE 6: Gestione risposta API più flessibile
         let bookings = [];
 
         if (result.success === true && Array.isArray(result.bookings)) {
-            // Formato: { success: true, bookings: [...] }
             bookings = result.bookings;
         } else if (Array.isArray(result.data)) {
-            // Formato: { data: [...] }
             bookings = result.data;
         } else if (Array.isArray(result)) {
-            // Formato: [...] diretto
             bookings = result;
         } else {
             console.warn('⚠️ Formato risposta API non riconosciuto:', result);
@@ -535,13 +514,11 @@ async loadStaffBookings(status = 'pending') {
     } catch (error) {
         console.error('❌ Errore caricamento prenotazioni:', error);
 
-        // ✅ CORREZIONE 7: Fallback con dati mock solo per sviluppo
         if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
             console.log('🔄 Modalità sviluppo: utilizzo dati mock...');
             return this.getMockBookingsForStaff(status);
         }
 
-        // In produzione, rilancia l'errore
         throw error;
     }
 }
@@ -557,7 +534,6 @@ async renderStaffBookings(status = 'pending') {
         return;
     }
 
-    // ✅ Mostra loading specifico per filtro
     container.innerHTML = `
         <div class="loading-bookings">
             <i class="fas fa-spinner fa-spin"></i>
@@ -598,7 +574,6 @@ async renderStaffBookings(status = 'pending') {
             return;
         }
 
-        // ✅ CORREZIONE: Renderizza TUTTE le prenotazioni ricevute
         const bookingCards = bookings.map((booking, index) => {
             try {
                 return this.renderBookingCard(booking);
@@ -622,7 +597,6 @@ async renderStaffBookings(status = 'pending') {
 
         container.innerHTML = bookingCards;
 
-        // ✅ Aggiorna il dropdown per riflettere lo stato corrente
         const filterDropdown = document.getElementById('booking-status-filter');
         if (filterDropdown && filterDropdown.value !== status) {
             filterDropdown.value = status;
@@ -802,7 +776,7 @@ generateBookingActions(booking, isAdminView = false) {
 
 
 // ==========================================
-// AZIONI API (simulazioni per ora)
+// AZIONI API
 // ==========================================
 
 async confirmBooking(bookingId) {
@@ -910,22 +884,18 @@ getStatusLabel(status) {
 }
 
 getCustomerDisplayName(booking) {
-    // Gestisci diversi formati di nome che potrebbero arrivare dal backend
     if (booking.customer_name) return booking.customer_name;
     if (booking.user_name) return booking.user_name;
     if (booking.name) return booking.name;
 
-    // Combina first_name e last_name se disponibili
     if (booking.first_name || booking.last_name) {
         return `${booking.first_name || ''} ${booking.last_name || ''}`.trim();
     }
 
-    // Usa email se disponibile
     if (booking.email) {
         return booking.email.split('@')[0];
     }
 
-    // Fallback con ID utente
     return `Cliente #${booking.user_id || booking.id}`;
 }
 
@@ -1202,7 +1172,6 @@ createTimeSlotPreferencesHTML(selectedSlots = []) {
 async loadGameCategories() {
     console.log('📦 Caricamento categorie giochi statiche...');
 
-    // Usa solo categorie statiche - più affidabile
     return [
         { value: 'Strategia', label: 'Strategia', icon: 'fas fa-chess', description: 'Giochi di strategia complessi' },
         { value: 'Famiglia', label: 'Famiglia', icon: 'fas fa-users', description: 'Giochi adatti a tutti' },
@@ -1218,7 +1187,6 @@ async loadGameCategories() {
 async loadDrinkTypes() {
     console.log('🥤 Caricamento tipi bevande statiche...');
 
-    // Usa solo tipi statici - più affidabile
     return [
         { value: 'analcolici', label: 'Analcolici', icon: 'fas fa-glass-water', description: 'Succhi, bibite, acqua' },
         { value: 'caffe', label: 'Caffè', icon: 'fas fa-mug-hot', description: 'Espresso, cappuccino, americano' },
@@ -1247,13 +1215,11 @@ async populateGameCategories() {
 
         const categories = await this.loadGameCategories();
 
-        // OTTIENI PREFERENZE ESISTENTI DELL'UTENTE
         let userPreferences = [];
         if (this.dashboardData && this.dashboardData.preferences) {
             userPreferences = this.dashboardData.preferences.favorite_game_categories || [];
         }
 
-        // Se le preferenze sono una stringa JSON, parseala
         if (typeof userPreferences === 'string') {
             try {
                 userPreferences = JSON.parse(userPreferences);
@@ -1263,7 +1229,6 @@ async populateGameCategories() {
             }
         }
 
-        // Assicurati che sia un array
         if (!Array.isArray(userPreferences)) {
             userPreferences = [];
         }
@@ -1271,7 +1236,6 @@ async populateGameCategories() {
         console.log('🎯 Preferenze giochi utente:', userPreferences);
 
         const html = categories.map(category => {
-            // Controlla se questa categoria è già selezionata
             const isChecked = userPreferences.includes(category.value);
 
             return `
@@ -1319,13 +1283,11 @@ async populateDrinkTypes() {
 
         const drinkTypes = await this.loadDrinkTypes();
 
-        // OTTIENI PREFERENZE ESISTENTI DELL'UTENTE
         let userPreferences = [];
         if (this.dashboardData && this.dashboardData.preferences) {
             userPreferences = this.dashboardData.preferences.preferred_drink_types || [];
         }
 
-        // Se le preferenze sono una stringa JSON, parseala
         if (typeof userPreferences === 'string') {
             try {
                 userPreferences = JSON.parse(userPreferences);
@@ -1335,7 +1297,6 @@ async populateDrinkTypes() {
             }
         }
 
-        // Assicurati che sia un array
         if (!Array.isArray(userPreferences)) {
             userPreferences = [];
         }
@@ -1343,7 +1304,6 @@ async populateDrinkTypes() {
         console.log('🍹 Preferenze bevande utente:', userPreferences);
 
         const html = drinkTypes.map(drink => {
-            // Controlla se questo tipo di bevanda è già selezionato
             const isChecked = userPreferences.includes(drink.value);
 
             return `
@@ -1385,14 +1345,11 @@ async savePreferences() {
     console.log('❤️ Salvataggio preferenze dinamiche...');
 
     try {
-        // Raccogli tutte le preferenze dal form
         const preferences = {
-            // Categorie giochi selezionate
             favorite_game_categories: Array.from(
                 document.querySelectorAll('input[name="game-categories"]:checked')
             ).map(input => input.value),
 
-            // Tipi bevande selezionate
             preferred_drink_types: Array.from(
                 document.querySelectorAll('input[name="drink-types"]:checked')
             ).map(input => input.value),
@@ -1599,8 +1556,7 @@ createAdminSectionsHTML() {
 
 
     // ==========================================
-// VERSIONE SOLO DATI REALI - SENZA FALLBACK MOCK
-// Questa versione usa ESCLUSIVAMENTE dati dal database
+// VERSIONE SOLO DATI REALI
 // ==========================================
 
 async loadSystemInventory(period = 7) {
@@ -1634,7 +1590,6 @@ async loadSystemInventory(period = 7) {
         const result = await response.json();
         console.log('✅ Inventario sistema REALE caricato:', result);
 
-        // Verifica formato risposta dal tuo API
         if (result.success && result.data) {
             return result.data;
         } else if (result.data) {
@@ -1651,7 +1606,7 @@ async loadSystemInventory(period = 7) {
 
 
 // ==========================================
-// RENDERING CON GESTIONE ERRORI REALI
+// RENDERING CON GESTIONE ERRORI
 // ==========================================
 
 async renderSystemInventory(period = 7) {
@@ -1937,10 +1892,9 @@ async renderAdminBookings(status = 'pending') {
             return;
         }
 
-        // ✅ CORREZIONE: usa isAdminView = true
         const bookingCards = bookings.map((booking, index) => {
             try {
-                return this.renderBookingCard(booking, true); // <- true per admin view
+                return this.renderBookingCard(booking, true);
             } catch (error) {
                 console.error(`❌ Errore rendering card prenotazione admin ${index}:`, booking, error);
                 return `
@@ -1991,20 +1945,10 @@ async renderAdminBookings(status = 'pending') {
 editBookingAdmin(bookingId) {
     console.log('✏️ Modifica avanzata prenotazione admin:', bookingId);
 
-    // Modal o redirect a pagina di editing avanzato
     alert(`🔧 MODIFICA AVANZATA ADMIN\n\nPrenotazione #${bookingId}\n\nFunzionalità amministratore:\n• Modifica date/orari\n• Cambio cliente\n• Note interne\n• Log modifiche\n• Rimborsi\n\n(In fase di sviluppo)`);
 }
 
-// ==========================================
-// CORREZIONE: Notifiche più eleganti
-// ==========================================
-
 showNotification(type, message) {
-    // Se esiste sistema notifiche avanzato, usalo
-    if (window.showNotification) {
-        window.showNotification(type, message);
-        return;
-    }
 
     // Altrimenti crea notifica inline elegante
     const notification = document.createElement('div');
@@ -2216,7 +2160,7 @@ createNewUser() {
     }
 
     showNotification(type, message) {
-        // Integrazione con sistema notifiche esistente se disponibile
+        // Integrazione con sistema notifiche (non corretto)
         if (window.showNotification) {
             window.showNotification(type, message);
         } else {
@@ -2286,7 +2230,7 @@ createNewUser() {
 initializeDashboard() {
     console.log('🚀 Inizializzazione dashboard ottimizzata...');
 
-    // Rimuovi classe di loading se presente
+    // Rimuove classe di loading se presente
     document.body.classList.remove('loading');
 
     setTimeout(() => {

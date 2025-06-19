@@ -1,6 +1,3 @@
-// SCOPO: Crea tabella drinks e inserisce dati iniziali
-// ESEGUIRE UNA SOLA VOLTA: node initDrinksDb.js
-
 const openDb = require('./db');
 
 async function initDrinksDatabase() {
@@ -176,7 +173,6 @@ async function initDrinksDatabase() {
   }
 }
 
-// Esegui se chiamato direttamente
 if (require.main === module) {
   initDrinksDatabase();
 }

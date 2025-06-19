@@ -1,11 +1,5 @@
-// public/js/auth-system.js - CLEAN INTEGRATION + ELEGANT NOTIFICATIONS
-// Sistema di autenticazione con notifiche eleganti
-
 console.log('🚀 Sistema auth autonomo - v5.0 ELEGANT NOTIFICATIONS');
 
-// ==========================================
-// CONTROLLO DUPLICAZIONE
-// ==========================================
 
 if (window.SimpleAuth && window.SimpleAuth.isInitialized) {
     console.log('⚠️ SimpleAuth già inizializzato, evito duplicazione');
@@ -22,7 +16,7 @@ const AUTH_CONFIG = {
 };
 
 // ==========================================
-// SISTEMA NOTIFICHE ELEGANTI
+// SISTEMA NOTIFICHE
 // ==========================================
 
 class NotificationSystem {
@@ -466,7 +460,7 @@ showProfile() {
 };
 
 // ==========================================
-// CLASSE MODALE GRAFICA - CLEAN CARD STYLE
+// CLASSE MODALE GRAFICA 
 // ==========================================
 
 class AuthModal {

@@ -1,6 +1,3 @@
-// COSA FA: Operazioni CRUD sugli snack (trova, crea, aggiorna, elimina)
-// RELAZIONI: Usa db.js per connessione, restituisce oggetti Snack
-
 const openDb = require('../db');
 const Snack = require('../models/Snack');
 
@@ -347,10 +344,6 @@ static async getInventoryStats() {
   }
 }
 
-} // ← Fine della classe SnacksDao
-
-// ==========================================
-// EXPORTS
-// ==========================================
+}
 
 module.exports = SnacksDao;

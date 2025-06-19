@@ -8,14 +8,7 @@ const SnacksDao = require('../daos/snacksDao');
 const { requireAuth, requireAdmin, requireStaff } = require('../middleware/auth');
 const { logSecurityEvent, logSystemEvent } = require('../middleware/logging');
 
-// ================================
-// 🏠 DASHBOARD & ANALYTICS
-// ================================
 
-/**
- * 📊 Dashboard principale admin
- * GET /api/admin/dashboard
- */
 router.get('/dashboard', requireAdmin, async (req, res) => {
   try {
     const [
@@ -31,7 +24,7 @@ router.get('/dashboard', requireAdmin, async (req, res) => {
       systemHealth
     ] = await Promise.all([
       UsersDao.getTotalUsersCount(),
-      UsersDao.getActiveUsersCount(30), // Attivi ultimi 30 giorni
+      UsersDao.getActiveUsersCount(30),
       UsersDao.getTotalBookingsCount(),
       UsersDao.getTodayBookingsCount(),
       GamesDao.getTotalCount(),
@@ -89,10 +82,7 @@ router.get('/dashboard', requireAdmin, async (req, res) => {
   }
 });
 
-/**
- * 📈 Analytics avanzate
- * GET /api/admin/analytics
- */
+
 router.get('/analytics', requireAdmin, async (req, res) => {
   try {
     const { period = '30', type = 'overview' } = req.query;
@@ -137,10 +127,6 @@ router.get('/analytics', requireAdmin, async (req, res) => {
 // 👥 USER MANAGEMENT
 // ================================
 
-/**
- * 📋 Lista utenti con filtri e paginazione
- * GET /api/admin/users
- */
 router.get('/users', requireStaff, async (req, res) => {
   try {
     const {
@@ -168,7 +154,6 @@ router.get('/users', requireStaff, async (req, res) => {
 
     const result = await UsersDao.getUsersWithFilters(filters, pagination);
 
-    // Rimuovi dati sensibili per staff (non admin)
     if (req.user.role === 'staff') {
       result.users = result.users.map(user => ({
         ...user,
@@ -266,7 +251,7 @@ router.get('/users/:userId', requireStaff, async (req, res) => {
 });
 
 /**
- * ✏️ Modifica utente (solo admin)
+ * Modifica utente (solo admin)
  * PUT /api/admin/users/:userId
  */
 router.put('/users/:userId', requireAdmin, async (req, res) => {
@@ -343,7 +328,7 @@ router.put('/users/:userId', requireAdmin, async (req, res) => {
 });
 
 /**
- * 🗑️ Elimina utente (solo admin)
+ * Elimina utente (solo admin)
  * DELETE /api/admin/users/:userId
  */
 router.delete('/users/:userId', requireAdmin, async (req, res) => {
@@ -389,11 +374,11 @@ router.delete('/users/:userId', requireAdmin, async (req, res) => {
 });
 
 // ================================
-// 📅 BOOKING MANAGEMENT
+// BOOKING MANAGEMENT
 // ================================
 
 /**
- * 📋 Gestione prenotazioni
+ * Gestione prenotazioni
  * GET /api/admin/bookings
  */
 router.get('/bookings', requireStaff, async (req, res) => {
@@ -445,7 +430,7 @@ router.get('/bookings', requireStaff, async (req, res) => {
 });
 
 /**
- * ✅ Conferma prenotazione
+ * Conferma prenotazione
  * PUT /api/admin/bookings/:bookingId/confirm
  */
 router.put('/bookings/:bookingId/confirm', requireStaff, async (req, res) => {
@@ -477,7 +462,7 @@ router.put('/bookings/:bookingId/confirm', requireStaff, async (req, res) => {
 });
 
 /**
- * ❌ Annulla prenotazione
+ * Annulla prenotazione
  * PUT /api/admin/bookings/:bookingId/cancel
  */
 router.put('/bookings/:bookingId/cancel', requireStaff, async (req, res) => {
@@ -513,11 +498,11 @@ router.put('/bookings/:bookingId/cancel', requireStaff, async (req, res) => {
 });
 
 // ================================
-// 🛠️ SYSTEM MANAGEMENT
+// SYSTEM MANAGEMENT
 // ================================
 
 /**
- * 🏥 Health check sistema
+ * Health check sistema
  * GET /api/admin/system/health
  */
 router.get('/system/health', requireAdmin, async (req, res) => {
@@ -540,7 +525,7 @@ router.get('/system/health', requireAdmin, async (req, res) => {
 });
 
 /**
- * 📋 Audit log
+ * Audit log
  * GET /api/admin/system/audit
  */
 router.get('/system/audit', requireAdmin, async (req, res) => {
@@ -588,7 +573,7 @@ router.get('/system/audit', requireAdmin, async (req, res) => {
 });
 
 /**
- * 🧹 Pulizia dati sistema
+ * Pulizia dati sistema
  * POST /api/admin/system/cleanup
  */
 router.post('/system/cleanup', requireAdmin, async (req, res) => {
@@ -635,7 +620,7 @@ router.post('/system/cleanup', requireAdmin, async (req, res) => {
 });
 
 // ================================
-// 📊 HELPER FUNCTIONS
+// HELPER FUNCTIONS
 // ================================
 
 /**
@@ -780,7 +765,6 @@ function isValidEmail(email) {
   return emailRegex.test(email);
 }
 
-// Placeholder functions - implementare nei rispettivi DAOs
 async function getRecentSystemActivity(limit) { return []; }
 async function getTopRatedItems(limit) { return []; }
 async function getOverviewAnalytics(days) { return {}; }
