@@ -1235,18 +1235,19 @@ static async getUserRatings(userId, options = {}) {
 
 // Funzioni per gestione bookings admin (placeholder)
 static async getBookingsWithFilters(filters, pagination) {
-  debugLog('getBookingsWithFilters called', filters);
+  debugLog('getBookingsWithFilters called', { filters, pagination });
 
   try {
     const db = await openDb();
 
-    // Verifica se la tabella bookings esiste
+    // ✅ CORREZIONE 1: Usa la tabella CORRETTA user_bookings (non bookings)
     const tableExists = await db.get(`
       SELECT name FROM sqlite_master
-      WHERE type='table' AND name='bookings'
+      WHERE type='table' AND name='user_bookings'
     `);
 
     if (!tableExists) {
+      console.warn('[UsersDao] user_bookings table not found');
       await db.close();
       return {
         bookings: [],
@@ -1258,61 +1259,160 @@ static async getBookingsWithFilters(filters, pagination) {
       };
     }
 
-    // Query base
-    let query = 'SELECT * FROM bookings WHERE 1=1';
+    // ✅ CORREZIONE 2: Query COUNT separata per totale reale
+    let countQuery = `
+      SELECT COUNT(*) as total
+      FROM user_bookings ub
+      JOIN users u ON ub.user_id = u.id
+      WHERE 1=1
+    `;
+    const countParams = [];
+
+    // ✅ CORREZIONE 3: Query principale con JOIN per dati utente
+    let query = `
+      SELECT
+        ub.*,
+        u.email,
+        u.first_name,
+        u.last_name,
+        u.phone,
+        (u.first_name || ' ' || u.last_name) as customer_name
+      FROM user_bookings ub
+      JOIN users u ON ub.user_id = u.id
+      WHERE 1=1
+    `;
     const params = [];
 
-    // Filtri
-    if (filters.status) {
-      query += ' AND status = ?';
+    // ✅ CORREZIONE 4: Applica filtri a ENTRAMBE le query (count + main)
+
+    // Filtro per status
+    if (filters.status && filters.status !== 'all') {
+      const statusCondition = ' AND ub.status = ?';
+      query += statusCondition;
+      countQuery += statusCondition;
       params.push(filters.status);
+      countParams.push(filters.status);
     }
 
+    // Filtro per data specifica
     if (filters.date) {
-      query += ' AND DATE(booking_date) = ?';
+      const dateCondition = ' AND DATE(ub.booking_date) = ?';
+      query += dateCondition;
+      countQuery += dateCondition;
       params.push(filters.date);
+      countParams.push(filters.date);
     }
 
+    // Filtro per range di date
+    if (filters.dateFrom) {
+      const dateFromCondition = ' AND ub.booking_date >= ?';
+      query += dateFromCondition;
+      countQuery += dateFromCondition;
+      params.push(filters.dateFrom);
+      countParams.push(filters.dateFrom);
+    }
+
+    if (filters.dateTo) {
+      const dateToCondition = ' AND ub.booking_date <= ?';
+      query += dateToCondition;
+      countQuery += dateToCondition;
+      params.push(filters.dateTo);
+      countParams.push(filters.dateTo);
+    }
+
+    // Filtro per utente specifico
     if (filters.userId) {
-      query += ' AND user_id = ?';
+      const userCondition = ' AND ub.user_id = ?';
+      query += userCondition;
+      countQuery += userCondition;
       params.push(filters.userId);
+      countParams.push(filters.userId);
     }
 
-    // Ordinamento
-    query += ' ORDER BY booking_date DESC, booking_time DESC';
+    // Filtro di ricerca testuale
+    if (filters.search) {
+      const searchCondition = ` AND (
+        u.first_name LIKE ? OR
+        u.last_name LIKE ? OR
+        u.email LIKE ? OR
+        ub.special_requests LIKE ?
+      )`;
+      const searchTerm = `%${filters.search}%`;
 
-    // Paginazione
-    const limit = Math.min(parseInt(pagination.limit) || 25, 100);
-    const offset = ((parseInt(pagination.page) || 1) - 1) * limit;
+      query += searchCondition;
+      countQuery += searchCondition;
+
+      params.push(searchTerm, searchTerm, searchTerm, searchTerm);
+      countParams.push(searchTerm, searchTerm, searchTerm, searchTerm);
+    }
+
+    // ✅ CORREZIONE 5: Esegui COUNT per totale reale
+    console.log('[UsersDao] Executing count query:', countQuery);
+    console.log('[UsersDao] Count params:', countParams);
+
+    const countResult = await db.get(countQuery, countParams);
+    const totalItems = countResult.total;
+
+    console.log(`[UsersDao] Total bookings found: ${totalItems}`);
+
+    // ✅ CORREZIONE 6: Ordinamento sicuro
+    const allowedSortBy = ['booking_date', 'booking_time', 'created_at', 'status', 'customer_name'];
+    const sortBy = allowedSortBy.includes(pagination.sortBy) ? pagination.sortBy : 'ub.booking_date';
+    const sortOrder = pagination.sortOrder === 'ASC' ? 'ASC' : 'DESC';
+
+    query += ` ORDER BY ${sortBy} ${sortOrder}, ub.booking_time ${sortOrder}`;
+
+    // ✅ CORREZIONE 7: Paginazione corretta con limiti realistici
+    const limit = Math.min(Math.max(parseInt(pagination.limit) || 25, 1), 1000); // Max 1000 per sicurezza
+    const currentPage = Math.max(parseInt(pagination.page) || 1, 1);
+    const offset = (currentPage - 1) * limit;
 
     query += ' LIMIT ? OFFSET ?';
     params.push(limit, offset);
 
+    console.log('[UsersDao] Executing main query:', query);
+    console.log('[UsersDao] Main params:', params);
+
+    // ✅ CORREZIONE 8: Esegui query principale
     const bookings = await db.all(query, params);
+
     await db.close();
 
-    return {
-      bookings,
-      currentPage: parseInt(pagination.page) || 1,
-      totalPages: Math.ceil(bookings.length / limit),
-      totalItems: bookings.length,
-      hasNext: false,
-      hasPrev: false
+    // ✅ CORREZIONE 9: Calcola paginazione corretta
+    const totalPages = Math.ceil(totalItems / limit);
+
+    const result = {
+      bookings: bookings || [],
+      currentPage,
+      totalPages,
+      totalItems,
+      hasNext: currentPage < totalPages,
+      hasPrev: currentPage > 1,
+      // Debug info (rimuovi in produzione)
+      debug: {
+        filters,
+        pagination,
+        queryExecuted: true,
+        foundResults: bookings?.length || 0
+      }
     };
+
+    console.log('[UsersDao] getBookingsWithFilters result:', {
+      totalItems: result.totalItems,
+      currentPage: result.currentPage,
+      totalPages: result.totalPages,
+      returnedItems: result.bookings.length
+    });
+
+    return result;
 
   } catch (error) {
-    console.error('Error in getBookingsWithFilters:', error);
-    return {
-      bookings: [],
-      currentPage: 1,
-      totalPages: 1,
-      totalItems: 0,
-      hasNext: false,
-      hasPrev: false
-    };
+    console.error('[UsersDao] Error in getBookingsWithFilters:', error);
+
+    // ✅ CORREZIONE 10: Fallback che non nasconde l'errore
+    throw new Error(`Errore caricamento prenotazioni: ${error.message}`);
   }
 }
-
 
 static async updateBookingStatus(bookingId, status, updateData = {}) {
   debugLog('updateBookingStatus called', { bookingId, status });
@@ -1320,7 +1420,7 @@ static async updateBookingStatus(bookingId, status, updateData = {}) {
   try {
     const db = await openDb();
 
-    // Verifica se la tabella user_bookings esiste (CORRETTO!)
+    // ✅ Usa sempre user_bookings (già corretto nel codice originale)
     const tableExists = await db.get(`
       SELECT name FROM sqlite_master
       WHERE type='table' AND name='user_bookings'
@@ -1331,7 +1431,7 @@ static async updateBookingStatus(bookingId, status, updateData = {}) {
       throw new Error('Tabella prenotazioni non trovata');
     }
 
-    // Aggiorna il record nella tabella user_bookings (CORRETTO!)
+    // ✅ Aggiorna stato base
     const result = await db.run(
       'UPDATE user_bookings SET status = ?, updated_at = datetime("now") WHERE id = ?',
       [status, bookingId]
@@ -1342,30 +1442,67 @@ static async updateBookingStatus(bookingId, status, updateData = {}) {
       throw new Error('Prenotazione non trovata o già aggiornata');
     }
 
-    // Se ci sono dati aggiuntivi da aggiornare
+    // ✅ Aggiorna campi aggiuntivi se forniti
     if (Object.keys(updateData).length > 0) {
-      const updateFields = Object.keys(updateData).map(key => `${key} = ?`).join(', ');
-      const updateValues = Object.values(updateData);
+      const updateFields = [];
+      const updateValues = [];
 
-      await db.run(
-        `UPDATE user_bookings SET ${updateFields}, updated_at = datetime("now") WHERE id = ?`,
-        [...updateValues, bookingId]
-      );
+      // Campi sicuri da aggiornare
+      const allowedFields = ['table_number', 'special_requests', 'staff_notes', 'total_price'];
+
+      for (const [key, value] of Object.entries(updateData)) {
+        if (allowedFields.includes(key)) {
+          updateFields.push(`${key} = ?`);
+          updateValues.push(value);
+        }
+      }
+
+      if (updateFields.length > 0) {
+        updateValues.push(bookingId);
+        await db.run(
+          `UPDATE user_bookings SET ${updateFields.join(', ')}, updated_at = datetime("now") WHERE id = ?`,
+          updateValues
+        );
+      }
     }
 
-    // Recupera la prenotazione aggiornata
+    // ✅ Recupera prenotazione aggiornata con dati utente
     const updatedBooking = await db.get(
-      'SELECT * FROM user_bookings WHERE id = ?',
+      `SELECT ub.*, u.email, u.first_name, u.last_name, u.phone,
+              (u.first_name || ' ' || u.last_name) as customer_name
+       FROM user_bookings ub
+       JOIN users u ON ub.user_id = u.id
+       WHERE ub.id = ?`,
       [bookingId]
     );
 
     await db.close();
 
-    debugLog('Booking status updated successfully', { bookingId, status, updatedBooking });
+    // ✅ Log audit se abilitato
+    if (CONFIG.AUDIT_ENABLED && updatedBooking) {
+      await UsersDao.logAuditEvent(updatedBooking.user_id, 'booking_status_updated', null, null, {
+        bookingId,
+        oldStatus: status, // Idealmente dovremmo salvare il vecchio status
+        newStatus: status,
+        updatedBy: 'staff', // Dovrebbe essere passato come parametro
+        additionalData: updateData
+      });
+    }
+
+    debugLog('Booking status updated successfully', {
+      bookingId,
+      status,
+      customerName: updatedBooking?.customer_name
+    });
+
     return updatedBooking;
 
   } catch (error) {
-    debugLog('Error updating booking status', { error: error.message, bookingId, status });
+    debugLog('Error updating booking status', {
+      error: error.message,
+      bookingId,
+      status
+    });
     throw error;
   }
 }

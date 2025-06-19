@@ -19,10 +19,15 @@ const DASHBOARD_CONFIG = {
         userStats: '/api/users/:userId/stats',
         userPreferences: '/api/users/:userId/preferences', // ✅ Già corretto
         exportUserData: '/api/users/:userId/export',
-        bookingDetails: '/api/bookings/:bookingId',
-        cancelBooking: '/api/bookings/:bookingId/cancel',
-        allBookings: '/api/bookings',
+        bookingDetails: '/api/admin/bookings/:bookingId',
+        confirmBooking: '/api/admin/bookings/:bookingId/confirm',
+        cancelBooking: '/api/admin/bookings/:bookingId/cancel',
+        allBookings: '/api/admin/bookings',
         allUsers: '/api/admin/users',
+        systemInventory: '/api/admin/analytics',
+        systemStats: '/api/admin/system/stats',
+        inventoryDetails: '/api/admin/inventory/details',
+
         // ✅ NUOVI ENDPOINTS PER OPZIONI DISPONIBILI
         availableGameCategories: '/api/games/categories',
         availableDrinkTypes: '/api/drinks/types',
@@ -472,55 +477,55 @@ class DashboardPageManager {
 // ==========================================
 
 createStaffSectionsHTML() {
-    return `
-        <!-- Gestione Prenotazioni Staff -->
-        <div class="dash-card dash-staff-section" id="manage-bookings">
-            <div class="dash-card-header">
-                <h2 class="dash-card-title">
-                    <i class="fas fa-clipboard-list dash-card-icon"></i>
-                    Gestione Prenotazioni
-                </h2>
-                <div class="staff-section-controls">
-                    <select id="booking-status-filter" onchange="window.dashboardManager.filterBookings(this.value)">
-                        <option value="all">Tutte le prenotazioni</option>
-                        <option value="pending" selected>In attesa di conferma</option>
-                        <option value="confirmed">Confermate</option>
-                        <option value="completed">Completate</option>
-                        <option value="cancelled">Annullate</option>
-                    </select>
-                    <button class="dash-btn dash-btn-secondary" onclick="window.dashboardManager.refreshBookings()">
-                        <i class="fas fa-sync-alt"></i>
-                        Aggiorna
+        return `
+            <!-- Gestione Prenotazioni Staff -->
+            <div class="dash-card dash-staff-section" id="manage-bookings">
+                <div class="dash-card-header">
+                    <h2 class="dash-card-title">
+                        <i class="fas fa-clipboard-list dash-card-icon"></i>
+                        Gestione Prenotazioni
+                    </h2>
+                    <div class="staff-section-controls">
+                        <select id="booking-status-filter" onchange="window.dashboardManager.filterBookings(this.value)">
+                            <option value="all">Tutte le prenotazioni</option>
+                            <option value="pending" selected>In attesa di conferma</option>
+                            <option value="confirmed">Confermate</option>
+                            <option value="completed">Completate</option>
+                            <option value="cancelled">Annullate</option>
+                        </select>
+                        <button class="dash-btn dash-btn-secondary" onclick="window.dashboardManager.refreshBookings()">
+                            <i class="fas fa-sync-alt"></i>
+                            Aggiorna
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Container prenotazioni staff -->
+                <div id="staff-bookings-container" class="staff-bookings-container">
+                    <div class="loading-bookings">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Caricamento prenotazioni...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Utenti Lista (Staff) -->
+            <div class="dash-card dash-staff-section" id="user-list">
+                <div class="dash-card-header">
+                    <h2 class="dash-card-title">
+                        <i class="fas fa-users dash-card-icon"></i>
+                        Lista Utenti Registrati
+                    </h2>
+                    <button class="dash-btn dash-btn-outline" onclick="window.dashboardManager.showAllUsers()">
+                        Vedi Tutto
                     </button>
                 </div>
-            </div>
-
-            <!-- Container prenotazioni staff -->
-            <div id="staff-bookings-container" class="staff-bookings-container">
-                <div class="loading-bookings">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <span>Caricamento prenotazioni...</span>
+                <div id="users-list-container">
+                    ${this.generateRecentUsersHTML()}
                 </div>
             </div>
-        </div>
-
-        <!-- Utenti Lista (Staff) -->
-        <div class="dash-card dash-staff-section" id="user-list">
-            <div class="dash-card-header">
-                <h2 class="dash-card-title">
-                    <i class="fas fa-users dash-card-icon"></i>
-                    Lista Utenti Registrati
-                </h2>
-                <button class="dash-btn dash-btn-outline" onclick="window.dashboardManager.showAllUsers()">
-                    Vedi Tutto
-                </button>
-            </div>
-            <div id="users-list-container">
-                ${this.generateRecentUsersHTML()}
-            </div>
-        </div>
-    `;
-}
+        `;
+    }
 
 // ==========================================
 // METODI PER CARICAMENTO PRENOTAZIONI STAFF
@@ -531,40 +536,91 @@ async loadStaffBookings(status = 'pending') {
 
     try {
         const token = this.getAuthToken();
-        // Usa la tua tabella user_bookings esistente
-        const apiUrl = '/api/users/staff/bookings';
+        const apiUrl = DASHBOARD_CONFIG.API_ENDPOINTS.allBookings;
 
-        const params = new URLSearchParams();
+        // ✅ CORREZIONE 1: Costruzione parametri più robusta
+        const queryParams = new URLSearchParams();
+
+        // Filtro status (importante: 'all' non deve essere inviato come parametro)
         if (status && status !== 'all') {
-            params.append('status', status);
+            queryParams.append('status', status);
         }
-        params.append('limit', '20');
 
-        const finalUrl = params.toString() ? `${apiUrl}?${params}` : apiUrl;
+        // ✅ CORREZIONE 2: Parametri paginazione per mostrare TUTTI i risultati
+        queryParams.append('limit', '1000'); // Limite alto per vedere tutto
+        queryParams.append('page', '1');
+        queryParams.append('sortBy', 'booking_date');
+        queryParams.append('sortOrder', 'ASC');
 
-        console.log('🌐 Chiamata API prenotazioni:', finalUrl);
+        // ✅ CORREZIONE 3: URL finale con parametri
+        const finalUrl = queryParams.toString() ? `${apiUrl}?${queryParams.toString()}` : apiUrl;
 
+        console.log('🌐 Chiamata API prenotazioni completa:', {
+            url: finalUrl,
+            status: status,
+            params: Object.fromEntries(queryParams)
+        });
+
+        // ✅ CORREZIONE 4: Chiamata con headers corretti
         const response = await fetch(finalUrl, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             }
         });
 
+        // ✅ CORREZIONE 5: Gestione errori HTTP migliorata
         if (!response.ok) {
-            throw new Error(`Errore HTTP ${response.status}`);
+            const errorText = await response.text();
+            console.error('❌ Errore HTTP:', {
+                status: response.status,
+                statusText: response.statusText,
+                body: errorText
+            });
+            throw new Error(`Errore HTTP ${response.status}: ${response.statusText}`);
         }
 
-        const data = await response.json();
-        console.log('✅ Prenotazioni caricate:', data);
+        const result = await response.json();
+        console.log('✅ Risposta API completa:', result);
 
-        return data.bookings || data || [];
+        // ✅ CORREZIONE 6: Gestione risposta API più flessibile
+        let bookings = [];
+
+        if (result.success === true && Array.isArray(result.bookings)) {
+            // Formato: { success: true, bookings: [...] }
+            bookings = result.bookings;
+        } else if (Array.isArray(result.data)) {
+            // Formato: { data: [...] }
+            bookings = result.data;
+        } else if (Array.isArray(result)) {
+            // Formato: [...] diretto
+            bookings = result;
+        } else {
+            console.warn('⚠️ Formato risposta API non riconosciuto:', result);
+            throw new Error('Formato risposta API non valido');
+        }
+
+        console.log('📊 Prenotazioni processate:', {
+            totaleRicevute: bookings.length,
+            filtroApplicato: status,
+            primiTreIds: bookings.slice(0, 3).map(b => b.id)
+        });
+
+        return bookings;
 
     } catch (error) {
         console.error('❌ Errore caricamento prenotazioni:', error);
-        // Fallback con dati mock per test
-        return this.getMockBookingsForStaff(status);
+
+        // ✅ CORREZIONE 7: Fallback con dati mock solo per sviluppo
+        if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
+            console.log('🔄 Modalità sviluppo: utilizzo dati mock...');
+            return this.getMockBookingsForStaff(status);
+        }
+
+        // In produzione, rilancia l'errore
+        throw error;
     }
 }
 
@@ -574,46 +630,108 @@ async loadStaffBookings(status = 'pending') {
 
 async renderStaffBookings(status = 'pending') {
     const container = document.getElementById('staff-bookings-container');
-    if (!container) return;
+    if (!container) {
+        console.warn('⚠️ Container staff-bookings-container non trovato');
+        return;
+    }
 
-    // Mostra loading
+    // ✅ Mostra loading specifico per filtro
     container.innerHTML = `
         <div class="loading-bookings">
             <i class="fas fa-spinner fa-spin"></i>
-            <span>Caricamento prenotazioni ${status}...</span>
+            <span>Caricamento prenotazioni ${status === 'all' ? 'tutte' : status}...</span>
         </div>
     `;
 
     try {
         const bookings = await this.loadStaffBookings(status);
 
-        if (!bookings || bookings.length === 0) {
+        console.log('📊 Renderizzazione prenotazioni:', {
+            status: status,
+            totalBookings: bookings.length,
+            bookingIds: bookings.map(b => b.id),
+            bookingStatuses: [...new Set(bookings.map(b => b.status))]
+        });
+
+        if (!Array.isArray(bookings)) {
+            console.error('❌ bookings non è un array:', bookings);
+            throw new Error('Dati prenotazioni non validi');
+        }
+
+        if (bookings.length === 0) {
             container.innerHTML = `
                 <div class="no-bookings-staff">
                     <div class="no-bookings-icon">
                         <i class="fas fa-calendar-check"></i>
                     </div>
                     <h3>Nessuna prenotazione ${this.getStatusLabel(status)}</h3>
-                    <p>Non ci sono prenotazioni da gestire al momento.</p>
+                    <p>Non ci sono prenotazioni ${status === 'all' ? 'nel sistema' : `con status "${status}"`}.</p>
+                    ${status !== 'all' ? `
+                        <button class="dash-btn dash-btn-outline" onclick="window.dashboardManager.filterBookings('all')">
+                            Mostra tutte le prenotazioni
+                        </button>
+                    ` : ''}
                 </div>
             `;
             return;
         }
 
-        // Renderizza le prenotazioni
-        container.innerHTML = bookings.map(booking => this.renderBookingCard(booking)).join('');
+        // ✅ CORREZIONE: Renderizza TUTTE le prenotazioni ricevute
+        const bookingCards = bookings.map((booking, index) => {
+            try {
+                return this.renderBookingCard(booking);
+            } catch (error) {
+                console.error(`❌ Errore rendering card prenotazione ${index}:`, booking, error);
+                return `
+                    <div class="staff-booking-card booking-status-error">
+                        <div class="booking-card-header">
+                            <div class="booking-info-main">
+                                <h4 class="customer-name">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Errore caricamento prenotazione #${booking?.id || 'N/A'}
+                                </h4>
+                                <small>Errore: ${error.message}</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }).join('');
 
-        console.log('✅ Prenotazioni staff renderizzate:', bookings.length);
+        container.innerHTML = bookingCards;
+
+        // ✅ Aggiorna il dropdown per riflettere lo stato corrente
+        const filterDropdown = document.getElementById('booking-status-filter');
+        if (filterDropdown && filterDropdown.value !== status) {
+            filterDropdown.value = status;
+        }
+
+        console.log('✅ Prenotazioni staff renderizzate:', {
+            status: status,
+            cardsRendered: bookings.length,
+            containerFilled: container.children.length > 0
+        });
 
     } catch (error) {
         console.error('❌ Errore rendering prenotazioni:', error);
         container.innerHTML = `
             <div class="error-bookings-staff">
                 <h3>Errore caricamento prenotazioni</h3>
-                <p>${error.message}</p>
-                <button class="dash-btn dash-btn-primary" onclick="window.dashboardManager.renderStaffBookings('${status}')">
-                    Riprova
-                </button>
+                <p><strong>Dettaglio errore:</strong> ${error.message}</p>
+                <div style="margin-top: 1rem;">
+                    <button class="dash-btn dash-btn-primary" onclick="window.dashboardManager.renderStaffBookings('${status}')">
+                        <i class="fas fa-sync-alt"></i>
+                        Riprova
+                    </button>
+                    <button class="dash-btn dash-btn-outline" onclick="window.dashboardManager.filterBookings('all')">
+                        <i class="fas fa-list"></i>
+                        Mostra Tutto
+                    </button>
+                    <button class="dash-btn dash-btn-secondary" onclick="window.debugDashboard()">
+                        <i class="fas fa-bug"></i>
+                        Debug
+                    </button>
+                </div>
             </div>
         `;
     }
@@ -745,11 +863,21 @@ async confirmBooking(bookingId) {
     if (!confirmation) return;
 
     try {
-        // Simulazione API call - sostituisci con la tua API
-        console.log('📞 Conferma prenotazione:', bookingId);
+        const token = this.getAuthToken();
+        const apiUrl =DASHBOARD_CONFIG.API_ENDPOINTS.confirmBooking.replace(':bookingId', bookingId);
 
-        // TODO: Chiamata API reale
-        // const response = await fetch(`/api/user_bookings/${bookingId}/confirm`, { ... });
+        const response = await fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.message || 'Errore conferma prenotazione');
+        }
 
         this.showNotification('success', 'Prenotazione confermata!');
         this.refreshBookings();
@@ -761,19 +889,32 @@ async confirmBooking(bookingId) {
 }
 
 async rejectBooking(bookingId) {
-    const reason = prompt('Motivo del rifiuto (opzionale):');
+    const reason = prompt('Motivo dell\'annullamento (opzionale):');
     if (reason === null) return;
 
     try {
-        console.log('❌ Rifiuta prenotazione:', bookingId, reason);
+        const token = this.getAuthToken();
+        const apiUrl = DASHBOARD_CONFIG.API_ENDPOINTS.cancelBooking.replace(':bookingId', bookingId);
 
-        // TODO: Chiamata API reale
+                const response = await fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ reason })
+        });
 
-        this.showNotification('success', 'Prenotazione rifiutata');
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.message || 'Errore annullamento prenotazione');
+        }
+
+        this.showNotification('success', 'Prenotazione annullata');
         this.refreshBookings();
 
     } catch (error) {
-        console.error('❌ Errore rifiuto:', error);
+        console.error('❌ Errore annullamento:', error);
         this.showNotification('error', 'Errore rifiuto prenotazione');
     }
 }
@@ -822,10 +963,22 @@ getStatusLabel(status) {
 }
 
 getCustomerDisplayName(booking) {
-    // Adatta ai nomi delle colonne della tua tabella
+    // Gestisci diversi formati di nome che potrebbero arrivare dal backend
     if (booking.customer_name) return booking.customer_name;
     if (booking.user_name) return booking.user_name;
     if (booking.name) return booking.name;
+
+    // Combina first_name e last_name se disponibili
+    if (booking.first_name || booking.last_name) {
+        return `${booking.first_name || ''} ${booking.last_name || ''}`.trim();
+    }
+
+    // Usa email se disponibile
+    if (booking.email) {
+        return booking.email.split('@')[0];
+    }
+
+    // Fallback con ID utente
     return `Cliente #${booking.user_id || booking.id}`;
 }
 
@@ -1404,38 +1557,534 @@ async savePreferences() {
         `;
     }
 
-    createStaffSectionsHTML() {
-        return `
-            <div class="dash-card dash-staff-section" id="manage-bookings">
-                <div class="dash-card-header">
-                    <h2 class="dash-card-title">
-                        <i class="fas fa-clipboard-list dash-card-icon"></i>
-                        Gestione Prenotazioni
-                    </h2>
-                    <div>
-                        <button class="dash-btn dash-btn-success dash-btn-sm">Conferma Selezionate</button>
-                        <button class="dash-btn dash-btn-warning dash-btn-sm">In Attesa</button>
-                    </div>
+
+createAdminSectionsHTML() {
+    return `
+        <!-- Dashboard Sistema Admin con Inventario -->
+        <div class="dash-card dash-admin-section" id="system-dashboard">
+            <div class="dash-card-header">
+                <h2 class="dash-card-title">
+                    <i class="fas fa-chart-pie dash-card-icon"></i>
+                    Dashboard Sistema & Inventario
+                </h2>
+                <div class="admin-dashboard-controls">
+                    <select id="inventory-period" onchange="window.dashboardManager.refreshInventoryData(this.value)">
+                        <option value="7">Ultimi 7 giorni</option>
+                        <option value="30">Ultimi 30 giorni</option>
+                        <option value="90">Ultimi 90 giorni</option>
+                    </select>
+                    <button class="dash-btn dash-btn-primary" onclick="window.dashboardManager.refreshInventoryData()">
+                        <i class="fas fa-sync-alt"></i>
+                        Aggiorna Dati
+                    </button>
                 </div>
-                <p>Sezione gestione prenotazioni per staff (da implementare)</p>
             </div>
-        `;
+
+            <!-- Container inventario sistema -->
+            <div id="admin-system-inventory" class="admin-system-inventory">
+                <div class="loading-inventory">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Caricamento inventario sistema...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gestione Prenotazioni Admin (come staff) -->
+        <div class="dash-card dash-admin-section" id="manage-bookings">
+            <div class="dash-card-header">
+                <h2 class="dash-card-title">
+                    <i class="fas fa-clipboard-list dash-card-icon"></i>
+                    Gestione Prenotazioni (Admin)
+                </h2>
+                <div class="staff-section-controls">
+                    <select id="admin-booking-status-filter" onchange="window.dashboardManager.filterAdminBookings(this.value)">
+                        <option value="all">Tutte le prenotazioni</option>
+                        <option value="pending">In attesa di conferma</option>
+                        <option value="confirmed">Confermate</option>
+                        <option value="completed">Completate</option>
+                        <option value="cancelled">Annullate</option>
+                    </select>
+                    <button class="dash-btn dash-btn-secondary" onclick="window.dashboardManager.refreshBookings()">
+                        <i class="fas fa-sync-alt"></i>
+                        Aggiorna
+                    </button>
+                    <button class="dash-btn dash-btn-primary" onclick="window.dashboardManager.exportBookingsData()">
+                        <i class="fas fa-download"></i>
+                        Esporta Dati
+                    </button>
+                </div>
+            </div>
+
+            <!-- Container prenotazioni admin -->
+            <div id="admin-bookings-container" class="staff-bookings-container">
+                <div class="loading-bookings">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Caricamento prenotazioni admin...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gestione Utenti Admin -->
+        <div class="dash-card dash-admin-section" id="manage-users">
+            <div class="dash-card-header">
+                <h2 class="dash-card-title">
+                    <i class="fas fa-user-plus dash-card-icon"></i>
+                    Gestisci Utenti Sistema
+                </h2>
+                <div class="admin-user-controls">
+                    <button class="dash-btn dash-btn-primary" onclick="window.dashboardManager.showAllUsers()">
+                        <i class="fas fa-users"></i>
+                        Vedi Tutti gli Utenti
+                    </button>
+                    <button class="dash-btn dash-btn-outline" onclick="window.dashboardManager.createNewUser()">
+                        <i class="fas fa-user-plus"></i>
+                        Nuovo Utente
+                    </button>
+                </div>
+            </div>
+            <div id="admin-users-preview">
+                ${this.generateRecentUsersHTML()}
+            </div>
+        </div>
+
+        <!-- Analytics Avanzata -->
+        <div class="dash-card dash-admin-section" id="analytics">
+            <div class="dash-card-header">
+                <h2 class="dash-card-title">
+                    <i class="fas fa-chart-bar dash-card-icon"></i>
+                    Analitica Avanzata
+                </h2>
+                <button class="dash-btn dash-btn-outline" onclick="window.dashboardManager.openAdvancedAnalytics()">
+                    Vedi Report Completo
+                </button>
+            </div>
+            <div id="admin-analytics-summary">
+                <p>Dashboard analitica con metriche avanzate (da implementare)</p>
+            </div>
+        </div>
+    `;
+}
+
+
+
+    // ==========================================
+// VERSIONE SOLO DATI REALI - SENZA FALLBACK MOCK
+// Questa versione usa ESCLUSIVAMENTE dati dal database
+// ==========================================
+
+async loadSystemInventory(period = 7) {
+    console.log('📊 Caricamento inventario sistema REALE, period:', period);
+
+    try {
+        const token = this.getAuthToken();
+        const apiUrl = DASHBOARD_CONFIG.API_ENDPOINTS.systemInventory;
+
+        const params = new URLSearchParams();
+        params.append('type', 'inventory');
+        params.append('period', period.toString());
+
+        const finalUrl = `${apiUrl}?${params.toString()}`;
+
+        console.log('🌐 Chiamata API inventario (SOLO DATI REALI):', finalUrl);
+
+        const response = await fetch(finalUrl, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Errore HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log('✅ Inventario sistema REALE caricato:', result);
+
+        // Verifica formato risposta dal tuo API
+        if (result.success && result.data) {
+            return result.data;
+        } else if (result.data) {
+            return result.data;
+        } else {
+            throw new Error('Formato risposta API non valido - dati mancanti');
+        }
+
+    } catch (error) {
+        console.error('❌ Errore caricamento inventario REALE:', error);
+        throw new Error(`Impossibile caricare inventario dal database: ${error.message}`);
+    }
+}
+
+
+// ==========================================
+// RENDERING CON GESTIONE ERRORI REALI
+// ==========================================
+
+async renderSystemInventory(period = 7) {
+    const container = document.getElementById('admin-system-inventory');
+    if (!container) {
+        console.warn('⚠️ Container admin-system-inventory non trovato');
+        return;
     }
 
-    createAdminSectionsHTML() {
-        return `
-            <div class="dash-card dash-admin-section" id="system-dashboard">
-                <div class="dash-card-header">
-                    <h2 class="dash-card-title">
-                        <i class="fas fa-chart-pie dash-card-icon"></i>
-                        Dashboard Sistema
-                    </h2>
-                    <button class="dash-btn dash-btn-primary">Aggiorna Dati</button>
+    container.innerHTML = `
+        <div class="loading-inventory">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Caricamento inventario dal database (${period} giorni)...</span>
+        </div>
+    `;
+
+    try {
+        const inventoryData = await this.loadSystemInventory(period);
+
+        console.log('📊 Rendering inventario REALE:', inventoryData);
+
+        if (!inventoryData || !inventoryData.games || !inventoryData.drinks || !inventoryData.snacks) {
+            throw new Error('Dati inventario incompleti dal database');
+        }
+
+        const inventoryHTML = this.createInventoryHTML(inventoryData);
+        container.innerHTML = inventoryHTML;
+
+        console.log('✅ Inventario REALE renderizzato dal database');
+
+    } catch (error) {
+        console.error('❌ Errore rendering inventario REALE:', error);
+
+        container.innerHTML = `
+            <div class="error-inventory">
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
                 </div>
-                <p>Dashboard amministratore completa (da implementare)</p>
+                <h3>Errore Caricamento Inventario</h3>
+                <p><strong>Impossibile caricare dati dal database:</strong></p>
+                <p class="error-details">${error.message}</p>
+
+                <div class="error-actions">
+                    <button class="dash-btn dash-btn-primary" onclick="window.dashboardManager.renderSystemInventory(${period})">
+                        <i class="fas fa-sync-alt"></i>
+                        Riprova dal Database
+                    </button>
+                    <button class="dash-btn dash-btn-outline" onclick="window.dashboardManager.checkAPIStatus()">
+                        <i class="fas fa-heartbeat"></i>
+                        Verifica API
+                    </button>
+                </div>
             </div>
         `;
     }
+}
+
+
+// ==========================================
+// METODO PER VERIFICARE STATO API
+// ==========================================
+
+checkAPIStatus() {
+    console.log('🔍 Verifica stato API...');
+
+    try {
+        const token = this.getAuthToken();
+
+        fetch('/api/admin/analytics', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            if (response.ok) {
+                this.showNotification('success', '✅ API funzionante - Database connesso');
+                console.log('✅ API Status: OK');
+            } else {
+                this.showNotification('error', `❌ API Error: ${response.status} ${response.statusText}`);
+                console.error('❌ API Status:', response.status, response.statusText);
+            }
+        });
+
+    } catch (error) {
+        this.showNotification('error', `❌ Errore connessione: ${error.message}`);
+        console.error('❌ API Connection Error:', error);
+    }
+}
+
+// ==========================================
+// VALIDAZIONE DATI RICEVUTI DAL DATABASE
+// ==========================================
+
+validateInventoryData(data) {
+    console.log('🔍 Validazione dati inventario dal database...');
+
+    // Verifica struttura games
+    if (!data.games || typeof data.games.totalGames !== 'number') {
+        throw new Error('Dati games mancanti o non validi nel database');
+    }
+
+    // Verifica struttura drinks
+    if (!data.drinks || typeof data.drinks.total_drinks !== 'number') {
+        throw new Error('Dati drinks mancanti o non validi nel database');
+    }
+
+    // Verifica struttura snacks
+    if (!data.snacks || typeof data.snacks.total_snacks !== 'number') {
+        throw new Error('Dati snacks mancanti o non validi nel database');
+    }
+
+    console.log('✅ Dati inventario validati correttamente');
+    return true;
+}
+
+// ==========================================
+// CREAZIONE HTML CON DATI REALI VALIDATI
+// ==========================================
+
+createInventoryHTML(data) {
+    const { games, drinks, snacks } = data;
+
+    return `
+        <div class="inventory-dashboard" data-source="database">
+            <div class="data-source-badge">
+                <i class="fas fa-database"></i>
+                <span>Dati in tempo reale dal database</span>
+                <small>Ultimo aggiornamento: ${new Date().toLocaleString('it-IT')}</small>
+            </div>
+
+            <!-- Sezione Giochi -->
+            <div class="inventory-section games-section">
+                <div class="inventory-section-header">
+                    <h3>
+                        <i class="fas fa-dice inventory-icon games-icon"></i>
+                        Inventario Giochi
+                    </h3>
+                    <span class="inventory-total">${games.totalGames} totali</span>
+                </div>
+                <div class="inventory-stats-grid">
+                    <div class="inventory-stat-card">
+                        <div class="stat-value">${games.totalGames}</div>
+                        <div class="stat-label">Giochi Totali</div>
+                    </div>
+                    <div class="inventory-stat-card">
+                        <div class="stat-value">${games.totalCategories}</div>
+                        <div class="stat-label">Categorie</div>
+                    </div>
+                    <div class="inventory-stat-card">
+                        <div class="stat-value">${Number(games.avgDifficulty).toFixed(1)}</div>
+                        <div class="stat-label">Difficoltà Media</div>
+                    </div>
+                    <div class="inventory-stat-card highlight">
+                        <div class="stat-value">€${Number(games.avgRentalPrice).toFixed(2)}</div>
+                        <div class="stat-label">Prezzo Medio</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sezione Bevande -->
+            <div class="inventory-section drinks-section">
+                <div class="inventory-section-header">
+                    <h3>
+                        <i class="fas fa-glass-cheers inventory-icon drinks-icon"></i>
+                        Inventario Bevande
+                    </h3>
+                    <span class="inventory-total">${drinks.total_drinks} totali</span>
+                </div>
+                <div class="inventory-stats-grid">
+                    <div class="inventory-stat-card">
+                        <div class="stat-value">${drinks.total_drinks}</div>
+                        <div class="stat-label">Bevande Totali</div>
+                    </div>
+                    <div class="inventory-stat-card">
+                        <div class="stat-value">${drinks.alcoholic_drinks}</div>
+                        <div class="stat-label">Alcoliche</div>
+                    </div>
+                    <div class="inventory-stat-card">
+                        <div class="stat-value">${drinks.non_alcoholic_drinks}</div>
+                        <div class="stat-label">Analcoliche</div>
+                    </div>
+                    <div class="inventory-stat-card">
+                        <div class="stat-value">${drinks.total_spirits}</div>
+                        <div class="stat-label">Distillati</div>
+                    </div>
+                    <div class="inventory-stat-card highlight">
+                        <div class="stat-value">€${Number(drinks.avg_price).toFixed(2)}</div>
+                        <div class="stat-label">Prezzo Medio</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sezione Snack -->
+            <div class="inventory-section snacks-section">
+                <div class="inventory-section-header">
+                    <h3>
+                        <i class="fas fa-cookie-bite inventory-icon snacks-icon"></i>
+                        Inventario Snack
+                    </h3>
+                    <span class="inventory-total">${snacks.total_snacks} totali</span>
+                </div>
+                <div class="inventory-stats-grid">
+                    <div class="inventory-stat-card">
+                        <div class="stat-value">${snacks.total_snacks}</div>
+                        <div class="stat-label">Snack Totali</div>
+                    </div>
+                    <div class="inventory-stat-card">
+                        <div class="stat-value">${snacks.sweet_snacks}</div>
+                        <div class="stat-label">Dolci</div>
+                    </div>
+                    <div class="inventory-stat-card">
+                        <div class="stat-value">${snacks.savory_snacks}</div>
+                        <div class="stat-label">Salati</div>
+                    </div>
+                    <div class="inventory-stat-card highlight">
+                        <div class="stat-value">€${Number(snacks.avg_price).toFixed(2)}</div>
+                        <div class="stat-label">Prezzo Medio</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Riepilogo -->
+            <div class="inventory-summary">
+                <div class="summary-card">
+                    <h4>Riepilogo Inventario (Database Live)</h4>
+                    <div class="summary-stats">
+                        <div class="summary-item">
+                            <span class="summary-label">Totale Prodotti:</span>
+                            <span class="summary-value">${games.totalGames + drinks.total_drinks + snacks.total_snacks}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Periodo Analisi:</span>
+                            <span class="summary-value">${data.period} giorni</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Fonte Dati:</span>
+                            <span class="summary-value">Database Live</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Ultimo Refresh:</span>
+                            <span class="summary-value">${new Date().toLocaleTimeString('it-IT')}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+async renderAdminBookings(status = 'pending') {
+    const container = document.getElementById('admin-bookings-container');
+    if (!container) {
+        console.warn('⚠️ Container admin-bookings-container non trovato');
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="loading-bookings">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Caricamento prenotazioni admin ${status === 'all' ? 'tutte' : status}...</span>
+        </div>
+    `;
+
+    try {
+        const bookings = await this.loadStaffBookings(status);
+
+        if (bookings.length === 0) {
+            container.innerHTML = `
+                <div class="no-bookings-staff">
+                    <div class="no-bookings-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h3>Nessuna prenotazione ${this.getStatusLabel(status)} (Admin)</h3>
+                    <p>Non ci sono prenotazioni ${status === 'all' ? 'nel sistema' : `con status "${status}"`}.</p>
+                    ${status !== 'all' ? `
+                        <button class="dash-btn dash-btn-outline" onclick="window.dashboardManager.filterAdminBookings('all')">
+                            Mostra tutte le prenotazioni
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+            return;
+        }
+
+        const bookingCards = bookings.map((booking, index) => {
+            try {
+                return this.renderBookingCard(booking, true);
+            } catch (error) {
+                console.error(`❌ Errore rendering card prenotazione admin ${index}:`, booking, error);
+                return `
+                    <div class="staff-booking-card booking-status-error">
+                        <div class="booking-card-header">
+                            <div class="booking-info-main">
+                                <h4 class="customer-name">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Errore caricamento prenotazione #${booking?.id || 'N/A'} (Admin)
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }).join('');
+
+        container.innerHTML = bookingCards;
+
+        const filterDropdown = document.getElementById('admin-booking-status-filter');
+        if (filterDropdown && filterDropdown.value !== status) {
+            filterDropdown.value = status;
+        }
+
+        console.log('✅ Prenotazioni admin renderizzate:', bookings.length);
+
+    } catch (error) {
+        console.error('❌ Errore rendering prenotazioni admin:', error);
+        container.innerHTML = `
+            <div class="error-bookings-staff">
+                <h3>Errore caricamento prenotazioni (Admin)</h3>
+                <p><strong>Dettaglio errore:</strong> ${error.message}</p>
+                <div style="margin-top: 1rem;">
+                    <button class="dash-btn dash-btn-primary" onclick="window.dashboardManager.renderAdminBookings('${status}')">
+                        <i class="fas fa-sync-alt"></i>
+                        Riprova
+                    </button>
+                    <button class="dash-btn dash-btn-outline" onclick="window.dashboardManager.filterAdminBookings('all')">
+                        <i class="fas fa-list"></i>
+                        Mostra Tutto
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Metodi interfaccia admin
+refreshInventoryData(period) {
+    const selectedPeriod = period || document.getElementById('inventory-period')?.value || 7;
+    console.log('🔄 Refresh inventario, period:', selectedPeriod);
+    this.renderSystemInventory(parseInt(selectedPeriod));
+}
+
+filterAdminBookings(status) {
+    console.log('🔍 Admin - Filtraggio per status:', status);
+    this.renderAdminBookings(status);
+}
+
+exportBookingsData() {
+    console.log('📥 Export dati prenotazioni admin...');
+    alert('📊 EXPORT PRENOTAZIONI\n\nQuesta funzione permetterà di:\n• Esportare tutte le prenotazioni in CSV/Excel\n• Filtrare per periodo e status\n• Includere statistiche di riepilogo\n\n(In fase di sviluppo)');
+}
+
+createNewUser() {
+    console.log('👤 Creazione nuovo utente admin...');
+    alert('➕ NUOVO UTENTE\n\nQuesta funzione permetterà di:\n• Creare nuovi utenti staff/customer\n• Assegnare ruoli e permessi\n• Inviare credenziali via email\n\n(In fase di sviluppo)');
+}
+
+openAdvancedAnalytics() {
+    console.log('📈 Apertura analytics avanzata...');
+    alert('📊 ANALYTICS AVANZATA\n\nQuesta sezione includerà:\n• Grafici di utilizzo nel tempo\n• Metriche di performance\n• Report automatici\n• Confronti periodo su periodo\n\n(In fase di sviluppo)');
+}
+
+
+
 
     createActivitySectionHTML(role) {
         const activities = this.generateMockActivities(role);
@@ -1766,33 +2415,50 @@ async savePreferences() {
         console.log('🧹 Dashboard cleanup completato');
     }
 
-    initializeDashboard() {
-        console.log('🚀 Inizializzazione dashboard completa...');
+initializeDashboard() {
+    console.log('🚀 Inizializzazione dashboard completa...');
 
-        // Attendi che il DOM sia completamente renderizzato
-        setTimeout(() => {
-            // Aggiungi classe al body per il ruolo
-            if (this.dashboardData && this.dashboardData.role) {
-                document.body.classList.add(`role-${this.dashboardData.role}`);
-            }
+    setTimeout(() => {
+        if (this.dashboardData && this.dashboardData.role) {
+            document.body.classList.add(`role-${this.dashboardData.role}`);
+        }
 
-            // ✅ POPOLA PREFERENZE DINAMICHE per customer
-            if (this.dashboardData?.role === 'customer') {
-                console.log('👤 Utente customer - popolamento preferenze...');
-                console.log('📊 Dati dashboard disponibili:', {
-                    hasPreferences: !!this.dashboardData.preferences,
-                    preferences: this.dashboardData.preferences
-                });
+        // Customer
+        if (this.dashboardData?.role === 'customer') {
+            console.log('👤 Utente customer - popolamento preferenze...');
+            this.populateGameCategories();
+            this.populateDrinkTypes();
+        }
 
-                this.populateGameCategories();
-                this.populateDrinkTypes();
-            }
+        // Staff e Admin - Gestione prenotazioni
+        if (this.dashboardData?.role === 'staff' || this.dashboardData?.role === 'admin') {
+            console.log(`👨‍💼 Utente ${this.dashboardData.role} - inizializzazione gestione prenotazioni...`);
 
-            console.log('✅ Dashboard inizializzata con preferenze dinamiche');
-        }, 200); // Aumentato da 100ms a 200ms per sicurezza
-    }
+            setTimeout(() => {
+                if (this.dashboardData.role === 'admin') {
+                    // Admin usa container dedicato
+                    this.renderAdminBookings('pending');
+                } else {
+                    // Staff usa container normale
+                    this.renderStaffBookings('pending');
+                }
+            }, 300);
+        }
+
+        // ✅ NUOVO: Inizializza inventario sistema per admin
+        if (this.dashboardData?.role === 'admin') {
+            console.log('🔧 Utente admin - inizializzazione inventario sistema...');
+
+            setTimeout(() => {
+                this.renderSystemInventory(7);
+            }, 500);
+        }
+
+        console.log('✅ Dashboard inizializzata completamente');
+    }, 200);
 }
 
+}
 // ==========================================
 // FUNZIONE PRINCIPALE DELLA PAGINA
 // ==========================================

@@ -748,6 +748,833 @@
 }
 
 /* ==========================================
+   GESTIONE PRENOTAZIONI STAFF - CSS COMPLETO
+   Aggiungi questo alla fine del tuo dashboard.css
+   ========================================== */
+
+/* Sezione controlli staff */
+.staff-section-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.staff-section-controls select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--dash-border);
+    border-radius: var(--dash-radius);
+    background: var(--dash-white);
+    color: var(--dash-dark);
+    font-size: 0.85rem;
+    min-width: 200px;
+}
+
+.staff-section-controls select:focus {
+    outline: none;
+    border-color: var(--dash-primary);
+    box-shadow: 0 0 0 2px rgba(102, 51, 204, 0.1);
+}
+
+.dash-btn-secondary {
+    background: var(--dash-gray);
+    color: var(--dash-white);
+}
+
+.dash-btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+}
+
+/* Container prenotazioni staff */
+.staff-bookings-container {
+    margin-top: 1.5rem;
+}
+
+.loading-bookings,
+.no-bookings-staff,
+.error-bookings-staff {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    text-align: center;
+    color: var(--dash-gray);
+    background: var(--dash-light);
+    border-radius: var(--dash-radius);
+    border: 1px dashed var(--dash-border);
+    margin: 1rem 0;
+}
+
+.no-bookings-staff {
+    border-color: var(--dash-info);
+    color: var(--dash-info);
+}
+
+.error-bookings-staff {
+    border-color: var(--dash-danger);
+    color: var(--dash-danger);
+    background: rgba(220, 53, 69, 0.05);
+}
+
+.no-bookings-icon {
+    font-size: 3rem;
+    color: var(--dash-primary);
+    margin-bottom: 1rem;
+}
+
+.no-bookings-staff h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--dash-dark);
+}
+
+.no-bookings-staff p {
+    margin: 0;
+    color: var(--dash-gray);
+}
+
+.loading-bookings i {
+    color: var(--dash-primary);
+    margin-right: 0.5rem;
+    animation: spin 1s linear infinite;
+}
+
+/* Card singola prenotazione */
+.staff-booking-card {
+    background: var(--dash-white);
+    border: 1px solid var(--dash-border);
+    border-radius: var(--dash-radius);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    transition: var(--dash-transition);
+    box-shadow: var(--dash-shadow);
+}
+
+.staff-booking-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Stati prenotazione - bordi colorati */
+.staff-booking-card.booking-status-pending {
+    border-left: 5px solid var(--dash-warning);
+}
+
+.staff-booking-card.booking-status-confirmed {
+    border-left: 5px solid var(--dash-success);
+}
+
+.staff-booking-card.booking-status-completed {
+    border-left: 5px solid var(--dash-info);
+}
+
+.staff-booking-card.booking-status-cancelled {
+    border-left: 5px solid var(--dash-danger);
+}
+
+/* Header card prenotazione */
+.booking-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--dash-border);
+    background: linear-gradient(135deg, var(--dash-light) 0%, rgba(248, 249, 250, 0.5) 100%);
+}
+
+.booking-info-main {
+    flex: 1;
+}
+
+.booking-info-main h4.customer-name {
+    margin: 0 0 0.75rem 0;
+    color: var(--dash-dark);
+    font-size: 1.15rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.customer-name i {
+    color: var(--dash-primary);
+    font-size: 1rem;
+}
+
+.booking-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    font-size: 0.9rem;
+    color: var(--dash-gray);
+}
+
+.booking-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--dash-white);
+    padding: 0.4rem 0.75rem;
+    border-radius: 15px;
+    border: 1px solid var(--dash-border);
+    font-weight: 500;
+}
+
+.booking-meta i {
+    color: var(--dash-primary);
+    font-size: 0.85rem;
+}
+
+/* Badge stato prenotazione */
+.booking-status-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 25px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+}
+
+.booking-status-pending .booking-status-badge {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 193, 7, 0.05) 100%);
+    color: #e6a800;
+    border: 2px solid rgba(255, 193, 7, 0.3);
+}
+
+.booking-status-confirmed .booking-status-badge {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.15) 0%, rgba(40, 167, 69, 0.05) 100%);
+    color: #1e7e34;
+    border: 2px solid rgba(40, 167, 69, 0.3);
+}
+
+.booking-status-completed .booking-status-badge {
+    background: linear-gradient(135deg, rgba(23, 162, 184, 0.15) 0%, rgba(23, 162, 184, 0.05) 100%);
+    color: #0c5460;
+    border: 2px solid rgba(23, 162, 184, 0.3);
+}
+
+.booking-status-cancelled .booking-status-badge {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(220, 53, 69, 0.05) 100%);
+    color: #721c24;
+    border: 2px solid rgba(220, 53, 69, 0.3);
+}
+
+/* Dettagli prenotazione */
+.booking-order-details {
+    padding: 1.5rem;
+}
+
+.special-requests {
+    background: linear-gradient(135deg, rgba(102, 51, 204, 0.08) 0%, rgba(102, 51, 204, 0.03) 100%);
+    border: 1px solid rgba(102, 51, 204, 0.2);
+    border-radius: var(--dash-radius);
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.special-requests strong {
+    color: var(--dash-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.special-requests span {
+    color: var(--dash-dark);
+    line-height: 1.5;
+    font-style: italic;
+}
+
+.booking-additional-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    font-size: 0.9rem;
+    background: var(--dash-light);
+    padding: 1rem;
+    border-radius: var(--dash-radius);
+    border: 1px solid var(--dash-border);
+}
+
+.booking-additional-info > div {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.confirmation-code {
+    font-family: 'Courier New', monospace;
+    background: var(--dash-primary);
+    color: var(--dash-white);
+    padding: 0.3rem 0.75rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.booking-total {
+    font-weight: 700;
+    color: var(--dash-success);
+    font-size: 1rem;
+}
+
+.booking-user-id {
+    color: var(--dash-gray);
+    font-size: 0.8rem;
+}
+
+/* Azioni prenotazione */
+.booking-actions {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, var(--dash-light) 0%, rgba(248, 249, 250, 0.8) 100%);
+    border-top: 1px solid var(--dash-border);
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.25rem;
+    border: none;
+    border-radius: var(--dash-radius);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--dash-transition);
+    text-decoration: none;
+    min-width: 120px;
+    justify-content: center;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.action-btn i {
+    font-size: 0.9rem;
+}
+
+.action-btn-confirm {
+    background: linear-gradient(135deg, var(--dash-success) 0%, #1e7e34 100%);
+    color: var(--dash-white);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.action-btn-confirm:hover {
+    background: linear-gradient(135deg, #1e7e34 0%, var(--dash-success) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+.action-btn-reject {
+    background: linear-gradient(135deg, var(--dash-danger) 0%, #721c24 100%);
+    color: var(--dash-white);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.action-btn-reject:hover {
+    background: linear-gradient(135deg, #721c24 0%, var(--dash-danger) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+.action-btn-complete {
+    background: linear-gradient(135deg, var(--dash-info) 0%, #0c5460 100%);
+    color: var(--dash-white);
+    box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
+}
+
+.action-btn-complete:hover {
+    background: linear-gradient(135deg, #0c5460 0%, var(--dash-info) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
+}
+
+.action-btn-view {
+    background: linear-gradient(135deg, var(--dash-gray) 0%, #5a6268 100%);
+    color: var(--dash-white);
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+}
+
+.action-btn-view:hover {
+    background: linear-gradient(135deg, #5a6268 0%, var(--dash-gray) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+}
+
+/* Lista utenti preview */
+.users-list-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, var(--dash-light) 0%, rgba(248, 249, 250, 0.5) 100%);
+    border-radius: var(--dash-radius);
+    border: 1px solid var(--dash-border);
+    transition: var(--dash-transition);
+}
+
+.user-item:hover {
+    border-color: var(--dash-primary);
+    background: rgba(102, 51, 204, 0.05);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 51, 204, 0.15);
+}
+
+.user-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--dash-primary) 0%, #7c4dff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--dash-white);
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 2px 8px rgba(102, 51, 204, 0.3);
+}
+
+.user-info {
+    flex: 1;
+}
+
+.user-info strong {
+    display: block;
+    color: var(--dash-dark);
+    margin-bottom: 0.25rem;
+    font-size: 1rem;
+}
+
+.user-info small {
+    color: var(--dash-gray);
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+/* Animazioni e transizioni */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.staff-booking-card {
+    animation: slideInUp 0.3s ease-out;
+}
+
+.staff-booking-card:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.staff-booking-card:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.staff-booking-card:nth-child(4) {
+    animation-delay: 0.3s;
+}
+
+/* Effetti hover migliorati */
+.action-btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.booking-meta span:hover {
+    background: rgba(102, 51, 204, 0.08);
+    border-color: var(--dash-primary);
+    color: var(--dash-primary);
+}
+
+/* Indicatori stato più evidenti */
+.booking-status-pending::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--dash-warning) 0%, transparent 100%);
+}
+
+.booking-status-confirmed::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--dash-success) 0%, transparent 100%);
+}
+
+.staff-booking-card {
+    position: relative;
+}
+
+/* Responsive design per staff bookings */
+@media (max-width: 1024px) {
+    .staff-section-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .staff-section-controls select {
+        min-width: auto;
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .booking-card-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .booking-meta {
+        flex-direction: column;
+        gap: 0.75rem;
+        width: 100%;
+    }
+
+    .booking-meta span {
+        justify-content: center;
+        text-align: center;
+    }
+
+    .booking-additional-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .booking-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .action-btn {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .user-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .staff-booking-card {
+        margin-bottom: 1rem;
+    }
+
+    .booking-card-header,
+    .booking-order-details,
+    .booking-actions {
+        padding: 1rem;
+    }
+
+    .special-requests {
+        padding: 1rem;
+    }
+
+    .booking-additional-info {
+        padding: 0.75rem;
+    }
+}
+
+/* Dark mode support (opzionale) */
+@media (prefers-color-scheme: dark) {
+    .staff-booking-card {
+        background: #2d3748;
+        border-color: #4a5568;
+    }
+
+    .booking-card-header {
+        background: linear-gradient(135deg, #4a5568 0%, rgba(74, 85, 104, 0.5) 100%);
+    }
+
+    .booking-meta span {
+        background: #4a5568;
+        border-color: #718096;
+        color: #e2e8f0;
+    }
+
+    .user-item {
+        background: linear-gradient(135deg, #4a5568 0%, rgba(74, 85, 104, 0.5) 100%);
+        border-color: #718096;
+    }
+}
+
+/* Accessibilità migliorata */
+.action-btn:focus {
+    outline: 3px solid rgba(102, 51, 204, 0.5);
+    outline-offset: 2px;
+}
+
+.staff-section-controls select:focus {
+    outline: 3px solid rgba(102, 51, 204, 0.5);
+    outline-offset: 2px;
+}
+
+/* Indicatori di loading migliorati */
+.loading-bookings {
+    min-height: 200px;
+}
+
+.loading-bookings i {
+    font-size: 1.5rem;
+}
+
+/* Stati vuoti più informativi */
+.no-bookings-staff {
+    min-height: 250px;
+}
+
+.error-bookings-staff {
+    min-height: 200px;
+}
+
+.error-bookings-staff h3 {
+    color: var(--dash-danger);
+    margin-bottom: 0.5rem;
+}
+
+
+/* ==========================================
+   CSS PER BADGE DATI REALI E GESTIONE ERRORI
+   ========================================== */
+
+/* Badge fonte dati */
+.data-source-badge {
+    background: linear-gradient(135deg, var(--booking-confirmed) 0%, #059669 100%);
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.data-source-badge i {
+    font-size: 1.125rem;
+    animation: pulse 2s infinite;
+}
+
+.data-source-badge span {
+    font-weight: 600;
+    font-size: 0.9375rem;
+}
+
+.data-source-badge small {
+    margin-left: auto;
+    opacity: 0.9;
+    font-size: 0.8rem;
+}
+
+/* Indicatore inventario da database */
+.inventory-dashboard[data-source="database"] {
+    border: 2px solid var(--booking-confirmed);
+    border-radius: var(--dash-radius);
+    padding: 1rem;
+    position: relative;
+}
+
+.inventory-dashboard[data-source="database"]::before {
+    content: '🔴 LIVE';
+    position: absolute;
+    top: -8px;
+    right: 1rem;
+    background: var(--booking-cancelled);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    animation: blink 1.5s infinite;
+}
+
+/* Gestione errori migliorata */
+.error-inventory {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.02) 100%);
+    border: 2px dashed var(--booking-cancelled);
+    border-radius: var(--dash-radius);
+    padding: 2rem;
+    text-align: center;
+    color: var(--dash-dark);
+}
+
+.error-inventory .error-icon {
+    font-size: 3rem;
+    color: var(--booking-cancelled);
+    margin-bottom: 1rem;
+}
+
+.error-inventory h3 {
+    color: var(--booking-cancelled);
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+.error-inventory p {
+    margin-bottom: 0.75rem;
+    color: var(--dash-dark);
+}
+
+.error-inventory .error-details {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 6px;
+    padding: 0.75rem;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+    font-size: 0.875rem;
+    color: var(--booking-cancelled);
+    margin: 1rem 0;
+}
+
+.error-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+}
+
+.error-help {
+    background: var(--dash-light);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-top: 1rem;
+    text-align: left;
+}
+
+.error-help strong {
+    color: var(--dash-dark);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.error-help small {
+    color: var(--dash-gray);
+    line-height: 1.4;
+}
+
+/* Loading migliorato per dati reali */
+.loading-inventory.real-data {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.02) 100%);
+    border: 2px dashed var(--booking-completed);
+}
+
+.loading-inventory.real-data i {
+    color: var(--booking-completed);
+}
+
+.loading-inventory.real-data span {
+    color: var(--dash-dark);
+    font-weight: 500;
+}
+
+/* Animazioni */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+
+/* Status indicators per sezioni */
+.inventory-section.data-loaded {
+    border-left-width: 6px;
+    position: relative;
+}
+
+.inventory-section.data-loaded::after {
+    content: '✓';
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--booking-confirmed);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+/* Timestamp aggiornamento */
+.last-update {
+    font-size: 0.75rem;
+    color: var(--dash-gray);
+    text-align: center;
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+
+.last-update::before {
+    content: '🕐 ';
+    margin-right: 0.25rem;
+}
+
+/* Responsive per errori */
+@media (max-width: 768px) {
+    .error-inventory {
+        padding: 1.5rem;
+    }
+
+    .error-actions {
+        flex-direction: column;
+    }
+
+    .error-actions .dash-btn {
+        width: 100%;
+    }
+
+    .data-source-badge {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+
+    .data-source-badge small {
+        margin-left: 0;
+    }
+}
+
+
+
+/* ==========================================
    ROLE VISIBILITY
    ========================================== */
 
@@ -818,4 +1645,587 @@ body.role-admin .dash-staff-only { display: block; }
 
     .dash-main { padding: 0; }
     .dash-card { scroll-margin-top: 80px; }
+}
+
+
+/* ==========================================
+Admin
+============================================*/
+
+
+/* ==========================================
+   CSS ADMIN - AGGIUNGI ALLA FINE DEL TUO dashboard.css
+   ========================================== */
+
+/* Controlli dashboard admin */
+.admin-dashboard-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.admin-dashboard-controls select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--dash-border);
+    border-radius: 8px;
+    background: var(--dash-white);
+    color: var(--dash-dark);
+    font-size: 0.875rem;
+    font-weight: 500;
+    min-width: 160px;
+    cursor: pointer;
+    transition: var(--dash-transition);
+}
+
+.admin-dashboard-controls select:focus {
+    outline: none;
+    border-color: var(--dash-primary);
+    box-shadow: 0 0 0 3px rgba(102, 51, 204, 0.1);
+}
+
+.admin-user-controls {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+/* Dashboard inventario */
+.inventory-dashboard {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.loading-inventory,
+.error-inventory {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    text-align: center;
+    background: var(--dash-light);
+    border-radius: var(--dash-radius);
+    border: 2px dashed var(--dash-border);
+}
+
+.error-inventory {
+    border-color: var(--dash-danger);
+    background: rgba(220, 53, 69, 0.02);
+}
+
+.loading-inventory i {
+    color: var(--dash-primary);
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+    animation: spin 1s linear infinite;
+}
+
+.error-inventory .error-icon {
+    font-size: 3rem;
+    color: var(--dash-danger);
+    margin-bottom: 1rem;
+}
+
+.error-inventory h3 {
+    color: var(--dash-danger);
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+.error-inventory .error-details {
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    border-radius: 6px;
+    padding: 0.75rem;
+    font-family: monospace;
+    font-size: 0.875rem;
+    color: var(--dash-danger);
+    margin: 1rem 0;
+}
+
+.error-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+}
+
+/* Sezioni inventario */
+.inventory-section {
+    background: var(--dash-white);
+    border-radius: var(--dash-radius);
+    padding: 1.5rem;
+    border: 1px solid var(--dash-border);
+    box-shadow: var(--dash-shadow);
+    transition: var(--dash-transition);
+}
+
+.inventory-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.inventory-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--dash-border);
+}
+
+.inventory-section-header h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--dash-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.inventory-icon {
+    font-size: 1.25rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+    color: white;
+}
+
+.games-icon {
+    background: linear-gradient(135deg, var(--dash-primary) 0%, #7c4dff 100%);
+}
+
+.drinks-icon {
+    background: linear-gradient(135deg, var(--dash-info) 0%, #0ea5e9 100%);
+}
+
+.snacks-icon {
+    background: linear-gradient(135deg, var(--dash-warning) 0%, #f97316 100%);
+}
+
+.inventory-total {
+    background: var(--dash-light);
+    color: var(--dash-dark);
+    padding: 0.375rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: 1px solid var(--dash-border);
+}
+
+/* Grid statistiche inventario */
+.inventory-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.inventory-stat-card {
+    background: linear-gradient(135deg, var(--dash-light) 0%, rgba(248, 249, 250, 0.5) 100%);
+    border: 1px solid var(--dash-border);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    transition: var(--dash-transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.inventory-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--dash-gray);
+    opacity: 0.3;
+}
+
+.inventory-stat-card.highlight::before {
+    background: var(--dash-success);
+    opacity: 1;
+}
+
+.inventory-stat-card:hover {
+    transform: translateY(-1px);
+    border-color: var(--dash-primary);
+    background: rgba(102, 51, 204, 0.02);
+}
+
+.inventory-stat-card .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--dash-dark);
+    margin-bottom: 0.25rem;
+}
+
+.inventory-stat-card .stat-label {
+    font-size: 0.8rem;
+    color: var(--dash-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+}
+
+.inventory-stat-card.highlight .stat-value {
+    color: var(--dash-success);
+    font-size: 1.625rem;
+}
+
+/* Riepilogo inventario */
+.inventory-summary {
+    margin-top: 1.5rem;
+}
+
+.summary-card {
+    background: linear-gradient(135deg, var(--dash-primary) 0%, #7c4dff 100%);
+    color: white;
+    border-radius: var(--dash-radius);
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(102, 51, 204, 0.25);
+}
+
+.summary-card h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.summary-card h4::before {
+    content: '📊';
+    font-size: 1.25rem;
+}
+
+.summary-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.summary-label {
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.summary-value {
+    font-weight: 700;
+    font-size: 1rem;
+    color: white;
+}
+
+/* Badge dati reali */
+.data-source-badge {
+    background: linear-gradient(135deg, var(--dash-success) 0%, #059669 100%);
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.data-source-badge i {
+    font-size: 1.125rem;
+    animation: pulse 2s infinite;
+}
+
+.data-source-badge span {
+    font-weight: 600;
+    font-size: 0.9375rem;
+}
+
+.data-source-badge small {
+    margin-left: auto;
+    opacity: 0.9;
+    font-size: 0.8rem;
+}
+
+/* Indicatore live */
+.inventory-dashboard[data-source="database"] {
+    border: 2px solid var(--dash-success);
+    border-radius: var(--dash-radius);
+    padding: 1rem;
+    position: relative;
+}
+
+.inventory-dashboard[data-source="database"]::before {
+    content: '🔴 LIVE';
+    position: absolute;
+    top: -8px;
+    right: 1rem;
+    background: var(--dash-danger);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    animation: blink 1.5s infinite;
+}
+
+/* Sezioni specifiche per tipo */
+.games-section {
+    border-left: 4px solid var(--dash-primary);
+}
+
+.games-section .inventory-stat-card::before {
+    background: var(--dash-primary);
+}
+
+.drinks-section {
+    border-left: 4px solid var(--dash-info);
+}
+
+.drinks-section .inventory-stat-card::before {
+    background: var(--dash-info);
+}
+
+.snacks-section {
+    border-left: 4px solid var(--dash-warning);
+}
+
+.snacks-section .inventory-stat-card::before {
+    background: var(--dash-warning);
+}
+
+/* Admin bookings container */
+#admin-bookings-container {
+    margin-top: 1.5rem;
+}
+
+#admin-bookings-container .staff-booking-card {
+    position: relative;
+}
+
+#admin-bookings-container .staff-booking-card::before {
+    content: 'ADMIN';
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--dash-primary);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    z-index: 2;
+}
+
+/* Animazioni */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+
+@keyframes countUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.inventory-stat-card .stat-value {
+    animation: countUp 0.6s ease-out;
+}
+
+.inventory-section:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.inventory-section:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.inventory-section:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.inventory-summary {
+    animation: slideInUp 0.4s ease-out 0.4s both;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+    .admin-dashboard-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .admin-dashboard-controls select {
+        width: 100%;
+        min-width: auto;
+    }
+
+    .inventory-stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .summary-stats {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .inventory-dashboard {
+        gap: 1rem;
+    }
+
+    .inventory-section {
+        padding: 1rem;
+    }
+
+    .inventory-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .inventory-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .inventory-stat-card {
+        padding: 0.75rem;
+    }
+
+    .inventory-stat-card .stat-value {
+        font-size: 1.25rem;
+    }
+
+    .summary-card {
+        padding: 1rem;
+    }
+
+    .summary-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.25rem;
+    }
+
+    .admin-user-controls {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .admin-user-controls .dash-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .data-source-badge {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+
+    .data-source-badge small {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .inventory-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .inventory-section-header h3 {
+        font-size: 1rem;
+    }
+
+    .inventory-icon {
+        font-size: 1rem;
+        padding: 0.375rem;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .inventory-section {
+        background: #1f2937;
+        border-color: #374151;
+        color: #f9fafb;
+    }
+
+    .inventory-section-header h3 {
+        color: #f9fafb;
+    }
+
+    .inventory-stat-card {
+        background: linear-gradient(135deg, #374151 0%, rgba(55, 65, 81, 0.5) 100%);
+        border-color: #4b5563;
+        color: #f9fafb;
+    }
+
+    .inventory-stat-card .stat-value {
+        color: #f9fafb;
+    }
+
+    .inventory-total {
+        background: #374151;
+        color: #f9fafb;
+        border-color: #4b5563;
+    }
+
+    .summary-item {
+        background: rgba(255, 255, 255, 0.05);
+    }
+}
+
+/* Accessibilità */
+.inventory-stat-card:focus {
+    outline: 3px solid rgba(102, 51, 204, 0.5);
+    outline-offset: 2px;
+}
+
+.admin-dashboard-controls select:focus-visible {
+    outline: 3px solid rgba(102, 51, 204, 0.5);
+    outline-offset: 2px;
+}
+
+/* Riduzione movimento per utenti sensibili */
+@media (prefers-reduced-motion: reduce) {
+    .inventory-section,
+    .inventory-stat-card,
+    .summary-card {
+        animation: none;
+        transition: none;
+    }
+
+    .inventory-section:hover,
+    .inventory-stat-card:hover {
+        transform: none;
+    }
 }
