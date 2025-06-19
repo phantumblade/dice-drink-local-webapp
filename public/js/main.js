@@ -580,6 +580,13 @@ const ROUTES_CONFIG = {
         handler: () => showBookings(),
         navItem: 'prenotazioni'
     },
+
+    '/dashboard': {
+        title: 'Dashboard - Dice & Drink',
+        handler: () => import('./pages/dashboard.js').then(module => module.showDashboard()),
+        navItem: 'dashboard'
+    },
+
     '/tornei': {
         title: 'Tornei - Dice & Drink',
         handler: () => showPlaceholderPage('Tornei', 'Partecipa ai tornei organizzati dal locale'),
@@ -764,6 +771,7 @@ window.showPage = (pageId) => {
         'menu-bevande': '/catalogo/drink',
         'menu-snack-food': '/catalogo/snack',
         'prenotazioni': '/prenotazioni',
+        'dashboard': '/dashboard',
         'tornei': '/tornei',
         'eventi-dal-vivo': '/eventi',
         'proponi-torneo': '/proponi-torneo',

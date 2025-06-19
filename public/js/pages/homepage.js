@@ -350,7 +350,7 @@ function createCatalogSection() {
     // qui potresti arrivare a fetchare i dati reali, per esempio da un'API
     // per ora definiamo un array di oggetti di esempio
     const sampleData = Array.from({length:4}, (_, i) => ({
-      image: `assets/GameCatalog.jpg`,
+      image: `/assets/GameCatalog.jpg`,
       title: `${filter} Prodotto ${i+1}`,
       desc: 'Breve descrizione del prodotto, caratteristiche salienti.',
       price: `€${(10 + i*5).toFixed(2)}`
@@ -408,31 +408,31 @@ function createReviewsSection() {
   // Dati recensioni d'esempio
   const reviews = [
     {
-      avatar: 'assets/avatar-uomo.svg',
+      avatar: '/assets/avatar-uomo.svg',
       name: 'Mario Rossi',
       rating: 5,
       text: 'Esperienza fantastica! Ambiente accogliente e giochi di qualità. Lo staff è sempre disponibile per spiegare le regole.'
     },
     {
-      avatar: 'assets/avatar-donna.svg',
+      avatar: '/assets/avatar-donna.svg',
       name: 'Giulia Bianchi',
       rating: 4,
       text: 'Personale gentile e vasta scelta di giochi. I cocktail sono deliziosi e l\'atmosfera perfetta per rilassarsi.'
     },
     {
-      avatar: 'assets/avatar-uomo.svg',
+      avatar: '/assets/avatar-uomo.svg',
       name: 'Luca Verdi',
       rating: 5,
       text: 'Consigliatissimo per serate con amici! Abbiamo provato diversi giochi e ci siamo divertiti tantissimo.'
     },
     {
-      avatar: 'assets/avatar-donna.svg',
+      avatar: '/assets/avatar-donna.svg',
       name: 'Sara Neri',
       rating: 4,
       text: 'Ottimi drink e giochi, tornerò presto! Il locale ha un\'ottima selezione e prezzi onesti.'
     },
     {
-      avatar: 'assets/avatar-uomo.svg',
+      avatar: '/assets/avatar-uomo.svg',
       name: 'Andrea Blu',
       rating: 5,
       text: 'Locale fantastico per gli appassionati di giochi da tavolo. Organizzazione perfetta e ambiente unico!'

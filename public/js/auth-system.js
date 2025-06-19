@@ -300,12 +300,10 @@ window.SimpleAuth = {
         }
     },
 
-    showProfile() {
-        const user = this.currentUser;
-        NotificationSystem.showInfo(
-            `📧 Email: ${user.email}\n👤 Nome: ${user.first_name} ${user.last_name}\n🎭 Ruolo: ${user.role}`
-        );
-    },
+showProfile() {
+    console.log('📱 Apertura dashboard da menu utente...');
+    window.showPage('dashboard');
+},
 
     showBookings() {
         NotificationSystem.showInfo(

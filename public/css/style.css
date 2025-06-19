@@ -5046,7 +5046,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 .bookings-page .page-title i {
-    color: #667eea;
+    color: #6c5ce7;
 }
 
 .bookings-page .page-subtitle {
@@ -5105,7 +5105,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 .section-title i {
-    color: #667eea;
+    color: #6c5ce7;
     font-size: 1.3rem;
 }
 
@@ -5113,7 +5113,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 .items-count {
     font-size: 0.9rem;
     font-weight: 400;
-    color: #667eea;
+    color: #6c5ce7;
     background: rgba(102, 126, 234, 0.1);
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
@@ -5143,7 +5143,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 .form-label i {
-    color: #667eea;
+    color: #6c5ce7;
 }
 
 .form-input,
@@ -5160,7 +5160,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 .form-input:focus,
 .form-select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #6c5ce7;
     box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.08);
     background: #fafbff;
 }
@@ -5186,7 +5186,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 
 .form-section .textarea:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #6c5ce7;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     background: #fafbff;
 }
@@ -5254,7 +5254,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 .booking-btn-add-items {
-    background: #667eea;
+    background: #6c5ce7;
     color: white;
     padding: 12px 24px;
     border: none;
@@ -5284,7 +5284,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 .skip-info i {
-    color: #667eea;
+    color: #6c5ce7;
     font-size: 0.9rem;
 }
 
@@ -5325,7 +5325,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 1rem;
-    color: #667eea;
+    color: #6c5ce7;
     font-weight: 600;
     font-size: 1.1rem;
 }
@@ -5371,14 +5371,14 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 .item-price {
-    color: #667eea;
+    color: #6c5ce7;
     font-weight: 600;
     margin-right: 0.75rem;
 }
 
 .item-quantity {
     font-weight: 600;
-    color: #667eea;
+    color: #6c5ce7;
     font-size: 0.9em;
     margin-left: 0.5rem;
 }
@@ -5399,7 +5399,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 
 .item-price {
     font-weight: 600;
-    color: #667eea;
+    color: #6c5ce7;
     font-size: 1rem;
 }
 
@@ -5518,12 +5518,11 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
    PRICING SUMMARY
    ========================================== */
 .pricing-summary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #6c5ce7;
     color: white;
     border-radius: 16px;
     padding: 2rem;
     margin-bottom: 2rem;
-    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.25);
 }
 
 .pricing-summary h3 {
@@ -5603,10 +5602,10 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 
 /* ✅ BOTTONE PRINCIPALE - Flat viola */
 .booking-btn-primary {
-    background: #667eea;
+    background: #6c5ce7;
     color: white;
     font-size: 1.1rem;
-    border: 2px solid #667eea;
+    border: 2px solid #6c5ce7;
 }
 
 .booking-btn-primary:hover:not(:disabled) {
@@ -5848,7 +5847,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 .booking-btn-modify-selection:focus,
 .booking-btn-clear-selection:focus,
 .booking-item-remove:focus {
-    outline: 2px solid #667eea;
+    outline: 2px solid #6c5ce7;
     outline-offset: 2px;
 }
 
@@ -5913,7 +5912,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     position: fixed;
     bottom: 30px;
     right: 30px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #6c5ce7 0%, #764ba2 100%);
     color: white;
     padding: 20px 24px;
     border-radius: 16px;
@@ -6130,7 +6129,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 .user-avatar {
     width: 50px;
     height: 50px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #6c5ce7 0%, #764ba2 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -6280,7 +6279,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 /* Focus states per accessibilità */
 .user-menu-option:focus,
 .notification-close:focus {
-    outline: 2px solid #667eea;
+    outline: 2px solid #6c5ce7;
     outline-offset: 2px;
 }
 
@@ -6291,13 +6290,6 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     .notification-icon i {
         animation: none;
         transition-duration: 0.2s;
-    }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    .user-menu {
-        background: linear-gradient(145deg, #0a0a0a 0%, #1a1a1a 100%);
     }
 }
 
@@ -6412,7 +6404,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     position: fixed;
     bottom: 30px;
     right: 30px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #6c5ce7 0%, #764ba2 100%);
     color: white;
     padding: 20px 24px;
     border-radius: 16px;
@@ -6629,7 +6621,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 .user-avatar {
     width: 50px;
     height: 50px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #6c5ce7 0%, #764ba2 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -6779,7 +6771,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 /* Focus states per accessibilità */
 .user-menu-option:focus,
 .notification-close:focus {
-    outline: 2px solid #667eea;
+    outline: 2px solid #6c5ce7;
     outline-offset: 2px;
 }
 
@@ -6983,7 +6975,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 /* Codice conferma - Stile auth */
 .dice-confirmation-code {
     background: rgba(255, 255, 255, 0.05);
-    border: 2px solid #667eea;
+    border: 2px solid #6c5ce7;
     border-radius: 12px;
     padding: 20px;
     margin: 24px 0;
@@ -7011,7 +7003,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 .dice-code-value {
     font-size: 24px;
     font-weight: 700;
-    color: #667eea;
+    color: #6c5ce7;
     font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
     letter-spacing: 2px;
     word-break: break-all;
@@ -7048,7 +7040,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 
 .dice-details-title svg {
     flex-shrink: 0;
-    color: #667eea;
+    color: #6c5ce7;
 }
 
 /* Elementi dettaglio */
@@ -7131,7 +7123,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 
 .dice-item-price {
     font-size: 14px;
-    color: #667eea;
+    color: #6c5ce7;
     font-weight: 600;
     font-family: inherit;
     white-space: nowrap;
@@ -7170,7 +7162,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 .dice-total-value {
     font-size: 24px;
     font-weight: 700;
-    color: #667eea;
+    color: #6c5ce7;
     font-family: inherit;
 }
 
@@ -7189,7 +7181,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 .dice-email-icon {
     width: 24px;
     height: 24px;
-    color: #667eea;
+    color: #6c5ce7;
     flex-shrink: 0;
 }
 
@@ -7230,7 +7222,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 .dice-btn:focus {
-    outline: 2px solid #667eea;
+    outline: 2px solid #6c5ce7;
     outline-offset: 2px;
 }
 
@@ -7290,7 +7282,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 .dice-close-btn:focus {
-    outline: 2px solid #667eea;
+    outline: 2px solid #6c5ce7;
     outline-offset: 2px;
 }
 
@@ -7374,7 +7366,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
     }
 
     .dice-confirmation-code {
-        border: 3px solid #667eea;
+        border: 3px solid #6c5ce7;
     }
 
     .dice-btn {
@@ -7393,7 +7385,7 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 }
 
 .dice-success-modal::-webkit-scrollbar-thumb {
-    background: #667eea;
+    background: #6c5ce7;
     border-radius: 4px;
 }
 
@@ -7404,5 +7396,5 @@ line-height: 1.4; /* riduci questo valore per avvicinare le due righe */
 /* Firefox scrollbar */
 .dice-success-modal {
     scrollbar-width: thin;
-    scrollbar-color: #667eea rgba(255, 255, 255, 0.1);
+    scrollbar-color: #6c5ce7 rgba(255, 255, 255, 0.1);
 }

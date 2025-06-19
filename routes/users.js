@@ -196,9 +196,14 @@ const canViewUserProfile = [
 // ROUTES PROFILO UTENTE
 // ==========================================
 
-// GET /api/users/:userId - Visualizza profilo utente
+// ==========================================
+// MODIFICA ALLA ROUTE GET /api/users/:userId in routes/users.js
+// SOSTITUIRE la route esistente con questa versione estesa per dashboard
+// ==========================================
+
+// GET /api/users/:userId - Visualizza profilo utente + dati dashboard
 router.get('/:userId', canViewUserProfile, async (req, res) => {
-  debugLog('Get user profile', { userId: req.params.userId, requesterId: req.user.userId });
+  debugLog('Get user profile + dashboard data', { userId: req.params.userId, requesterId: req.user.userId });
 
   try {
     const userId = parseInt(req.params.userId);
@@ -225,46 +230,402 @@ router.get('/:userId', canViewUserProfile, async (req, res) => {
     // Informazioni aggiuntive se è il proprio profilo o se si è admin
     const isOwnProfile = userId === req.user.userId;
     const isAdmin = req.user.role === 'admin';
+    const isStaff = req.user.role === 'staff';
+
+    // ==========================================
+    // DATI DASHBOARD SPECIFICI PER RUOLO
+    // ==========================================
 
     if (isOwnProfile || isAdmin) {
-      // Aggiungi preferenze per proprio profilo
-      try {
-        const preferences = await UsersDao.getUserPreferences(userId);
-        profile.preferences = preferences;
-      } catch (err) {
-        profile.preferences = null;
+
+      // ==========================================
+      // CUSTOMER - Dati personali
+      // ==========================================
+        if (user.role === 'customer') {
+        try {
+            // ✅ USA IL NUOVO METODO CON FALLBACK
+            const preferences = await loadUserPreferencesWithFallback(userId);
+            profile.preferences = preferences;
+
+            debugLog('Preferenze customer caricate:', {
+            hasGameCategories: Array.isArray(preferences.favorite_game_categories),
+            gameCategories: preferences.favorite_game_categories,
+            hasDrinkTypes: Array.isArray(preferences.preferred_drink_types),
+            drinkTypes: preferences.preferred_drink_types,
+            complexity: preferences.max_game_complexity
+            });
+
+            // 📊 STATISTICHE CUSTOMER DAL DATABASE REALE
+            const userBookings = await UsersDao.getUserBookings(userId);
+
+            // Calcola statistiche reali
+            const activeBookings = userBookings.filter(b =>
+            b.status === 'confirmed' || b.status === 'pending'
+            );
+
+            const completedBookings = userBookings.filter(b =>
+            b.status === 'completed'
+            );
+
+            // Attività mensile (prenotazioni + completamenti nel mese corrente)
+            const currentMonth = new Date();
+            const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+
+            const monthlyBookings = userBookings.filter(b => {
+            const bookingDate = new Date(b.created_at);
+            return bookingDate >= firstDayOfMonth;
+            });
+
+            profile.stats = {
+            gamesPlayed: completedBookings.length,
+            activeBookings: activeBookings.length,
+            monthlyActivity: monthlyBookings.length
+            };
+
+            // Prenotazioni recenti (ultime 5)
+            profile.recentBookings = userBookings
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+            .slice(0, 5);
+
+            debugLog('Customer dashboard data loaded', {
+            totalBookings: userBookings.length,
+            activeBookings: activeBookings.length,
+            monthlyActivity: monthlyBookings.length,
+            preferencesValid: !!preferences
+            });
+
+        } catch (err) {
+            debugLog('Error loading customer dashboard data', { error: err.message });
+
+            // Fallback sicuro per errori
+            profile.preferences = {
+            favorite_game_categories: [],
+            preferred_drink_types: [],
+            dietary_restrictions: [],
+            preferred_time_slots: [],
+            max_game_complexity: 3,
+            notification_preferences: {
+                email_booking: true,
+                email_reminder: true,
+                email_promotions: false,
+                new_games: false
+            }
+            };
+            profile.stats = { gamesPlayed: 0, activeBookings: 0, monthlyActivity: 0 };
+            profile.recentBookings = [];
+        }
+        }
+
+      // ==========================================
+      // STAFF - Dati di gestione
+      // ==========================================
+      else if (user.role === 'staff' || user.role === 'admin') {
+        try {
+          // 📊 STATISTICHE STAFF DAL DATABASE REALE
+
+          // Conteggio utenti totali attivi
+          const totalUsersResult = await UsersDao.executeQuery(
+            'SELECT COUNT(*) as count FROM users WHERE is_active = 1'
+          );
+          const totalUsers = totalUsersResult[0]?.count || 0;
+
+          // Prenotazioni di oggi
+          const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+          const todayBookingsResult = await UsersDao.executeQuery(
+            'SELECT COUNT(*) as count FROM bookings WHERE DATE(booking_date) = ? AND status IN (?, ?)',
+            [today, 'confirmed', 'pending']
+          );
+          const todayBookings = todayBookingsResult[0]?.count || 0;
+
+          profile.stats = {
+            totalUsers: totalUsers,
+            todayBookings: todayBookings
+          };
+
+          // Solo per admin: statistiche aggiuntive
+          if (user.role === 'admin') {
+            // Sessioni mensili (approssimiamo con bookings completate del mese)
+            const currentMonth = new Date();
+            const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+
+            const monthlySessionsResult = await UsersDao.executeQuery(
+              'SELECT COUNT(*) as count FROM bookings WHERE created_at >= ? AND status = ?',
+              [firstDayOfMonth.toISOString(), 'completed']
+            );
+            const monthlySessions = monthlySessionsResult[0]?.count || 0;
+
+            // Giochi in catalogo
+            const catalogGamesResult = await UsersDao.executeQuery(
+              'SELECT COUNT(*) as count FROM games'
+            );
+            const catalogGames = catalogGamesResult[0]?.count || 0;
+
+            profile.stats.monthlySessions = monthlySessions;
+            profile.stats.catalogGames = catalogGames;
+
+            // 🏆 DATI SISTEMA AVANZATI PER ADMIN
+            profile.systemStats = await getAdminSystemStats();
+          }
+
+          debugLog('Staff/Admin dashboard data loaded', {
+            totalUsers,
+            todayBookings,
+            isAdmin: user.role === 'admin'
+          });
+
+        } catch (err) {
+          debugLog('Error loading staff dashboard data', { error: err.message });
+          // Fallback
+          profile.stats = {
+            totalUsers: 0,
+            todayBookings: 0,
+            monthlySessions: 0,
+            catalogGames: 0
+          };
+        }
       }
 
-      // Statistiche personali
-      try {
-        const bookings = await UsersDao.getUserBookings(userId, { limit: 5 });
-        profile.recentBookings = bookings;
-        profile.totalBookings = bookings.length;
-      } catch (err) {
-        profile.recentBookings = [];
-        profile.totalBookings = 0;
-      }
+      // Aggiungi timestamp di accesso
+      profile.lastDashboardAccess = new Date().toISOString();
     }
 
-    debugLog('Profile retrieved successfully', { userId, isOwnProfile, isAdmin });
+    // Log dell'accesso alla dashboard per audit
+    await logSecurityEvent(req, 'dashboard_profile_accessed', {
+      userId,
+      role: user.role,
+      isOwnProfile,
+      requestedBy: req.user.userId
+    });
+
+    debugLog('Profile + dashboard data retrieved successfully', {
+      userId,
+      role: user.role,
+      isOwnProfile,
+      hasStats: !!profile.stats
+    });
 
     res.json({
-      user: profile,
-      isOwnProfile,
-      canEdit: isOwnProfile || isAdmin,
-      success: true
+    // ✅ STRUTTURA CORRETTA PER DASHBOARD.JS
+    user: profile,
+    role: user.role,
+    preferences: profile.preferences, // ✅ AGGIUNTO: le preferenze a livello root
+    stats: profile.stats, // ✅ AGGIUNTO: le stats a livello root
+    recentBookings: profile.recentBookings || [], // ✅ AGGIUNTO: le prenotazioni a livello root
+
+    // Metadata per il frontend
+    isOwnProfile,
+    canEdit: isOwnProfile || isAdmin,
+    success: true,
+    timestamp: new Date().toISOString()
     });
 
   } catch (error) {
-    debugLog('Get profile error', { error: error.message });
+    debugLog('Get profile + dashboard error', { error: error.message });
 
     res.status(500).json({
-      error: 'Errore recupero profilo',
+      error: 'Errore recupero profilo e dashboard',
       message: 'Si è verificato un errore interno',
       type: 'INTERNAL_ERROR'
     });
   }
 });
+
+// ==========================================
+// FUNZIONI HELPER PER STATISTICHE SISTEMA (ADMIN)
+// DA AGGIUNGERE PRIMA DI module.exports
+// ==========================================
+
+/**
+ * Ottieni statistiche sistema avanzate per admin
+ */
+async function getAdminSystemStats() {
+  try {
+    // Giochi più richiesti (dai game_requests nelle prenotazioni)
+    const popularGamesResult = await UsersDao.executeQuery(`
+      SELECT
+        game_requests,
+        COUNT(*) as request_count
+      FROM bookings
+      WHERE game_requests IS NOT NULL AND game_requests != ''
+      GROUP BY game_requests
+      ORDER BY request_count DESC
+      LIMIT 5
+    `);
+
+    // Drink più ordinati (dai drink_orders nelle prenotazioni)
+    const popularDrinksResult = await UsersDao.executeQuery(`
+      SELECT
+        drink_orders,
+        COUNT(*) as order_count
+      FROM bookings
+      WHERE drink_orders IS NOT NULL AND drink_orders != ''
+      GROUP BY drink_orders
+      ORDER BY order_count DESC
+      LIMIT 5
+    `);
+
+    // Revenue mensile (dalle prenotazioni completate)
+    const currentMonth = new Date();
+    const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+
+    const monthlyRevenueResult = await UsersDao.executeQuery(`
+      SELECT COALESCE(SUM(total_price), 0) as revenue
+      FROM bookings
+      WHERE created_at >= ? AND status = 'completed'
+    `, [firstDayOfMonth.toISOString()]);
+
+    // Utenti registrati di recente
+    const recentUsersResult = await UsersDao.executeQuery(`
+      SELECT id, email, first_name, last_name, created_at, role
+      FROM users
+      WHERE is_active = 1
+      ORDER BY created_at DESC
+      LIMIT 5
+    `);
+
+    return {
+      popularGames: popularGamesResult.map(row => ({
+        name: row.game_requests,
+        requestCount: row.request_count
+      })),
+      popularDrinks: popularDrinksResult.map(row => ({
+        name: row.drink_orders,
+        orderCount: row.order_count
+      })),
+      monthlyRevenue: parseFloat(monthlyRevenueResult[0]?.revenue || 0),
+      recentUsers: recentUsersResult.map(user => ({
+        id: user.id,
+        email: user.email,
+        name: user.first_name && user.last_name ?
+              `${user.first_name} ${user.last_name}` :
+              user.email.split('@')[0],
+        role: user.role,
+        registeredAt: user.created_at
+      })),
+      lastUpdated: new Date().toISOString()
+    };
+
+  } catch (error) {
+    console.warn('Error getting admin system stats:', error);
+    return {
+      popularGames: [],
+      popularDrinks: [],
+      monthlyRevenue: 0,
+      recentUsers: [],
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Carica preferenze utente con fallback e validazione
+ */
+async function loadUserPreferencesWithFallback(userId) {
+  try {
+    let preferences = await UsersDao.getUserPreferences(userId);
+
+    // Se non esistono preferenze, crea quelle di default
+    if (!preferences) {
+      console.log(`📝 Creazione preferenze default per utente ${userId}`);
+      await UsersDao.createDefaultPreferences(userId, 'customer');
+      preferences = await UsersDao.getUserPreferences(userId);
+    }
+
+    // Assicurati che i campi array esistano sempre
+    const defaultPreferences = {
+      favorite_game_categories: [],
+      preferred_drink_types: [],
+      dietary_restrictions: [],
+      preferred_time_slots: [],
+      max_game_complexity: 3,
+      notification_preferences: {
+        email_booking: true,
+        email_reminder: true,
+        email_promotions: false,
+        new_games: false
+      }
+    };
+
+    // Merge con defaults per campi mancanti
+    preferences = { ...defaultPreferences, ...preferences };
+
+    // Valida e correggi i tipi di dato
+    if (typeof preferences.favorite_game_categories === 'string') {
+      try {
+        preferences.favorite_game_categories = JSON.parse(preferences.favorite_game_categories);
+      } catch (e) {
+        preferences.favorite_game_categories = [];
+      }
+    }
+
+    if (typeof preferences.preferred_drink_types === 'string') {
+      try {
+        preferences.preferred_drink_types = JSON.parse(preferences.preferred_drink_types);
+      } catch (e) {
+        preferences.preferred_drink_types = [];
+      }
+    }
+
+    if (typeof preferences.dietary_restrictions === 'string') {
+      try {
+        preferences.dietary_restrictions = JSON.parse(preferences.dietary_restrictions);
+      } catch (e) {
+        preferences.dietary_restrictions = [];
+      }
+    }
+
+    if (typeof preferences.preferred_time_slots === 'string') {
+      try {
+        preferences.preferred_time_slots = JSON.parse(preferences.preferred_time_slots);
+      } catch (e) {
+        preferences.preferred_time_slots = [];
+      }
+    }
+
+    if (typeof preferences.notification_preferences === 'string') {
+      try {
+        preferences.notification_preferences = JSON.parse(preferences.notification_preferences);
+      } catch (e) {
+        preferences.notification_preferences = defaultPreferences.notification_preferences;
+      }
+    }
+
+    // Assicurati che siano array
+    if (!Array.isArray(preferences.favorite_game_categories)) {
+      preferences.favorite_game_categories = [];
+    }
+    if (!Array.isArray(preferences.preferred_drink_types)) {
+      preferences.preferred_drink_types = [];
+    }
+    if (!Array.isArray(preferences.dietary_restrictions)) {
+      preferences.dietary_restrictions = [];
+    }
+    if (!Array.isArray(preferences.preferred_time_slots)) {
+      preferences.preferred_time_slots = [];
+    }
+
+    return preferences;
+
+  } catch (error) {
+    console.error('❌ Errore caricamento preferenze:', error);
+
+    // Ritorna preferenze vuote in caso di errore
+    return {
+      favorite_game_categories: [],
+      preferred_drink_types: [],
+      dietary_restrictions: [],
+      preferred_time_slots: [],
+      max_game_complexity: 3,
+      notification_preferences: {
+        email_booking: true,
+        email_reminder: true,
+        email_promotions: false,
+        new_games: false
+      }
+    };
+  }
+}
+
 
 // PUT /api/users/:userId - Aggiorna profilo utente
 router.put('/:userId', requireAuth, requireProfileOwnership, async (req, res) => {

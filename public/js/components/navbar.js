@@ -17,7 +17,7 @@ export function createNavbar() {
   // Crea l'elemento immagine per il logo
   const logo = document.createElement('img');
   // Imposta il percorso dell'immagine del logo
-  logo.src = 'assets/Logo.png'; // metti il path corretto
+  logo.src = '/assets/Logo.png'; // metti il path corretto
   // Imposta il testo alternativo per l'immagine
   logo.alt = 'Logo Dice & Drink';
   // Aggiunge la classe CSS al logo
