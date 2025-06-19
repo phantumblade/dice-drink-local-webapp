@@ -1549,3 +1549,127 @@
         border: 2px solid white;
     }
 }
+
+@media (max-width: 1024px) {
+    .story-container,
+    .location-container {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .about-hero {
+        padding: 80px 0 60px;
+    }
+
+    .about-title {
+        font-size: 2.5rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .about-subtitle {
+        font-size: 1.1rem;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+
+    .about-story,
+    .about-values,
+    .about-team,
+    .about-location {
+        padding: 60px 0;
+    }
+
+    .story-container,
+    .values-container,
+    .team-container,
+    .location-container {
+        padding: 0 1.5rem;
+    }
+
+    .values-grid,
+    .team-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .location-actions {
+        flex-direction: column;
+    }
+
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-outline {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-content,
+    .cta-container {
+        padding: 0 1rem;
+    }
+
+    .about-title {
+        font-size: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+    }
+
+    .value-card,
+    .team-member {
+        padding: 2rem 1.5rem;
+    }
+
+    .story-text {
+        font-size: 1rem;
+    }
+}
+
+/* ==========================================
+   ACCESSIBILITÀ
+   ========================================== */
+@media (prefers-reduced-motion: reduce) {
+    .animate-ready,
+    .value-card,
+    .team-member,
+    .btn-primary,
+    .btn-secondary,
+    .btn-outline {
+        transition: none;
+        animation: none;
+    }
+
+    .animate-ready {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+    .value-card,
+    .team-member {
+        border: 2px solid #2c3e50;
+    }
+
+    .btn-outline {
+        border-width: 3px;
+    }
+}
