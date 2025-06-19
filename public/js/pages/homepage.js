@@ -1,5 +1,4 @@
 // pages/homepage.js
-import { createEventCarousel } from '../components/eventCarousel.js';
 import { fetchCatalogPreview } from '../services/catalog-preview.js';
 
 // Sezione 2: Funzione per creare la sezione di benvenuto + Call to Action
@@ -519,7 +518,6 @@ export function showHomepage() {
   const homepage = document.createElement('div');
   homepage.classList.add('homepage');
 
-  homepage.appendChild(createEventCarousel());
   homepage.appendChild(createWelcomeSection());
   homepage.appendChild(createExpandableCards());
   homepage.appendChild(createCatalogSection());
