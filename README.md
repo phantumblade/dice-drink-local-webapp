@@ -1,4 +1,4 @@
-# 🎲 Dice & Drink Gaming Café
+# 🎲 Dice & Drink
 
 <div align="center">
 
