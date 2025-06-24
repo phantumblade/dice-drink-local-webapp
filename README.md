@@ -8,7 +8,7 @@
 ![SQLite](https://img.shields.io/badge/database-SQLite-003B57.svg)
 ![Vanilla JS](https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E.svg)
 
-**Single Page Application universitaria per gaming café con tecnologie web pure**
+**Single Page Application universitaria Di locale di giochi da tavolo e drink moderno**
 
 [📖 Documentazione API](#-documentazione-api) • [🎮 Video Demo](https://www.youtube.com/watch?v=xztiRkXSNmI)
 
