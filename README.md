@@ -10,7 +10,7 @@
 
 **Single Page Application universitaria per gaming café con tecnologie web pure**
 
-[🚀 Demo Live](#) • [📖 Documentazione API](#-documentazione-api) • [🎮 Video Demo](#-video-dimostrativo)
+[📖 Documentazione API](#-documentazione-api) • [🎮 Video Demo]([https://youtu.be/xztiRkXSNmI])
 
 </div>
 
