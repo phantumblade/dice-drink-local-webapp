@@ -1,4 +1,4 @@
-# 🎲 Dice & Drink
+# Dice & Drink
 
 <div align="center">
 
