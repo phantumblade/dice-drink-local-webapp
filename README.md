@@ -11,7 +11,7 @@
 
 **Single Page Application universitaria Di locale di giochi da tavolo e drink moderno**
 
-[📖 Documentazione API](#-documentazione-api) • [🎮 Video Demo](https://www.youtube.com/watch?v=xztiRkXSNmI)
+[📖 Documentazione API](#-documentazione-api)
 
 </div>
 
