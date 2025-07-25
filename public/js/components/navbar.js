@@ -242,12 +242,20 @@ export function createNavbar() {
   rightSection.appendChild(profileIcon);
 
   // --- Componi la navbar completa ---
-  // Aggiunge la sezione sinistra alla navbar
-  nav.appendChild(leftSection);
-  // Aggiunge la sezione centrale alla navbar
-  nav.appendChild(centerSection);
-  // Aggiunge la sezione destra alla navbar
-  nav.appendChild(rightSection);
+  
+  // Crea wrapper per mobile layout
+  const topRow = document.createElement('div');
+  topRow.classList.add('navbar-top-row');
+  topRow.appendChild(leftSection);
+  topRow.appendChild(rightSection);
+  
+  const bottomRow = document.createElement('div');
+  bottomRow.classList.add('navbar-bottom-row');
+  bottomRow.appendChild(centerSection);
+  
+  // Aggiunge tutto alla navbar
+  nav.appendChild(topRow);
+  nav.appendChild(bottomRow);
 
   setupActivePageIndicator(nav);
 

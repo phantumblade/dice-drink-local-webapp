@@ -59,11 +59,11 @@
   }
 
   .navbar-links {
-    gap: 10px; /
+    gap: 10px;
   }
 
   .navbar-links a {
-    padding: 0.4em 0.8em;/
+    padding: 0.4em 0.8em;
     font-size: 0.85rem;
   }
 }
@@ -75,6 +75,7 @@
     flex-direction: column;
     padding: 8px 15px;
     gap: 10px;
+    overflow-x: hidden;
   }
 
   .navbar-top-row {
@@ -93,6 +94,9 @@
 
   .navbar-left {
     flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .navbar-center {
@@ -110,18 +114,24 @@
     display: inline;
     font-size: 1.4rem;
     margin-left: 8px;
+    white-space: nowrap;
   }
 
   .navbar-links {
     flex-wrap: wrap;
     justify-content: center;
     gap: 8px;
+    width: 100%;
+    overflow-x: auto;
+    padding: 5px 0;
   }
 
   .navbar-links a {
     padding: 0.5em 1em;
     font-size: 0.9rem;
     min-width: auto;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .navbar-search-container.expanded .navbar-search {
@@ -179,12 +189,33 @@
 
 //=========FOOTER===========
 
+@media (max-width: 767px) {
+  .footer-row {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+  
+  .footer-column {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 1rem;
+    padding: 1rem 0.5rem;
+  }
+  
+  .footer-legal-row {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+}
+
 @media (min-width: 768px) {
   .footer-row {
     flex-direction: row;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 0;
+    gap: 2rem;
   }
   .footer-column {
     width: 30%;
@@ -200,18 +231,67 @@
     min-width: unset;
     max-width: 100%;
     padding: 1em 0.5em 1.5em 0.5em;
+    text-align: center;
   }
   .footer-title {
     font-size: 1.3rem;
+    text-align: center;
   }
   .footer-subtitle {
     font-size: 1rem;
+    text-align: center;
+  }
+  
+  .footer-column {
+    padding: 0.5rem;
+  }
+  
+  .footer-column .nav {
+    text-align: center;
+  }
+  
+  .footer-social-column ul.social-buttons {
+    justify-content: center;
+    gap: 1rem;
   }
 }
 
 @media (min-width: 768px) {
   .footer-social-column ul.social-buttons {
     justify-content: flex-start;
+  }
+}
+
+/* Desktop navbar layout */
+@media (min-width: 481px) {
+  .navbar {
+    flex-direction: row !important;
+    height: 80px !important;
+    padding: 10px 20px !important;
+  }
+  
+  .navbar-top-row,
+  .navbar-bottom-row {
+    display: contents;
+  }
+  
+  .navbar-left,
+  .navbar-center,
+  .navbar-right {
+    display: flex;
+    align-items: center;
+  }
+  
+  .navbar-center {
+    order: initial;
+    width: auto;
+  }
+  
+  .navbar-links {
+    flex-wrap: nowrap;
+    overflow-x: visible;
+    padding: 0;
+    gap: 15px;
   }
 }
 

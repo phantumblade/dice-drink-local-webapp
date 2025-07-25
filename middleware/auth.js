@@ -257,13 +257,11 @@ function requireAuth(req, res, next) {
           });
         }
 
+        // Permetti accesso base anche con email non verificata per neo-registrati
+        // Solo le funzioni sensibili (come prenotazioni) richiederanno verifica separatamente
         if (user.isEmailVerificationRequired()) {
-          return res.status(403).json({
-            error: 'Email non verificata',
-            message: 'Verifica la tua email per accedere a tutte le funzionalità',
-            type: 'EMAIL_NOT_VERIFIED',
-            verificationRequired: true
-          });
+          // Aggiungi flag per indicare che la verifica è richiesta ma non bloccare
+          req.emailVerificationRequired = true;
         }
 
         req.user = decoded;

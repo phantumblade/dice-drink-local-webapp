@@ -163,41 +163,33 @@ Il team di ${process.env.COMPANY_NAME || 'Dice & Drink'}
       debugLog('Verification email sent', { success: emailSent, mock: emailResult.mock });
     }
 
-    // Genera token se email non richiesta o già verificata
-    let accessToken = null;
-    let refreshToken = null;
+    // Genera sempre token per login automatico dopo registrazione
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
 
-    if (!user.isEmailVerificationRequired() || CONFIG.SKIP_EMAIL_VERIFICATION) {
-      accessToken = user.generateAccessToken();
-      refreshToken = user.generateRefreshToken();
+    // Crea sessione per login automatico
+    await UsersDao.createSession(
+      user.id,
+      refreshToken,
+      req.get('User-Agent'),
+      requestInfo.ip,
+      requestInfo.userAgent
+    );
 
-      // Crea sessione
-      await UsersDao.createSession(
-        user.id,
-        refreshToken,
-        req.get('User-Agent'),
-        requestInfo.ip,
-        requestInfo.userAgent
-      );
+    debugLog('User registered and logged in automatically', { userId: user.id });
 
-      debugLog('User registered and logged in', { userId: user.id });
-    }
-
-    // Risposta
+    // Risposta - sempre con tokens per login automatico
     const response = {
       message: 'Registrazione completata con successo',
       user: user.getPublicProfile(),
       emailVerificationRequired: user.isEmailVerificationRequired(),
-      success: true
-    };
-
-    if (accessToken) {
-      response.tokens = {
+      success: true,
+      tokens: {
         accessToken,
         refreshToken,
         expiresIn: process.env.JWT_ACCESS_EXPIRES || '15m'
-      };
-    }
+      }
+    };
 
     if (user.isEmailVerificationRequired() && !CONFIG.SKIP_EMAIL_VERIFICATION) {
       response.verificationEmailSent = emailSent;
