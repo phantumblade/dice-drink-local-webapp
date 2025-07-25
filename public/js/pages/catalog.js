@@ -1562,21 +1562,24 @@ createCartCategoryHTML(category, title, icon) {
         button.classList.add('quantity-enabled');
         button.innerHTML = `
             <span class="btn-icon">${category === 'drinks' ? '<i class="fas fa-glass-cheers"></i>' : '<i class="fas fa-shopping-cart"></i>'}</span>
-            <span class="btn-text">Ordina</span>
-            <span class="quantity-badge">1</span>
+            <span class="btn-text">Scegli Quantità</span>
+            <span class="quantity-badge" title="Quantità selezionata">1</span>
         `;
+        
+        // Aggiungi tooltip al bottone
+        button.title = "Clicca per scegliere la quantità e aggiungere al carrello";
         
         // Crea controlli quantità compatti
         const quantitySelector = document.createElement('div');
         quantitySelector.className = 'quantity-selector';
         quantitySelector.innerHTML = `
-            <button class="qty-btn qty-minus" data-item-id="${itemId}">
+            <button class="qty-btn qty-minus" data-item-id="${itemId}" title="Riduci quantità">
                 <i class="fas fa-minus"></i>
             </button>
-            <button class="qty-btn qty-plus" data-item-id="${itemId}">
+            <button class="qty-btn qty-plus" data-item-id="${itemId}" title="Aumenta quantità">
                 <i class="fas fa-plus"></i>
             </button>
-            <button class="qty-confirm" data-item-id="${itemId}" data-category="${category}">
+            <button class="qty-confirm" data-item-id="${itemId}" data-category="${category}" title="Aggiungi al carrello">
                 <i class="fas fa-check"></i>
             </button>
         `;

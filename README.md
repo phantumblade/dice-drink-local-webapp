@@ -492,13 +492,27 @@ const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
 - **Bundle Size**: Mantenuto leggero senza framework
 - **Load Time**: Ottimizzato per connessioni lente
-- **Mobile Performance**: In fase di ottimizzazione
+- **Mobile Performance**: Ottimizzato con responsive design migliorato
+
+### 🎨 Miglioramenti UX Recenti
+
+- **🔔 Sistema Notifiche**: Notifiche animate personalizzate con slide-in, progress bar e auto-dismiss
+- **⚙️ Controlli Quantità**: Interfaccia elegante con badge dinamici e pannello espandibile
+- **🛒 Carrello Fluido**: Aggiornamenti incrementali senza scatti, micro-animazioni sui numeri
+- **🔄 Transizioni Smooth**: Fade opacity per cambio categoria, skeleton loading per eliminare flash
+- **📱 Mobile First**: Design responsive ottimizzato per dispositivi mobili
 
 ### 👾bug noti
 
 - **Persistenza elementi carrello**: Nel carrello degli utenti loggati a volte persistono gli elementi alla futura riapertura del server anche da sloggato
-- **Errore funzioni su nuovo utente registrato**: L'utente si registra ma la mail non viene verificata correttamente così non funzionano le operaizoni sul sito
-- **Mobile view non visulizzata correttamente**
+
+### ✅ Bug risolti di recente
+
+- ✅ **Errore funzioni su nuovo utente registrato**: RISOLTO - Rimossa verifica email obbligatoria per ordini immediati
+- ✅ **Mobile view non visualizzata correttamente**: RISOLTO - Migliorata interfaccia responsive per mobile
+- ✅ **Notifiche poco professionali**: RISOLTO - Implementato sistema notifiche personalizzate animate
+- ✅ **Carrello scattoso**: RISOLTO - Ottimizzati aggiornamenti incrementali fluidi
+- ✅ **Controlli quantità poco chiari**: RISOLTO - Migliorati controlli con badge e tooltip
 
 ---
 

@@ -90,19 +90,43 @@ class NotificationSystem {
     }
 
     static showWelcome(userName) {
-        this.show('', 'success', userName);
+        if (window.CustomNotifications) {
+            const welcomeMessages = [
+                `L'avventura ti aspetta, ${userName}! 🎲`,
+                `Benvenuto nell'arena, ${userName}! ⚔️`,
+                `Preparati al divertimento, ${userName}! 🎮`,
+                `La taverna è pronta per te, ${userName}! 🍺`,
+                `Che le tue partite siano leggendarie, ${userName}! ✨`
+            ];
+            const message = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
+            window.CustomNotifications.success('Benvenuto!', message, 4000);
+        } else {
+            this.show('', 'success', userName);
+        }
     }
 
     static showError(message) {
-        this.show(message, 'error');
+        if (window.CustomNotifications) {
+            window.CustomNotifications.error('Errore', message);
+        } else {
+            this.show(message, 'error');
+        }
     }
 
     static showInfo(message) {
-        this.show(message, 'info');
+        if (window.CustomNotifications) {
+            window.CustomNotifications.info('Informazione', message);
+        } else {
+            this.show(message, 'info');
+        }
     }
 
     static showLogout() {
-        this.show('Arrivederci, avventuriero! Torna presto per nuove quest! 👋', 'info');
+        if (window.CustomNotifications) {
+            window.CustomNotifications.success('Logout Effettuato', 'Arrivederci, avventuriero! Torna presto per nuove quest! 👋');
+        } else {
+            this.show('Arrivederci, avventuriero! Torna presto per nuove quest! 👋', 'info');
+        }
     }
 }
 

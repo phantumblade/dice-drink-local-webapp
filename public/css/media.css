@@ -343,28 +343,30 @@
   }
   
   .quantity-badge {
-    width: 18px;
-    height: 18px;
-    font-size: 0.7rem;
-    top: -6px;
-    right: -6px;
+    width: 22px;
+    height: 22px;
+    font-size: 0.75rem;
+    top: -8px;
+    right: -8px;
+    border: 2px solid white;
   }
   
   .quantity-selector {
-    padding: 3px;
-    gap: 3px;
+    padding: 4px;
+    gap: 6px;
   }
   
   .qty-btn {
-    width: 20px;
-    height: 20px;
-    font-size: 0.6rem;
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+    border: 2px solid #8B5CF6;
   }
   
   .qty-confirm {
-    width: 24px;
-    height: 20px;
-    font-size: 0.6rem;
+    width: 32px;
+    height: 28px;
+    font-size: 0.8rem;
   }
 }
 
