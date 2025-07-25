@@ -334,9 +334,20 @@ class CatalogPageManager {
     }
 
     clearCart() {
+        // Svuota completamente il carrello
         this.cart = { games: [], drinks: [], snacks: [] };
-        this.saveCartToStorage();
-        console.log('🧹 Carrello svuotato');
+        
+        // Pulisci anche il sessionStorage per evitare dati residui
+        try {
+            sessionStorage.removeItem(CATALOG_CONFIG.CART_STORAGE_KEY);
+            sessionStorage.setItem(CATALOG_CONFIG.CART_STORAGE_KEY, JSON.stringify(this.cart));
+        } catch (error) {
+            console.warn('⚠️ Errore pulizia storage carrello:', error);
+        }
+        
+        // Aggiorna UI
+        this.updateCartUI();
+        console.log('🧹 Carrello completamente svuotato e storage pulito');
     }
 
     getCartSummary() {
@@ -373,19 +384,24 @@ class CatalogPageManager {
         if (cartBox) {
             const summary = this.getCartSummary();
 
-            // ✅ NUOVO: Carrello sempre visibile se ha elementi O se utente autenticato
-            if (summary.totalItems > 0) {
-                // Ha elementi: mostra carrello pieno
-                cartBox.innerHTML = this.createCartBoxHTML();
+            // ✅ CARRELLO SEMPRE VISIBILE PER UTENTI AUTENTICATI
+            if (this.isAuthenticated) {
+                if (summary.totalItems > 0) {
+                    // Ha elementi: mostra carrello pieno
+                    cartBox.innerHTML = this.createCartBoxHTML();
+                } else {
+                    // Carrello vuoto ma utente loggato: mostra carrello vuoto
+                    cartBox.innerHTML = this.createEmptyCartHTML();
+                }
                 cartBox.style.display = 'block';
-            } else if (this.isAuthenticated) {
-                // Utente loggato ma carrello vuoto: mostra carrello vuoto
-                cartBox.innerHTML = this.createEmptyCartHTML();
-                cartBox.style.display = 'block';
+                console.log('🛒 Carrello visibile per utente autenticato:', summary.totalItems, 'elementi');
             } else {
-                // Guest senza elementi: nascondi
+                // Utente non loggato: nascondi carrello
                 cartBox.style.display = 'none';
+                console.log('🚫 Carrello nascosto per utente non autenticato');
             }
+        } else {
+            console.warn('⚠️ Elemento carrello non trovato nel DOM');
         }
     }
 
@@ -980,16 +996,83 @@ createCartCategoryHTML(category, title, icon) {
     }
 
     clearCartConfirm() {
-        const confirm = window.confirm(
-            '⚠️ SVUOTA CARRELLO\n\n' +
-            'Sei sicuro di voler rimuovere tutti gli elementi dal carrello?\n\n' +
-            'Questa azione non può essere annullata.'
-        );
-
-        if (confirm) {
+        // Crea modal personalizzato
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'modal-overlay custom-confirm-modal';
+        modalOverlay.style.zIndex = '10000';
+        
+        modalOverlay.innerHTML = `
+            <div class="modal-content confirm-modal-content">
+                <div class="confirm-modal-header">
+                    <div class="confirm-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="confirm-title">Svuota Carrello</h3>
+                </div>
+                
+                <div class="confirm-modal-body">
+                    <p class="confirm-message">
+                        Sei sicuro di voler rimuovere <strong>tutti gli elementi</strong> dal carrello?
+                    </p>
+                    <p class="confirm-warning">
+                        <i class="fas fa-info-circle"></i>
+                        Questa azione non può essere annullata.
+                    </p>
+                </div>
+                
+                <div class="confirm-modal-actions">
+                    <button class="confirm-btn confirm-cancel">
+                        <i class="fas fa-times"></i>
+                        Annulla
+                    </button>
+                    <button class="confirm-btn confirm-delete">
+                        <i class="fas fa-trash-alt"></i>
+                        Svuota Carrello
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modalOverlay);
+        
+        // Animazione di entrata
+        setTimeout(() => modalOverlay.classList.add('active'), 10);
+        
+        // Event listeners
+        modalOverlay.querySelector('.confirm-cancel').addEventListener('click', () => {
+            this.closeConfirmModal(modalOverlay);
+        });
+        
+        modalOverlay.querySelector('.confirm-delete').addEventListener('click', () => {
             this.clearCart();
+            this.closeConfirmModal(modalOverlay);
             console.log('🧹 Carrello svuotato dall\'utente');
-        }
+        });
+        
+        // Chiudi cliccando fuori
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                this.closeConfirmModal(modalOverlay);
+            }
+        });
+        
+        // Chiudi con Escape
+        const escapeHandler = (e) => {
+            if (e.key === 'Escape') {
+                this.closeConfirmModal(modalOverlay);
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
+    }
+    
+    closeConfirmModal(modalOverlay) {
+        modalOverlay.classList.remove('active');
+        setTimeout(() => {
+            if (modalOverlay.parentNode) {
+                modalOverlay.parentNode.removeChild(modalOverlay);
+            }
+        }, 300);
     }
 
     goToBookings() {
@@ -1253,10 +1336,10 @@ createCartCategoryHTML(category, title, icon) {
             return;
         }
 
-        // Utente autenticato, mostra modal quantità
+        // Utente autenticato, attiva controlli inline
         const drink = this.currentItems.find(d => d.id == drinkId);
         if (drink) {
-            this.showQuantityModal(drink);
+            this.activateInlineQuantityControls(drinkId, 'drinks', drink);
         } else {
             console.error('❌ Drink non trovato:', drinkId);
         }
@@ -1272,12 +1355,149 @@ createCartCategoryHTML(category, title, icon) {
             return;
         }
 
-        // Utente autenticato, mostra modal quantità
+        // Utente autenticato, attiva controlli inline
         const snack = this.currentItems.find(s => s.id == snackId);
         if (snack) {
-            this.showQuantityModal(snack);
+            this.activateInlineQuantityControls(snackId, 'snacks', snack);
         } else {
             console.error('❌ Snack non trovato:', snackId);
+        }
+    }
+
+    // ==========================================
+    // CONTROLLI QUANTITÀ INLINE
+    // ==========================================
+    
+    activateInlineQuantityControls(itemId, category, item) {
+        // Trova il bottone del prodotto
+        const itemCard = document.querySelector(`[data-item-id="${itemId}"]`);
+        if (!itemCard) {
+            // Se non ha data-item-id, cerchiamo il bottone con onclick che contiene l'itemId
+            const allButtons = document.querySelectorAll('.rent-btn');
+            for (let btn of allButtons) {
+                if (btn.onclick && btn.onclick.toString().includes(itemId)) {
+                    this.replaceButtonWithQuantityControls(btn, itemId, category, item);
+                    break;
+                }
+            }
+            return;
+        }
+        
+        const button = itemCard.querySelector('.rent-btn');
+        if (button) {
+            this.replaceButtonWithQuantityControls(button, itemId, category, item);
+        }
+    }
+    
+    replaceButtonWithQuantityControls(button, itemId, category, item) {
+        // Salva il bottone originale per ripristinarlo se necessario
+        button.dataset.originalHtml = button.outerHTML;
+        
+        // Crea i controlli inline
+        const controlsContainer = document.createElement('div');
+        controlsContainer.className = 'inline-quantity-controls';
+        controlsContainer.innerHTML = `
+            <div class="quantity-control-wrapper">
+                <button class="quantity-btn quantity-decrease" data-item-id="${itemId}" data-action="decrease">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <div class="quantity-display">
+                    <span class="quantity-number">1</span>
+                </div>
+                <button class="quantity-btn quantity-increase" data-item-id="${itemId}" data-action="increase">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            <div class="quantity-actions">
+                <button class="quantity-add-to-cart" data-item-id="${itemId}" data-category="${category}">
+                    <i class="fas fa-shopping-cart"></i>
+                    Aggiungi €${item.price}
+                </button>
+                <button class="quantity-cancel" data-item-id="${itemId}">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        
+        // Sostituisci il bottone con i controlli
+        button.parentNode.replaceChild(controlsContainer, button);
+        
+        // Aggiungi event listeners
+        this.setupInlineQuantityEvents(controlsContainer, itemId, category, item);
+    }
+    
+    setupInlineQuantityEvents(container, itemId, category, item) {
+        const decreaseBtn = container.querySelector('.quantity-decrease');
+        const increaseBtn = container.querySelector('.quantity-increase');
+        const quantityDisplay = container.querySelector('.quantity-number');
+        const addToCartBtn = container.querySelector('.quantity-add-to-cart');
+        const cancelBtn = container.querySelector('.quantity-cancel');
+        
+        let currentQuantity = 1;
+        
+        // Aggiorna display prezzo
+        const updatePrice = () => {
+            const totalPrice = (item.price * currentQuantity).toFixed(2);
+            addToCartBtn.innerHTML = `
+                <i class="fas fa-shopping-cart"></i>
+                Aggiungi €${totalPrice}
+            `;
+        };
+        
+        // Diminuisci quantità
+        decreaseBtn.addEventListener('click', () => {
+            if (currentQuantity > 1) {
+                currentQuantity--;
+                quantityDisplay.textContent = currentQuantity;
+                updatePrice();
+            }
+        });
+        
+        // Aumenta quantità
+        increaseBtn.addEventListener('click', () => {
+            if (currentQuantity < 10) { // Limite massimo
+                currentQuantity++;
+                quantityDisplay.textContent = currentQuantity;
+                updatePrice();
+            }
+        });
+        
+        // Aggiungi al carrello
+        addToCartBtn.addEventListener('click', () => {
+            this.addToCart(item, currentQuantity, category);
+            this.restoreOriginalButton(container, itemId);
+            console.log(`✅ Aggiunto al carrello: ${item.name} x${currentQuantity}`);
+        });
+        
+        // Annulla
+        cancelBtn.addEventListener('click', () => {
+            this.restoreOriginalButton(container, itemId);
+        });
+    }
+    
+    restoreOriginalButton(container, itemId) {
+        const originalHtml = container.previousElementSibling?.dataset?.originalHtml || 
+                           container.dataset.originalHtml;
+        
+        if (originalHtml) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = originalHtml;
+            const originalButton = tempDiv.firstElementChild;
+            container.parentNode.replaceChild(originalButton, container);
+        } else {
+            // Fallback: ricostruisci il bottone base
+            const fallbackButton = document.createElement('button');
+            fallbackButton.className = 'rent-btn';
+            
+            if (category === 'drinks') {
+                fallbackButton.innerHTML = `<i class="fas fa-glass-cheers"></i> Ordina`;
+                fallbackButton.onclick = () => this.handleOrderDrink(itemId);
+            } else if (category === 'snacks') {
+                fallbackButton.innerHTML = `<i class="fas fa-shopping-cart"></i> Ordina`;
+                fallbackButton.onclick = () => this.handleOrderSnack(itemId);
+            }
+            
+            container.parentNode.replaceChild(fallbackButton, container);
         }
     }
 

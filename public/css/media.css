@@ -118,20 +118,28 @@
   }
 
   .navbar-links {
-    flex-wrap: wrap;
+    display: flex;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     width: 100%;
     overflow-x: auto;
-    padding: 5px 0;
+    padding: 8px 0;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .navbar-links::-webkit-scrollbar {
+    display: none;
   }
 
   .navbar-links a {
-    padding: 0.5em 1em;
-    font-size: 0.9rem;
+    padding: 0.5em 0.875em;
+    font-size: 0.85rem;
     min-width: auto;
     white-space: nowrap;
     flex-shrink: 0;
+    border-radius: 6px;
+    text-align: center;
   }
 
   .navbar-search-container.expanded .navbar-search {
@@ -190,23 +198,46 @@
 //=========FOOTER===========
 
 @media (max-width: 767px) {
+  .footer-container {
+    padding: 2rem 1rem;
+  }
+  
   .footer-row {
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 2rem;
     text-align: center;
+    align-items: center;
   }
   
   .footer-column {
     width: 100%;
+    max-width: 400px;
     text-align: center;
-    margin-bottom: 1rem;
-    padding: 1rem 0.5rem;
+    margin-bottom: 0;
+    padding: 1rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .footer-column .nav-item {
+    margin-bottom: 0.75rem;
+  }
+  
+  .footer-column .nav-item .nav-link {
+    font-size: 1rem;
+    line-height: 1.5;
   }
   
   .footer-legal-row {
     flex-direction: column;
     text-align: center;
-    gap: 0.5rem;
+    gap: 1rem;
+    align-items: center;
+  }
+  
+  .footer-legal-copyright-row {
+    text-align: center;
+    margin-top: 1rem;
   }
 }
 
@@ -227,32 +258,111 @@
 }
 
 @media (max-width: 600px) {
+  .footer-container {
+    padding: 1.5rem 0.75rem;
+  }
+  
   .newsletter-form {
     min-width: unset;
     max-width: 100%;
-    padding: 1em 0.5em 1.5em 0.5em;
+    padding: 1.5rem 1rem;
     text-align: center;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
+  
+  .newsletter-form input {
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.875rem;
+    border-radius: 8px;
+    font-size: 1rem;
+  }
+  
+  .newsletter-form button {
+    width: 100%;
+    padding: 0.875rem;
+    font-size: 1rem;
+  }
+  
   .footer-title {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     text-align: center;
+    margin-bottom: 1rem;
+    font-weight: 600;
   }
+  
   .footer-subtitle {
     font-size: 1rem;
     text-align: center;
+    opacity: 0.9;
+    line-height: 1.5;
   }
   
   .footer-column {
-    padding: 0.5rem;
+    padding: 1.5rem 1rem;
+    margin-bottom: 1rem;
   }
   
   .footer-column .nav {
     text-align: center;
   }
   
+  .footer-column .nav-item {
+    margin-bottom: 1rem;
+  }
+  
   .footer-social-column ul.social-buttons {
     justify-content: center;
-    gap: 1rem;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .footer-social-column .social-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.2rem;
+  }
+  
+  .footer-map-placeholder {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 2rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .footer-separator {
+    margin: 2rem 0;
+    opacity: 0.3;
+  }
+  
+  /* Mobile responsive styles for quantity controls */
+  .quantity-controls {
+    min-width: 140px;
+    padding: 0.75rem;
+  }
+  
+  .quantity-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+  }
+  
+  .quantity-display {
+    font-size: 1rem;
+    min-width: 35px;
+  }
+  
+  .quantity-add-btn {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .quantity-cancel-btn {
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
   }
 }
 

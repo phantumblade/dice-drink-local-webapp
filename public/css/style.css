@@ -5903,3 +5903,257 @@ line-height: 1.4;
 .team-grid .team-member:nth-child(1) { --index: 1; }
 .team-grid .team-member:nth-child(2) { --index: 2; }
 .team-grid .team-member:nth-child(3) { --index: 3; }
+
+/* ==========================================
+   MODAL CONFERMA SVUOTAMENTO CARRELLO
+   ========================================== */
+
+.custom-confirm-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.custom-confirm-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.confirm-modal-content {
+    background: white;
+    border-radius: 16px;
+    max-width: 480px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    transform: translateY(30px) scale(0.95);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.custom-confirm-modal.active .confirm-modal-content {
+    transform: translateY(0) scale(1);
+}
+
+.confirm-modal-header {
+    background: linear-gradient(135deg, #ff6b6b, #ff5722);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    position: relative;
+}
+
+.confirm-icon {
+    background: rgba(255, 255, 255, 0.2);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 24px;
+}
+
+.confirm-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.confirm-modal-body {
+    padding: 2rem;
+    text-align: center;
+}
+
+.confirm-message {
+    font-size: 1.1rem;
+    color: var(--color-text);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.confirm-warning {
+    color: #ff9800;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0;
+    background: #fff3e0;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #ff9800;
+}
+
+.confirm-modal-actions {
+    padding: 1.5rem 2rem 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.confirm-btn {
+    padding: 0.875rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.confirm-cancel {
+    background: #f8f9fa;
+    color: #6c757d;
+    border: 2px solid #e9ecef;
+}
+
+.confirm-cancel:hover {
+    background: #e9ecef;
+    border-color: #dee2e6;
+    transform: translateY(-1px);
+}
+
+.confirm-delete {
+    background: linear-gradient(135deg, #ff5722, #d32f2f);
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 87, 34, 0.3);
+}
+
+.confirm-delete:hover {
+    background: linear-gradient(135deg, #d32f2f, #b71c1c);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(255, 87, 34, 0.4);
+}
+
+/* ===============================================
+   INLINE QUANTITY CONTROLS
+   =============================================== */
+
+.quantity-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid #8B5CF6;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.15);
+    backdrop-filter: blur(10px);
+    position: relative;
+    min-width: 160px;
+}
+
+.quantity-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.quantity-btn {
+    width: 32px;
+    height: 32px;
+    border: 2px solid #8B5CF6;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #8B5CF6;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.quantity-btn:hover {
+    background: #8B5CF6;
+    color: white;
+    transform: scale(1.05);
+}
+
+.quantity-btn:active {
+    transform: scale(0.95);
+}
+
+.quantity-display {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #374151;
+    min-width: 40px;
+    text-align: center;
+    padding: 0.25rem 0.5rem;
+    background: #f8fafc;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+}
+
+.quantity-add-btn {
+    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.quantity-add-btn:hover {
+    background: linear-gradient(135deg, #7C3AED, #6D28D9);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+}
+
+.quantity-cancel-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #ef4444;
+    color: white;
+    border: 2px solid white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.quantity-cancel-btn:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
+
+.quantity-price {
+    font-size: 0.85rem;
+    color: #6B7280;
+    font-weight: 500;
+}
