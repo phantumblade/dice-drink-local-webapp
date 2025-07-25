@@ -722,7 +722,7 @@ removeItemFromCart(category, itemId) {
 
         // Validazione form
         if (!this.validateForm()) {
-            alert('⚠️ Completa tutti i campi obbligatori prima di procedere.');
+            window.showWarning('Campi Obbligatori', 'Completa tutti i campi obbligatori prima di procedere.');
             return;
         }
 
@@ -1104,7 +1104,7 @@ async submitBooking() {
                 '• Numero giocatori (1-20)';
         }
 
-        alert(`❌ ${userMessage}`);
+        window.showError('Errore Prenotazione', userMessage);
 
     } finally {
         // Ripristina sempre il bottone

@@ -93,10 +93,10 @@ function canUserMakeBooking(user) {
     throw new Error('Account disattivato');
   }
 
-  if (!user.emailVerified) {
-    throw new Error('Email non verificata. Verifica la tua email per effettuare prenotazioni.');
-  }
-
+  // ✅ RIMOSSA verifica email obbligatoria per ordini semplici
+  // Gli utenti possono ordinare drink/snack immediatamente dopo registrazione
+  // Solo prenotazioni complesse potrebbero richiedere email verificata in futuro
+  
   return true;
 }
 

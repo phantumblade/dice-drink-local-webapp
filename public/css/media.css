@@ -337,32 +337,34 @@
     opacity: 0.3;
   }
   
-  /* Mobile responsive styles for quantity controls */
-  .quantity-controls {
-    min-width: 140px;
-    padding: 0.75rem;
+  /* Mobile responsive styles for elegant quantity controls */
+  .button-quantity-wrapper {
+    gap: 0.25rem;
   }
   
-  .quantity-btn {
-    width: 28px;
-    height: 28px;
-    font-size: 1rem;
+  .quantity-badge {
+    width: 18px;
+    height: 18px;
+    font-size: 0.7rem;
+    top: -6px;
+    right: -6px;
   }
   
-  .quantity-display {
-    font-size: 1rem;
-    min-width: 35px;
+  .quantity-selector {
+    padding: 3px;
+    gap: 3px;
   }
   
-  .quantity-add-btn {
-    font-size: 0.8rem;
-    padding: 0.5rem 0.75rem;
-  }
-  
-  .quantity-cancel-btn {
+  .qty-btn {
     width: 20px;
     height: 20px;
-    font-size: 0.7rem;
+    font-size: 0.6rem;
+  }
+  
+  .qty-confirm {
+    width: 24px;
+    height: 20px;
+    font-size: 0.6rem;
   }
 }
 

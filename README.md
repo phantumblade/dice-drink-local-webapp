@@ -1,4 +1,4 @@
-# Dice & Drink 
+# Dice & Drink
 
 
 <div align="center">
@@ -332,6 +332,8 @@ BCRYPT_ROUNDS=12
 | **Staff** | staff@diceanddrink.com | StaffDemo2025! | Gestione locale e prenotazioni |
 | **Customer** | customer@diceanddrink.com | CustomerDemo2025! | Prenotazioni e recensioni |
 | **Customer2** | customer2@diceanddrink.com | Customer2_2025! | Test con utenti multipli |
+| **Customer3** | Utente3@gmail.com | Utente12345$ | Test con utenti multipli |
+
 
 ### 🚶‍♂️ Percorsi Utente
 
@@ -495,7 +497,7 @@ const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 ### 👾bug noti
 
 - **Persistenza elementi carrello**: Nel carrello degli utenti loggati a volte persistono gli elementi alla futura riapertura del server anche da sloggato
-- **Errore funzioni su nuovo utente registrato**: L'utente si registra ma la mail non viene verificata correttamente così non funzionano le operaizoni sul sito 
+- **Errore funzioni su nuovo utente registrato**: L'utente si registra ma la mail non viene verificata correttamente così non funzionano le operaizoni sul sito
 - **Mobile view non visulizzata correttamente**
 
 ---

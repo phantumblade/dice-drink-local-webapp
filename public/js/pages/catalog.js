@@ -379,22 +379,22 @@ class CatalogPageManager {
         // Aggiorna badge navbar
         this.updateCartBadge();
 
-        // Aggiorna box carrello se visibile
+        // Aggiorna box carrello se visibile con transizioni fluide
         const cartBox = document.getElementById('catalog-cart-box');
         if (cartBox) {
             const summary = this.getCartSummary();
 
             // ✅ CARRELLO SEMPRE VISIBILE PER UTENTI AUTENTICATI
             if (this.isAuthenticated) {
-                if (summary.totalItems > 0) {
-                    // Ha elementi: mostra carrello pieno
-                    cartBox.innerHTML = this.createCartBoxHTML();
-                } else {
-                    // Carrello vuoto ma utente loggato: mostra carrello vuoto
-                    cartBox.innerHTML = this.createEmptyCartHTML();
-                }
                 cartBox.style.display = 'block';
-                console.log('🛒 Carrello visibile per utente autenticato:', summary.totalItems, 'elementi');
+                
+                // Aggiornamento fluido senza scatti
+                if (summary.totalItems > 0) {
+                    this.updateCartBoxSmooth(cartBox, summary);
+                } else {
+                    this.showEmptyCartSmooth(cartBox);
+                }
+                console.log('🛒 Carrello aggiornato fluido:', summary.totalItems, 'elementi');
             } else {
                 // Utente non loggato: nascondi carrello
                 cartBox.style.display = 'none';
@@ -403,6 +403,76 @@ class CatalogPageManager {
         } else {
             console.warn('⚠️ Elemento carrello non trovato nel DOM');
         }
+    }
+
+    updateCartBoxSmooth(cartBox, summary) {
+        // Controlla se dobbiamo ricreare la struttura
+        const existingContent = cartBox.querySelector('.cart-summary');
+        
+        if (!existingContent) {
+            // Prima volta: crea con fade-in
+            cartBox.style.opacity = '0';
+            cartBox.innerHTML = this.createCartBoxHTML();
+            setTimeout(() => {
+                cartBox.style.opacity = '1';
+            }, 50);
+            return;
+        }
+
+        // Aggiorna solo i valori che cambiano
+        this.updateCartNumbers(cartBox, summary);
+        this.updateCartItems(cartBox);
+    }
+
+    updateCartNumbers(cartBox, summary) {
+        const totalItemsEl = cartBox.querySelector('.cart-total-items');
+        const totalPriceEl = cartBox.querySelector('.cart-total-price');
+        
+        if (totalItemsEl && totalItemsEl.textContent != summary.totalItems) {
+            totalItemsEl.style.transform = 'scale(1.1)';
+            totalItemsEl.textContent = summary.totalItems;
+            setTimeout(() => totalItemsEl.style.transform = 'scale(1)', 200);
+        }
+        
+        if (totalPriceEl) {
+            totalPriceEl.textContent = `€${summary.totalPrice.toFixed(2)}`;
+        }
+    }
+
+    updateCartItems(cartBox) {
+        // Aggiorna contenuto items senza reflow
+        const categoriesContainer = cartBox.querySelector('.cart-categories');
+        if (categoriesContainer) {
+            const newContent = this.createCartCategoriesHTML();
+            if (categoriesContainer.innerHTML !== newContent) {
+                categoriesContainer.style.transition = 'opacity 0.2s ease';
+                categoriesContainer.style.opacity = '0.7';
+                categoriesContainer.innerHTML = newContent;
+                setTimeout(() => {
+                    categoriesContainer.style.opacity = '1';
+                }, 100);
+            }
+        }
+    }
+
+    showEmptyCartSmooth(cartBox) {
+        const isCurrentlyEmpty = cartBox.querySelector('.cart-empty-state');
+        if (!isCurrentlyEmpty) {
+            cartBox.style.transition = 'opacity 0.3s ease';
+            cartBox.style.opacity = '0.7';
+            cartBox.innerHTML = this.createEmptyCartHTML();
+            setTimeout(() => {
+                cartBox.style.opacity = '1';
+            }, 150);
+        }
+    }
+
+    createCartCategoriesHTML() {
+        return `
+            ${this.createCartCategoryHTML('games', 'Giochi', 'fas fa-dice-d20')}
+            ${this.createCartCategoryHTML('drinks', 'Drink', 'fas fa-cocktail')}
+            ${this.createCartCategoryHTML('snacks', 'Snack', 'fas fa-cookie-bite')}
+        `;
     }
 
     createEmptyCartHTML() {
@@ -719,6 +789,11 @@ class CatalogPageManager {
     createItemsGridHTML() {
         const filteredItems = this.getFilteredItems();
 
+        // Se non ci sono items ancora caricati, mostra skeleton loader
+        if (!this.currentItems || this.currentItems.length === 0) {
+            return this.createSkeletonGridHTML();
+        }
+
         if (filteredItems.length === 0) {
             return this.createEmptyStateHTML();
         }
@@ -726,6 +801,27 @@ class CatalogPageManager {
         return `
             <div class="items-grid" id="itemsGrid">
                 ${filteredItems.map(item => this.createItemCardHTML(item)).join('')}
+            </div>
+        `;
+    }
+
+    createSkeletonGridHTML() {
+        // Crea 6 skeleton cards per un caricamento più fluido
+        const skeletonCards = Array(6).fill().map(() => `
+            <div class="skeleton-card">
+                <div class="skeleton-image"></div>
+                <div class="skeleton-content">
+                    <div class="skeleton-title"></div>
+                    <div class="skeleton-description"></div>
+                    <div class="skeleton-price"></div>
+                    <div class="skeleton-button"></div>
+                </div>
+            </div>
+        `).join('');
+
+        return `
+            <div class="items-grid" id="itemsGrid">
+                ${skeletonCards}
             </div>
         `;
     }
@@ -1212,15 +1308,24 @@ createCartCategoryHTML(category, title, icon) {
         try {
             const itemsGrid = document.getElementById('itemsGrid');
             if (itemsGrid) {
-                itemsGrid.innerHTML = '<div class="loading">Caricamento...</div>';
+                // Transizione fluida invece di svuotamento immediato
+                itemsGrid.style.opacity = '0.6';
+                itemsGrid.style.pointerEvents = 'none';
             }
 
             await this.loadCategoryData(category);
-            this.refreshFullUI();
+            this.refreshFullUISmooth();
 
         } catch (error) {
             console.error('❌ Errore switch categoria:', error);
-            this.showError('Errore nel caricamento della categoria: ' + error.message);
+            window.showError('Errore Categoria', 'Errore nel caricamento della categoria: ' + error.message);
+            
+            // Ripristina in caso di errore
+            const itemsGrid = document.getElementById('itemsGrid');
+            if (itemsGrid) {
+                itemsGrid.style.opacity = '1';
+                itemsGrid.style.pointerEvents = 'auto';
+            }
         }
     }
 
@@ -1248,6 +1353,63 @@ createCartCategoryHTML(category, title, icon) {
         }
 
         this.setupFilterChipEvents();
+    }
+
+    refreshFullUISmooth() {
+        // Aggiorna stats bar senza flash
+        const statsBar = document.querySelector('.stats-bar');
+        if (statsBar) {
+            const newStatsHTML = this.createStatsBarHTML();
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = newStatsHTML;
+            const newStatsBar = tempDiv.firstElementChild;
+
+            statsBar.style.transition = 'opacity 0.2s ease';
+            statsBar.style.opacity = '0.7';
+            setTimeout(() => {
+                statsBar.parentNode.replaceChild(newStatsBar, statsBar);
+            }, 100);
+        }
+
+        // Aggiorna grid con fade-in fluido
+        this.refreshItemsGridSmooth();
+
+        // Aggiorna carrello
+        this.updateCartUI();
+
+        // Setup eventi
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.searchTerm = e.target.value;
+                this.refreshItemsGrid();
+            });
+        }
+
+        this.setupFilterChipEvents();
+    }
+
+    refreshItemsGridSmooth() {
+        const itemsGrid = document.getElementById('itemsGrid');
+        if (itemsGrid) {
+            const filteredItems = this.getFilteredItems();
+
+            if (filteredItems.length === 0) {
+                itemsGrid.innerHTML = this.createEmptyStateHTML();
+            } else {
+                itemsGrid.innerHTML = filteredItems.map(item =>
+                    this.createItemCardHTML(item)
+                ).join('');
+            }
+
+            // Ripristina opacità e interattività con transizione
+            setTimeout(() => {
+                itemsGrid.style.transition = 'opacity 0.3s ease';
+                itemsGrid.style.opacity = '1';
+                itemsGrid.style.pointerEvents = 'auto';
+                setupAllLocalImageFallbacks();
+            }, 50);
+        }
     }
 
     refreshItemsGrid() {
@@ -1365,114 +1527,135 @@ createCartCategoryHTML(category, title, icon) {
     }
 
     // ==========================================
-    // CONTROLLI QUANTITÀ INLINE
+    // CONTROLLI QUANTITÀ ELEGANTI
     // ==========================================
     
     activateInlineQuantityControls(itemId, category, item) {
-        // Trova il bottone del prodotto
-        const itemCard = document.querySelector(`[data-item-id="${itemId}"]`);
-        if (!itemCard) {
-            // Se non ha data-item-id, cerchiamo il bottone con onclick che contiene l'itemId
-            const allButtons = document.querySelectorAll('.rent-btn');
-            for (let btn of allButtons) {
-                if (btn.onclick && btn.onclick.toString().includes(itemId)) {
-                    this.replaceButtonWithQuantityControls(btn, itemId, category, item);
-                    break;
-                }
+        // Trova il container del bottone
+        const allButtons = document.querySelectorAll('.rent-btn');
+        let targetButton = null;
+        
+        for (let btn of allButtons) {
+            if (btn.onclick && btn.onclick.toString().includes(itemId)) {
+                targetButton = btn;
+                break;
             }
-            return;
         }
         
-        const button = itemCard.querySelector('.rent-btn');
-        if (button) {
-            this.replaceButtonWithQuantityControls(button, itemId, category, item);
+        if (targetButton) {
+            this.createQuantitySelector(targetButton, itemId, category, item);
         }
     }
     
-    replaceButtonWithQuantityControls(button, itemId, category, item) {
-        // Salva il bottone originale per ripristinarlo se necessario
-        button.dataset.originalHtml = button.outerHTML;
+    createQuantitySelector(button, itemId, category, item) {
+        // Verifica se i controlli esistono già
+        const buttonContainer = button.parentNode;
+        if (buttonContainer.querySelector('.quantity-selector')) {
+            return; // Già attivati
+        }
         
-        // Crea i controlli inline
-        const controlsContainer = document.createElement('div');
-        controlsContainer.className = 'inline-quantity-controls';
-        controlsContainer.innerHTML = `
-            <div class="quantity-control-wrapper">
-                <button class="quantity-btn quantity-decrease" data-item-id="${itemId}" data-action="decrease">
-                    <i class="fas fa-minus"></i>
-                </button>
-                <div class="quantity-display">
-                    <span class="quantity-number">1</span>
-                </div>
-                <button class="quantity-btn quantity-increase" data-item-id="${itemId}" data-action="increase">
-                    <i class="fas fa-plus"></i>
-                </button>
-            </div>
-            <div class="quantity-actions">
-                <button class="quantity-add-to-cart" data-item-id="${itemId}" data-category="${category}">
-                    <i class="fas fa-shopping-cart"></i>
-                    Aggiungi €${item.price}
-                </button>
-                <button class="quantity-cancel" data-item-id="${itemId}">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
+        // Crea wrapper per bottone + controlli quantità
+        const wrapper = document.createElement('div');
+        wrapper.className = 'button-quantity-wrapper';
+        
+        // Modifica il bottone originale per mostrare quantità
+        button.classList.add('quantity-enabled');
+        button.innerHTML = `
+            <span class="btn-icon">${category === 'drinks' ? '<i class="fas fa-glass-cheers"></i>' : '<i class="fas fa-shopping-cart"></i>'}</span>
+            <span class="btn-text">Ordina</span>
+            <span class="quantity-badge">1</span>
         `;
         
-        // Sostituisci il bottone con i controlli
-        button.parentNode.replaceChild(controlsContainer, button);
+        // Crea controlli quantità compatti
+        const quantitySelector = document.createElement('div');
+        quantitySelector.className = 'quantity-selector';
+        quantitySelector.innerHTML = `
+            <button class="qty-btn qty-minus" data-item-id="${itemId}">
+                <i class="fas fa-minus"></i>
+            </button>
+            <button class="qty-btn qty-plus" data-item-id="${itemId}">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button class="qty-confirm" data-item-id="${itemId}" data-category="${category}">
+                <i class="fas fa-check"></i>
+            </button>
+        `;
+        
+        // Sostituisci il bottone con il wrapper
+        buttonContainer.replaceChild(wrapper, button);
+        wrapper.appendChild(button);
+        wrapper.appendChild(quantitySelector);
         
         // Aggiungi event listeners
-        this.setupInlineQuantityEvents(controlsContainer, itemId, category, item);
+        this.setupQuantityEvents(wrapper, itemId, category, item);
     }
     
-    setupInlineQuantityEvents(container, itemId, category, item) {
-        const decreaseBtn = container.querySelector('.quantity-decrease');
-        const increaseBtn = container.querySelector('.quantity-increase');
-        const quantityDisplay = container.querySelector('.quantity-number');
-        const addToCartBtn = container.querySelector('.quantity-add-to-cart');
-        const cancelBtn = container.querySelector('.quantity-cancel');
+    setupQuantityEvents(wrapper, itemId, category, item) {
+        const quantityBadge = wrapper.querySelector('.quantity-badge');
+        const minusBtn = wrapper.querySelector('.qty-minus');
+        const plusBtn = wrapper.querySelector('.qty-plus');
+        const confirmBtn = wrapper.querySelector('.qty-confirm');
+        const orderBtn = wrapper.querySelector('.rent-btn');
         
         let currentQuantity = 1;
         
-        // Aggiorna display prezzo
-        const updatePrice = () => {
-            const totalPrice = (item.price * currentQuantity).toFixed(2);
-            addToCartBtn.innerHTML = `
-                <i class="fas fa-shopping-cart"></i>
-                Aggiungi €${totalPrice}
-            `;
+        // Aggiorna badge quantità
+        const updateQuantityBadge = () => {
+            quantityBadge.textContent = currentQuantity;
+            quantityBadge.style.background = currentQuantity > 1 ? '#10b981' : '#8B5CF6';
         };
         
         // Diminuisci quantità
-        decreaseBtn.addEventListener('click', () => {
+        minusBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             if (currentQuantity > 1) {
                 currentQuantity--;
-                quantityDisplay.textContent = currentQuantity;
-                updatePrice();
+                updateQuantityBadge();
             }
         });
         
         // Aumenta quantità
-        increaseBtn.addEventListener('click', () => {
-            if (currentQuantity < 10) { // Limite massimo
+        plusBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (currentQuantity < 10) {
                 currentQuantity++;
-                quantityDisplay.textContent = currentQuantity;
-                updatePrice();
+                updateQuantityBadge();
             }
         });
         
-        // Aggiungi al carrello
-        addToCartBtn.addEventListener('click', () => {
+        // Conferma e aggiungi al carrello
+        confirmBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             this.addToCart(item, currentQuantity, category);
-            this.restoreOriginalButton(container, itemId);
+            this.resetQuantitySelector(wrapper);
             console.log(`✅ Aggiunto al carrello: ${item.name} x${currentQuantity}`);
         });
         
-        // Annulla
-        cancelBtn.addEventListener('click', () => {
-            this.restoreOriginalButton(container, itemId);
+        // Click sul bottone principale: attiva/disattiva controlli
+        orderBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const selector = wrapper.querySelector('.quantity-selector');
+            selector.classList.toggle('active');
         });
+    }
+    
+    resetQuantitySelector(wrapper) {
+        const quantityBadge = wrapper.querySelector('.quantity-badge');
+        const selector = wrapper.querySelector('.quantity-selector');
+        
+        // Reset a quantità 1
+        quantityBadge.textContent = '1';
+        quantityBadge.style.background = '#8B5CF6';
+        
+        // Nascondi controlli
+        selector.classList.remove('active');
+        
+        // Breve animazione di conferma
+        wrapper.classList.add('added-to-cart');
+        setTimeout(() => {
+            wrapper.classList.remove('added-to-cart');
+        }, 1000);
     }
     
     restoreOriginalButton(container, itemId) {
@@ -1533,14 +1716,14 @@ createCartCategoryHTML(category, title, icon) {
             if (profileIcon) {
                 profileIcon.click();
             } else {
-                alert("Sistema di autenticazione non disponibile.\nRicarica la pagina e riprova.");
+                window.showError("Sistema non disponibile", "Sistema di autenticazione non disponibile. Ricarica la pagina e riprova.");
             }
         }
     }
 
     addToWishlist() {
         console.log('❤️ Aggiunta alla wishlist');
-        alert('❤️ Aggiunto alla wishlist!\n\n(Funzionalità in sviluppo)');
+        window.showInfo('Wishlist', 'Aggiunto alla wishlist! Funzionalità in sviluppo.');
     }
 
     // ==========================================
