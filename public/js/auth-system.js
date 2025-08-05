@@ -324,9 +324,106 @@ showProfile() {
 },
 
     showBookings() {
-        NotificationSystem.showInfo(
-            'Caricamento prenotazioni... (Funzionalità in sviluppo)\n\nProssimamente potrai vedere:\n• Prenotazioni attive\n• Storico prenotazioni\n• Modifica/cancella prenotazioni'
-        );
+        console.log('📋 Navigazione alla pagina prenotazioni utente...');
+        
+        // Carica direttamente il modulo - approccio più semplice e affidabile
+        this.loadBookingsPage();
+    },
+
+    async loadBookingsPage() {
+        try {
+            console.log('🔄 Caricamento modulo prenotazioni...');
+            
+            // Cambia l'URL senza ricaricare la pagina
+            if (window.history && window.history.pushState) {
+                window.history.pushState({}, '', '/prenotazioni-utente');
+            }
+            
+            // Cambia il titolo della pagina
+            document.title = 'Le Mie Prenotazioni - Dice & Drink';
+            
+            // Importa e carica il modulo
+            const module = await import('./pages/user-bookings.js');
+            await module.showUserBookings();
+            
+            console.log('✅ Pagina prenotazioni caricata con successo');
+            
+        } catch (error) {
+            console.error('❌ Errore caricamento pagina prenotazioni:', error);
+            
+            // Mostra errore user-friendly
+            let content = document.getElementById('content');
+            
+            // Fallback: se #content non esiste, prova a crearlo
+            if (!content) {
+                const app = document.getElementById('app');
+                if (app) {
+                    content = document.createElement('div');
+                    content.id = 'content';
+                    content.classList.add('main-content');
+                    app.appendChild(content);
+                    console.log('✅ Container #content creato come fallback in auth-system');
+                }
+            }
+            
+            if (content) {
+                content.innerHTML = `
+                    <div class="error-page" style="
+                        min-height: calc(100vh - 160px);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 2rem;
+                        text-align: center;
+                    ">
+                        <div class="error-content" style="
+                            background: white;
+                            padding: 3rem 2rem;
+                            border-radius: 16px;
+                            border: 2px solid var(--color-text);
+                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                            max-width: 500px;
+                        ">
+                            <i class="fas fa-exclamation-triangle" style="
+                                font-size: 3rem;
+                                color: #e74c3c;
+                                margin-bottom: 1rem;
+                            "></i>
+                            <h2 style="color: var(--color-text); margin-bottom: 1rem;">Errore di Caricamento</h2>
+                            <p style="color: var(--color-text); opacity: 0.8; margin-bottom: 2rem;">
+                                Si è verificato un errore nel caricamento della pagina prenotazioni.
+                            </p>
+                            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                                <button onclick="window.SimpleAuth.loadBookingsPage()" style="
+                                    padding: 1rem 2rem;
+                                    background: var(--color-primary);
+                                    color: white;
+                                    border: 2px solid var(--color-text);
+                                    border-radius: 8px;
+                                    cursor: pointer;
+                                    font-weight: bold;
+                                    box-shadow: 3px 3px 0 var(--color-text);
+                                ">
+                                    <i class="fas fa-redo"></i> Riprova
+                                </button>
+                                <a href="/" style="
+                                    padding: 1rem 2rem;
+                                    background: var(--color-background);
+                                    color: var(--color-primary);
+                                    border: 2px solid var(--color-text);
+                                    border-radius: 8px;
+                                    text-decoration: none;
+                                    font-weight: bold;
+                                    box-shadow: 3px 3px 0 var(--color-text);
+                                ">
+                                    <i class="fas fa-home"></i> Torna alla Home
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
     },
 
     showLoginModal() {
@@ -474,6 +571,25 @@ showProfile() {
 
             console.log('✅ Logout completato');
             NotificationSystem.showLogout();
+            
+            // Redirect automatico alla home se si è in una pagina riservata
+            this.redirectToHomeIfRestricted();
+        }
+    },
+
+    redirectToHomeIfRestricted() {
+        const currentPath = window.location.pathname;
+        const restrictedPaths = ['/prenotazioni-utente', '/dashboard', '/profile'];
+        
+        if (restrictedPaths.includes(currentPath)) {
+            console.log('🏠 Redirect automatico alla home dopo logout da pagina riservata');
+            
+            // Usa Page.js se disponibile, altrimenti window.location
+            if (window.page) {
+                window.page('/');
+            } else {
+                window.location.href = '/';
+            }
         }
     },
 

@@ -204,6 +204,64 @@ class CatalogPageManager {
 
         console.log('✅ CatalogPageManager inizializzato con carrello');
         console.log('🛒 Carrello attuale:', this.cart);
+        this.isEditingBooking = false;
+        this.editContext = null;
+    }
+    
+    // ==========================================
+    // MODALITÀ EDITING PRENOTAZIONE
+    // ==========================================
+    setEditingMode(editContext) {
+        this.isEditingBooking = true;
+        this.editContext = editContext;
+        console.log('📝 Attivata modalità editing prenotazione:', editContext);
+        
+        // Personalizza l'interfaccia per l'editing
+        this.customizeForEditing();
+    }
+    
+    customizeForEditing() {
+        if (!this.isEditingBooking || !this.editContext) return;
+        
+        // Mostra notifica di editing
+        this.showEditingNotification();
+        
+        // Personalizza il carrello per l'editing
+        this.customizeCartForEditing();
+    }
+    
+    showEditingNotification() {
+        const editType = this.editContext.editType || 'prodotti';
+        const bookingDate = this.editContext.bookingDate || 'N/A';
+        
+        setTimeout(() => {
+            const notification = document.createElement('div');
+            notification.className = 'editing-notification';
+            notification.innerHTML = `
+                <div class="editing-alert">
+                    <i class="fas fa-edit"></i>
+                    <div class="editing-info">
+                        <h4>Modalità Modifica Prenotazione</h4>
+                        <p>Stai modificando ${editType} per la prenotazione del ${bookingDate}</p>
+                        <p class="editing-hint">Seleziona i nuovi prodotti e conferma le modifiche</p>
+                    </div>
+                    <button class="btn-back-to-booking" onclick="window.history.back()">
+                        <i class="fas fa-arrow-left"></i> Torna alla Prenotazione
+                    </button>
+                </div>
+            `;
+            
+            const content = document.getElementById('content');
+            if (content && content.firstChild) {
+                content.insertBefore(notification, content.firstChild);
+            }
+        }, 500);
+    }
+    
+    customizeCartForEditing() {
+        // Il carrello mostrerà opzioni specifiche per l'editing
+        this.cart.isEditingMode = true;
+        this.cart.editContext = this.editContext;
     }
 
     // ==========================================
@@ -1024,10 +1082,21 @@ class CatalogPageManager {
                             <i class="fas fa-trash-alt"></i>
                             Svuota
                         </button>
-                        <button class="cart-btn-primary" onclick="window.catalogPageManager.goToBookings()">
-                            <i class="fas fa-arrow-right"></i>
-                            Vai alle Prenotazioni
-                        </button>
+                        ${this.isEditingBooking ? `
+                            <button class="cart-btn-edit-confirm" onclick="window.catalogPageManager.confirmBookingChanges()">
+                                <i class="fas fa-save"></i>
+                                Conferma Modifiche
+                            </button>
+                            <button class="cart-btn-edit-cancel" onclick="window.catalogPageManager.cancelBookingEdit()">
+                                <i class="fas fa-times"></i>
+                                Annulla
+                            </button>
+                        ` : `
+                            <button class="cart-btn-primary" onclick="window.catalogPageManager.goToBookings()">
+                                <i class="fas fa-arrow-right"></i>
+                                Vai alle Prenotazioni
+                            </button>
+                        `}
                     </div>
                 </div>
             </div>
@@ -1174,6 +1243,111 @@ createCartCategoryHTML(category, title, icon) {
     goToBookings() {
         console.log('🎯 Reindirizzamento alle prenotazioni con carrello...');
         window.showPage('prenotazioni');
+    }
+
+    // ==========================================
+    // GESTIONE EDITING PRENOTAZIONI
+    // ==========================================
+    
+    confirmBookingChanges() {
+        if (!this.isEditingBooking || !this.editContext) {
+            console.warn('⚠️ Non in modalità editing');
+            return;
+        }
+        
+        const summary = this.getCartSummary();
+        if (summary.totalItems === 0) {
+            alert('Seleziona almeno un prodotto per confermare le modifiche');
+            return;
+        }
+        
+        console.log('💾 Conferma modifiche prenotazione:', this.editContext);
+        
+        // Prepara i dati delle modifiche
+        const modifications = this.prepareBookingModifications();
+        
+        // Salva le modifiche nel localStorage per il ritorno
+        localStorage.setItem('pendingBookingChanges', JSON.stringify(modifications));
+        
+        // Torna alla pagina delle prenotazioni
+        this.returnToBookings();
+    }
+    
+    cancelBookingEdit() {
+        if (confirm('Sei sicuro di voler annullare le modifiche? Tutte le selezioni verranno perse.')) {
+            console.log('❌ Modifica prenotazione annullata');
+            
+            // Pulisci il carrello e il context
+            this.clearCart();
+            this.clearEditingContext();
+            
+            // Torna alla pagina delle prenotazioni
+            this.returnToBookings();
+        }
+    }
+    
+    prepareBookingModifications() {
+        const summary = this.getCartSummary();
+        const editType = this.editContext.editType;
+        
+        const modifications = {
+            bookingDate: this.editContext.bookingDate,
+            editType: editType,
+            timestamp: Date.now()
+        };
+        
+        // Converte il carrello nel formato appropriato per l'editing
+        switch(editType) {
+            case 'giochi':
+                modifications.game_requests = this.formatCartItemsForBooking(this.cart.games);
+                break;
+            case 'drink':
+                modifications.drink_orders = this.formatCartItemsForBooking(this.cart.drinks);
+                break;
+            case 'snack':
+                modifications.snack_orders = this.formatCartItemsForBooking(this.cart.snacks);
+                break;
+        }
+        
+        console.log('📋 Modifiche preparate:', modifications);
+        return modifications;
+    }
+    
+    formatCartItemsForBooking(items) {
+        if (!items || items.length === 0) return '';
+        
+        return items.map(item => {
+            if (item.quantity > 1) {
+                return `${item.name} (x${item.quantity})`;
+            }
+            return item.name;
+        }).join(', ');
+    }
+    
+    returnToBookings() {
+        // Pulisci il context di editing
+        this.clearEditingContext();
+        
+        // Reindirizza alla pagina prenotazioni
+        const returnUrl = this.editContext?.returnUrl || '/prenotazioni-utente';
+        
+        if (window.page) {
+            window.page(returnUrl);
+        } else {
+            window.location.href = returnUrl;
+        }
+    }
+    
+    clearEditingContext() {
+        localStorage.removeItem('bookingEditContext');
+        this.isEditingBooking = false;
+        this.editContext = null;
+        
+        // Rimuovi la notifica di editing se presente
+        const editingNotification = document.querySelector('.editing-notification');
+        if (editingNotification) {
+            editingNotification.remove();
+        }
     }
 
     // ==========================================
@@ -2072,6 +2246,20 @@ export async function showCatalog(category = 'giochi') {
     }
 
     const manager = window.catalogPageManager;
+
+    // Controlla se siamo in modalità editing prenotazione
+    const bookingEditContext = localStorage.getItem('bookingEditContext');
+    if (bookingEditContext) {
+        try {
+            const editContext = JSON.parse(bookingEditContext);
+            if (editContext.isEditingBooking === true) {
+                console.log('📝 Modalità editing prenotazione attiva:', editContext);
+                manager.setEditingMode(editContext);
+            }
+        } catch (e) {
+            console.warn('⚠️ Errore parsing context editing:', e);
+        }
+    }
 
     try {
         // Mostra loader durante caricamento

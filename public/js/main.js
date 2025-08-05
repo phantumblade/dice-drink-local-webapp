@@ -7,6 +7,7 @@ import { showCatalog } from './pages/catalog.js';
 import { showBookings } from './pages/bookings.js';
 import { showAboutUs } from './pages/aboutus.js';
 import { showError404 } from './pages/error404.js';
+import { showUserBookings } from './pages/user-bookings.js';
 
 const ROLE_ICONS = {
     guest: {
@@ -570,6 +571,12 @@ const ROUTES_CONFIG = {
         title: 'Chi Siamo - Dice & Drink',
         handler: () => showAboutUs(),
         navItem: 'aboutus'
+    },
+
+    '/prenotazioni-utente': {
+        title: 'Le Mie Prenotazioni - Dice & Drink',
+        handler: () => showUserBookings(),
+        navItem: null
     }
 
 };

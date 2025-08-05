@@ -6394,3 +6394,116 @@ line-height: 1.4;
     0% { opacity: 1; }
     100% { opacity: 0.7; }
 }
+
+/* ===== NOTIFICA EDITING PRENOTAZIONE ===== */
+.editing-notification {
+    margin-bottom: 2rem;
+    animation: slideInFromTop 0.5s ease-out;
+}
+
+.editing-alert {
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(41, 128, 185, 0.1));
+    border: 3px solid #3498db;
+    border-radius: 16px;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    box-shadow: 0 8px 25px rgba(52, 152, 219, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.editing-alert::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3498db, #2980b9, #3498db);
+    background-size: 200% 100%;
+    animation: gradient-shift 2s infinite;
+}
+
+.editing-alert > .fas {
+    font-size: 2.5rem;
+    color: #3498db;
+    flex-shrink: 0;
+}
+
+.editing-info {
+    flex: 1;
+}
+
+.editing-info h4 {
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.editing-info p {
+    color: #34495e;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.5;
+}
+
+.editing-hint {
+    font-style: italic;
+    opacity: 0.8;
+    font-size: 0.95rem;
+}
+
+.btn-back-to-booking {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.btn-back-to-booking:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+}
+
+@keyframes slideInFromTop {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes gradient-shift {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+@media (max-width: 768px) {
+    .editing-alert {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.5rem;
+        gap: 1rem;
+    }
+    
+    .btn-back-to-booking {
+        width: 100%;
+        justify-content: center;
+    }
+}
