@@ -6,6 +6,7 @@ import { showHomepage } from './pages/homepage.js';
 import { showCatalog } from './pages/catalog.js';
 import { showBookings } from './pages/bookings.js';
 import { showAboutUs } from './pages/aboutus.js';
+import { showError404 } from './pages/error404.js';
 
 const ROLE_ICONS = {
     guest: {
@@ -637,23 +638,7 @@ class DiceRouterManager {
 
         const content = document.getElementById('content');
         if (content) {
-            content.innerHTML = `
-                <div style="text-align: center; padding: 4rem 2rem;">
-                    <h1 style="font-size: 4rem; color: #6633cc; margin-bottom: 1rem;">404</h1>
-                    <h2 style="color: #333; margin-bottom: 1rem;">Pagina Non Trovata</h2>
-                    <p style="color: #666; margin-bottom: 2rem;">
-                        La pagina "${ctx.path}" non esiste.
-                    </p>
-                    <a href="/" style="
-                        background: #6633cc;
-                        color: white;
-                        padding: 12px 24px;
-                        text-decoration: none;
-                        border-radius: 8px;
-                        display: inline-block;
-                    ">🏠 Torna alla Home</a>
-                </div>
-            `;
+            content.innerHTML = showError404();
         }
     }
 
