@@ -2,44 +2,48 @@ export function showError404() {
     return `
         <div class="error-404-container">
             <div class="error-404-content">
-                <div class="error-404-icon">
-                    <i class="fas fa-dice-d20"></i>
-                    <span class="error-code">404</span>
+                <div class="error-404-main-section">
+                    <div class="error-404-icon">
+                        <i class="fas fa-dice-d20"></i>
+                        <span class="error-code">404</span>
+                    </div>
+                    
+                    <div class="error-404-message">
+                        <h1>Pagina non trovata</h1>
+                        <p>Ops! Sembra che questa pagina sia sparita nel vuoto cosmico...</p>
+                        <p>Forse stavi cercando uno dei nostri fantastici giochi o drink?</p>
+                    </div>
+                    
+                    <div class="error-404-actions">
+                        <a href="/" class="btn-main btn-home">
+                            <i class="fas fa-home"></i>
+                            <span>Torna alla Home</span>
+                        </a>
+                        <a href="/catalogo" class="btn-main btn-catalog">
+                            <i class="fas fa-th-large"></i>
+                            <span>Sfoglia il Catalogo</span>
+                        </a>
+                    </div>
                 </div>
                 
-                <div class="error-404-message">
-                    <h1>Pagina non trovata</h1>
-                    <p>Ops! Sembra che questa pagina sia sparita nel vuoto cosmico...</p>
-                    <p>Forse stavi cercando uno dei nostri fantastici giochi o drink?</p>
-                </div>
-                
-                <div class="error-404-actions">
-                    <button onclick="window.location.href = '/'" class="btn-home">
-                        <i class="fas fa-home"></i>
-                        Torna alla Home
-                    </button>
-                    <button onclick="window.location.href = '/catalog'" class="btn-catalog">
-                        <i class="fas fa-th-large"></i>
-                        Sfoglia il Catalogo
-                    </button>
-                </div>
+                <div class="error-404-divider"></div>
                 
                 <div class="error-404-suggestions">
                     <h3>Oppure prova una di queste:</h3>
-                    <div class="suggestions-grid">
-                        <a href="/games" class="suggestion-card">
+                    <div class="suggestions-list">
+                        <a href="/catalogo/giochi" class="suggestion-link">
                             <i class="fas fa-dice"></i>
                             <span>Giochi da Tavolo</span>
                         </a>
-                        <a href="/drinks" class="suggestion-card">
+                        <a href="/catalogo/drink" class="suggestion-link">
                             <i class="fas fa-cocktail"></i>
                             <span>Cocktails & Drink</span>
                         </a>
-                        <a href="/snacks" class="suggestion-card">
+                        <a href="/catalogo/snack" class="suggestion-link">
                             <i class="fas fa-cookie-bite"></i>
                             <span>Snacks & Stuzzichini</span>
                         </a>
-                        <a href="/bookings" class="suggestion-card">
+                        <a href="/prenotazioni" class="suggestion-link">
                             <i class="fas fa-calendar-alt"></i>
                             <span>Prenotazioni</span>
                         </a>
@@ -61,9 +65,38 @@ export function showError404() {
             }
             
             .error-404-content {
-                text-align: center;
-                max-width: 600px;
+                display: flex;
+                gap: 3rem;
+                max-width: 1200px;
+                width: 100%;
                 animation: fadeInUp 0.8s ease-out;
+                align-items: flex-start;
+            }
+            
+            .error-404-main-section {
+                flex: 1;
+                text-align: center;
+                min-width: 300px;
+            }
+            
+            .error-404-divider {
+                width: 2px;
+                background: linear-gradient(
+                    to bottom,
+                    transparent 0%,
+                    var(--color-primary) 20%,
+                    var(--color-secondary) 50%,
+                    var(--color-primary) 80%,
+                    transparent 100%
+                );
+                margin: 0 1rem;
+                min-height: 400px;
+                border-radius: 1px;
+            }
+            
+            .error-404-suggestions {
+                flex: 0 0 300px;
+                text-align: left;
             }
             
             .error-404-icon {
@@ -106,15 +139,15 @@ export function showError404() {
             .error-404-actions {
                 margin: 2rem 0;
                 display: flex;
+                flex-direction: column;
                 gap: 1rem;
-                justify-content: center;
-                flex-wrap: wrap;
+                align-items: center;
             }
             
-            .btn-home, .btn-catalog {
+            .btn-main {
                 display: inline-flex;
                 align-items: center;
-                gap: 0.5rem;
+                gap: 0.8rem;
                 padding: 1rem 2rem;
                 border: 2px solid var(--color-text);
                 border-radius: 0.5rem;
@@ -123,15 +156,31 @@ export function showError404() {
                 font-weight: bold;
                 text-decoration: none;
                 cursor: pointer;
-                transition: all 0.3s ease;
+                transition: all 0.2s ease;
                 box-shadow: 3px 3px 0 var(--color-text);
+                min-width: 200px;
+                justify-content: center;
             }
             
-            .btn-home:hover, .btn-catalog:hover {
-                background-color: var(--color-primary);
-                color: var(--color-background);
+            .btn-main:hover {
+                text-decoration: none;
                 transform: translate(-2px, -2px);
                 box-shadow: 5px 5px 0 var(--color-text);
+            }
+            
+            .btn-main:active {
+                transform: translate(1px, 1px);
+                box-shadow: 2px 2px 0 var(--color-text);
+            }
+            
+            .btn-home {
+                background-color: var(--color-background);
+                color: var(--color-primary);
+            }
+            
+            .btn-home:hover {
+                background-color: var(--color-primary);
+                color: var(--color-background);
             }
             
             .btn-catalog {
@@ -143,58 +192,68 @@ export function showError404() {
                 background-color: var(--color-primary-alt);
             }
             
-            .error-404-suggestions {
-                margin-top: 3rem;
-                padding-top: 2rem;
-                border-top: 2px dashed var(--color-border);
-            }
-            
             .error-404-suggestions h3 {
                 color: var(--color-text);
                 margin-bottom: 1.5rem;
                 font-size: 1.3rem;
+                text-align: center;
             }
             
-            .suggestions-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-                gap: 1rem;
-                max-width: 500px;
-                margin: 0 auto;
-            }
-            
-            .suggestion-card {
+            .suggestions-list {
                 display: flex;
                 flex-direction: column;
+                gap: 1rem;
+                width: 100%;
+            }
+            
+            .suggestion-link {
+                display: flex;
                 align-items: center;
-                gap: 0.5rem;
-                padding: 1.5rem 1rem;
-                border: 2px solid var(--color-border);
+                gap: 1rem;
+                padding: 1rem 1.5rem;
+                border: 2px solid var(--color-text);
                 border-radius: 0.5rem;
-                background-color: rgba(255, 255, 255, 0.7);
+                background-color: var(--color-background);
                 color: var(--color-text);
                 text-decoration: none;
-                transition: all 0.3s ease;
-                backdrop-filter: blur(5px);
+                transition: all 0.2s ease;
+                box-shadow: 2px 2px 0 var(--color-text);
+                cursor: pointer;
             }
             
-            .suggestion-card:hover {
+            .suggestion-link:hover {
+                text-decoration: none;
+                transform: translate(-1px, -1px);
+                box-shadow: 3px 3px 0 var(--color-text);
+                background-color: rgba(102, 51, 204, 0.05);
                 border-color: var(--color-primary);
-                background-color: rgba(102, 51, 204, 0.1);
-                transform: translateY(-3px);
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             }
             
-            .suggestion-card i {
-                font-size: 2rem;
+            .suggestion-link:active {
+                transform: translate(1px, 1px);
+                box-shadow: 1px 1px 0 var(--color-text);
+            }
+            
+            .suggestion-link:hover span {
+                text-decoration: underline;
+            }
+            
+            .suggestion-link i {
+                font-size: 1.5rem;
                 color: var(--color-primary);
-                margin-bottom: 0.5rem;
+                min-width: 24px;
+                text-align: center;
+                transition: transform 0.2s ease;
             }
             
-            .suggestion-card span {
-                font-size: 0.9rem;
+            .suggestion-link:hover i {
+                transform: scale(1.1);
+            }
+            
+            .suggestion-link span {
+                font-size: 1rem;
                 font-weight: 600;
-                text-align: center;
+                transition: text-decoration 0.2s ease;
             }
             
             @keyframes fadeInUp {
@@ -219,6 +278,26 @@ export function showError404() {
                     min-height: calc(100vh - 120px);
                 }
                 
+                .error-404-content {
+                    flex-direction: column;
+                    gap: 2rem;
+                    max-width: 100%;
+                    padding: 0 0.5rem;
+                }
+                
+                .error-404-main-section {
+                    min-width: auto;
+                }
+                
+                .error-404-divider {
+                    display: none;
+                }
+                
+                .error-404-suggestions {
+                    flex: none;
+                    text-align: center;
+                }
+                
                 .error-404-icon .fas {
                     font-size: 3.5rem;
                 }
@@ -229,20 +308,108 @@ export function showError404() {
                 
                 .error-404-message h1 {
                     font-size: 2rem;
+                    margin-bottom: 0.8rem;
+                }
+                
+                .error-404-message p {
+                    font-size: 1rem;
+                    margin-bottom: 0.4rem;
                 }
                 
                 .error-404-actions {
-                    flex-direction: column;
-                    align-items: center;
+                    margin: 1.5rem 0;
                 }
                 
-                .suggestions-grid {
-                    grid-template-columns: repeat(2, 1fr);
+                .btn-main {
+                    width: 100%;
+                    max-width: 280px;
+                }
+                
+                .suggestions-list {
                     gap: 0.8rem;
                 }
                 
-                .suggestion-card {
-                    padding: 1rem 0.5rem;
+                .suggestion-link {
+                    padding: 0.8rem 1rem;
+                }
+                
+                .suggestion-link i {
+                    font-size: 1.3rem;
+                }
+                
+                .suggestion-link span {
+                    font-size: 0.9rem;
+                }
+            }
+            
+            @media (max-width: 480px) {
+                .error-404-container {
+                    padding: 0.8rem;
+                }
+                
+                .error-404-content {
+                    gap: 1.5rem;
+                }
+                
+                .error-404-message h1 {
+                    font-size: 1.8rem;
+                }
+                
+                .error-404-message p {
+                    font-size: 0.95rem;
+                }
+                
+                .suggestion-link {
+                    padding: 0.7rem 0.8rem;
+                    gap: 0.8rem;
+                }
+                
+                .suggestion-link i {
+                    font-size: 1.2rem;
+                }
+                
+                .suggestion-link span {
+                    font-size: 0.85rem;
+                }
+            }
+            
+            @media (min-width: 769px) and (max-width: 1024px) {
+                .error-404-content {
+                    gap: 2.5rem;
+                }
+                
+                .error-404-divider {
+                    min-height: 350px;
+                }
+                
+                .error-404-suggestions {
+                    flex: 0 0 280px;
+                }
+            }
+            
+            @media (min-width: 1025px) {
+                .error-404-content {
+                    gap: 3rem;
+                }
+                
+                .error-404-divider {
+                    min-height: 450px;
+                }
+                
+                .error-404-suggestions {
+                    flex: 0 0 320px;
+                }
+                
+                .suggestion-link {
+                    padding: 1.2rem 1.8rem;
+                }
+                
+                .suggestion-link i {
+                    font-size: 1.6rem;
+                }
+                
+                .suggestion-link span {
+                    font-size: 1.1rem;
                 }
             }
         </style>

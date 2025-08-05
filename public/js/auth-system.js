@@ -549,7 +549,10 @@ class AuthModal {
                 <!-- SEZIONE SINISTRA: CARD CON LOGO -->
                 <div class="auth-modal-left">
                     <div class="image-wrapper">
-                        <img src="assets/Logo.png" alt="Dice&Drink Logo" class="background-img" />
+                        <img src="/assets/Logo.png" 
+                             alt="Dice&Drink Logo" 
+                             class="background-img"
+                             onerror="this.style.display='none'; this.parentNode.classList.add('no-image');" />
                         <div class="overlay-text">
                             <h2 class="logo">Dice&Drink</h2>
                             <p class="caption">Identificati avventuriero!</p>
