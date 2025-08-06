@@ -231,10 +231,26 @@ class CatalogPageManager {
     }
     
     showEditingNotification() {
+        // Controlla se la notifica esiste già
+        const existingNotification = document.querySelector('.editing-notification');
+        if (existingNotification) {
+            console.log('⚠️ Notifica editing già presente, skip');
+            return;
+        }
+        
+        if (!this.editContext) {
+            console.log('⚠️ Nessun context editing, skip notifica');
+            return;
+        }
+        
         const editType = this.editContext.editType || 'prodotti';
         const bookingDate = this.editContext.bookingDate || 'N/A';
         
         setTimeout(() => {
+            // Doppio controllo per evitare race conditions
+            const existingCheck = document.querySelector('.editing-notification');
+            if (existingCheck) return;
+            
             const notification = document.createElement('div');
             notification.className = 'editing-notification';
             notification.innerHTML = `
@@ -1325,11 +1341,14 @@ createCartCategoryHTML(category, title, icon) {
     }
     
     returnToBookings() {
+        // Salva l'URL di ritorno prima di pulire il context
+        const returnUrl = this.editContext?.returnUrl || '/prenotazioni-utente';
+        
         // Pulisci il context di editing
         this.clearEditingContext();
         
         // Reindirizza alla pagina prenotazioni
-        const returnUrl = this.editContext?.returnUrl || '/prenotazioni-utente';
+        console.log('🔙 Ritorno alla pagina:', returnUrl);
         
         if (window.page) {
             window.page(returnUrl);
@@ -2252,12 +2271,18 @@ export async function showCatalog(category = 'giochi') {
     if (bookingEditContext) {
         try {
             const editContext = JSON.parse(bookingEditContext);
-            if (editContext.isEditingBooking === true) {
+            if (editContext.isEditingBooking === true && editContext.editType) {
                 console.log('📝 Modalità editing prenotazione attiva:', editContext);
                 manager.setEditingMode(editContext);
+            } else {
+                // Context non valido, rimuovilo
+                console.log('🧹 Context editing non valido, rimozione...');
+                localStorage.removeItem('bookingEditContext');
             }
         } catch (e) {
             console.warn('⚠️ Errore parsing context editing:', e);
+            // Rimuovi context corrotto
+            localStorage.removeItem('bookingEditContext');
         }
     }
 

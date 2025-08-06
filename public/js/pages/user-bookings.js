@@ -1379,6 +1379,8 @@ function showImageCropModal(file) {
         
         const reader = new FileReader();
         reader.onload = (e) => {
+            const imageData = e.target.result;
+            
             modal.innerHTML = `
                 <div class="avatar-crop-modal">
                     <div class="crop-header">
@@ -1387,7 +1389,7 @@ function showImageCropModal(file) {
                     </div>
                     <div class="crop-container">
                         <div class="crop-preview-area">
-                            <img id="crop-image" alt="Immagine da ritagliare" style="display: none;" />
+                            <img id="crop-image" alt="Immagine da ritagliare" style="max-width: 400px; max-height: 300px;" />
                             <div class="crop-overlay"></div>
                         </div>
                         <div class="crop-preview-circle">
@@ -1408,15 +1410,21 @@ function showImageCropModal(file) {
             
             document.body.appendChild(modal);
             
-            // Inizializza crop interattivo
-            setTimeout(() => initializeCrop(modal, resolve), 100);
+            // Imposta l'immagine e inizializza il crop
+            const image = modal.querySelector('#crop-image');
+            image.src = imageData;
+            
+            // Inizializza crop interattivo dopo che l'immagine è caricata
+            image.onload = () => {
+                setTimeout(() => initializeCrop(modal, resolve, imageData), 100);
+            };
         };
         
         reader.readAsDataURL(file);
     });
 }
 
-function initializeCrop(modal, resolve) {
+function initializeCrop(modal, resolve, imageData) {
     const image = modal.querySelector('#crop-image');
     const preview = modal.querySelector('#crop-preview');
     const ctx = preview.getContext('2d');
