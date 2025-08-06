@@ -201,6 +201,9 @@ class CatalogPageManager {
         this.selectedFilters = [];
 
         this.cart = this.loadCartFromStorage();
+        
+        // Validazione struttura carrello
+        this.validateCartStructure();
 
         console.log('✅ CatalogPageManager inizializzato con carrello');
         console.log('🛒 Carrello attuale:', this.cart);
@@ -275,9 +278,10 @@ class CatalogPageManager {
     }
     
     customizeCartForEditing() {
-        // Il carrello mostrerà opzioni specifiche per l'editing
-        this.cart.isEditingMode = true;
-        this.cart.editContext = this.editContext;
+        // Invece di modificare la struttura del carrello, usiamo proprietà separate
+        // per evitare di corrompere la struttura degli array
+        console.log('🔧 Personalizzazione carrello per editing');
+        // Le proprietà isEditingBooking e editContext sono già sulla classe
     }
 
     // ==========================================
@@ -327,6 +331,39 @@ class CatalogPageManager {
             drinks: [],
             snacks: []
         };
+    }
+    
+    validateCartStructure() {
+        const validCategories = ['games', 'drinks', 'snacks'];
+        
+        // Assicurati che il carrello sia un oggetto
+        if (typeof this.cart !== 'object' || this.cart === null) {
+            console.warn('⚠️ Carrello corrotto, ripristino struttura base');
+            this.cart = {
+                games: [],
+                drinks: [],
+                snacks: []
+            };
+            return;
+        }
+        
+        // Assicurati che tutte le categorie siano array
+        validCategories.forEach(category => {
+            if (!Array.isArray(this.cart[category])) {
+                console.warn(`⚠️ Categoria ${category} non è un array, ripristino`);
+                this.cart[category] = [];
+            }
+        });
+        
+        // Rimuovi proprietà non valide che possono causare errori
+        Object.keys(this.cart).forEach(key => {
+            if (!validCategories.includes(key)) {
+                console.warn(`⚠️ Rimozione proprietà non valida dal carrello: ${key}`);
+                delete this.cart[key];
+            }
+        });
+        
+        console.log('✅ Struttura carrello validata');
     }
 
     saveCartToStorage() {
@@ -435,15 +472,20 @@ class CatalogPageManager {
             }
         };
 
-        // Calcola totali per categoria
-        Object.keys(this.cart).forEach(category => {
-            this.cart[category].forEach(item => {
-                const itemTotal = item.price * item.quantity;
-                summary.totalItems += item.quantity;
-                summary.totalPrice += itemTotal;
-                summary.itemsByCategory[category].count += item.quantity;
-                summary.itemsByCategory[category].total += itemTotal;
-            });
+        // Calcola totali per categoria (solo per array validi)
+        const validCategories = ['games', 'drinks', 'snacks'];
+        validCategories.forEach(category => {
+            if (this.cart[category] && Array.isArray(this.cart[category])) {
+                this.cart[category].forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    summary.totalItems += item.quantity;
+                    summary.totalPrice += itemTotal;
+                    if (summary.itemsByCategory[category]) {
+                        summary.itemsByCategory[category].count += item.quantity;
+                        summary.itemsByCategory[category].total += itemTotal;
+                    }
+                });
+            }
         });
 
         return summary;
@@ -1120,7 +1162,7 @@ class CatalogPageManager {
     }
 createCartCategoryHTML(category, title, icon) {
         const items = this.cart[category];
-        if (!items || items.length === 0) return '';
+        if (!items || !Array.isArray(items) || items.length === 0) return '';
 
         const categoryTotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
