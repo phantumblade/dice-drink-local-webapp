@@ -221,19 +221,6 @@ class CatalogPageManager {
         
         // Personalizza l'interfaccia per l'editing
         this.customizeForEditing();
-        
-        // Forza ricreazione carrello per applicare stili editing
-        this.refreshCartForEditing();
-    }
-    
-    refreshCartForEditing() {
-        const cartBox = document.getElementById('catalog-cart-box');
-        if (cartBox && this.isAuthenticated) {
-            // Rimuovi il carrello esistente per forzare la ricreazione
-            cartBox.innerHTML = '';
-            // Aggiorna il carrello che ricreerà l'HTML con gli stili editing
-            this.updateCartUI();
-        }
     }
     
     customizeForEditing() {
@@ -1126,7 +1113,7 @@ class CatalogPageManager {
                 <div class="cart-box-header">
                     <h3 class="cart-box-title">
                         <i class="fas fa-${this.isEditingBooking ? 'edit' : 'shopping-basket'}"></i>
-                        ${this.isEditingBooking ? 'Modifica Ordine' : 'Carrello'}
+                        ${this.isEditingBooking ? `Modifica ${this.getEditTypeLabel()}` : 'Carrello'}
                         <span class="cart-box-count">(${summary.totalItems} elementi)</span>
                     </h3>
                     <button class="cart-box-toggle" onclick="window.catalogPageManager.toggleCartBox()">
@@ -1134,17 +1121,7 @@ class CatalogPageManager {
                     </button>
                 </div>
 
-                ${this.isEditingBooking ? `
-                    <div class="editing-info">
-                        <div class="editing-banner">
-                            <i class="fas fa-info-circle"></i>
-                            <span>Stai modificando una prenotazione</span>
-                        </div>
-                        <div class="editing-instructions">
-                            <p><i class="fas fa-lightbulb"></i> Aggiungi o rimuovi elementi dal carrello, poi conferma le modifiche</p>
-                        </div>
-                    </div>
-                ` : ''}
+                ${this.isEditingBooking ? this.createEditingInfoHTML() : ''}
 
                 <div class="cart-box-content">
                     <div class="cart-categories">
@@ -2830,6 +2807,44 @@ if (typeof window !== 'undefined') {
         console.log('   Ctrl+Shift+C → Debug carrello');
         console.log('   Ctrl+Shift+H → Help');
         console.log('   Ctrl+Shift+T → Test completo');
+    }
+
+    // ==========================================
+    // HELPER FUNCTIONS PER EDITING MODE
+    // ==========================================
+
+    getEditTypeLabel() {
+        if (!this.editContext) return 'Ordine';
+        
+        const categories = [];
+        if (this.editContext.games && this.editContext.games.length > 0) categories.push('Giochi');
+        if (this.editContext.drinks && this.editContext.drinks.length > 0) categories.push('Drink');
+        if (this.editContext.snacks && this.editContext.snacks.length > 0) categories.push('Snack');
+        
+        if (categories.length === 0) return 'Ordine';
+        if (categories.length === 1) return categories[0];
+        if (categories.length === 2) return categories.join(' e ');
+        return categories.slice(0, -1).join(', ') + ' e ' + categories[categories.length - 1];
+    }
+
+    createEditingInfoHTML() {
+        if (!this.editContext) return '';
+        
+        const bookingDate = this.editContext.bookingDate || 'Data non specificata';
+        const bookingId = this.editContext.bookingId || 'N/A';
+        
+        return `
+            <div class="editing-info">
+                <div class="editing-banner">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Stai modificando la prenotazione del <strong>${bookingDate}</strong></span>
+                    <small>(ID: ${bookingId})</small>
+                </div>
+                <div class="editing-instructions">
+                    <p><i class="fas fa-lightbulb"></i> Aggiungi o rimuovi elementi dal carrello, poi conferma le modifiche</p>
+                </div>
+            </div>
+        `;
     }
 }
 

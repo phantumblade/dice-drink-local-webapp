@@ -1544,6 +1544,84 @@ static async softDeleteUser(userId) {
     }
   }
 
+  static async updateBooking(confirmationCode, updates) {
+    debugLog('updateBooking called', { confirmationCode, updates });
+
+    try {
+      const db = await openDb();
+
+      // Costruisci la query di aggiornamento dinamicamente
+      const allowedFields = ['game_requests', 'drink_orders', 'snack_orders', 'special_requests', 'party_size', 'total_price'];
+      const updateFields = [];
+      const values = [];
+
+      Object.keys(updates).forEach(key => {
+        if (allowedFields.includes(key)) {
+          updateFields.push(`${key} = ?`);
+          
+          // Se è un array, convertilo in JSON
+          if (Array.isArray(updates[key])) {
+            values.push(JSON.stringify(updates[key]));
+          } else {
+            values.push(updates[key]);
+          }
+        }
+      });
+
+      if (updateFields.length === 0) {
+        throw new Error('Nessun campo valido da aggiornare');
+      }
+
+      // Aggiungi timestamp di modifica
+      updateFields.push('updated_at = ?');
+      values.push(new Date().toISOString());
+
+      // Aggiungi confirmation code per WHERE
+      values.push(confirmationCode);
+
+      const query = `
+        UPDATE user_bookings 
+        SET ${updateFields.join(', ')}
+        WHERE confirmation_code = ?
+      `;
+
+      const result = await db.run(query, values);
+
+      if (result.changes === 0) {
+        throw new Error('Prenotazione non trovata o non modificata');
+      }
+
+      // Recupera la prenotazione aggiornata
+      const updatedBooking = await db.get(
+        `SELECT b.*, u.email, u.first_name, u.last_name, u.phone
+         FROM user_bookings b
+         JOIN users u ON b.user_id = u.id
+         WHERE b.confirmation_code = ?`,
+        [confirmationCode]
+      );
+
+      await db.close();
+
+      if (updatedBooking) {
+        // Parse dei campi JSON
+        const parsedBooking = {
+          ...updatedBooking,
+          game_requests: updatedBooking.game_requests ? JSON.parse(updatedBooking.game_requests) : [],
+          drink_orders: updatedBooking.drink_orders ? JSON.parse(updatedBooking.drink_orders) : [],
+          snack_orders: updatedBooking.snack_orders ? JSON.parse(updatedBooking.snack_orders) : []
+        };
+
+        debugLog('Booking updated successfully', { confirmationCode });
+        return parsedBooking;
+      }
+
+      throw new Error('Impossibile recuperare la prenotazione aggiornata');
+
+    } catch (error) {
+      handleError('updateBooking', error);
+    }
+  }
+
   // ==========================================
   // WISHLIST E RATINGS
   // ==========================================

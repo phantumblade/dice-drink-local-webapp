@@ -1033,6 +1033,92 @@ router.get('/:userId/bookings/:confirmationCode', requireAuth, requireProfileOwn
   }
 });
 
+// PATCH /api/users/:userId/bookings/:confirmationCode - Modifica prenotazione
+router.patch('/:userId/bookings/:confirmationCode', requireAuth, requireProfileOwnership, async (req, res) => {
+  debugLog('Update booking', {
+    userId: req.params.userId,
+    confirmationCode: req.params.confirmationCode,
+    updates: Object.keys(req.body)
+  });
+
+  try {
+    const userId = parseInt(req.params.userId);
+    const confirmationCode = req.params.confirmationCode;
+    const updates = req.body;
+
+    // Verifica che la prenotazione esista e appartenga all'utente
+    const booking = await UsersDao.getBookingByConfirmationCode(confirmationCode);
+    
+    if (!booking) {
+      return res.status(404).json({
+        error: 'Prenotazione non trovata',
+        type: 'BOOKING_NOT_FOUND'
+      });
+    }
+
+    // Verifica ownership
+    if (booking.user_id !== req.user.userId && req.user.role !== 'admin' && req.user.role !== 'staff') {
+      return res.status(403).json({
+        error: 'Accesso negato',
+        message: 'Non puoi modificare questa prenotazione',
+        type: 'NOT_AUTHORIZED'
+      });
+    }
+
+    // Verifica che la prenotazione sia modificabile
+    if (booking.status === 'cancelled' || booking.status === 'completed') {
+      return res.status(400).json({
+        error: 'Prenotazione non modificabile',
+        message: 'Non puoi modificare una prenotazione cancellata o completata',
+        type: 'BOOKING_NOT_MODIFIABLE'
+      });
+    }
+
+    // Validazione campi modificabili
+    const allowedUpdates = ['game_requests', 'drink_orders', 'snack_orders', 'special_requests', 'party_size'];
+    const updateFields = Object.keys(updates).filter(key => allowedUpdates.includes(key));
+    
+    if (updateFields.length === 0) {
+      return res.status(400).json({
+        error: 'Nessun campo valido da aggiornare',
+        message: 'Campi consentiti: ' + allowedUpdates.join(', '),
+        type: 'NO_VALID_UPDATES'
+      });
+    }
+
+    // Esegui aggiornamento
+    const updatedBooking = await UsersDao.updateBooking(confirmationCode, updates);
+
+    await logSecurityEvent(req, 'booking_updated', {
+      userId,
+      bookingId: booking.id,
+      confirmationCode,
+      updatedFields: updateFields
+    });
+
+    debugLog('Booking updated successfully', {
+      userId,
+      bookingId: booking.id,
+      confirmationCode
+    });
+
+    res.json({
+      message: 'Prenotazione aggiornata con successo',
+      booking: updatedBooking,
+      success: true
+    });
+
+  } catch (error) {
+    debugLog('Update booking error', { error: error.message });
+
+    res.status(500).json({
+      error: 'Errore aggiornamento prenotazione',
+      message: 'Si è verificato un errore interno',
+      type: 'INTERNAL_ERROR'
+    });
+  }
+});
+
 // ==========================================
 // ROUTES WISHLIST
 // ==========================================

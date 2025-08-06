@@ -18,6 +18,23 @@ export async function showUserBookings() {
         }
     }
 
+    // Controlla se ci sono messaggi di ritorno dal catalogo
+    const returnMessage = localStorage.getItem('bookingReturnMessage');
+    if (returnMessage) {
+        try {
+            const message = JSON.parse(returnMessage);
+            console.log('💬 Messaggio di ritorno rilevato:', message);
+            
+            // Rimuovi il messaggio dal localStorage
+            localStorage.removeItem('bookingReturnMessage');
+            
+            // Salva il messaggio per mostrarlo dopo il render
+            window.bookingReturnMessage = message;
+        } catch (e) {
+            console.warn('⚠️ Errore parsing messaggio di ritorno:', e);
+        }
+    }
+
     // Verifica e attendi che il container #content sia disponibile
     let content = document.getElementById('content');
     let retries = 0;
@@ -162,6 +179,12 @@ export async function showUserBookings() {
             setTimeout(() => {
                 initializeBookingsInteractions();
                 initializeEditFormListeners();
+                
+                // Mostra messaggio di ritorno se presente
+                if (window.bookingReturnMessage) {
+                    showReturnMessage(window.bookingReturnMessage);
+                    window.bookingReturnMessage = null;
+                }
             }, 100);
         }
 
@@ -878,6 +901,7 @@ function redirectToCatalogForBookingEdit(type, bookingDate) {
     };
     
     localStorage.setItem('bookingEditContext', JSON.stringify(editContext));
+    console.log('💾 Salvato editContext:', editContext);
     
     // Determina la rotta del catalogo
     let catalogRoute;
@@ -3752,5 +3776,58 @@ function updateBookingDisplay(bookingCard, changes) {
                 }, 2000);
             }
         }
+    }
+}
+
+function showReturnMessage(message) {
+    console.log('💬 Mostrando messaggio di ritorno:', message);
+    
+    // Crea elemento notifica
+    const notification = document.createElement('div');
+    notification.className = 'return-message-notification';
+    notification.innerHTML = `
+        <div class="return-message-content">
+            <div class="return-message-header">
+                <i class="fas fa-check-circle"></i>
+                <h4>${message.title}</h4>
+                <button class="return-message-close" onclick="this.parentElement.parentElement.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="return-message-body">
+                <p>${message.message}</p>
+                ${message.items && message.items.length > 0 ? `
+                    <div class="return-message-items">
+                        <strong>Elementi modificati:</strong>
+                        <ul>
+                            ${message.items.map(item => `<li>${item}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+    
+    // Aggiungi al top della pagina
+    const content = document.getElementById('content') || document.getElementById('app');
+    if (content) {
+        content.insertBefore(notification, content.firstChild);
+        
+        // Anima l'entrata
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 100);
+        
+        // Auto-rimuovi dopo 8 secondi
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.classList.add('fade-out');
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 500);
+            }
+        }, 8000);
     }
 }
