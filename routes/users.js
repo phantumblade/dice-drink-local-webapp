@@ -14,11 +14,10 @@ const {
 } = require('../middleware/auth');
 
 
+
 const CONFIG = {
   DEBUG_MODE: process.env.DEBUG_MODE === 'true',
   AUDIT_LOGGING_ENABLED: process.env.FEATURE_AUDIT_LOGGING === 'true',
-  MAX_UPLOAD_SIZE: process.env.MAX_UPLOAD_SIZE || '5MB',
-  ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp'],
   FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:3000'
 };
 
@@ -84,7 +83,9 @@ function getUserPublicProfile(user) {
     isActive: user.isActive,
     emailVerified: user.emailVerified,
     createdAt: user.createdAt,
-    lastLogin: user.lastLogin
+    lastLogin: user.lastLogin,
+    profile_image: user.profile_image || user.profileImage,
+    profileImage: user.profile_image || user.profileImage
   };
 }
 
@@ -1363,6 +1364,283 @@ router.get('/:userId/audit-log', requireAuth, requireProfileOwnership, async (re
     res.status(500).json({
       error: 'Errore recupero log audit',
       type: 'INTERNAL_ERROR'
+    });
+  }
+});
+
+// ==========================================
+// ROUTES AVATAR UPLOAD
+// ==========================================
+
+
+
+
+// ==========================================
+// AVATAR PREIMPOSTATI
+// ==========================================
+
+// GET /api/users/avatars/list - Lista avatar disponibili (dinamica + configurazione)
+router.get('/avatars/list', async (req, res) => {
+  debugLog('Get available avatars');
+  
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    
+    const avatarsDir = path.join(__dirname, '../public/images/avatars/');
+    const configPath = path.join(avatarsDir, 'avatars-config.json');
+    
+    // Carica configurazione (se esiste)
+    let config = { avatars: [], defaultAvatar: 'default' };
+    if (fs.existsSync(configPath)) {
+      config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    }
+    
+    // Scansiona dinamicamente la cartella per PNG
+    const discoveredAvatars = new Map();
+    
+    if (fs.existsSync(avatarsDir)) {
+      const files = fs.readdirSync(avatarsDir);
+      const pngFiles = files.filter(file => 
+        file.toLowerCase().endsWith('.png') && 
+        !file.startsWith('.') &&
+        file !== 'avatars-config.json'
+      );
+      
+      pngFiles.forEach(filename => {
+        const id = filename.replace(/\.png$/i, '');
+        const name = id.charAt(0).toUpperCase() + id.slice(1).replace(/[_-]/g, ' ');
+        
+        discoveredAvatars.set(id, {
+          id,
+          name,
+          filename,
+          description: `Avatar ${name}`,
+          url: `/images/avatars/${filename}`,
+          source: 'discovered'
+        });
+      });
+    }
+    
+    // Unisci configurazione e discovery
+    const configAvatars = config.avatars.map(avatar => ({
+      ...avatar,
+      url: `/images/avatars/${avatar.filename}`,
+      source: 'config'
+    }));
+    
+    // Priorità: configurazione > discovery
+    const finalAvatars = new Map();
+    
+    // Aggiungi prima quelli dalla configurazione
+    configAvatars.forEach(avatar => {
+      if (fs.existsSync(path.join(avatarsDir, avatar.filename))) {
+        finalAvatars.set(avatar.id, avatar);
+      }
+    });
+    
+    // Aggiungi quelli scoperti automaticamente (se non già presenti)
+    discoveredAvatars.forEach((avatar, id) => {
+      if (!finalAvatars.has(id)) {
+        finalAvatars.set(id, avatar);
+      }
+    });
+    
+    const availableAvatars = Array.from(finalAvatars.values());
+    
+    debugLog('Avatars loaded', {
+      total: availableAvatars.length,
+      configured: configAvatars.length,
+      discovered: discoveredAvatars.size
+    });
+    
+    res.json({
+      avatars: availableAvatars,
+      defaultAvatar: config.defaultAvatar,
+      totalFound: availableAvatars.length,
+      success: true
+    });
+    
+  } catch (error) {
+    debugLog('Get avatars list error', { error: error.message });
+    
+    res.status(500).json({
+      error: 'Errore caricamento lista avatar',
+      success: false
+    });
+  }
+});
+
+// POST /api/users/:userId/avatar/select - Seleziona avatar preimpostato
+router.post('/:userId/avatar/select',
+  requireAuth,
+  requireProfileOwnership,
+  async (req, res) => {
+    debugLog('Select preset avatar', { userId: req.params.userId, avatarId: req.body.avatarId });
+    
+    try {
+      const userId = parseInt(req.params.userId);
+      const { avatarId } = req.body;
+      
+      if (!avatarId) {
+        return res.status(400).json({
+          error: 'ID avatar richiesto',
+          success: false
+        });
+      }
+      
+      // Carica lista avatar disponibili (usa stessa logica dell'API list)
+      const fs = require('fs');
+      const path = require('path');
+      
+      const avatarsDir = path.join(__dirname, '../public/images/avatars/');
+      const configPath = path.join(avatarsDir, 'avatars-config.json');
+      
+      // Carica configurazione (se esiste)
+      let config = { avatars: [], defaultAvatar: 'default' };
+      if (fs.existsSync(configPath)) {
+        config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      }
+      
+      // Scansiona dinamicamente la cartella per PNG
+      const discoveredAvatars = new Map();
+      
+      if (fs.existsSync(avatarsDir)) {
+        const files = fs.readdirSync(avatarsDir);
+        const pngFiles = files.filter(file => 
+          file.toLowerCase().endsWith('.png') && 
+          !file.startsWith('.') &&
+          file !== 'avatars-config.json'
+        );
+        
+        pngFiles.forEach(filename => {
+          const id = filename.replace(/\.png$/i, '');
+          const name = id.charAt(0).toUpperCase() + id.slice(1).replace(/[_-]/g, ' ');
+          
+          discoveredAvatars.set(id, {
+            id,
+            name,
+            filename,
+            description: `Avatar ${name}`
+          });
+        });
+      }
+      
+      // Unisci configurazione e discovery
+      const configAvatars = config.avatars || [];
+      const finalAvatars = new Map();
+      
+      // Aggiungi prima quelli dalla configurazione
+      configAvatars.forEach(avatar => {
+        if (fs.existsSync(path.join(avatarsDir, avatar.filename))) {
+          finalAvatars.set(avatar.id, avatar);
+        }
+      });
+      
+      // Aggiungi quelli scoperti automaticamente (se non già presenti)
+      discoveredAvatars.forEach((avatar, id) => {
+        if (!finalAvatars.has(id)) {
+          finalAvatars.set(id, avatar);
+        }
+      });
+      
+      // Verifica che l'avatar selezionato esista
+      const selectedAvatar = finalAvatars.get(avatarId);
+      if (!selectedAvatar) {
+        return res.status(400).json({
+          error: `Avatar '${avatarId}' non valido o file non trovato`,
+          success: false
+        });
+      }
+      
+      const avatarUrl = `/images/avatars/${selectedAvatar.filename}`;
+      
+      // Aggiorna database
+      const result = await UsersDao.updateUser(userId, { profile_image: avatarUrl });
+      
+      if (!result) {
+        throw new Error('Impossibile aggiornare profilo - utente non trovato');
+      }
+      
+      // Log dell'operazione
+      await logSecurityEvent(req, 'avatar_selected', {
+        userId,
+        avatarId,
+        avatarUrl
+      });
+      
+      debugLog('Avatar selected successfully', {
+        userId,
+        avatarId,
+        avatarUrl
+      });
+      
+      res.json({
+        message: 'Avatar aggiornato con successo',
+        avatarUrl,
+        avatarId,
+        avatarName: selectedAvatar.name,
+        success: true
+      });
+      
+    } catch (error) {
+      debugLog('Select avatar error', { 
+        error: error.message,
+        userId: req.params.userId,
+        avatarId: req.body.avatarId
+      });
+      
+      res.status(500).json({
+        error: 'Errore selezione avatar',
+        message: error.message,
+        success: false
+      });
+    }
+  }
+);
+
+// GET /api/users/:userId/avatar - Ottieni avatar corrente
+router.get('/:userId/avatar', async (req, res) => {
+  debugLog('Get user avatar', { userId: req.params.userId });
+  
+  try {
+    const userId = parseInt(req.params.userId);
+    
+    if (isNaN(userId)) {
+      return res.status(400).json({
+        error: 'ID utente non valido',
+        success: false
+      });
+    }
+    
+    // Ottieni dati utente
+    const user = await UsersDao.getUserById(userId);
+    
+    if (!user) {
+      return res.status(404).json({
+        error: 'Utente non trovato',
+        success: false
+      });
+    }
+    
+    
+    const avatarUrl = user.profileImage || '/images/avatars/default.png';
+    
+    res.json({
+      avatarUrl,
+      hasCustomAvatar: !!user.profileImage && user.profileImage !== '/images/avatars/default.png',
+      lastUpdated: user.profile_image_updated || null,
+      success: true
+    });
+    
+  } catch (error) {
+    debugLog('Get user avatar error', { error: error.message });
+    
+    res.json({
+      avatarUrl: '/images/avatars/default.svg',
+      hasCustomAvatar: false,
+      error: error.message,
+      success: false
     });
   }
 });

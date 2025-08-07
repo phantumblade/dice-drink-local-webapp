@@ -2219,7 +2219,7 @@ static async getBookingTrends(days = 7) {
       return null;
     }
   }
-
-
 }
+
 module.exports = UsersDao;
+

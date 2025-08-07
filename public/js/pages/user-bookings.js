@@ -405,7 +405,6 @@ function renderUserBookingsPage(user, stats, preferences, bookings) {
                     <button class="avatar-edit-btn" id="avatar-edit-btn" title="Cambia foto profilo">
                         <i class="fas fa-pen"></i>
                     </button>
-                    <input type="file" id="avatar-upload" accept="image/*" style="display: none;" />
                 </div>
                 <div class="user-info-grid">
                     <div class="user-info-column">
@@ -703,7 +702,17 @@ function renderBookingDetails(booking, isExpanded = false) {
 
 function initializeBookingsInteractions() {
     // Avatar upload functionality
-    initializeAvatarUpload();
+    initializeAvatarSelection();
+    
+    // Carica avatar dell'utente dal backend
+    const currentUser = window.SimpleAuth?.currentUser;
+    const userId = currentUser?.userId || currentUser?.id || currentUser?.user_id;
+    if (userId) {
+        // Carica avatar con un piccolo delay per assicurarsi che il DOM sia pronto
+        setTimeout(() => {
+            loadUserAvatar(userId);
+        }, 100);
+    }
     
     // Expand booking details inline
     document.querySelectorAll('.btn-expand-booking').forEach(btn => {
@@ -1356,314 +1365,295 @@ async function saveBookingModifications(bookingId, modal) {
 // GESTIONE AVATAR UTENTE
 // ==========================================
 
-function initializeAvatarUpload() {
-    const editBtn = document.getElementById('avatar-edit-btn');
-    const uploadInput = document.getElementById('avatar-upload');
-    
-    if (editBtn && uploadInput) {
-        editBtn.addEventListener('click', () => {
-            uploadInput.click();
-        });
-        
-        uploadInput.addEventListener('change', handleAvatarUpload);
-    }
-}
-
-async function handleAvatarUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    // Validazione file
-    if (!file.type.startsWith('image/')) {
-        showNotification('Seleziona un file immagine valido', 'error');
-        return;
-    }
-    
-    if (file.size > 5 * 1024 * 1024) { // 5MB max
-        showNotification('L\'immagine deve essere inferiore a 5MB', 'error');
-        return;
-    }
-    
+async function loadUserAvatar(userId) {
     try {
-        // Mostra preview e upload
-        const croppedBlob = await showImageCropModal(file);
-        if (croppedBlob) {
-            await uploadAvatar(croppedBlob);
+        console.log('🔄 Caricamento avatar per utente:', userId);
+        
+        const response = await fetch(`/api/users/${userId}/avatar`);
+        const result = await response.json();
+        
+        if (response.ok && result.success) {
+            console.log('✅ Avatar caricato dal backend:', result);
+            
+            const avatarContainer = document.getElementById('user-avatar');
+            if (avatarContainer) {
+                // Mostra sempre l'avatar (default o personalizzato)
+                const avatarUrl = `${result.avatarUrl}?t=${Date.now()}`;
+                avatarContainer.innerHTML = `<img src="${avatarUrl}" alt="Foto profilo" class="avatar-image" />`;
+                
+                // Aggiorna anche l'oggetto utente globale
+                if (window.SimpleAuth?.currentUser) {
+                    window.SimpleAuth.currentUser.profile_image = result.avatarUrl;
+                    window.SimpleAuth.currentUser.profileImage = result.avatarUrl;
+                }
+                
+                console.log(result.hasCustomAvatar ? '✅ Avatar personalizzato caricato' : '🖼️ Avatar default caricato');
+                console.log('🎯 Avatar URL impostato:', avatarUrl);
+            } else {
+                console.warn('⚠️ Elemento user-avatar non trovato nel DOM');
+                
+                // Retry dopo un altro delay
+                setTimeout(() => {
+                    const retryContainer = document.getElementById('user-avatar');
+                    if (retryContainer) {
+                        const avatarUrl = `${result.avatarUrl}?t=${Date.now()}`;
+                        retryContainer.innerHTML = `<img src="${avatarUrl}" alt="Foto profilo" class="avatar-image" />`;
+                        console.log('🔄 Avatar caricato al secondo tentativo');
+                    }
+                }, 500);
+            }
+        } else {
+            console.log('❌ Errore caricamento avatar, uso fallback');
+            
+            // Fallback all'avatar default
+            const avatarContainer = document.getElementById('user-avatar');
+            if (avatarContainer) {
+                avatarContainer.innerHTML = `<img src="/images/avatars/default.png?t=${Date.now()}" alt="Foto profilo" class="avatar-image" />`;
+            }
         }
+        
     } catch (error) {
-        console.error('❌ Errore upload avatar:', error);
-        showNotification('Errore durante l\'upload dell\'avatar', 'error');
+        console.error('❌ Errore caricamento avatar:', error);
+        // Fail silently - l'utente vedrà l'avatar di default
     }
 }
 
-function showImageCropModal(file) {
-    return new Promise((resolve) => {
-        const modal = document.createElement('div');
-        modal.className = 'avatar-crop-modal-overlay';
-        
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const imageData = e.target.result;
-            
-            modal.innerHTML = `
-                <div class="avatar-crop-modal">
-                    <div class="crop-header">
-                        <h2><i class="fas fa-crop"></i> Ritaglia la tua foto profilo</h2>
-                        <button class="crop-close">&times;</button>
-                    </div>
-                    <div class="crop-container">
-                        <div class="crop-preview-area">
-                            <img id="crop-image" alt="Immagine da ritagliare" style="max-width: 400px; max-height: 300px;" />
-                            <div class="crop-overlay"></div>
-                        </div>
-                        <div class="crop-preview-circle">
-                            <canvas id="crop-preview" width="150" height="150"></canvas>
-                            <p>Anteprima</p>
-                        </div>
-                    </div>
-                    <div class="crop-actions">
-                        <button class="btn-crop-cancel">
-                            <i class="fas fa-times"></i> Annulla
-                        </button>
-                        <button class="btn-crop-confirm">
-                            <i class="fas fa-check"></i> Conferma
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(modal);
-            
-            // Imposta l'immagine e inizializza il crop
-            const image = modal.querySelector('#crop-image');
-            image.src = imageData;
-            
-            // Inizializza crop interattivo dopo che l'immagine è caricata
-            image.onload = () => {
-                setTimeout(() => initializeCrop(modal, resolve, imageData), 100);
-            };
-        };
-        
-        reader.readAsDataURL(file);
-    });
-}
-
-function initializeCrop(modal, resolve, imageData) {
-    const image = modal.querySelector('#crop-image');
-    const preview = modal.querySelector('#crop-preview');
-    const ctx = preview.getContext('2d');
+function initializeAvatarSelection() {
+    const editBtn = document.getElementById('avatar-edit-btn');
     
-    let cropArea = { x: 0, y: 0, size: 200 };
-    let isDragging = false;
-    
-    image.onload = () => {
-        console.log('🖼️ Immagine caricata:', image.naturalWidth, 'x', image.naturalHeight);
-        
-        const container = image.parentElement;
-        const scale = Math.min(300 / image.naturalWidth, 300 / image.naturalHeight);
-        
-        image.style.width = image.naturalWidth * scale + 'px';
-        image.style.height = image.naturalHeight * scale + 'px';
-        image.style.display = 'block';
-        image.style.maxWidth = '100%';
-        image.style.maxHeight = '300px';
-        
-        // Aspetta che l'immagine sia renderizzata nel DOM
-        setTimeout(() => {
-            cropArea.size = Math.min(image.offsetWidth, image.offsetHeight) * 0.8;
-            cropArea.x = (image.offsetWidth - cropArea.size) / 2;
-            cropArea.y = (image.offsetHeight - cropArea.size) / 2;
-            
-            createCropOverlay();
-            updatePreview();
-        }, 100);
-    };
-    
-    function createCropOverlay() {
-        const overlay = document.createElement('div');
-        overlay.className = 'crop-overlay';
-        overlay.innerHTML = `
-            <div class="crop-selection" style="
-                left: ${cropArea.x}px;
-                top: ${cropArea.y}px;
-                width: ${cropArea.size}px;
-                height: ${cropArea.size}px;
-            ">
-                <div class="crop-handle nw"></div>
-                <div class="crop-handle ne"></div>
-                <div class="crop-handle sw"></div>
-                <div class="crop-handle se"></div>
-            </div>
-        `;
-        
-        image.parentElement.appendChild(overlay);
-        
-        // Event listeners per drag
-        const selection = overlay.querySelector('.crop-selection');
-        selection.addEventListener('mousedown', startDrag);
-        overlay.querySelectorAll('.crop-handle').forEach(handle => {
-            handle.addEventListener('mousedown', (e) => startResize(e, handle.className.split(' ')[1]));
+    if (editBtn) {
+        editBtn.addEventListener('click', () => {
+            showAvatarSelectionModal();
         });
     }
-    
-    function startDrag(e) {
-        isDragging = true;
-        const startX = e.clientX - cropArea.x;
-        const startY = e.clientY - cropArea.y;
+}
+
+// Mostra modale di selezione avatar con stile coerente
+async function showAvatarSelectionModal() {
+    try {
+        showNotification('🎨 Caricamento avatar...', 'info');
         
-        function onMouseMove(e) {
-            if (!isDragging) return;
-            
-            cropArea.x = Math.max(0, Math.min(e.clientX - startX, image.offsetWidth - cropArea.size));
-            cropArea.y = Math.max(0, Math.min(e.clientY - startY, image.offsetHeight - cropArea.size));
-            
-            updateCropSelection();
-            updatePreview();
-        }
+        // Carica lista avatar disponibili
+        const response = await fetch('/api/users/avatars/list');
+        const result = await response.json();
         
-        function onMouseUp() {
-            isDragging = false;
-            document.removeEventListener('mousemove', onMouseMove);
-            document.removeEventListener('mouseup', onMouseUp);
-        }
-        
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', onMouseUp);
-    }
-    
-    function updateCropSelection() {
-        const selection = modal.querySelector('.crop-selection');
-        selection.style.left = cropArea.x + 'px';
-        selection.style.top = cropArea.y + 'px';
-        selection.style.width = cropArea.size + 'px';
-        selection.style.height = cropArea.size + 'px';
-    }
-    
-    function updatePreview() {
-        if (!image.complete || image.naturalWidth === 0) {
-            console.log('⏳ Immagine non ancora caricata, skip preview');
+        if (!result.success) {
+            showNotification('❌ Errore caricamento avatar', 'error');
             return;
         }
         
-        const scale = image.naturalWidth / image.offsetWidth;
-        const sourceX = Math.max(0, cropArea.x * scale);
-        const sourceY = Math.max(0, cropArea.y * scale);
-        const sourceSize = Math.min(cropArea.size * scale, image.naturalWidth - sourceX, image.naturalHeight - sourceY);
+        const modal = document.createElement('div');
+        modal.className = 'avatar-selection-modal-overlay';
         
-        console.log('🎨 Update preview:', { sourceX, sourceY, sourceSize, scale });
-        
-        ctx.clearRect(0, 0, 150, 150);
-        
-        // Sfondo bianco per evitare trasparenze
-        ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, 150, 150);
-        
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(75, 75, 75, 0, Math.PI * 2);
-        ctx.clip();
-        
-        try {
-            ctx.drawImage(
-                image,
-                sourceX, sourceY, sourceSize, sourceSize,
-                0, 0, 150, 150
-            );
-        } catch (error) {
-            console.error('❌ Errore drawImage:', error);
-            // Fallback: mostra sfondo colorato
-            ctx.fillStyle = '#f0f0f0';
-            ctx.fillRect(0, 0, 150, 150);
+        // Gestione avatar vuoti
+        let avatarsContent;
+        if (!result.avatars || result.avatars.length === 0) {
+            avatarsContent = `
+                <div class="no-avatars-message">
+                    <strong>💼 Nessun avatar disponibile</strong>
+                    Per aggiungere nuovi avatar, salva le immagini PNG nella cartella:
+                    <code>public/images/avatars/</code>
+                    <br><br>
+                    Ricordati di aggiornare il file <code>avatars-config.json</code> con i nuovi avatar.
+                </div>
+            `;
+        } else {
+            avatarsContent = `
+                <div class="avatars-grid" id="avatars-grid" data-count="${result.avatars.length}">
+                    ${result.avatars.map(avatar => `
+                        <div class="avatar-option" data-avatar-id="${avatar.id}" title="${avatar.description || avatar.name}">
+                            <img src="${avatar.url}" alt="${avatar.name}" class="avatar-preview" 
+                                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+                            <div class="avatar-fallback" style="display:none;width:70px;height:70px;background:#f0f0f0;border-radius:50%;align-items:center;justify-content:center;margin-bottom:12px;font-size:24px;color:#999;">
+                                🖼️
+                            </div>
+                            <span class="avatar-name">${avatar.name}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
         }
         
-        ctx.restore();
+        modal.innerHTML = `
+            <div class="avatar-selection-modal">
+                <div class="modal-header">
+                    <h2><i class="fas fa-user-circle"></i> Scegli il tuo Avatar</h2>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <p class="modal-description">
+                        🎨 <strong>Personalizza il tuo profilo!</strong><br>
+                        ${result.avatars.length === 1 ? 
+                            'Solo avatar default disponibile. Aggiungi file PNG in <code>public/images/avatars/</code> per più opzioni!' :
+                            `Seleziona uno dei ${result.avatars.length} avatar disponibili o aggiungi i tuoi PNG nella cartella avatars.`
+                        }
+                    </p>
+                    ${avatarsContent}
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-cancel">
+                        <i class="fas fa-times"></i> Annulla
+                    </button>
+                    <button class="btn-save" ${result.avatars?.length ? 'disabled' : 'style="display:none"'}>
+                        <i class="fas fa-save"></i> Salva Avatar
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Gestione selezione avatar (solo se ci sono avatar)
+        if (result.avatars?.length > 0) {
+            let selectedAvatarId = null;
+            const saveBtn = modal.querySelector('.btn-save');
+            const avatarGrid = modal.querySelector('#avatars-grid');
+            
+            modal.querySelectorAll('.avatar-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    // Rimuovi selezione precedente
+                    modal.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+                    
+                    // Seleziona nuovo avatar con animazione
+                    option.classList.add('selected');
+                    selectedAvatarId = option.dataset.avatarId;
+                    saveBtn.disabled = false;
+                    
+                    // Feedback visivo
+                    option.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        option.style.transform = '';
+                    }, 200);
+                });
+            });
+            
+            // Salva avatar
+            saveBtn.addEventListener('click', async () => {
+                if (selectedAvatarId) {
+                    saveBtn.disabled = true;
+                    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+                    avatarGrid.classList.add('loading');
+                    
+                    const success = await selectAvatar(selectedAvatarId);
+                    if (success) {
+                        modal.remove();
+                    } else {
+                        saveBtn.disabled = false;
+                        saveBtn.innerHTML = '<i class="fas fa-save"></i> Salva Avatar';
+                        avatarGrid.classList.remove('loading');
+                    }
+                }
+            });
+        }
+        
+        // Pulsanti chiusura
+        const closeModal = () => {
+            modal.style.animation = 'fadeInOverlay 0.2s ease reverse';
+            modal.querySelector('.avatar-selection-modal').style.animation = 'modalBounceIn 0.2s ease reverse';
+            setTimeout(() => modal.remove(), 200);
+        };
+        
+        modal.querySelector('.modal-close').addEventListener('click', closeModal);
+        modal.querySelector('.btn-cancel').addEventListener('click', closeModal);
+        
+        // Chiudi con ESC
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+                document.removeEventListener('keydown', handleEscape);
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
+        
+        // Chiudi cliccando fuori
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+        
+        // Nascondi notifica di caricamento
+        setTimeout(() => {
+            const notifications = document.querySelectorAll('.notification');
+            notifications.forEach(notif => {
+                if (notif.textContent.includes('Caricamento avatar')) {
+                    notif.remove();
+                }
+            });
+        }, 1000);
+        
+    } catch (error) {
+        console.error('❌ Errore caricamento avatar:', error);
+        showNotification('Errore durante il caricamento degli avatar', 'error');
     }
-    
-    // Event listeners per i pulsanti
-    modal.querySelector('.crop-close').addEventListener('click', () => {
-        modal.remove();
-        resolve(null);
-    });
-    
-    modal.querySelector('.btn-crop-cancel').addEventListener('click', () => {
-        modal.remove();
-        resolve(null);
-    });
-    
-    modal.querySelector('.btn-crop-confirm').addEventListener('click', () => {
-        preview.toBlob((blob) => {
-            modal.remove();
-            resolve(blob);
-        }, 'image/jpeg', 0.9);
-    });
 }
 
-async function uploadAvatar(blob) {
+// Seleziona avatar preimpostato con feedback migliorato
+async function selectAvatar(avatarId) {
     const currentUser = window.SimpleAuth?.currentUser;
     const userId = currentUser?.userId || currentUser?.id || currentUser?.user_id;
     
     if (!userId) {
-        showNotification('Errore: utente non identificato', 'error');
-        return;
+        showNotification('❌ Errore: utente non identificato', 'error');
+        return false;
     }
     
     try {
-        showNotification('Caricamento foto profilo...', 'info');
-        
-        // Converte il blob in data URL per storage locale temporaneo
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const dataUrl = e.target.result;
-            
-            // Salva temporaneamente in localStorage (in attesa del backend)
-            localStorage.setItem(`user_avatar_${userId}`, dataUrl);
-            
-            // Aggiorna l'avatar nella pagina
-            const avatarContainer = document.getElementById('user-avatar');
-            if (avatarContainer) {
-                avatarContainer.innerHTML = `<img src="${dataUrl}" alt="Foto profilo" class="avatar-image" />`;
-            }
-            
-            // Aggiorna anche l'oggetto utente
-            if (window.SimpleAuth?.currentUser) {
-                window.SimpleAuth.currentUser.profile_picture = dataUrl;
-            }
-            
-            showNotification('Foto profilo aggiornata con successo! (Temporaneo - implementazione backend in corso)', 'success');
-        };
-        
-        reader.readAsDataURL(blob);
-        
-        // TODO: Implementare chiamata API reale quando il backend sarà pronto
-        /*
-        const formData = new FormData();
-        formData.append('avatar', blob, 'avatar.jpg');
-        
         const token = localStorage.getItem('authToken');
+        if (!token) {
+            showNotification('❌ Devi essere autenticato per modificare l\'avatar', 'error');
+            return false;
+        }
         
-        const response = await fetch(`/api/users/${userId}/avatar`, {
+        console.log('📤 Selezionando avatar:', avatarId, 'per utente:', userId);
+        
+        const response = await fetch(`/api/users/${userId}/avatar/select`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
             },
-            body: formData
+            body: JSON.stringify({ avatarId })
         });
         
-        if (response.ok) {
-            const result = await response.json();
-            // ... gestione response
+        const result = await response.json();
+        console.log('📝 Risposta server:', result);
+        
+        if (response.ok && result.success) {
+            // Aggiorna avatar nell'interfaccia con animazione
+            const avatarContainer = document.getElementById('user-avatar');
+            if (avatarContainer) {
+                const newAvatarUrl = `${result.avatarUrl}?t=${Date.now()}`;
+                
+                // Animazione di fade
+                avatarContainer.style.opacity = '0.3';
+                setTimeout(() => {
+                    avatarContainer.innerHTML = `<img src="${newAvatarUrl}" alt="Foto profilo" class="avatar-image" />`;
+                    avatarContainer.style.opacity = '1';
+                }, 300);
+            }
+            
+            // Aggiorna oggetto utente globale
+            if (window.SimpleAuth?.currentUser) {
+                window.SimpleAuth.currentUser.profile_image = result.avatarUrl;
+                window.SimpleAuth.currentUser.profileImage = result.avatarUrl;
+            }
+            
+            showNotification(`✨ Avatar "${result.avatarName}" selezionato con successo!`, 'success');
+            return true;
+            
+        } else {
+            console.error('❌ Errore selezione avatar:', result);
+            showNotification(result.message || '❌ Errore durante la selezione dell\'avatar', 'error');
+            return false;
         }
-        */
         
     } catch (error) {
-        console.error('❌ Errore upload avatar:', error);
-        showNotification('Errore durante l\'upload della foto profilo', 'error');
+        console.error('❌ Errore selezione avatar:', error);
+        showNotification('❌ Errore di connessione durante la selezione dell\'avatar', 'error');
+        return false;
     }
 }
-
-// ==========================================
-// MODIFICA E CANCELLAZIONE PRENOTAZIONI
-// ==========================================
 
 function showCancelBookingModal(bookingId) {
     console.log(`🗑️ Richiesta cancellazione prenotazione ${bookingId}`);
@@ -1939,12 +1929,17 @@ async function cancelBookingRequest(bookingId) {
 
 function getAvatarHTML(user) {
     const userId = user?.userId || user?.id || user?.user_id;
-    const savedAvatar = userId ? localStorage.getItem(`user_avatar_${userId}`) : null;
     
-    if (savedAvatar) {
-        return `<img src="${savedAvatar}" alt="Foto profilo" class="avatar-image" />`;
+    // Priorità: 1) profile_image dal backend 2) profile_picture 3) default avatar
+    if (user.profile_image) {
+        const avatarUrl = `${user.profile_image}?t=${Date.now()}`;
+        return `<img src="${avatarUrl}" alt="Foto profilo" class="avatar-image" />`;
+    } else if (user.profileImage) {
+        const avatarUrl = `${user.profileImage}?t=${Date.now()}`;
+        return `<img src="${avatarUrl}" alt="Foto profilo" class="avatar-image" />`;
     } else if (user.profile_picture) {
-        return `<img src="${user.profile_picture}" alt="Foto profilo" class="avatar-image" />`;
+        const avatarUrl = `${user.profile_picture}?t=${Date.now()}`;
+        return `<img src="${avatarUrl}" alt="Foto profilo" class="avatar-image" />`;
     } else {
         return `<i class="fas fa-user-circle default-avatar"></i>`;
     }
