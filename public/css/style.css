@@ -61,12 +61,34 @@ a:hover {
   flex-wrap: nowrap;
 }
 
+/* Layout principale navbar */
+.navbar-main-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
 /* Tre contenitori */
 .navbar-left,
 .navbar-center,
 .navbar-right {
   display: flex;
   align-items: center;
+}
+
+.navbar-left {
+  flex: 0 0 auto;
+}
+
+.navbar-center {
+  flex: 1 1 auto;
+  justify-content: center;
+}
+
+.navbar-right {
+  flex: 0 0 auto;
 }
 
 .navbar-links {
@@ -7212,4 +7234,1175 @@ line-height: 1.4;
     font-family: monospace;
     font-weight: bold;
     color: var(--color-primary);
+}
+
+/* ==========================================
+   DASHBOARD MODERNIZZATO - COERENZA CON PRENOTAZIONI
+   ========================================== */
+
+.dash-page {
+    min-height: calc(100vh - 160px);
+    padding: 2rem;
+    background: var(--color-background);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.dash-container {
+    width: 100%;
+}
+
+/* Header dashboard IDENTICO alle prenotazioni - stili copiati esatti */
+.user-header-section {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    border: 2px solid var(--color-text);
+}
+
+.user-avatar-container {
+    position: relative;
+    display: inline-block;
+}
+
+.user-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(102, 51, 204, 0.1);
+    border: 3px solid var(--color-primary);
+    position: relative;
+}
+
+.user-avatar .default-avatar {
+    font-size: 4rem;
+    color: var(--color-primary);
+}
+
+.user-avatar .avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.avatar-edit-btn {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: var(--color-secondary);
+    color: white;
+    border: 2px solid white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.avatar-edit-btn:hover {
+    background: var(--color-primary);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.user-info-grid {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.user-info-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+}
+
+.info-label {
+    font-size: 0.85rem;
+    color: var(--color-text);
+    opacity: 0.7;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.user-info-separator {
+    width: 1px;
+    height: 40px;
+    background: var(--color-border);
+    opacity: 0.5;
+}
+
+/* Modifica profilo dashboard */
+.user-header-section .info-value {
+    cursor: pointer;
+    position: relative;
+    padding-right: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.user-header-section .info-value:hover {
+    background: rgba(102, 51, 204, 0.1);
+    border-radius: 4px;
+    padding: 0.2rem 1.5rem 0.2rem 0.3rem;
+}
+
+.edit-icon {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    color: var(--color-primary);
+    font-size: 0.8rem;
+}
+
+.info-value:hover .edit-icon {
+    opacity: 1;
+}
+
+/* ==========================================
+   STILI DASHBOARD MENU LATERALE E SEZIONI
+   ========================================== */
+
+/* Scroll behavior fluido globale per il dashboard */
+.dash-page {
+    scroll-behavior: smooth;
+}
+
+html:has(.dash-page) {
+    scroll-behavior: smooth;
+}
+
+.dash-grid {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 2rem;
+    margin-top: 0;
+}
+
+.dash-sidebar {
+    background: white;
+    border: 2px solid var(--color-text);
+    border-radius: 16px;
+    padding: 1.5rem;
+    height: fit-content;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 2rem;
+}
+
+.dash-sidebar-title {
+    font-weight: bold;
+    color: var(--color-text);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    border-bottom: 2px solid rgba(102, 51, 204, 0.1);
+    padding-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dash-sidebar-title i {
+    color: var(--color-primary);
+}
+
+.dash-sidebar-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dash-sidebar-nav li {
+    margin-bottom: 0.5rem;
+}
+
+.dash-sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.8rem 1rem;
+    color: var(--color-text);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    border: 2px solid transparent;
+}
+
+.dash-sidebar-nav a:hover {
+    background: rgba(102, 51, 204, 0.1);
+    border-color: rgba(102, 51, 204, 0.2);
+    transform: translateX(4px);
+}
+
+.dash-sidebar-nav a.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-text);
+    box-shadow: 0 2px 8px rgba(102, 51, 204, 0.3);
+}
+
+.dash-sidebar-nav a i {
+    width: 20px;
+    text-align: center;
+    color: currentColor;
+}
+
+/* Enhanced Sidebar Styles */
+.dash-nav-item {
+    position: relative;
+    margin-bottom: 0.3rem;
+}
+
+.dash-nav-link.main-link {
+    justify-content: space-between;
+    position: relative;
+}
+
+.nav-link-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.nav-chevron {
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+    color: var(--color-primary);
+}
+
+.dash-nav-item.active .nav-chevron {
+    transform: rotate(180deg);
+}
+
+/* Sublinks Styles */
+.dash-sublinks {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-top: 0.5rem;
+    margin-left: 1rem;
+    border-left: 2px solid rgba(102, 51, 204, 0.2);
+    padding-left: 1rem;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.dash-nav-item.active .dash-sublinks,
+.dash-nav-item:hover .dash-sublinks {
+    max-height: 200px;
+    opacity: 1;
+}
+
+.dash-sublinks li {
+    margin-bottom: 0.2rem;
+}
+
+.dash-nav-link.sub-link {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.9rem;
+    color: rgba(102, 51, 204, 0.8);
+    border: 1px solid transparent;
+    margin-left: 0;
+    border-radius: 6px;
+}
+
+.dash-nav-link.sub-link:hover {
+    background: rgba(102, 51, 204, 0.08);
+    color: var(--color-primary);
+    transform: translateX(2px);
+    border-color: rgba(102, 51, 204, 0.2);
+}
+
+.dash-nav-link.sub-link i {
+    width: 12px;
+    font-size: 0.8rem;
+}
+
+/* Quick Actions Section */
+.dash-sidebar-section.dash-quick-actions {
+    margin-top: 2rem;
+    border-top: 2px solid rgba(102, 51, 204, 0.1);
+    padding-top: 1.5rem;
+}
+
+.quick-action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.quick-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 1rem;
+    background: rgba(102, 51, 204, 0.05);
+    border: 2px solid rgba(102, 51, 204, 0.1);
+    border-radius: 8px;
+    color: var(--color-text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.quick-btn:hover {
+    background: rgba(102, 51, 204, 0.1);
+    border-color: rgba(102, 51, 204, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(102, 51, 204, 0.15);
+}
+
+.quick-btn i {
+    width: 16px;
+    text-align: center;
+    color: var(--color-primary);
+}
+
+/* ==========================================
+   CONFIRMATION MODAL STYLES
+   ========================================== */
+
+.confirmation-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.confirmation-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.confirmation-overlay {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.confirmation-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 100%;
+    border: 2px solid var(--color-text);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.confirmation-modal.show .confirmation-container {
+    transform: scale(1);
+}
+
+.confirmation-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem 2rem 1rem 2rem;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.confirmation-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.confirmation-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: var(--color-text);
+    flex: 1;
+}
+
+.confirmation-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #999;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.confirmation-close:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+.confirmation-body {
+    padding: 1.5rem 2rem;
+}
+
+.confirmation-body p {
+    margin: 0 0 1rem 0;
+    color: #666;
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+.confirmation-input-group {
+    margin-top: 1.5rem;
+}
+
+.confirmation-input-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--color-text);
+    font-size: 0.9rem;
+}
+
+.confirmation-input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.confirmation-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(102, 51, 204, 0.1);
+}
+
+.confirmation-actions {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 2rem 1.5rem 2rem;
+    justify-content: flex-end;
+}
+
+.btn-confirmation-cancel,
+.btn-confirmation-confirm {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.btn-confirmation-cancel {
+    background: white;
+    color: #666;
+    border-color: #ddd;
+}
+
+.btn-confirmation-cancel:hover {
+    background: #f8f9fa;
+    border-color: #999;
+    color: #333;
+}
+
+.btn-confirmation-confirm {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+.btn-confirmation-confirm:hover {
+    background: var(--color-secondary);
+    border-color: var(--color-secondary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 51, 204, 0.3);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .confirmation-overlay {
+        padding: 1rem;
+    }
+    
+    .confirmation-header,
+    .confirmation-body,
+    .confirmation-actions {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+    
+    .confirmation-actions {
+        flex-direction: column;
+    }
+    
+    .btn-confirmation-cancel,
+    .btn-confirmation-confirm {
+        justify-content: center;
+    }
+}
+
+.dash-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.dash-card {
+    background: white;
+    border: 2px solid var(--color-text);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.dash-card-header {
+    background: var(--color-background);
+    padding: 1.5rem 2rem;
+    border-bottom: 2px solid var(--color-text);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.dash-card-title {
+    color: var(--color-text);
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.dash-card-icon {
+    color: var(--color-primary);
+    font-size: 1.1em;
+}
+
+@media (max-width: 1024px) {
+    .dash-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .dash-sidebar {
+        position: relative;
+        top: auto;
+    }
+
+    .dash-sidebar-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .dash-sidebar-nav li {
+        margin-bottom: 0;
+        flex: 1;
+        min-width: 140px;
+    }
+
+    .dash-sidebar-nav a {
+        justify-content: center;
+        text-align: center;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .dash-page {
+        padding: 1rem;
+    }
+
+    /* Header responsivo identico alle prenotazioni */
+    .user-header-section {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .user-info-grid {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .user-info-separator {
+        width: 60%;
+        height: 1px;
+    }
+}
+
+/* ==========================================
+   SEZIONE PRENOTAZIONI COMPATTA
+   ========================================== */
+
+.compact-bookings-section {
+    max-width: 100%;
+}
+
+.bookings-header-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.compact-bookings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.compact-booking-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border: 2px solid var(--color-text);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.compact-booking-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.booking-date-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: white;
+    border-radius: 10px;
+    min-width: 60px;
+    padding: 0.5rem;
+    font-weight: bold;
+    border: 2px solid var(--color-text);
+}
+
+.booking-day {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.booking-month {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    opacity: 0.9;
+}
+
+.booking-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.booking-title {
+    font-weight: 600;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.booking-title i {
+    color: var(--color-primary);
+}
+
+.compact-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 2px solid transparent;
+}
+
+.compact-status-badge.status-confirmed {
+    background: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
+}
+
+.compact-status-badge.status-pending {
+    background: #fff3cd;
+    color: #856404;
+    border-color: #ffeaa7;
+}
+
+.compact-status-badge.status-cancelled {
+    background: #f8d7da;
+    color: #721c24;
+    border-color: #f5c6cb;
+}
+
+.compact-status-badge.status-completed {
+    background: #cce5ff;
+    color: #004085;
+    border-color: #b3d7ff;
+}
+
+.booking-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.compact-action-btn {
+    padding: 0.5rem;
+    background: var(--color-background);
+    color: var(--color-primary);
+    border: 2px solid var(--color-text);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.compact-action-btn:hover {
+    background: var(--color-primary);
+    color: white;
+    transform: scale(1.1);
+}
+
+.no-bookings-message {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border: 2px dashed var(--color-text);
+    border-radius: 12px;
+    color: var(--color-text);
+}
+
+.no-bookings-message i {
+    font-size: 3rem;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+    opacity: 0.7;
+}
+
+.no-bookings-message h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--color-text);
+}
+
+.no-bookings-message p {
+    margin: 0 0 1.5rem 0;
+    color: var(--color-text);
+    opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+    .compact-booking-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.8rem;
+    }
+
+    .booking-date-info {
+        min-width: auto;
+        flex-direction: row;
+        gap: 0.5rem;
+    }
+
+    .bookings-header-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+    }
+
+    .bookings-header-actions button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ==========================================
+   MODAL MODIFICA PROFILO
+   ========================================== */
+
+.edit-field-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.edit-field-modal.show {
+    opacity: 1;
+}
+
+.edit-field-overlay {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.edit-field-container {
+    background: white;
+    border-radius: 16px;
+    border: 2px solid var(--color-text);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.edit-field-header {
+    background: var(--color-background);
+    padding: 1.5rem 2rem;
+    border-bottom: 2px solid var(--color-text);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.edit-field-header h3 {
+    color: var(--color-text);
+    margin: 0;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.edit-field-header h3 i {
+    color: var(--color-primary);
+}
+
+.edit-field-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--color-text);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.edit-field-close:hover {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+}
+
+.edit-field-body {
+    padding: 2rem;
+}
+
+.edit-field-warning {
+    background: rgba(255, 193, 7, 0.1);
+    border: 2px solid #ffc107;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.edit-field-warning i {
+    color: #ffc107;
+    font-size: 1.2rem;
+    margin-top: 0.2rem;
+}
+
+.edit-field-warning p {
+    margin: 0;
+    color: var(--color-text);
+    line-height: 1.5;
+}
+
+.edit-field-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.edit-field-label {
+    font-weight: 600;
+    color: var(--color-text);
+    font-size: 1.1rem;
+}
+
+.edit-field-input {
+    padding: 1rem 1.5rem;
+    border: 2px solid var(--color-text);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: white;
+    color: var(--color-text);
+}
+
+.edit-field-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(102, 51, 204, 0.1);
+}
+
+.edit-field-help {
+    font-size: 0.9rem;
+    color: var(--color-text);
+    opacity: 0.7;
+    line-height: 1.4;
+}
+
+.edit-field-error {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border: 2px solid #e74c3c;
+    border-radius: 6px;
+    padding: 0.8rem 1rem;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.edit-field-actions {
+    padding: 1.5rem 2rem;
+    border-top: 2px solid var(--color-border);
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.btn-cancel, .btn-save {
+    padding: 0.8rem 1.5rem;
+    border: 2px solid var(--color-text);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-cancel {
+    background: var(--color-background);
+    color: var(--color-text);
+}
+
+.btn-cancel:hover {
+    background: #e74c3c;
+    color: white;
+    border-color: #e74c3c;
+}
+
+.btn-save {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+.btn-save:hover {
+    background: var(--color-primary-alt);
+    border-color: var(--color-primary-alt);
+    transform: translateY(-1px);
+}
+
+.btn-save:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ==========================================
+   NOTIFICHE AGGIORNAMENTO PROFILO
+   ========================================== */
+
+.profile-update-notification {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    z-index: 9999;
+    max-width: 400px;
+    transform: translateX(100%);
+    transition: transform 0.4s ease;
+}
+
+.profile-update-notification.show {
+    transform: translateX(0);
+}
+
+.profile-update-notification.hide {
+    transform: translateX(100%);
+}
+
+.profile-notification-content {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 2px solid var(--color-text);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+}
+
+.profile-notification-icon {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.profile-notification-text {
+    flex: 1;
+}
+
+.profile-notification-title {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+}
+
+.profile-notification-subtitle {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    line-height: 1.3;
+}
+
+.profile-notification-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.3rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+}
+
+.profile-notification-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 768px) {
+    .edit-field-overlay {
+        padding: 1rem;
+    }
+    
+    .edit-field-actions {
+        flex-direction: column;
+    }
+    
+    .profile-update-notification {
+        top: 1rem;
+        right: 1rem;
+        left: 1rem;
+        max-width: none;
+    }
 }

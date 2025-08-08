@@ -160,6 +160,11 @@ class DashboardPageManager {
                 hasPreferences: !!this.dashboardData.preferences
             });
 
+            // Carica avatar utente dopo il rendering della dashboard
+            setTimeout(() => {
+                this.loadUserAvatar(userInfo.userId);
+            }, 500);
+
             return this.dashboardData;
 
         } catch (error) {
@@ -229,9 +234,11 @@ class DashboardPageManager {
         const { user, role, stats } = this.dashboardData;
 
         return `
-            <div class="dash-container">
-                ${this.createDashboardHeaderHTML(user, role)}
-                ${this.createDashboardGridHTML()}
+            <div class="dash-page">
+                <div class="dash-container">
+                    ${this.createDashboardHeaderHTML(user, role)}
+                    ${this.createDashboardGridHTML()}
+                </div>
             </div>
         `;
     }
@@ -257,17 +264,52 @@ class DashboardPageManager {
             : user.email;
 
         return `
-            <div class="dash-header">
-                <div class="dash-user-avatar">${this.getInitials(displayName)}</div>
-                <div class="dash-user-info">
-                    <h1>
-                        ${displayName}
-                        <span class="dash-role-badge ${role}">${roleLabels[role] || role}</span>
-                    </h1>
-                    <div class="dash-user-meta">
-                        <span><i class="fas fa-envelope"></i>${user.email}</span>
-                        <span><i class="fas fa-calendar-plus"></i>Registrato: ${this.formatDate(user.createdAt)}</span>
-                        ${user.phone ? `<span><i class="fas fa-phone"></i>${user.phone}</span>` : ''}
+            <!-- Header Utente -->
+            <div class="user-header-section">
+                <div class="user-avatar-container">
+                    <div class="user-avatar" id="dash-user-avatar-container">
+                        ${this.createAvatarHTML(user, displayName)}
+                    </div>
+                    <button class="avatar-edit-btn" id="avatar-edit-btn" title="Cambia foto profilo" onclick="window.dashboardManager.openAvatarModal()">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                </div>
+                <div class="user-info-grid">
+                    <div class="user-info-column">
+                        <div class="info-label">Nome</div>
+                        <div class="info-value" id="user-name-display" onclick="window.dashboardManager.editField('name')" title="Clicca per modificare">
+                            ${displayName}
+                            <i class="fas fa-pen edit-icon"></i>
+                        </div>
+                    </div>
+                    <div class="user-info-separator"></div>
+                    <div class="user-info-column">
+                        <div class="info-label">Email</div>
+                        <div class="info-value" id="user-email-display" onclick="window.dashboardManager.editField('email')" title="Clicca per modificare">
+                            ${user.email}
+                            <i class="fas fa-pen edit-icon"></i>
+                        </div>
+                    </div>
+                    <div class="user-info-separator"></div>
+                    <div class="user-info-column">
+                        <div class="info-label">Ruolo</div>
+                        <div class="info-value">
+                            <i class="fas fa-shield-alt"></i>
+                            ${roleLabels[role] || role}
+                        </div>
+                    </div>
+                    <div class="user-info-separator"></div>
+                    <div class="user-info-column">
+                        <div class="info-label">Telefono</div>
+                        <div class="info-value" id="user-phone-display" onclick="window.dashboardManager.editField('phone')" title="Clicca per modificare">
+                            ${user.phone || '<span style="opacity: 0.6; font-style: italic;">Non inserito</span>'}
+                            <i class="fas fa-pen edit-icon"></i>
+                        </div>
+                    </div>
+                    <div class="user-info-separator"></div>
+                    <div class="user-info-column">
+                        <div class="info-label">Membro dal</div>
+                        <div class="info-value">${this.formatDate(user.createdAt)}</div>
                     </div>
                 </div>
             </div>
@@ -281,7 +323,6 @@ class DashboardPageManager {
             <div class="dash-grid">
                 ${this.createSidebarHTML(role)}
                 <div class="dash-main">
-                    ${this.createProfileSectionHTML()}
                     ${role === 'customer' ? this.createCustomerSectionsHTML() : ''}
                     ${role === 'staff' ? this.createStaffSectionsHTML() : ''}
                     ${role === 'admin' ? this.createAdminSectionsHTML() : ''}
@@ -293,22 +334,73 @@ class DashboardPageManager {
     createSidebarHTML(role) {
         const sections = {
             customer: [
-                { icon: 'fas fa-tachometer-alt', text: 'Dashboard', id: 'dashboard', active: true },
-                { icon: 'fas fa-user', text: 'Il Mio Profilo', id: 'profile' },
-                { icon: 'fas fa-heart', text: 'Preferenze', id: 'preferences' },
-                { icon: 'fas fa-calendar-alt', text: 'Prenotazioni', id: 'bookings' },
+                { 
+                    icon: 'fas fa-home', 
+                    text: 'Panoramica', 
+                    id: 'dashboard', 
+                    active: true,
+                    description: 'Riepilogo generale account'
+                },
+                { 
+                    icon: 'fas fa-calendar-check', 
+                    text: 'Le Tue Prenotazioni', 
+                    id: 'bookings',
+                    description: 'Gestisci prenotazioni attive'
+                },
+                { 
+                    icon: 'fas fa-heart', 
+                    text: 'Preferenze Personali', 
+                    id: 'preferences',
+                    description: 'Personalizza la tua esperienza'
+                }
             ],
             staff: [
-                { icon: 'fas fa-tachometer-alt', text: 'Dashboard', id: 'dashboard', active: true },
-                { icon: 'fas fa-user', text: 'Profilo Staff', id: 'profile' },
-                { icon: 'fas fa-clipboard-list', text: 'Gestione Prenotazioni', id: 'manage-bookings' },
-                { icon: 'fas fa-users', text: 'Lista Utenti', id: 'user-list' }
+                { 
+                    icon: 'fas fa-tachometer-alt', 
+                    text: 'Dashboard Staff', 
+                    id: 'dashboard', 
+                    active: true,
+                    description: 'Pannello controllo staff'
+                },
+                { 
+                    icon: 'fas fa-clipboard-list', 
+                    text: 'Gestione Prenotazioni', 
+                    id: 'manage-bookings',
+                    description: 'Amministra prenotazioni clienti'
+                },
+                { 
+                    icon: 'fas fa-users', 
+                    text: 'Clienti Registrati', 
+                    id: 'user-list',
+                    description: 'Visualizza clienti registrati'
+                }
             ],
             admin: [
-                { icon: 'fas fa-tachometer-alt', text: 'Dashboard', id: 'dashboard', active: true },
-                { icon: 'fas fa-user', text: 'Profilo Admin', id: 'profile' },
-                { icon: 'fas fa-chart-pie', text: 'Dashboard Sistema', id: 'system-dashboard' },
-                { icon: 'fas fa-user-plus', text: 'Gestisci Utenti', id: 'manage-users' },
+                { 
+                    icon: 'fas fa-crown', 
+                    text: 'Dashboard Admin', 
+                    id: 'dashboard', 
+                    active: true,
+                    description: 'Controllo amministratore'
+                },
+                { 
+                    icon: 'fas fa-chart-line', 
+                    text: 'Sistema & Analytics', 
+                    id: 'system-dashboard',
+                    description: 'Monitoraggio sistema e inventario'
+                },
+                { 
+                    icon: 'fas fa-calendar-alt', 
+                    text: 'Gestione Prenotazioni', 
+                    id: 'manage-bookings',
+                    description: 'Controllo completo prenotazioni'
+                },
+                { 
+                    icon: 'fas fa-users-cog', 
+                    text: 'Gestione Utenti', 
+                    id: 'manage-users',
+                    description: 'Amministrazione utenti sistema'
+                }
             ]
         };
 
@@ -318,63 +410,52 @@ class DashboardPageManager {
             <div class="dash-sidebar">
                 <nav>
                     <div class="dash-sidebar-section">
-                        <div class="dash-sidebar-title">Menu</div>
+                        <div class="dash-sidebar-title">
+                            <i class="fas fa-bars"></i>
+                            Menu Navigazione
+                        </div>
                         <ul class="dash-sidebar-nav">
                             ${menuItems.map(item => `
-                                <li>
-                                    <a href="#${item.id}" class="${item.active ? 'active' : ''}"
-                                       onclick="window.dashboardManager.scrollToSection('${item.id}')">
-                                        <i class="${item.icon}"></i>${item.text}
+                                <li class="dash-nav-item ${item.active ? 'active' : ''}">
+                                    <a href="#${item.id}" class="dash-nav-link main-link ${item.active ? 'active' : ''}"
+                                       onclick="window.dashboardManager.scrollToSection('${item.id}')"
+                                       title="${item.description || item.text}">
+                                        <div class="nav-link-content">
+                                            <i class="${item.icon}"></i>
+                                            <span class="nav-text">${item.text}</span>
+                                        </div>
                                     </a>
                                 </li>
                             `).join('')}
                         </ul>
+                    </div>
+                    
+                    <!-- Azioni rapide -->
+                    <div class="dash-sidebar-section dash-quick-actions">
+                        <div class="dash-sidebar-title">
+                            <i class="fas fa-bolt"></i>
+                            Azioni Rapide
+                        </div>
+                        <div class="quick-action-buttons">
+                            <button class="quick-btn" onclick="window.dashboardManager.savePreferences()" title="Salva Preferenze">
+                                <i class="fas fa-save"></i>
+                                <span>Salva</span>
+                            </button>
+                            <button class="quick-btn" onclick="window.dashboardManager.refreshDashboard()" title="Aggiorna Dashboard">
+                                <i class="fas fa-sync-alt"></i>
+                                <span>Aggiorna</span>
+                            </button>
+                            <button class="quick-btn" onclick="window.dashboardManager.logout()" title="Logout">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Esci</span>
+                            </button>
+                        </div>
                     </div>
                 </nav>
             </div>
         `;
     }
 
-    createProfileSectionHTML() {
-        const { user, role } = this.dashboardData;
-
-        return `
-            <div class="dash-card" id="profile">
-                <div class="dash-card-header">
-                    <h2 class="dash-card-title">
-                        <i class="fas fa-user-edit dash-card-icon"></i>
-                        ${role === 'customer' ? 'Modifica Profilo' :
-                          role === 'staff' ? 'Profilo Staff' : 'Profilo Admin'}
-                    </h2>
-                    <button class="dash-btn dash-btn-primary" onclick="window.dashboardManager.saveProfile()">
-                        Salva Modifiche
-                    </button>
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
-                    <div class="dash-form-group">
-                        <label class="dash-form-label">Nome</label>
-                        <input type="text" class="dash-form-control" id="profile-firstname"
-                               value="${user.firstName || ''}" placeholder="Il tuo nome">
-                    </div>
-                    <div class="dash-form-group">
-                        <label class="dash-form-label">Cognome</label>
-                        <input type="text" class="dash-form-control" id="profile-lastname"
-                               value="${user.lastName || ''}" placeholder="Il tuo cognome">
-                    </div>
-                    <div class="dash-form-group">
-                        <label class="dash-form-label">Email</label>
-                        <input type="email" class="dash-form-control" id="profile-email"
-                               value="${user.email || ''}" placeholder="La tua email">
-                    </div>
-                    <div class="dash-form-group">
-                        <label class="dash-form-label">Telefono</label>
-                        <input type="tel" class="dash-form-control" id="profile-phone"
-                               value="${user.phone || ''}" placeholder="Il tuo telefono">
-                    </div>
-                </div>
-            </div>
-        `;
-    }
 
     createCustomerSectionsHTML() {
         return `
@@ -393,7 +474,7 @@ createStaffSectionsHTML() {
             <div class="dash-card dash-staff-section" id="manage-bookings">
                 <div class="dash-card-header">
                     <h2 class="dash-card-title">
-                        <i class="fas fa-clipboard-list dash-card-icon"></i>
+                        <i class="fas fa-clipboard dash-card-icon"></i>
                         Gestione Prenotazioni
                     </h2>
                     <div class="staff-section-controls">
@@ -405,7 +486,7 @@ createStaffSectionsHTML() {
                             <option value="cancelled">Annullate</option>
                         </select>
                         <button class="dash-btn dash-btn-secondary" onclick="window.dashboardManager.refreshBookings()">
-                            <i class="fas fa-sync-alt"></i>
+                            <i class="fas fa-rotate"></i>
                             Aggiorna
                         </button>
                     </div>
@@ -560,7 +641,7 @@ async renderStaffBookings(status = 'pending') {
             container.innerHTML = `
                 <div class="no-bookings-staff">
                     <div class="no-bookings-icon">
-                        <i class="fas fa-calendar-check"></i>
+                        <i class="fas fa-calendar"></i>
                     </div>
                     <h3>Nessuna prenotazione ${this.getStatusLabel(status)}</h3>
                     <p>Non ci sono prenotazioni ${status === 'all' ? 'nel sistema' : `con status "${status}"`}.</p>
@@ -616,7 +697,7 @@ async renderStaffBookings(status = 'pending') {
                 <p><strong>Dettaglio errore:</strong> ${error.message}</p>
                 <div style="margin-top: 1rem;">
                     <button class="dash-btn dash-btn-primary" onclick="window.dashboardManager.renderStaffBookings('${status}')">
-                        <i class="fas fa-sync-alt"></i>
+                        <i class="fas fa-rotate"></i>
                         Riprova
                     </button>
                     <button class="dash-btn dash-btn-outline" onclick="window.dashboardManager.filterBookings('all')">
@@ -742,7 +823,7 @@ generateBookingActions(booking, isAdminView = false) {
                 <button class="action-btn action-btn-complete"
                         onclick="window.dashboardManager.markAsCompleted(${booking.id})"
                         title="${viewPrefix}: Marca come completata">
-                    <i class="fas fa-flag-checkered"></i>
+                    <i class="fas fa-flag"></i>
                     Completa
                 </button>
             `);
@@ -780,8 +861,19 @@ generateBookingActions(booking, isAdminView = false) {
 // ==========================================
 
 async confirmBooking(bookingId) {
-    const confirmation = confirm('Confermare questa prenotazione?');
-    if (!confirmation) return;
+    const confirmed = await new Promise(resolve => {
+        this.showConfirmationModal({
+            title: 'Conferma Prenotazione',
+            message: 'Sei sicuro di voler confermare questa prenotazione?',
+            icon: 'fas fa-check-circle',
+            type: 'success',
+            confirmText: 'Conferma',
+            cancelText: 'Annulla',
+            onConfirm: () => resolve(true),
+            onCancel: () => resolve(false)
+        });
+    });
+    if (!confirmed) return;
 
     try {
         const token = this.getAuthToken();
@@ -810,8 +902,23 @@ async confirmBooking(bookingId) {
 }
 
 async rejectBooking(bookingId) {
-    const reason = prompt('Motivo dell\'annullamento (opzionale):');
-    if (reason === null) return;
+    const result = await new Promise(resolve => {
+        this.showConfirmationModal({
+            title: 'Annulla Prenotazione',
+            message: 'Inserisci il motivo dell\'annullamento (opzionale)',
+            icon: 'fas fa-times-circle',
+            type: 'danger',
+            confirmText: 'Annulla Prenotazione',
+            cancelText: 'Mantieni',
+            showInput: true,
+            inputPlaceholder: 'es. Cliente non presentato, problemi tecnici...',
+            inputLabel: 'Motivo annullamento:',
+            onConfirm: (inputValue) => resolve({ confirmed: true, reason: inputValue || '' }),
+            onCancel: () => resolve({ confirmed: false })
+        });
+    });
+    if (!result.confirmed) return;
+    const reason = result.reason;
 
     try {
         const token = this.getAuthToken();
@@ -841,8 +948,19 @@ async rejectBooking(bookingId) {
 }
 
 async markAsCompleted(bookingId) {
-    const confirmation = confirm('Marcare come completata?');
-    if (!confirmation) return;
+    const confirmed = await new Promise(resolve => {
+        this.showConfirmationModal({
+            title: 'Completa Prenotazione',
+            message: 'Confermi che questa prenotazione è stata completata con successo?',
+            icon: 'fas fa-check-double',
+            type: 'success',
+            confirmText: 'Marca Completata',
+            cancelText: 'Annulla',
+            onConfirm: () => resolve(true),
+            onCancel: () => resolve(false)
+        });
+    });
+    if (!confirmed) return;
 
     try {
         console.log('✅ Completa prenotazione:', bookingId);
@@ -866,10 +984,10 @@ getStatusIcon(status) {
     const icons = {
         'pending': 'fas fa-clock',
         'confirmed': 'fas fa-check-circle',
-        'completed': 'fas fa-flag-checkered',
+        'completed': 'fas fa-flag',
         'cancelled': 'fas fa-times-circle'
     };
-    return icons[status] || 'fas fa-question-circle';
+    return icons[status] || 'fas fa-circle-question';
 }
 
 getStatusLabel(status) {
@@ -1345,29 +1463,56 @@ async savePreferences() {
     console.log('❤️ Salvataggio preferenze dinamiche...');
 
     try {
+        const confirmed = await new Promise(resolve => {
+            this.showConfirmationModal({
+                title: 'Salva Preferenze',
+                message: 'Vuoi salvare le modifiche alle tue preferenze? Questo aggiornerà il tuo profilo utente.',
+                icon: 'fas fa-heart',
+                type: 'info',
+                confirmText: 'Salva Preferenze',
+                cancelText: 'Annulla',
+                onConfirm: () => resolve(true),
+                onCancel: () => resolve(false)
+            });
+        });
+        if (!confirmed) return;
+    } catch (modalError) {
+        console.error('❌ Errore modal di conferma:', modalError);
+        this.showNotification('error', 'Errore nell\'apertura del modal di conferma');
+        return;
+    }
+
+    try {
+        // Controllo di sicurezza che i form element esistano
+        const gameCategories = document.querySelectorAll('input[name="game-categories"]:checked');
+        const drinkTypes = document.querySelectorAll('input[name="drink-types"]:checked');
+        const dietaryRestrictions = document.querySelectorAll('input[name="dietary-restrictions"]:checked');
+        const timeSlots = document.querySelectorAll('input[name="time-slots"]:checked');
+        
+        console.log('📋 Elementi trovati:', {
+            gameCategories: gameCategories.length,
+            drinkTypes: drinkTypes.length,
+            dietaryRestrictions: dietaryRestrictions.length,
+            timeSlots: timeSlots.length
+        });
+
         const preferences = {
-            favorite_game_categories: Array.from(
-                document.querySelectorAll('input[name="game-categories"]:checked')
-            ).map(input => input.value),
+            favorite_game_categories: Array.from(gameCategories).map(input => input.value),
+            preferred_drink_types: Array.from(drinkTypes).map(input => input.value),
+            dietary_restrictions: Array.from(dietaryRestrictions).map(input => input.value),
+            preferred_time_slots: Array.from(timeSlots).map(input => input.value),
 
-            preferred_drink_types: Array.from(
-                document.querySelectorAll('input[name="drink-types"]:checked')
-            ).map(input => input.value),
+            // Complessità massima giochi con controllo di esistenza
+            max_game_complexity: (() => {
+                const complexityElement = document.getElementById('max-game-complexity');
+                if (complexityElement) {
+                    const value = parseInt(complexityElement.value);
+                    return !isNaN(value) && value >= 1 && value <= 5 ? value : 3;
+                }
+                return 3;
+            })(),
 
-            // Restrizioni dietetiche
-            dietary_restrictions: Array.from(
-                document.querySelectorAll('input[name="dietary-restrictions"]:checked')
-            ).map(input => input.value),
-
-            // Fasce orarie preferite
-            preferred_time_slots: Array.from(
-                document.querySelectorAll('input[name="time-slots"]:checked')
-            ).map(input => input.value),
-
-            // Complessità massima giochi
-            max_game_complexity: parseInt(document.getElementById('max-game-complexity')?.value || 3),
-
-            // Preferenze notifiche
+            // Preferenze notifiche con controlli di sicurezza
             notification_preferences: {
                 email_booking: document.getElementById('notify-email-booking')?.checked || false,
                 email_reminder: document.getElementById('notify-email-reminder')?.checked || false,
@@ -1378,11 +1523,27 @@ async savePreferences() {
 
         console.log('📊 Preferenze raccolte:', preferences);
 
-        // Chiama API per salvare
+        // Controlli di sicurezza per autenticazione
         const userInfo = this.getCurrentUserInfo();
-        const token = this.getAuthToken();
+        if (!userInfo || !userInfo.userId) {
+            throw new Error('Informazioni utente non disponibili. Effettua nuovamente il login.');
+        }
 
-        const response = await fetch(`/api/users/${userInfo.userId}/preferences`, {
+        const token = this.getAuthToken();
+        if (!token) {
+            throw new Error('Token di autenticazione mancante. Effettua nuovamente il login.');
+        }
+
+        console.log('🔐 Dati autenticazione validi:', {
+            userId: userInfo.userId,
+            hasToken: !!token
+        });
+
+        // Chiama API per salvare
+        const apiUrl = `/api/users/${userInfo.userId}/preferences`;
+        console.log('🌐 Chiamata API:', apiUrl);
+
+        const response = await fetch(apiUrl, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -1391,23 +1552,56 @@ async savePreferences() {
             body: JSON.stringify(preferences)
         });
 
+        console.log('📡 Risposta server - Status:', response.status, response.statusText);
+
         if (response.ok) {
             const result = await response.json();
+            console.log('✅ Risposta server positiva:', result);
 
             // Aggiorna i dati locali
-            this.dashboardData.preferences = result.preferences || preferences;
+            if (this.dashboardData) {
+                this.dashboardData.preferences = result.preferences || preferences;
+            }
 
             this.showNotification('success', 'Preferenze salvate con successo! 🎉');
-
             console.log('✅ Preferenze salvate nel database');
         } else {
-            const error = await response.json();
-            throw new Error(error.message || 'Errore salvataggio preferenze');
+            // Gestione dettagliata degli errori HTTP
+            let errorMessage = 'Errore salvataggio preferenze';
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorData.error || errorMessage;
+            } catch (parseError) {
+                console.warn('⚠️ Impossibile parsare errore server:', parseError);
+                errorMessage = `Errore HTTP ${response.status}: ${response.statusText}`;
+            }
+            
+            console.error('❌ Errore server:', {
+                status: response.status,
+                statusText: response.statusText,
+                message: errorMessage
+            });
+
+            throw new Error(errorMessage);
         }
 
     } catch (error) {
-        console.error('❌ Errore salvataggio preferenze:', error);
-        this.showNotification('error', `Errore salvataggio preferenze: ${error.message}`);
+        console.error('❌ Errore completo salvataggio preferenze:', error);
+        
+        // Messaggio di errore user-friendly
+        let userMessage = 'Errore salvataggio preferenze';
+        if (error.message) {
+            userMessage += `: ${error.message}`;
+        }
+        
+        this.showNotification('error', userMessage);
+        
+        // Se è un errore di autenticazione, suggerisci il re-login
+        if (error.message && error.message.includes('autenticazione')) {
+            setTimeout(() => {
+                this.showNotification('warning', 'Effettua nuovamente il login per continuare');
+            }, 3000);
+        }
     }
 }
 
@@ -1417,46 +1611,56 @@ async savePreferences() {
         const bookings = this.dashboardData.recentBookings || [];
 
         return `
-            <div class="dash-card dash-customer-only" id="bookings">
+            <div class="dash-card dash-customer-only compact-bookings-section" id="bookings">
                 <div class="dash-card-header">
                     <h2 class="dash-card-title">
-                        <i class="fas fa-calendar-alt dash-card-icon"></i>
-                        Le Tue Prenotazioni
+                        <i class="fas fa-calendar dash-card-icon"></i>
+                        Le Tue Prenotazioni Recenti
                     </h2>
-                    <button class="dash-btn dash-btn-primary" onclick="window.showPage('prenotazioni')">
-                        Nuova Prenotazione
-                    </button>
+                    <div class="bookings-header-actions">
+                        <button class="dash-btn dash-btn-outline dash-btn-sm" onclick="window.SimpleAuth?.showBookings()">
+                            <i class="fas fa-list"></i> Vedi Tutto
+                        </button>
+                        <button class="dash-btn dash-btn-primary dash-btn-sm" onclick="window.showPage('prenotazioni')">
+                            <i class="fas fa-plus"></i> Nuova
+                        </button>
+                    </div>
                 </div>
-                <table class="dash-data-table">
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Orario</th>
-                            <th>Persone</th>
-                            <th>Stato</th>
-                            <th>Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${bookings.length > 0 ? bookings.map(booking => `
-                            <tr>
-                                <td>${this.formatDate(booking.booking_date)}</td>
-                                <td>${booking.booking_time}</td>
-                                <td>${booking.party_size} persone</td>
-                                <td><span class="dash-status-badge dash-status-${booking.status}">${this.getStatusLabel(booking.status)}</span></td>
-                                <td>
-                                    <button class="dash-btn dash-btn-outline dash-btn-sm">Dettagli</button>
-                                </td>
-                            </tr>
-                        `).join('') : `
-                            <tr>
-                                <td colspan="5" style="text-align: center; padding: 2rem;">
-                                    Nessuna prenotazione trovata
-                                </td>
-                            </tr>
-                        `}
-                    </tbody>
-                </table>
+                <div class="compact-bookings-container">
+                    ${bookings.length > 0 ? bookings.slice(0, 3).map(booking => `
+                        <div class="compact-booking-card">
+                            <div class="booking-date-info">
+                                <div class="booking-day">${new Date(booking.booking_date).getDate()}</div>
+                                <div class="booking-month">${new Date(booking.booking_date).toLocaleDateString('it-IT', {month: 'short'})}</div>
+                            </div>
+                            <div class="booking-details">
+                                <div class="booking-title">
+                                    <i class="fas fa-clock"></i>
+                                    ${booking.booking_time} • ${booking.party_size} persone
+                                </div>
+                                <div class="booking-status">
+                                    <span class="compact-status-badge status-${booking.status}">
+                                        ${this.getStatusIcon(booking.status)} ${this.getStatusLabel(booking.status)}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="booking-actions">
+                                <button class="compact-action-btn" title="Dettagli" onclick="alert('Dettagli prenotazione: ${booking.id}')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('') : `
+                        <div class="no-bookings-message">
+                            <i class="fas fa-calendar-plus"></i>
+                            <h3>Nessuna prenotazione attiva</h3>
+                            <p>Inizia prenotando il tuo primo tavolo!</p>
+                            <button class="dash-btn dash-btn-primary" onclick="window.showPage('prenotazioni')">
+                                <i class="fas fa-plus"></i> Prenota Ora
+                            </button>
+                        </div>
+                    `}
+                </div>
             </div>
         `;
     }
@@ -1468,7 +1672,7 @@ createAdminSectionsHTML() {
         <div class="dash-card dash-admin-section" id="system-dashboard">
             <div class="dash-card-header">
                 <h2 class="dash-card-title">
-                    <i class="fas fa-chart-pie dash-card-icon"></i>
+                    <i class="fas fa-chart-simple dash-card-icon"></i>
                     Dashboard Sistema & Inventario
                 </h2>
                 <div class="admin-dashboard-controls">
@@ -1478,7 +1682,7 @@ createAdminSectionsHTML() {
                         <option value="90">Ultimi 90 giorni</option>
                     </select>
                     <button class="dash-btn dash-btn-primary" onclick="window.dashboardManager.refreshInventoryData()">
-                        <i class="fas fa-sync-alt"></i>
+                        <i class="fas fa-rotate"></i>
                         Aggiorna Dati
                     </button>
                 </div>
@@ -1497,7 +1701,7 @@ createAdminSectionsHTML() {
         <div class="dash-card dash-admin-section" id="manage-bookings">
             <div class="dash-card-header">
                 <h2 class="dash-card-title">
-                    <i class="fas fa-clipboard-list dash-card-icon"></i>
+                    <i class="fas fa-clipboard dash-card-icon"></i>
                     Gestione Prenotazioni (Admin)
                 </h2>
                 <div class="staff-section-controls">
@@ -1509,7 +1713,7 @@ createAdminSectionsHTML() {
                         <option value="cancelled">Annullate</option>
                     </select>
                     <button class="dash-btn dash-btn-secondary" onclick="window.dashboardManager.refreshBookings()">
-                        <i class="fas fa-sync-alt"></i>
+                        <i class="fas fa-rotate"></i>
                         Aggiorna
                     </button>
                     <button class="dash-btn dash-btn-primary" onclick="window.dashboardManager.exportBookingsData()">
@@ -1651,7 +1855,7 @@ async renderSystemInventory(period = 7) {
 
                 <div class="error-actions">
                     <button class="dash-btn dash-btn-primary" onclick="window.dashboardManager.renderSystemInventory(${period})">
-                        <i class="fas fa-sync-alt"></i>
+                        <i class="fas fa-rotate"></i>
                         Riprova dal Database
                     </button>
                     <button class="dash-btn dash-btn-outline" onclick="window.dashboardManager.checkAPIStatus()">
@@ -1878,7 +2082,7 @@ async renderAdminBookings(status = 'pending') {
             container.innerHTML = `
                 <div class="no-bookings-staff">
                     <div class="no-bookings-icon">
-                        <i class="fas fa-calendar-check"></i>
+                        <i class="fas fa-calendar"></i>
                     </div>
                     <h3>Nessuna prenotazione ${this.getStatusLabel(status)} (Pannello Admin)</h3>
                     <p>Non ci sono prenotazioni ${status === 'all' ? 'nel sistema' : `con status "${status}"`}.</p>
@@ -1929,7 +2133,7 @@ async renderAdminBookings(status = 'pending') {
                 <p><strong>Dettaglio errore:</strong> ${error.message}</p>
                 <div style="margin-top: 1rem;">
                     <button class="dash-btn dash-btn-primary" onclick="window.dashboardManager.renderAdminBookings('${status}')">
-                        <i class="fas fa-sync-alt"></i>
+                        <i class="fas fa-rotate"></i>
                         Riprova
                     </button>
                     <button class="dash-btn dash-btn-outline" onclick="window.dashboardManager.filterAdminBookings('all')">
@@ -1948,65 +2152,8 @@ editBookingAdmin(bookingId) {
     alert(`🔧 MODIFICA AVANZATA ADMIN\n\nPrenotazione #${bookingId}\n\nFunzionalità amministratore:\n• Modifica date/orari\n• Cambio cliente\n• Note interne\n• Log modifiche\n• Rimborsi\n\n(In fase di sviluppo)`);
 }
 
-showNotification(type, message) {
-
-    // Altrimenti crea notifica inline elegante
-    const notification = document.createElement('div');
-    notification.className = `dash-notification dash-notification-${type}`;
-    notification.innerHTML = `
-        <div class="dash-notification-content">
-            <i class="fas fa-${this.getNotificationIcon(type)}"></i>
-            <span>${message}</span>
-            <button class="dash-notification-close" onclick="this.parentElement.parentElement.remove()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    `;
-
-    // Stili inline per notifica
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${this.getNotificationColor(type)};
-        color: white;
-        padding: 1rem;
-        border-radius: 8px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        z-index: 9999;
-        max-width: 400px;
-        animation: slideInRight 0.3s ease-out;
-    `;
-
-    document.body.appendChild(notification);
-
-    // Auto-remove dopo 5 secondi
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.remove();
-        }
-    }, 5000);
-}
-
-getNotificationIcon(type) {
-    const icons = {
-        success: 'check-circle',
-        error: 'exclamation-triangle',
-        warning: 'exclamation-circle',
-        info: 'info-circle'
-    };
-    return icons[type] || 'info-circle';
-}
-
-getNotificationColor(type) {
-    const colors = {
-        success: '#28a745',
-        error: '#dc3545',
-        warning: '#ffc107',
-        info: '#17a2b8'
-    };
-    return colors[type] || '#17a2b8';
-}
+// Metodi di notifica rimossi - ora usa window.CustomNotifications
+// Le notifiche sono gestite dal metodo showNotification() nelle utility methods
 
 
 // Metodi interfaccia admin
@@ -2041,7 +2188,10 @@ createNewUser() {
     scrollToSection(sectionId) {
         console.log(`📄 Scroll alla sezione: ${sectionId}`);
 
-        // Aggiorna sidebar attiva
+        // Prevent default link behavior
+        event?.preventDefault();
+
+        // Aggiorna sidebar attiva con animazione fluida
         document.querySelectorAll('.dash-sidebar-nav a').forEach(link => {
             link.classList.remove('active');
         });
@@ -2052,27 +2202,61 @@ createNewUser() {
             activeLink.classList.add('active');
         }
 
-        // Scroll alla sezione
+        // Scroll alla sezione con animazione personalizzata fluida
         let targetElement = null;
+        let targetPosition = 0;
 
         if (sectionId === 'dashboard') {
-            // Per dashboard, scroll all'inizio
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            return;
+            // Per dashboard, scroll all'inizio della pagina
+            targetPosition = 0;
         } else {
             // Trova l'elemento target
             targetElement = document.getElementById(sectionId);
+            
+            if (targetElement) {
+                // Calcola la posizione target con offset fluido
+                const rect = targetElement.getBoundingClientRect();
+                const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+                const navbarHeight = 80; // Altezza navbar
+                const extraPadding = 20; // Padding extra per miglior visibilità
+                
+                targetPosition = currentScroll + rect.top - navbarHeight - extraPadding;
+            } else {
+                console.warn(`⚠️ Sezione ${sectionId} non trovata`);
+                return;
+            }
         }
 
-        if (targetElement) {
-            // Scroll smooth con offset per navbar
-            const yOffset = -140; // Compensazione per navbar e spacing
-            const y = targetElement.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        // Scroll fluido personalizzato
+        this.smoothScrollTo(targetPosition, 800); // 800ms di durata
+    }
 
-            window.scrollTo({ top: y, behavior: 'smooth' });
-        } else {
-            console.warn(`⚠️ Sezione ${sectionId} non trovata`);
-        }
+    smoothScrollTo(targetPosition, duration = 600) {
+        const startPosition = window.pageYOffset || document.documentElement.scrollTop;
+        const distance = targetPosition - startPosition;
+        let startTime = null;
+
+        // Easing function per movimento più naturale
+        const easeInOutCubic = (t) => {
+            return t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+        };
+
+        const animate = (currentTime) => {
+            if (startTime === null) startTime = currentTime;
+            const timeElapsed = currentTime - startTime;
+            const progress = Math.min(timeElapsed / duration, 1);
+
+            const easedProgress = easeInOutCubic(progress);
+            const currentPosition = startPosition + (distance * easedProgress);
+
+            window.scrollTo(0, currentPosition);
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+
+        requestAnimationFrame(animate);
     }
 
     async saveProfile() {
@@ -2121,8 +2305,21 @@ createNewUser() {
         }
     }
 
-    logout() {
-        if (confirm('Sei sicuro di voler effettuare il logout?')) {
+    async logout() {
+        const confirmed = await new Promise(resolve => {
+            this.showConfirmationModal({
+                title: 'Conferma Logout',
+                message: 'Sei sicuro di voler uscire dal tuo account? Dovrai effettuare nuovamente il login per accedere alla dashboard.',
+                icon: 'fas fa-sign-out-alt',
+                type: 'warning',
+                confirmText: 'Esci',
+                cancelText: 'Rimani',
+                onConfirm: () => resolve(true),
+                onCancel: () => resolve(false)
+            });
+        });
+
+        if (confirmed) {
             if (window.SimpleAuth && typeof window.SimpleAuth.logout === 'function') {
                 window.SimpleAuth.logout();
             } else {
@@ -2134,6 +2331,136 @@ createNewUser() {
     }
 
     // ==========================================
+    // DEBUG E TESTING FUNCTIONS
+    // ==========================================
+
+    testAllModals() {
+        console.log('🧪 Test di tutti i modali di conferma...');
+        
+        const tests = [
+            {
+                name: 'Modal Success',
+                options: {
+                    title: 'Test Successo',
+                    message: 'Questo è un test del modal di successo',
+                    type: 'success',
+                    icon: 'fas fa-check-circle',
+                    onConfirm: () => console.log('✅ Success modal confermato'),
+                    onCancel: () => console.log('❌ Success modal annullato')
+                }
+            },
+            {
+                name: 'Modal con Input',
+                options: {
+                    title: 'Test Input',
+                    message: 'Inserisci un valore di test',
+                    type: 'info',
+                    showInput: true,
+                    inputLabel: 'Valore Test:',
+                    inputPlaceholder: 'Scrivi qualcosa...',
+                    onConfirm: (value) => console.log('✅ Input ricevuto:', value),
+                    onCancel: () => console.log('❌ Input annullato')
+                }
+            }
+        ];
+
+        let currentTest = 0;
+        const runNextTest = () => {
+            if (currentTest < tests.length) {
+                const test = tests[currentTest];
+                console.log(`🔄 Avvio test: ${test.name}`);
+                
+                const originalOnConfirm = test.options.onConfirm;
+                const originalOnCancel = test.options.onCancel;
+                
+                test.options.onConfirm = (value) => {
+                    if (originalOnConfirm) originalOnConfirm(value);
+                    currentTest++;
+                    setTimeout(runNextTest, 1000);
+                };
+                
+                test.options.onCancel = () => {
+                    if (originalOnCancel) originalOnCancel();
+                    currentTest++;
+                    setTimeout(runNextTest, 1000);
+                };
+                
+                this.showConfirmationModal(test.options);
+            } else {
+                console.log('✅ Tutti i test modali completati!');
+            }
+        };
+
+        runNextTest();
+    }
+
+    testNotifications() {
+        console.log('🧪 Test sistema notifiche...');
+        
+        const types = ['success', 'error', 'warning', 'info'];
+        let index = 0;
+        
+        const showNext = () => {
+            if (index < types.length) {
+                const type = types[index];
+                this.showNotification(type, `Test notifica ${type} - Messaggio di prova #${index + 1}`);
+                index++;
+                setTimeout(showNext, 2000);
+            } else {
+                console.log('✅ Test notifiche completato!');
+            }
+        };
+        
+        showNext();
+    }
+
+    // Funzione per testare tutto il sistema
+    runFullSystemTest() {
+        console.log('🔬 AVVIO TEST COMPLETO DASHBOARD...');
+        
+        // Test 1: Notifiche
+        console.log('1️⃣ Test notifiche...');
+        this.testNotifications();
+        
+        // Test 2: Modali (dopo 10 secondi)
+        setTimeout(() => {
+            console.log('2️⃣ Test modali...');
+            this.testAllModals();
+        }, 10000);
+        
+        // Test 3: Funzioni principali (dopo 20 secondi)
+        setTimeout(() => {
+            console.log('3️⃣ Test funzioni principali...');
+            this.testMainFunctions();
+        }, 20000);
+    }
+
+    testMainFunctions() {
+        console.log('🧪 Test funzioni principali dashboard...');
+        
+        const functions = [
+            'getCurrentUserInfo',
+            'getAuthToken',
+            'scrollToSection',
+            'showAllUsers',
+            'refreshBookings',
+            'checkAPIStatus'
+        ];
+        
+        functions.forEach(funcName => {
+            try {
+                if (typeof this[funcName] === 'function') {
+                    console.log(`✅ ${funcName}: OK`);
+                } else {
+                    console.error(`❌ ${funcName}: NON TROVATA`);
+                }
+            } catch (error) {
+                console.error(`❌ ${funcName}: ERRORE -`, error.message);
+            }
+        });
+    }
+
+    // ==========================================
     // UTILITY METHODS
     // ==========================================
 
@@ -2142,6 +2469,51 @@ createNewUser() {
             .map(word => word.charAt(0).toUpperCase())
             .slice(0, 2)
             .join('');
+    }
+
+    // ==========================================
+    // GESTIONE AVATAR
+    // ==========================================
+
+    createAvatarHTML(user, displayName) {
+        return `<div class="avatar-loading">${this.getInitials(displayName)}</div>`;
+    }
+
+    async loadUserAvatar(userId) {
+        if (!userId) return;
+
+        try {
+            const response = await fetch(`/api/users/${userId}/avatar`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                await this.updateDashboardAvatar(result);
+            }
+        } catch (error) {
+            console.error('❌ Errore caricamento avatar dashboard:', error);
+        }
+    }
+
+    async updateDashboardAvatar(avatarData) {
+        const container = document.getElementById('dash-user-avatar-container');
+        if (!container) return;
+
+        const avatarUrl = avatarData.avatarUrl || '/images/avatars/default.png';
+        const cacheBuster = `?t=${Date.now()}`;
+
+        container.innerHTML = `
+            <img src="${avatarUrl}${cacheBuster}" 
+                 alt="Avatar profilo" 
+                 class="avatar-image" />
+        `;
+
+        console.log('✅ Avatar dashboard aggiornato:', avatarUrl);
     }
 
     formatDate(dateString) {
@@ -2159,15 +2531,492 @@ createNewUser() {
         return labels[status] || status;
     }
 
+    getStatusIcon(status) {
+        const icons = {
+            confirmed: '<i class="fas fa-check-circle"></i>',
+            pending: '<i class="fas fa-clock"></i>',
+            cancelled: '<i class="fas fa-times-circle"></i>',
+            completed: '<i class="fas fa-flag"></i>'
+        };
+        return icons[status] || '<i class="fas fa-circle-question"></i>';
+    }
+
     showNotification(type, message) {
-        // Integrazione con sistema notifiche (non corretto)
-        if (window.showNotification) {
-            window.showNotification(type, message);
+        // Usa il sistema di notifiche personalizzato globale
+        if (window.CustomNotifications) {
+            const titles = {
+                'success': 'Successo',
+                'error': 'Errore',
+                'warning': 'Attenzione',
+                'info': 'Informazione'
+            };
+            
+            const title = titles[type] || 'Notifica';
+            
+            // Usa il metodo appropriato del sistema notifiche
+            switch (type) {
+                case 'success':
+                    window.CustomNotifications.success(title, message);
+                    break;
+                case 'error':
+                    window.CustomNotifications.error(title, message);
+                    break;
+                case 'warning':
+                    window.CustomNotifications.warning(title, message);
+                    break;
+                default:
+                    window.CustomNotifications.info(title, message);
+            }
         } else {
-            // Fallback semplice
+            // Fallback se il sistema notifiche non è disponibile
             const alertType = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
             alert(`${alertType} ${message}`);
         }
+    }
+
+    // ==========================================
+    // GESTIONE MODIFICA PROFILO
+    // ==========================================
+
+    openAvatarModal() {
+        // Usa il sistema avatar delle prenotazioni se disponibile
+        if (window.openAvatarModal) {
+            window.openAvatarModal();
+        } else {
+            // Apre la pagina prenotazioni dove c'è il sistema avatar
+            if (window.SimpleAuth?.showBookings) {
+                window.SimpleAuth.showBookings();
+            } else {
+                alert('Per cambiare avatar, vai alle prenotazioni utente');
+            }
+        }
+    }
+
+    editField(fieldType) {
+        const currentUser = this.dashboardData?.user;
+        if (!currentUser) return;
+
+        let currentValue, fieldLabel, fieldPlaceholder;
+        
+        switch (fieldType) {
+            case 'name':
+                currentValue = `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim();
+                fieldLabel = 'Nome Completo';
+                fieldPlaceholder = 'Inserisci il tuo nome e cognome';
+                break;
+                
+            case 'email':
+                currentValue = currentUser.email;
+                fieldLabel = 'Indirizzo Email';
+                fieldPlaceholder = 'Inserisci la tua email';
+                break;
+                
+            case 'phone':
+                currentValue = currentUser.phone || '';
+                fieldLabel = 'Numero di Telefono';
+                fieldPlaceholder = 'Inserisci il tuo numero di telefono (es. +39 123 456 7890)';
+                break;
+                
+            default:
+                return;
+        }
+
+        this.showEditFieldModal(fieldType, fieldLabel, currentValue, fieldPlaceholder);
+    }
+
+    showEditFieldModal(fieldType, fieldLabel, currentValue, placeholder) {
+        // Rimuove eventuali modal esistenti
+        const existingModal = document.querySelector('.edit-field-modal');
+        if (existingModal) existingModal.remove();
+
+        // Crea il modal
+        const modal = document.createElement('div');
+        modal.className = 'edit-field-modal';
+        modal.innerHTML = `
+            <div class="edit-field-overlay">
+                <div class="edit-field-container">
+                    <div class="edit-field-header">
+                        <h3>
+                            <i class="fas fa-pen"></i>
+                            Modifica ${fieldLabel}
+                        </h3>
+                        <button class="edit-field-close" onclick="this.closest('.edit-field-modal').remove()">×</button>
+                    </div>
+                    
+                    <div class="edit-field-body">
+                        <div class="edit-field-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Stai per modificare <strong>${fieldLabel.toLowerCase()}</strong>. Questa modifica sarà permanente e sincronizzata con il database.</p>
+                        </div>
+                        
+                        <div class="edit-field-form">
+                            <label class="edit-field-label">${fieldLabel}</label>
+                            <input type="${fieldType === 'email' ? 'email' : fieldType === 'phone' ? 'tel' : 'text'}" 
+                                   class="edit-field-input" 
+                                   value="${currentValue}" 
+                                   placeholder="${placeholder}"
+                                   id="edit-field-input"
+                                   autocomplete="${fieldType === 'email' ? 'email' : fieldType === 'phone' ? 'tel' : 'name'}"
+                                   ${fieldType === 'email' || fieldType === 'name' ? 'required' : ''}>
+                            <div class="edit-field-help">
+                                ${fieldType === 'email' ? 
+                                    'Inserisci un indirizzo email valido. Riceverai una conferma al nuovo indirizzo.' : 
+                                    fieldType === 'phone' ?
+                                    'Inserisci un numero di telefono valido con prefisso internazionale (opzionale). Può essere lasciato vuoto.' :
+                                    'Inserisci il tuo nome completo (nome e cognome).'}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="edit-field-actions">
+                        <button class="btn-cancel" onclick="this.closest('.edit-field-modal').remove()">
+                            <i class="fas fa-times"></i>
+                            Annulla
+                        </button>
+                        <button class="btn-save" onclick="window.dashboardManager.confirmFieldUpdate('${fieldType}')">
+                            <i class="fas fa-check"></i>
+                            Conferma Modifica
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+        setTimeout(() => modal.classList.add('show'), 10);
+
+        // Focus sull'input
+        const input = modal.querySelector('#edit-field-input');
+        input.focus();
+        input.select();
+
+        // Enter per salvare, Escape per chiudere
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                this.confirmFieldUpdate(fieldType);
+            } else if (e.key === 'Escape') {
+                modal.remove();
+            }
+        });
+    }
+
+    confirmFieldUpdate(fieldType) {
+        const modal = document.querySelector('.edit-field-modal');
+        const input = modal.querySelector('#edit-field-input');
+        const newValue = input.value.trim();
+        
+        // Validazioni per campi obbligatori
+        if ((fieldType === 'name' || fieldType === 'email') && !newValue) {
+            this.showFieldError('Il campo non può essere vuoto');
+            return;
+        }
+
+        if (fieldType === 'email' && !this.isValidEmail(newValue)) {
+            this.showFieldError('Inserisci un indirizzo email valido');
+            return;
+        }
+
+        if (fieldType === 'phone' && newValue && !this.isValidPhone(newValue)) {
+            this.showFieldError('Inserisci un numero di telefono valido (es. +39 123 456 7890)');
+            return;
+        }
+
+        // Mostra loading
+        const saveBtn = modal.querySelector('.btn-save');
+        const originalText = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+        saveBtn.disabled = true;
+
+        // Aggiorna il campo
+        this.updateUserField(fieldType, newValue)
+            .then(() => {
+                modal.remove();
+            })
+            .catch(() => {
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
+                this.showFieldError('Errore durante il salvataggio. Riprova.');
+            });
+    }
+
+    showFieldError(message) {
+        const modal = document.querySelector('.edit-field-modal');
+        let errorDiv = modal.querySelector('.edit-field-error');
+        
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.className = 'edit-field-error';
+            modal.querySelector('.edit-field-form').appendChild(errorDiv);
+        }
+        
+        errorDiv.innerHTML = `
+            <i class="fas fa-exclamation-circle"></i>
+            ${message}
+        `;
+        
+        setTimeout(() => errorDiv.remove(), 5000);
+    }
+
+    isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    isValidPhone(phone) {
+        // Regex per telefono: può iniziare con +, seguita da numeri, spazi, trattini, parentesi
+        const phoneRegex = /^[\+]?[1-9][\d\s\-\(\)]{8,20}$/;
+        return phoneRegex.test(phone);
+    }
+
+    // ==========================================
+    // PANNELLI CONFERMA PERSONALIZZATI
+    // ==========================================
+
+    showConfirmationModal(options) {
+        const {
+            title,
+            message,
+            icon = 'fas fa-question-circle',
+            type = 'warning', // warning, danger, info, success
+            confirmText = 'Conferma',
+            cancelText = 'Annulla',
+            onConfirm,
+            onCancel,
+            showInput = false,
+            inputPlaceholder = '',
+            inputLabel = ''
+        } = options;
+
+        // Rimuove eventuali modal esistenti
+        const existingModal = document.querySelector('.confirmation-modal');
+        if (existingModal) existingModal.remove();
+
+        // Colori per i diversi tipi
+        const typeColors = {
+            warning: '#ffc107',
+            danger: '#e74c3c', 
+            info: '#17a2b8',
+            success: '#28a745'
+        };
+
+        const modal = document.createElement('div');
+        modal.className = 'confirmation-modal';
+        modal.innerHTML = `
+            <div class="confirmation-overlay">
+                <div class="confirmation-container">
+                    <div class="confirmation-header">
+                        <div class="confirmation-icon" style="color: ${typeColors[type]};">
+                            <i class="${icon}"></i>
+                        </div>
+                        <h3>${title}</h3>
+                        <button class="confirmation-close" onclick="this.closest('.confirmation-modal').remove()">×</button>
+                    </div>
+                    
+                    <div class="confirmation-body">
+                        <p>${message}</p>
+                        ${showInput ? `
+                            <div class="confirmation-input-group">
+                                <label class="confirmation-input-label">${inputLabel}</label>
+                                <input type="text" 
+                                       class="confirmation-input" 
+                                       id="confirmation-input"
+                                       placeholder="${inputPlaceholder}">
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="confirmation-actions">
+                        <button class="btn-confirmation-cancel" onclick="this.closest('.confirmation-modal').remove()">
+                            <i class="fas fa-times"></i>
+                            ${cancelText}
+                        </button>
+                        <button class="btn-confirmation-confirm" style="background: ${typeColors[type]}; border-color: ${typeColors[type]};">
+                            <i class="fas fa-check"></i>
+                            ${confirmText}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+        setTimeout(() => modal.classList.add('show'), 10);
+
+        // Event listeners
+        const confirmBtn = modal.querySelector('.btn-confirmation-confirm');
+        const cancelBtn = modal.querySelector('.btn-confirmation-cancel');
+        const closeBtn = modal.querySelector('.confirmation-close');
+
+        confirmBtn.addEventListener('click', () => {
+            let inputValue = '';
+            if (showInput) {
+                inputValue = modal.querySelector('#confirmation-input').value.trim();
+            }
+            modal.remove();
+            if (onConfirm) onConfirm(inputValue);
+        });
+
+        [cancelBtn, closeBtn].forEach(btn => {
+            btn.addEventListener('click', () => {
+                modal.remove();
+                if (onCancel) onCancel();
+            });
+        });
+
+        // Escape key
+        const escapeHandler = (e) => {
+            if (e.key === 'Escape') {
+                modal.remove();
+                if (onCancel) onCancel();
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
+
+        // Focus input se presente
+        if (showInput) {
+            setTimeout(() => {
+                const input = modal.querySelector('#confirmation-input');
+                if (input) input.focus();
+            }, 100);
+        }
+    }
+
+    async updateUserField(fieldType, newValue) {
+        try {
+            console.log(`🔄 Aggiornamento ${fieldType}:`, newValue);
+            
+            // Preparazione dei dati per l'API
+            let updateData = {};
+            if (fieldType === 'name') {
+                const nameParts = newValue.split(' ');
+                updateData.firstName = nameParts[0] || '';
+                updateData.lastName = nameParts.slice(1).join(' ') || '';
+            } else if (fieldType === 'email') {
+                updateData.email = newValue;
+            } else if (fieldType === 'phone') {
+                updateData.phone = newValue || null; // Permetti vuoto
+            }
+
+            // Chiamata API al database usando l'endpoint esistente
+            const userId = this.dashboardData.user.id;
+            const response = await fetch(`/api/users/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updateData)
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || 'Errore durante l\'aggiornamento');
+            }
+
+            // Effetto dissolve e aggiornamento in tempo reale
+            await this.applyFieldDissolveEffect(fieldType, newValue);
+            
+            // Aggiorna i dati locali
+            if (fieldType === 'name') {
+                this.dashboardData.user.firstName = updateData.firstName;
+                this.dashboardData.user.lastName = updateData.lastName;
+            } else if (fieldType === 'email') {
+                this.dashboardData.user.email = updateData.email;
+            } else if (fieldType === 'phone') {
+                this.dashboardData.user.phone = updateData.phone;
+            }
+            
+            // Notifica di successo con stile personalizzato
+            this.showProfileUpdateNotification(fieldType, newValue);
+            
+            console.log('✅ Aggiornamento campo completato con successo');
+            
+        } catch (error) {
+            console.error(`❌ Errore aggiornamento ${fieldType}:`, error);
+            throw error; // Rilancia per gestione nel modal
+        }
+    }
+
+    async applyFieldDissolveEffect(fieldType, newValue) {
+        // Trova l'elemento da aggiornare nell'header
+        let targetElement;
+        switch (fieldType) {
+            case 'name':
+                targetElement = document.getElementById('user-name-display');
+                break;
+            case 'email':
+                targetElement = document.getElementById('user-email-display');
+                break;
+            case 'phone':
+                targetElement = document.getElementById('user-phone-display');
+                break;
+            default:
+                return;
+        }
+            
+        if (!targetElement) return;
+
+        // Effetto dissolve out
+        targetElement.style.transition = 'opacity 0.4s ease';
+        targetElement.style.opacity = '0';
+
+        await new Promise(resolve => setTimeout(resolve, 400));
+
+        // Aggiorna il contenuto
+        let newContent;
+        if (fieldType === 'phone' && !newValue) {
+            newContent = '<span style="opacity: 0.6; font-style: italic;">Non inserito</span>';
+        } else {
+            newContent = newValue;
+        }
+        targetElement.innerHTML = `${newContent}<i class="fas fa-pen edit-icon"></i>`;
+
+        // Effetto dissolve in con highlight
+        targetElement.style.background = 'rgba(76, 175, 80, 0.2)';
+        targetElement.style.opacity = '1';
+        targetElement.style.borderRadius = '4px';
+        targetElement.style.padding = '0.2rem 1.5rem 0.2rem 0.3rem';
+
+        // Rimuove l'highlight dopo 2 secondi
+        setTimeout(() => {
+            targetElement.style.background = '';
+            targetElement.style.borderRadius = '';
+            targetElement.style.padding = '0.2rem 1.5rem 0.2rem 0.3rem';
+        }, 2000);
+    }
+
+    showProfileUpdateNotification(fieldType, newValue) {
+        // Crea notifica personalizzata
+        const notification = document.createElement('div');
+        notification.className = 'profile-update-notification';
+        
+        const fieldDisplayName = fieldType === 'name' ? 'Nome' : fieldType === 'email' ? 'Email' : 'Telefono';
+        
+        notification.innerHTML = `
+            <div class="profile-notification-content">
+                <div class="profile-notification-icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="profile-notification-text">
+                    <div class="profile-notification-title">Profilo Aggiornato!</div>
+                    <div class="profile-notification-subtitle">${fieldDisplayName} modificato in: <strong>${newValue}</strong></div>
+                </div>
+                <button class="profile-notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Animazione di entrata
+        setTimeout(() => notification.classList.add('show'), 100);
+
+        // Auto-rimozione dopo 5 secondi
+        setTimeout(() => {
+            notification.classList.add('hide');
+            setTimeout(() => notification.remove(), 500);
+        }, 5000);
     }
 
     // ==========================================
@@ -2363,7 +3212,7 @@ export async function showDashboard() {
                     <h2>Errore di Connessione</h2>
                     <p>Impossibile caricare i dati. Verifica la connessione internet.</p>
                     <button class="dash-btn dash-btn-primary" onclick="window.dashboardManager?.refreshDashboard()">
-                        <i class="fas fa-sync-alt"></i>
+                        <i class="fas fa-rotate"></i>
                         Riprova
                     </button>
                 </div>
@@ -2376,7 +3225,7 @@ export async function showDashboard() {
                     <p>${error.message}</p>
                     <div class="dash-error-actions">
                         <button class="dash-btn dash-btn-primary" onclick="window.dashboardManager?.refreshDashboard()">
-                            <i class="fas fa-sync-alt"></i>
+                            <i class="fas fa-rotate"></i>
                             Ricarica Dashboard
                         </button>
                         <button class="dash-btn dash-btn-outline" onclick="window.showPage('homepage')">
@@ -2645,9 +3494,37 @@ DashboardPageManager.prototype.generateMockBookings = function(role) {
 // INIZIALIZZAZIONE E LOGS
 // ==========================================
 
+// Funzioni di test modali e notifiche
+window.testDashboardModals = () => {
+    if (window.dashboardManager && typeof window.dashboardManager.testAllModals === 'function') {
+        window.dashboardManager.testAllModals();
+    } else {
+        console.error('❌ Dashboard manager non disponibile o metodo testAllModals mancante');
+    }
+};
+
+window.testDashboardNotifications = () => {
+    if (window.dashboardManager && typeof window.dashboardManager.testNotifications === 'function') {
+        window.dashboardManager.testNotifications();
+    } else {
+        console.error('❌ Dashboard manager non disponibile o metodo testNotifications mancante');
+    }
+};
+
+window.runFullDashboardTest = () => {
+    if (window.dashboardManager && typeof window.dashboardManager.runFullSystemTest === 'function') {
+        window.dashboardManager.runFullSystemTest();
+    } else {
+        console.error('❌ Dashboard manager non disponibile o metodo runFullSystemTest mancante');
+    }
+};
+
 console.log('✅ Dashboard module caricato completamente');
 console.log('🧪 Funzioni di test disponibili:');
 console.log('   📦 testDashboard("customer|staff|admin") - Test dashboard per ruolo');
+console.log('   🔧 testDashboardModals() - Test modali di conferma');
+console.log('   📢 testDashboardNotifications() - Test notifiche');
+console.log('   🔬 runFullDashboardTest() - Test completo sistema');
 console.log('   🔍 debugDashboard() - Debug stato corrente');
 console.log('   🧹 resetDashboard() - Reset completo');
 console.log('   📱 openDashboard() - Apertura da navbar');
