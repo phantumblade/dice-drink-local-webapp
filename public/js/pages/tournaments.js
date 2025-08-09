@@ -728,6 +728,52 @@ function generateTournamentTags(tournament, isRegistered, isMyTournament) {
 }
 
 function generateTournamentActions(tournament, isRegistered, isAuthenticated, isMyTournament) {
+    // Special case for D&D campaign cards: show register + campaign info buttons
+    if (tournament.category === 'dnd' && tournament.format === 'campaign') {
+        if (!isAuthenticated) {
+            return `
+            <div class="tournament-actions">
+                <button class="btn btn-primary" onclick="showAuthPrompt()">
+                    <i class="fas fa-user-plus"></i>
+                    Accedi per Iscriverti
+                </button>
+                <button class="btn btn-secondary" onclick="showCampaignInfo('${tournament.id}')">
+                    <i class="fas fa-scroll"></i>
+                    Info Campagna
+                </button>
+            </div>
+        `;
+        }
+
+        if (isRegistered) {
+            return `
+            <div class="tournament-actions">
+                <button class="btn btn-success" disabled>
+                    <i class="fas fa-check"></i>
+                    Già Iscritto
+                </button>
+                <button class="btn btn-secondary" onclick="showCampaignInfo('${tournament.id}')">
+                    <i class="fas fa-scroll"></i>
+                    Info Campagna
+                </button>
+            </div>
+        `;
+        }
+
+        return `
+        <div class="tournament-actions">
+            <button class="btn btn-primary" onclick="registerForTournament('${tournament.id}')">
+                <i class="fas fa-user-plus"></i>
+                Iscriviti
+            </button>
+            <button class="btn btn-secondary" onclick="showCampaignInfo('${tournament.id}')">
+                <i class="fas fa-scroll"></i>
+                Info Campagna
+            </button>
+        </div>
+        `;
+    }
+
     if (tournament.status === 'completed') {
         return `
             <div class="tournament-actions">
@@ -1046,6 +1092,182 @@ window.openTournamentModal = async function(tournamentId) {
         console.error('Error loading tournament details:', error);
         showNotification('Errore nel caricamento del torneo', 'error');
     }
+};
+
+// Modal with detailed campaign information (based on HTML prototype)
+window.showCampaignInfo = function(campaignId) {
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 1000px; width: 90%; max-height: 85vh; overflow-y: auto;">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--color-dnd), #9370db); color: white;">
+                <h2 class="modal-title" style="color: white;">
+                    <i class="fas fa-dragon"></i>
+                    La Maledizione di Strahd - Informazioni Campagna
+                </h2>
+                <button class="modal-close" style="color: white;" onclick="closeModal(this.closest('.modal'))">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 2rem;">
+                <div class="modal-section">
+                    <h3><i class="fas fa-scroll"></i> Panoramica della Campagna</h3>
+                    <div class="info-card" style="padding: 1.5rem; text-align: center; margin-bottom: 2rem;">
+                        <p style="font-size: 1.1rem; line-height: 1.7; color: #666;">
+                            <strong>Curse of Strahd</strong> è una delle campagne più iconiche di D&D 5e. I personaggi vengono trascinati nel dominio gotico di Barovia, intrappolati dalle nebbie che circondano questa terra maledetta, dove devono affrontare l'antico vampiro Strahd von Zarovich nel suo castello.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3><i class="fas fa-info-circle"></i> Dettagli della Campagna</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                        <div class="info-card">
+                            <h4><i class="fas fa-user-tie"></i> Dungeon Master</h4>
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.8rem;">
+                                <img src="/images/avatars/mago.png" style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--color-dnd);">
+                                <div>
+                                    <strong>Marco \"Il Narratore\" Rossi</strong><br>
+                                    <small>5+ anni di esperienza • Specializzato in Horror Gothic</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <h4><i class="fas fa-calendar-alt"></i> Programma</h4>
+                            <p><strong>Quando:</strong> Ogni Sabato</p>
+                            <p><strong>Orario:</strong> 15:00 - 19:00 (4 ore)</p>
+                            <p><strong>Pausa:</strong> 17:00 - 17:15</p>
+                            <p><strong>Prossima Sessione:</strong> 12 Gennaio 2025</p>
+                        </div>
+
+                        <div class="info-card">
+                            <h4><i class="fas fa-map-marker-alt"></i> Ambientazione</h4>
+                            <p><strong>Livello Attuale:</strong> 8° Livello</p>
+                            <p><strong>Sessioni Completate:</strong> 12/20 (stimato)</p>
+                            <p><strong>Ore Giocate:</strong> 48h totali</p>
+                            <p><strong>Location:</strong> Barovia - Vallaki</p>
+                        </div>
+
+                        <div class="info-card">
+                            <h4><i class="fas fa-cogs"></i> Stile di Gioco</h4>
+                            <p><i class="fas fa-theater-masks"></i> <strong>Roleplay:</strong> 60%</p>
+                            <p><i class="fas fa-sword"></i> <strong>Combattimento:</strong> 30%</p>
+                            <p><i class="fas fa-search"></i> <strong>Esplorazione:</strong> 10%</p>
+                            <p><strong>Tono:</strong> Horror Gothic Serio</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3><i class="fas fa-users"></i> Party Attuale (3/4 membri)</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                        <div class="info-card">
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <div style="position: relative;">
+                                    <img src="/images/avatars/dragonide.png" style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid #ffd700;">
+                                    <i class="fas fa-crown" style="position: absolute; top: -8px; right: -5px; color: #ffd700; font-size: 1.2rem;"></i>
+                                </div>
+                                <div>
+                                    <h4 style="color: var(--color-dnd); margin-bottom: 0.3rem;">Elena Drakemoor</h4>
+                                    <p><strong>Party Leader</strong> • Paladino Dragonide</p>
+                                    <small>Tank/Support • Specializzato in protezione gruppo</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <img src="/images/avatars/cacciatore.png" style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--color-dnd);">
+                                <div>
+                                    <h4 style="color: var(--color-dnd); margin-bottom: 0.3rem;">Marcus Shadowbane</h4>
+                                    <p>Ranger Umano • Cacciatore di Mostri</p>
+                                    <small>DPS/Scout • Esperto in sopravvivenza</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <img src="/images/avatars/elfo.png" style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--color-dnd);">
+                                <div>
+                                    <h4 style="color: var(--color-dnd); margin-bottom: 0.3rem;">Lyralei Moonwhisper</h4>
+                                    <p>Druida Elfa • Guaritrice</p>
+                                    <small>Healer/Utility • Magia della natura</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-card" style="border: 3px dashed var(--color-dnd); text-align: center; display: flex; align-items: center; justify-content: center;">
+                            <div>
+                                <i class="fas fa-plus" style="font-size: 2rem; color: var(--color-dnd); margin-bottom: 0.5rem;"></i>
+                                <h4 style="color: var(--color-dnd);">Slot Libero</h4>
+                                <p>Ruolo consigliato: <strong>Wizard/Caster</strong></p>
+                                <button class="btn" style="margin-top: 0.8rem; background: var(--color-dnd); color: white; border-color: var(--color-dnd);" onclick="registerForTournament('${campaignId}')">
+                                    <i class="fas fa-user-plus"></i>
+                                    Candidati
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3><i class="fas fa-gavel"></i> Regole della Campagna</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="info-card">
+                            <h4><i class="fas fa-book"></i> Regole Generali</h4>
+                            <ul style="margin-left: 1rem; line-height: 1.6;">
+                                <li>Puntualità richiesta (15:00 sharp)</li>
+                                <li>Sessioni senza telefoni/distrazioni</li>
+                                <li>Rispetto per tutti i giocatori</li>
+                                <li>Backup del personaggio richiesto</li>
+                                <li>Comunicazione assenze 24h prima</li>
+                            </ul>
+                        </div>
+                        <div class="info-card">
+                            <h4><i class="fas fa-dice-d20"></i> Regole di Gioco</h4>
+                            <ul style="margin-left: 1rem; line-height: 1.6;">
+                                <li>D&D 5e PHB + Xanathar's Guide</li>
+                                <li>Point Buy per le statistiche</li>
+                                <li>No multi-classing estremo</li>
+                                <li>Background deve fits Barovia</li>
+                                <li>Morte permanente possibile</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3><i class="fas fa-map"></i> Stato Attuale della Campagna</h3>
+                    <div class="info-card" style="background: rgba(220, 53, 69, 0.1); border-color: #dc3545; padding: 1.5rem;">
+                        <h4 style="color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> Attenzione: Spoiler Alert</h4>
+                        <p style="margin-top: 0.8rem;">
+                            <strong>Location Attuale:</strong> Il party si trova nella città di Vallaki, dopo aver scoperto i segreti del Burgomaster. Stanno investigando eventi misteriosi legati al Festival del Sole Ardente.
+                        </p>
+                        <p style="margin-top: 0.5rem;">
+                            <strong>Obiettivi Principali:</strong> Trovare un modo per sconfiggere Strahd, liberare Ireena, e scoprire la verità su Barovia.
+                        </p>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; padding-top: 1rem; border-top: 2px solid rgba(0,0,0,0.1);">
+                    <button class="btn btn-secondary" onclick="closeModal(this.closest('.modal'))">
+                        <i class="fas fa-times"></i>
+                        Chiudi
+                    </button>
+                    <button class="btn btn-primary" onclick="registerForTournament('${campaignId}')">
+                        <i class="fas fa-user-plus"></i>
+                        Richiedi Accesso
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('modalContainer').appendChild(modal);
+    document.body.classList.add('modal-open');
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(modal); });
 };
 
 window.showGameInfo = function(category, gameName = null, difficulty = null, minPlayers = null, maxPlayers = null, durationStr = '') {
@@ -1613,167 +1835,4 @@ function initScrollAnimations() {
         observer.observe(card);
     });
 }
-
-// Funzione per creare una card di torneo D&D (es. campagna)
-// userState: { isRegistered: boolean, isLoggedIn: boolean }
-function createDndTournamentCard(userState) {
-    // Dati statici (da DB o mock)
-    const campaignInfo = {
-        title: 'Campagna D&D - La Maledizione di Strahd',
-        game: 'Dungeons & Dragons 5e',
-        date: 'Ogni SAB',
-        time: 'Ogni Sabato • 15:00 - 19:00',
-        theme: 'dnd-special dnd-theme',
-        tags: [
-            { class: 'tag dnd', icon: 'fas fa-dice-d20', text: 'Campagna Epica' },
-            { class: 'tag ongoing', icon: 'fas fa-play', text: 'In Corso' }
-        ],
-        details: [
-            { icon: 'fas fa-scroll', label: 'Sessione Corrente', value: '12 / 20' },
-            { icon: 'fas fa-hourglass-half', label: 'Ore di Gioco', value: '48h totali' },
-            { icon: 'fas fa-level-up-alt', label: 'Livello Gruppo', value: '8° Livello' },
-            { icon: 'fas fa-map', label: 'Setting', value: 'Barovia' }
-        ],
-        party: [
-            {
-                name: 'Elena Drakemoor',
-                role: 'Party Leader',
-                class: 'Paladino Dragonide',
-                avatar: 'public/images/avatars/dragonide.png',
-                leader: true
-            },
-            {
-                name: 'Marcus Shadowbane',
-                role: 'Cacciatore di Mostri',
-                class: 'Ranger Umano',
-                avatar: 'public/images/avatars/cacciatore.png'
-            },
-            {
-                name: 'Lyralei Moonwhisper',
-                role: 'Guaritrice della Natura',
-                class: 'Druida Elfa',
-                avatar: 'public/images/avatars/elfo.png'
-            },
-            {
-                empty: true
-            }
-        ]
-    };
-
-    // Crea la card
-    const card = document.createElement('div');
-    card.className = `tournament-card ${campaignInfo.theme}`;
-
-    // Data
-    const dateDiv = document.createElement('div');
-    dateDiv.className = 'tournament-date recurring';
-    dateDiv.innerHTML = `<span class="day">Ogni</span><span class="month">SAB</span>`;
-    card.appendChild(dateDiv);
-
-    // Header
-    const header = document.createElement('div');
-    header.className = 'tournament-header';
-    header.innerHTML = `
-        <div class="tournament-info">
-            <h2 class="tournament-title">
-                <i class="fas fa-dragon"></i>
-                ${campaignInfo.title}
-            </h2>
-            <div class="tournament-game">
-                ${campaignInfo.game}
-                <button class="game-info-btn" onclick="showGameInfo('dnd')">
-                    <i class="fas fa-info-circle"></i>
-                </button>
-            </div>
-            <div class="tournament-tags">
-                ${campaignInfo.tags.map(tag => `<span class="${tag.class}"><i class="${tag.icon}"></i> ${tag.text}</span>`).join('')}
-            </div>
-            <div class="tournament-time">
-                <i class="fas fa-clock"></i>
-                ${campaignInfo.time}
-            </div>
-        </div>
-    `;
-    card.appendChild(header);
-
-    // Details
-    const detailsDiv = document.createElement('div');
-    detailsDiv.className = 'tournament-details';
-    detailsDiv.innerHTML = campaignInfo.details.map(detail => `
-        <div class="detail-item">
-            <div class="detail-icon">
-                <i class="${detail.icon}"></i>
-            </div>
-            <div class="detail-content">
-                <div class="detail-label">${detail.label}</div>
-                <div class="detail-value">${detail.value}</div>
-            </div>
-        </div>
-    `).join('');
-    card.appendChild(detailsDiv);
-
-    // Campaign Info (party composition)
-    const campaignInfoDiv = document.createElement('div');
-    campaignInfoDiv.className = 'dnd-campaign-info';
-    campaignInfoDiv.innerHTML = `
-        <div class="campaign-section">
-            <h4><i class="fas fa-users"></i> Composizione Party Attuale</h4>
-            <div class="character-avatars">
-                ${campaignInfo.party.map(member => member.empty
-                    ? `<div class="character-avatar empty-slot" id="dnd-strahd-slot" onclick="showRegistrationModal('dnd-strahd')">
-                            <div class="empty-avatar"><i class="fas fa-plus"></i></div>
-                            <div class="character-tooltip">
-                                <strong>Slot Libero</strong><br>
-                                Clicca per richiedere<br>
-                                l'accesso alla campagna
-                            </div>
-                        </div>`
-                    : `<div class="character-avatar${member.leader ? ' party-leader' : ''}" onclick="showCharacterBio('${member.name.toLowerCase().split(' ')[0]}')">
-                            <img src="${member.avatar}" alt="${member.name}">
-                            ${member.leader ? '<span class="crown"><i class="fas fa-crown"></i></span>' : ''}
-                            <div class="character-tooltip">
-                                <strong>${member.name}</strong><br>
-                                ${member.class}<br>
-                                <em>${member.role}</em>
-                            </div>
-                        </div>`
-                ).join('')}
-            </div>
-        </div>
-    `;
-    card.appendChild(campaignInfoDiv);
-
-    // Actions
-    const actionsDiv = document.createElement('div');
-    actionsDiv.className = 'tournament-actions';
-
-    // Bottone Iscriviti
-    const registerBtn = document.createElement('button');
-    registerBtn.className = userState.isRegistered ? 'btn btn-success' : 'btn btn-primary';
-    registerBtn.id = 'dnd-strahd-register-btn';
-    registerBtn.innerHTML = userState.isRegistered
-        ? '<i class="fas fa-check"></i> Già Iscritto'
-        : '<i class="fas fa-user-plus"></i> Richiedi Accesso';
-    registerBtn.disabled = userState.isRegistered || !userState.isLoggedIn;
-    if (!userState.isRegistered && userState.isLoggedIn) {
-        registerBtn.onclick = function() { showRegistrationModal('dnd-strahd'); };
-    }
-
-    // Bottone Info Campagna
-    const infoBtn = document.createElement('button');
-    infoBtn.className = 'btn btn-secondary';
-    infoBtn.innerHTML = '<i class="fas fa-scroll"></i> Info Campagna';
-    infoBtn.onclick = function() { showCampaignInfo('dnd-strahd'); };
-
-    actionsDiv.appendChild(registerBtn);
-    actionsDiv.appendChild(infoBtn);
-    card.appendChild(actionsDiv);
-
-    return card;
-}
-
-// Esempio di utilizzo:
-// const userState = { isRegistered: true, isLoggedIn: true };
-// document.querySelector('.tournaments-timeline').appendChild(createDndTournamentCard(userState));
-
 console.log('✅ Tournaments page module loaded successfully');
