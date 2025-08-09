@@ -330,7 +330,7 @@
    SEZIONE TUTTI I TORNEI
    ========================================== */
 .all-tournaments-section {
-    display: block;
+    display: none;
 }
 .all-tournaments-section.active {
     display: block;
