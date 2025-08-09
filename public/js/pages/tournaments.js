@@ -772,10 +772,6 @@ function generateTournamentActions(tournament, isRegistered, isAuthenticated, is
 
         return `
         <div class="tournament-actions">
-            <button class="btn btn-primary" onclick="showDnDRegistrationModal('${tournament.id}')">
-                <i class="fas fa-user-plus"></i>
-                Richiedi Accesso
-            </button>
             <button class="btn btn-secondary" onclick="showCampaignInfo('${tournament.id}')">
                 <i class="fas fa-scroll"></i>
                 Info Campagna
