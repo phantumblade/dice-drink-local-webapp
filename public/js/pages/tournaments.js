@@ -395,19 +395,7 @@ function renderMyTournaments(userTournaments) {
     if (header) header.style.display = '';
 
     if (!userTournaments || userTournaments.length === 0) {
-        upcomingContainer.innerHTML = `
-            <div style="margin-top: 2rem;">
-                <h3 style="color: var(--color-primary); margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fas fa-calendar-alt"></i>
-                    Tornei in Corso e Prossimi
-                </h3>
-                <div style="text-align: center; padding: 3rem; background: #f8f9fa; border-radius: 12px; color: #666;">
-                    <i class="fas fa-calendar-plus" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                    <h4>Nessun torneo in programma</h4>
-                    <p>Vai alla sezione "Tutti i Tornei" per iscriverti a nuovi eventi!</p>
-                </div>
-            </div>
-        `;
+        upcomingContainer.innerHTML = '';
         completedContainer.innerHTML = '';
         return;
     }
@@ -1040,11 +1028,17 @@ window.unregisterFromTournament = async function(tournamentId) {
 
 window.openTournamentModal = async function(tournamentId) {
     try {
-        const response = await fetch(`/api/tournaments/${tournamentId}`);
-        const data = await response.json();
+        const [tRes, pRes] = await Promise.all([
+            fetch(`/api/tournaments/${tournamentId}`),
+            fetch(`/api/tournaments/${tournamentId}/participants`)
+        ]);
 
-        if (data.success) {
-            createTournamentModal(data.data);
+        const tData = await tRes.json();
+        const pData = pRes.ok ? await pRes.json() : { success: false };
+
+        if (tData.success) {
+            const participants = pData.success && pData.data ? pData.data.participants : [];
+            createTournamentModal(tData.data, participants);
         } else {
             showNotification('Errore nel caricamento del torneo', 'error');
         }
@@ -1361,9 +1355,52 @@ function showRegistrationSuccessModal(tournamentId) {
     });
 }
 
-function createTournamentModal(tournament) {
+function createTournamentModal(tournament, participants = []) {
     const modal = document.createElement('div');
     modal.className = 'modal show';
+
+    const isAuthenticated = window.SimpleAuth && window.SimpleAuth.isAuthenticated;
+    const isRegistered = tournamentState.registeredTournaments.has(parseInt(tournament.id));
+
+    const participantsHTML = participants.map(p => {
+        const name = `${p.first_name || ''} ${p.last_name || ''}`.trim();
+        const avatar = p.profile_image || '/images/avatars/default.png';
+        return `
+            <div class="info-card" style="display: flex; align-items: center; gap: 1rem;">
+                <img src="${avatar}" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--color-primary);">
+                <div>
+                    <div style="font-weight: bold;">${name}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    const prizesHTML = Array.isArray(tournament.prizes) && tournament.prizes.length
+        ? `<h5 style="margin-bottom: 0.5rem;">Premi:</h5><ul style="margin-left: 1rem;">${tournament.prizes.map(prize => `<li>${prize}</li>`).join('')}</ul>`
+        : '';
+
+    const rulesHTML = Array.isArray(tournament.rules) && tournament.rules.length
+        ? `<div class="info-card"><h4><i class="fas fa-gavel"></i> Regole Principali</h4><ul style="margin-left: 1rem;">${tournament.rules.map(rule => `<li>${rule}</li>`).join('')}</ul></div>`
+        : '';
+
+    const includedHTML = Array.isArray(tournament.included) && tournament.included.length
+        ? `<div class="modal-section"><h3><i class="fas fa-gift"></i> Cosa è Incluso</h3><div class="info-card"><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">${tournament.included.map(item => `<div style="display: flex; align-items: center; gap: 0.5rem;"><i class="fas fa-check-circle" style="color: var(--color-success);"></i><span>${item}</span></div>`).join('')}</div></div></div>`
+        : '';
+
+    const formatSection = (tournament.format || prizesHTML || rulesHTML)
+        ? `<div class="modal-section"><h3><i class="fas fa-cogs"></i> Formato e Regole</h3><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">${(tournament.format || prizesHTML) ? `<div class="info-card"><h4><i class="fas fa-trophy"></i> Formato Torneo</h4>${tournament.format ? `<p style="margin-bottom: 1rem;">${tournament.format}</p>` : ''}${prizesHTML}</div>` : ''}${rulesHTML}</div></div>`
+        : '';
+
+    const playersSection = participants.length
+        ? `<div class="modal-section"><h3><i class="fas fa-users"></i> Giocatori Iscritti (${participants.length}/${tournament.maxParticipants || '?'})</h3><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">${participantsHTML}</div></div>`
+        : '';
+
+    const actionButton = isAuthenticated
+        ? (isRegistered
+            ? `<button class="btn btn-danger" onclick="unregisterFromTournament('${tournament.id}')"><i class="fas fa-times"></i> Cancella Iscrizione</button>`
+            : `<button class="btn btn-primary" onclick="registerForTournament('${tournament.id}')"><i class="fas fa-plus"></i> Iscriviti al Torneo</button>`)
+        : `<button class="btn btn-primary" onclick="showAuthPrompt()"><i class="fas fa-user-plus"></i> Accedi per Iscriverti</button>`;
+
     modal.innerHTML = `
         <div class="modal-content" style="max-width: 1000px; width: 90%; max-height: 85vh; overflow-y: auto;">
             <div class="modal-header">
@@ -1376,41 +1413,52 @@ function createTournamentModal(tournament) {
                 </button>
             </div>
             <div class="modal-body">
-                <div class="info-card" style="text-align: center; margin-bottom: 2rem;">
-                    <p style="font-size: 1.1rem;">${tournament.description || 'Partecipa a questo fantastico torneo!'}</p>
-                </div>
-
-                <div class="info-grid">
-                    <div class="info-card">
-                        <h4><i class="fas fa-gamepad"></i> Gioco</h4>
-                        <p><strong>${tournament.gameName || tournament.game_name || 'Gioco da tavolo'}</strong></p>
-                        <p>Categoria: ${getCategoryName(tournament.category)}</p>
-                    </div>
-
-                    <div class="info-card">
-                        <h4><i class="fas fa-calendar-alt"></i> Data e Orario</h4>
-                        <p><strong>Data:</strong> ${tournament.start_date ? new Date(tournament.start_date).toLocaleDateString('it-IT') : 'Da definire'}</p>
-                        <p><strong>Orario:</strong> ${tournament.start_time || '20:30'} - ${tournament.end_time || '23:00'}</p>
-                    </div>
-
-                    <div class="info-card">
-                        <h4><i class="fas fa-users"></i> Partecipanti</h4>
-                        <p><strong>Iscritti:</strong> ${tournament.current_participants || 0}/${tournament.max_participants || 'N/A'}</p>
-                        <p><strong>Quota:</strong> ${tournament.entry_fee ? `€${tournament.entry_fee}` : 'Gratuito'}</p>
-                    </div>
-
-                    <div class="info-card">
-                        <h4><i class="fas fa-trophy"></i> Premio</h4>
-                        <p><strong>${getFirstPrize(tournament)}</strong></p>
-                        <p>Difficoltà: ${getDifficultyText(tournament.difficulty)}</p>
+                <div class="modal-section">
+                    <div class="info-card" style="text-align: center; padding: 1.5rem; margin-bottom: 2rem;">
+                        <p style="font-size: 1.1rem; line-height: 1.7;">${tournament.description || ''}</p>
                     </div>
                 </div>
 
-                <div style="text-align: center; margin-top: 2rem;">
+                <div class="modal-section">
+                    <h3><i class="fas fa-info-circle"></i> Dettagli del Torneo</h3>
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h4><i class="fas fa-gamepad"></i> Gioco</h4>
+                            <p><strong>${tournament.gameName || tournament.game_name || ''}</strong></p>
+                            ${tournament.category ? `<p>Categoria: ${getCategoryName(tournament.category)}</p>` : ''}
+                        </div>
+
+                        <div class="info-card">
+                            <h4><i class="fas fa-calendar-alt"></i> Data e Orario</h4>
+                            <p><strong>Data:</strong> ${tournament.start_date ? new Date(tournament.start_date).toLocaleDateString('it-IT') : 'Da definire'}</p>
+                            <p><strong>Orario:</strong> ${tournament.start_time || ''}${tournament.end_time ? ' - ' + tournament.end_time : ''}</p>
+                        </div>
+
+                        <div class="info-card">
+                            <h4><i class="fas fa-map-marker-alt"></i> Luogo</h4>
+                            <p><strong>Location:</strong> ${tournament.location || 'Da definire'}</p>
+                        </div>
+
+                        <div class="info-card">
+                            <h4><i class="fas fa-users"></i> Partecipanti</h4>
+                            <p><strong>Iscritti:</strong> ${tournament.currentParticipants || 0}/${tournament.maxParticipants || 'N/A'}</p>
+                            ${tournament.waitlistCount ? `<p><strong>Lista d'attesa:</strong> ${tournament.waitlistCount}</p>` : ''}
+                            <p><strong>Quota:</strong> ${tournament.entryFee ? `€${tournament.entryFee}` : 'Gratuito'}</p>
+                        </div>
+                    </div>
+                </div>
+
+                ${formatSection}
+
+                ${includedHTML}
+
+                ${playersSection}
+
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; padding-top: 1rem; border-top: 2px solid rgba(0,0,0,0.1);">
                     <button class="btn btn-secondary" onclick="closeModal(this.closest('.modal'))">
-                        <i class="fas fa-times"></i>
-                        Chiudi
+                        <i class="fas fa-times"></i> Chiudi
                     </button>
+                    ${actionButton}
                 </div>
             </div>
         </div>
