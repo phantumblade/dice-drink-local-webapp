@@ -190,9 +190,17 @@ window.SimpleAuth = {
             if (this.isAuthenticated) {
                 profileIcon.style.color = '#4CAF50';
                 profileIcon.title = `Loggato come ${this.currentUser?.first_name || 'Utente'}`;
+                
+                // Carica avatar nella navbar dopo un breve delay
+                setTimeout(() => {
+                    this.updateNavbarProfileButton();
+                }, 300);
             } else {
                 profileIcon.style.color = '';
                 profileIcon.title = 'Clicca per accedere';
+                // Ripristina l'icona originale per il logout
+                profileIcon.innerHTML = '';
+                profileIcon.textContent = 'person_add';
             }
         }
     },
@@ -252,7 +260,7 @@ window.SimpleAuth = {
         menuOverlay.innerHTML = `
             <div class="user-menu">
                 <div class="user-menu-header">
-                    <div class="user-avatar">
+                    <div class="user-avatar" id="user-menu-avatar">
                         <i class="fas fa-user-circle"></i>
                     </div>
                     <div class="user-info">
@@ -280,6 +288,9 @@ window.SimpleAuth = {
 
         document.body.appendChild(menuOverlay);
         setTimeout(() => menuOverlay.classList.add('show'), 10);
+
+        // Carica avatar utente nel menu
+        this.loadUserMenuAvatar();
 
         // Event listeners
         menuOverlay.addEventListener('click', (e) => {
@@ -596,6 +607,74 @@ showProfile() {
     onModalClosed() {
         this.currentModal = null;
         console.log('🧹 Modal chiuso e riferimento pulito');
+    },
+
+    // ==========================================
+    // GESTIONE AVATAR MENU UTENTE
+    // ==========================================
+
+    async loadUserMenuAvatar() {
+        const avatarContainer = document.getElementById('user-menu-avatar');
+        if (!avatarContainer || !this.currentUser?.id) return;
+
+        try {
+            const response = await fetch(`/api/users/${this.currentUser.id}/avatar`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                const avatarUrl = result.avatarUrl || '/images/avatars/default.png';
+                const cacheBuster = `?t=${Date.now()}`;
+
+                avatarContainer.innerHTML = `
+                    <img src="${avatarUrl}${cacheBuster}" 
+                         alt="Avatar profilo" 
+                         style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover;" />
+                `;
+
+                console.log('✅ Avatar menu utente aggiornato:', avatarUrl);
+            }
+        } catch (error) {
+            console.error('❌ Errore caricamento avatar menu:', error);
+        }
+    },
+
+    async updateNavbarProfileButton() {
+        const profileButton = document.getElementById('navbar-profile-button');
+        if (!profileButton || !this.currentUser?.id) return;
+
+        try {
+            const response = await fetch(`/api/users/${this.currentUser.id}/avatar`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                const avatarUrl = result.avatarUrl || '/images/avatars/default.png';
+                const cacheBuster = `?t=${Date.now()}`;
+
+                // Sostituisce l'icona con l'immagine avatar
+                profileButton.innerHTML = `
+                    <img src="${avatarUrl}${cacheBuster}" 
+                         alt="Il tuo profilo" 
+                         style="width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-primary);" />
+                `;
+                
+                profileButton.title = 'Il tuo profilo';
+                console.log('✅ Avatar navbar aggiornato:', avatarUrl);
+            }
+        } catch (error) {
+            console.error('❌ Errore aggiornamento avatar navbar:', error);
+        }
     }
 };
 

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="100" fill="#6633cc"/>
+  
+  <!-- User icon -->
+  <circle cx="100" cy="75" r="35" fill="white"/>
+  <path d="M40 160 Q40 120 100 120 Q160 120 160 160 L160 200 L40 200 Z" fill="white"/>
+  
+  <!-- Dice decoration -->
+  <rect x="15" y="15" width="20" height="20" rx="3" fill="rgba(255,255,255,0.3)"/>
+  <circle cx="19" cy="19" r="1" fill="#6633cc"/>
+  <circle cx="25" cy="25" r="1" fill="#6633cc"/>
+  <circle cx="31" cy="31" r="1" fill="#6633cc"/>
+  
+  <rect x="165" y="165" width="20" height="20" rx="3" fill="rgba(255,255,255,0.3)"/>
+  <circle cx="169" cy="169" r="1" fill="#6633cc"/>
+  <circle cx="175" cy="175" r="1" fill="#6633cc"/>
+  <circle cx="181" cy="181" r="1" fill="#6633cc"/>
+</svg>

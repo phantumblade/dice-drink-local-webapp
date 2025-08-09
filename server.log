@@ -1,0 +1,34 @@
+✅ Database Games OK - 15 giochi disponibili
+✅ Database Drinks OK - 16 drink disponibili
+✅ Database Snacks OK - 10 snack disponibili
+✅ Database Tournaments OK - 10 tornei disponibili
+🎲🍹🍿 =====================================
+🎲🍹🍿  DICE & DRINK & SNACK SERVER!
+🎲🍹🍿 =====================================
+🌐 Server URL: http://localhost:3000
+🔍 Health Check: http://localhost:3000/api/health
+📡 API Endpoints:
+   🎮 Games: http://localhost:3000/api/games
+   🍹 Drinks: http://localhost:3000/api/drinks
+   🍿 Snacks: http://localhost:3000/api/snacks
+📝 Esempi:
+   📋 Tutti i giochi: /api/games
+   🎯 Giochi strategia: /api/games?category=Strategia
+   👥 Giochi 4 player: /api/games?players=4
+   🔎 Cerca 'catan': /api/games/search?q=catan
+   🍸 Tutti i drink: /api/drinks
+   🍺 Drink alcolici: /api/drinks/alcoholic
+   🥤 Drink analcolici: /api/drinks/non-alcoholic
+   🔍 Cerca 'gin': /api/drinks/search?q=gin
+   🧀 Tutti gli snack: /api/snacks
+   🍫 Snack dolci: /api/snacks/sweet
+   🎮 Snack game-friendly: /api/snacks/game-friendly
+   🔍 Cerca 'cioccolato': /api/snacks/search?q=cioccolato
+🎲🍹🍿 =====================================
+💡 Se vedi errori, esegui: node initDb.js, node initDrinksDb.js e node initSnacksDb.js
+[AuthMiddleware] Optional auth: no token provided 
+[AuthMiddleware] Optional auth: no token provided 
+[AuthMiddleware] Optional auth: no token provided 
+[AuthMiddleware] Optional auth: no token provided 
+[AuthMiddleware] Optional auth: no token provided 
+[AuthMiddleware] Optional auth: no token provided 

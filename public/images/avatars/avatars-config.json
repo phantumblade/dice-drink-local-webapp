@@ -1,0 +1,22 @@
+{
+  "avatars": [
+    {
+      "id": "default",
+      "name": "Default",
+      "filename": "default.png",
+      "description": "Avatar predefinito per nuovi utenti"
+    }
+  ],
+  "defaultAvatar": "default",
+  "supportedFormats": ["png", "jpg", "jpeg"],
+  "instructions": {
+    "it": "Per aggiungere nuovi avatar, salva le immagini PNG nella cartella public/images/avatars/ e aggiorna questo file JSON",
+    "folder": "/public/images/avatars/",
+    "example": {
+      "id": "avatar_name",
+      "name": "Nome Visualizzato",
+      "filename": "avatar_name.png",
+      "description": "Breve descrizione"
+    }
+  }
+}

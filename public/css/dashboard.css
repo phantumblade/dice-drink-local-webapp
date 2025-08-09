@@ -1034,8 +1034,8 @@
 }
 
 .user-avatar {
-    width: 45px;
-    height: 45px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     background: linear-gradient(135deg, var(--dash-primary) 0%, #7c4dff 100%);
     display: flex;

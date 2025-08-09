@@ -207,6 +207,7 @@ export function createNavbar() {
   const profileIcon = document.createElement('span');
   profileIcon.classList.add('material-symbols-rounded', 'navbar-profile-icon');
   profileIcon.textContent = 'person_add';
+  profileIcon.id = 'navbar-profile-button';
 
   // Configura l'icona profilo
   profileIcon.style.cursor = 'pointer';
@@ -243,19 +244,15 @@ export function createNavbar() {
 
   // --- Componi la navbar completa ---
   
-  // Crea wrapper per mobile layout
-  const topRow = document.createElement('div');
-  topRow.classList.add('navbar-top-row');
-  topRow.appendChild(leftSection);
-  topRow.appendChild(rightSection);
-  
-  const bottomRow = document.createElement('div');
-  bottomRow.classList.add('navbar-bottom-row');
-  bottomRow.appendChild(centerSection);
+  // Organizzazione corretta: sinistra (logo) - centro (nav) - destra (profilo)
+  const mainRow = document.createElement('div');
+  mainRow.classList.add('navbar-main-row');
+  mainRow.appendChild(leftSection);
+  mainRow.appendChild(centerSection);
+  mainRow.appendChild(rightSection);
   
   // Aggiunge tutto alla navbar
-  nav.appendChild(topRow);
-  nav.appendChild(bottomRow);
+  nav.appendChild(mainRow);
 
   setupActivePageIndicator(nav);
 

@@ -1639,7 +1639,16 @@ async function selectAvatar(avatarId) {
                 window.SimpleAuth.currentUser.profileImage = result.avatarUrl;
             }
             
-            showNotification(`✨ Avatar "${result.avatarName}" selezionato con successo!`, 'success');
+            // Notifica speciale per cambio avatar
+            showSpecialAvatarNotification(result.avatarName || avatarId);
+            
+            // Aggiorna anche avatar in navbar se possibile
+            if (window.SimpleAuth && window.SimpleAuth.updateNavbarProfileButton) {
+                setTimeout(() => {
+                    window.SimpleAuth.updateNavbarProfileButton();
+                }, 500);
+            }
+            
             return true;
             
         } else {
@@ -1781,6 +1790,184 @@ function showNotification(message, type = 'info') {
     });
     
     setTimeout(() => notification.remove(), 5000);
+}
+
+// ==========================================
+// NOTIFICA SPECIALE AVATAR
+// ==========================================
+
+function showSpecialAvatarNotification(avatarName) {
+    // Crea notifica magica per cambio avatar
+    const notification = document.createElement('div');
+    notification.className = 'avatar-change-notification';
+    
+    const avatarDisplayName = avatarName.charAt(0).toUpperCase() + avatarName.slice(1);
+    
+    notification.innerHTML = `
+        <div class="magic-avatar-container">
+            <div class="sparkles">
+                <div class="sparkle" style="--delay: 0s; --x: 10px; --y: 15px;">✨</div>
+                <div class="sparkle" style="--delay: 0.2s; --x: 80px; --y: 10px;">🌟</div>
+                <div class="sparkle" style="--delay: 0.4s; --x: 50px; --y: 40px;">⭐</div>
+                <div class="sparkle" style="--delay: 0.6s; --x: 20px; --y: 35px;">💫</div>
+                <div class="sparkle" style="--delay: 0.8s; --x: 70px; --y: 30px;">✨</div>
+            </div>
+            
+            <div class="avatar-message">
+                <div class="avatar-icon">🎭</div>
+                <div class="avatar-text">
+                    <div class="avatar-title">Trasformazione Magica!</div>
+                    <div class="avatar-subtitle">Ora sei diventato "${avatarDisplayName}"</div>
+                </div>
+            </div>
+            
+            <button class="magic-close">&times;</button>
+        </div>
+    `;
+    
+    // Stili magici inline
+    notification.style.cssText = `
+        position: fixed; 
+        top: 30px; 
+        left: 50%; 
+        transform: translateX(-50%); 
+        z-index: 10000;
+        animation: magicAppear 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        font-family: "Marlin Soft Basic", Arial, sans-serif;
+    `;
+    
+    // Aggiunge stili CSS dinamicamente se non esistono
+    if (!document.getElementById('avatar-magic-styles')) {
+        const style = document.createElement('style');
+        style.id = 'avatar-magic-styles';
+        style.innerHTML = `
+            @keyframes magicAppear {
+                0% { opacity: 0; transform: translateX(-50%) scale(0.3) rotate(10deg); }
+                50% { opacity: 1; transform: translateX(-50%) scale(1.1) rotate(-5deg); }
+                100% { opacity: 1; transform: translateX(-50%) scale(1) rotate(0deg); }
+            }
+            
+            @keyframes sparkleFloat {
+                0%, 100% { transform: translateY(0px) scale(1); opacity: 1; }
+                50% { transform: translateY(-20px) scale(1.2); opacity: 0.8; }
+            }
+            
+            .avatar-change-notification {
+                max-width: 400px;
+                width: 90%;
+            }
+            
+            .magic-avatar-container {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border: 3px solid #ffffff;
+                border-radius: 20px;
+                box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4), 0 0 0 1px rgba(255,255,255,0.1);
+                padding: 20px;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .sparkles {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                pointer-events: none;
+            }
+            
+            .sparkle {
+                position: absolute;
+                font-size: 16px;
+                animation: sparkleFloat 2s ease-in-out infinite;
+                animation-delay: var(--delay);
+                left: var(--x);
+                top: var(--y);
+                z-index: 1;
+            }
+            
+            .avatar-message {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                position: relative;
+                z-index: 2;
+            }
+            
+            .avatar-icon {
+                font-size: 3em;
+                animation: pulse 1.5s ease-in-out infinite alternate;
+            }
+            
+            @keyframes pulse {
+                from { transform: scale(1); }
+                to { transform: scale(1.1); }
+            }
+            
+            .avatar-text {
+                flex: 1;
+            }
+            
+            .avatar-title {
+                color: #ffffff;
+                font-size: 1.3em;
+                font-weight: bold;
+                margin-bottom: 5px;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            }
+            
+            .avatar-subtitle {
+                color: #e8eaf6;
+                font-size: 1em;
+                text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            }
+            
+            .magic-close {
+                position: absolute;
+                top: 10px;
+                right: 15px;
+                background: rgba(255,255,255,0.2);
+                border: 2px solid rgba(255,255,255,0.3);
+                color: white;
+                font-size: 1.2em;
+                font-weight: bold;
+                cursor: pointer;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                z-index: 3;
+            }
+            
+            .magic-close:hover {
+                background: rgba(255,255,255,0.3);
+                transform: scale(1.1);
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(notification);
+    
+    // Gestisci chiusura
+    const closeBtn = notification.querySelector('.magic-close');
+    closeBtn.addEventListener('click', () => {
+        notification.style.animation = 'magicAppear 0.4s ease reverse';
+        setTimeout(() => notification.remove(), 400);
+    });
+    
+    // Auto-remove dopo 4 secondi
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.style.animation = 'magicAppear 0.4s ease reverse';
+            setTimeout(() => notification.remove(), 400);
+        }
+    }, 4000);
+    
+    console.log('🎭 ✨ Notifica magica avatar mostrata per:', avatarDisplayName);
 }
 
 function renderEditForm(booking) {

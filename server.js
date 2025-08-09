@@ -45,6 +45,10 @@ app.use(express.static('public', {
   const adminRoutes = require('./routes/admin');
   app.use('/api/admin', adminRoutes);
 
+  // TOURNAMENTS API - Routes per tornei
+  const tournamentsRoutes = require('./routes/tournaments');
+  app.use('/api/tournaments', tournamentsRoutes);
+
 
 
 
@@ -58,6 +62,8 @@ app.use(express.static('public', {
     const drinksTable = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='drinks'");
     // Verifica tabella snacks
     const snacksTable = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='snacks'");
+    // Verifica tabella tournaments
+    const tournamentsTable = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='tournaments'");
 
     if (!gamesTable) {
       console.log('⚠️  ATTENZIONE: Tabella games non trovata!');
@@ -83,10 +89,18 @@ app.use(express.static('public', {
       console.log(`✅ Database Snacks OK - ${snackCount.count} snack disponibili`);
     }
 
+    if (!tournamentsTable) {
+      console.log('⚠️  ATTENZIONE: Tabella tournaments non trovata!');
+      console.log('💡 Esegui: node initTournamentsDb.js');
+    } else {
+      const tournamentCount = await db.get('SELECT COUNT(*) as count FROM tournaments');
+      console.log(`✅ Database Tournaments OK - ${tournamentCount.count} tornei disponibili`);
+    }
+
     await db.close();
   } catch (err) {
     console.log('⚠️  Impossibile verificare il database');
-    console.log('💡 Assicurati di aver eseguito: node initDb.js, node initDrinksDb.js e node initSnacksDb.js');
+    console.log('💡 Assicurati di aver eseguito: node initDb.js, node initDrinksDb.js, node initSnacksDb.js e node initTournamentsDb.js');
   }
 
   // Health check per verificare che l'API funzioni

@@ -1,0 +1,2043 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tornei - Dice & Drink (Copia)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --color-primary: #6633cc;
+            --color-secondary: #9966ff;
+            --color-text: #2d3748;
+            --color-background: #f7fafc;
+            --color-white: #ffffff;
+            --color-success: #28a745;
+            --color-warning: #ffc107;
+            --color-danger: #dc3545;
+            --color-info: #17a2b8;
+
+            /* Game Theme Colors - Subtle backgrounds */
+            --color-strategy-bg: rgba(34, 139, 34, 0.08);
+            --color-dnd-bg: rgba(138, 43, 226, 0.08);
+            --color-party-bg: rgba(255, 20, 147, 0.08);
+            --color-card-bg: rgba(30, 144, 255, 0.08);
+            --color-board-bg: rgba(255, 140, 0, 0.08);
+
+            /* Game Theme Accent Colors */
+            --color-strategy: #228b22;
+            --color-dnd: #8a2be2;
+            --color-party: #ff1493;
+            --color-card: #1e90ff;
+            --color-board: #ff8c00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        /* Scrollbar globale coerente (Chrome/Edge/Safari - WebKit) */
+        *::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        *::-webkit-scrollbar-track {
+            background: rgba(102, 51, 204, 0.08); /* tenue viola */
+            border-radius: 12px;
+        }
+        *::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--color-secondary), var(--color-primary));
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+        }
+        *::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #8a5ae6, #5a2db8);
+        }
+        /* Scrollbar globale (Firefox) */
+        html { scrollbar-width: thin; scrollbar-color: var(--color-secondary) rgba(102, 51, 204, 0.12); }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .tournaments-header {
+            background: white;
+            border: 2px solid var(--color-text);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .tournaments-header h1 {
+            color: var(--color-primary);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .tournaments-header p {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .view-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .toggle-btn {
+            padding: 0.8rem 2rem;
+            border: 2px solid var(--color-primary);
+            border-radius: 25px;
+            background: white;
+            color: var(--color-primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--color-primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 51, 204, 0.3);
+        }
+
+        .toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 51, 204, 0.2);
+        }
+
+        /* My Tournaments Section */
+        .my-tournaments-section { display: none; }
+        .my-tournaments-section.active { display: block; }
+
+        .user-profile-header {
+            background: white;
+            border: 2px solid var(--color-text);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid var(--color-primary);
+            object-fit: cover;
+        }
+
+        .profile-details h2 {
+            color: var(--color-primary);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-details p { color: #666; font-size: 1.1rem; }
+
+        /* User profile row (one-line layout with editable fields) */
+        .user-profile-row { display: flex; align-items: center; gap: 1.5rem; justify-content: space-between; flex-wrap: nowrap; }
+        .user-avatar-block { flex: 0 0 auto; }
+        .avatar-frame { position: relative; display: inline-block; }
+        .avatar-change-btn { position: absolute; bottom: 0; right: 0; width: 36px; height: 36px; border-radius: 50%; border: 2px solid #fff; background: var(--color-secondary); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .avatar-change-btn:hover { background: var(--color-primary); }
+        .user-fields { flex: 1 1 auto; display: flex; gap: 1rem; align-items: stretch; }
+        .user-field { flex: 1 1 0; background: #fff; border: 2px solid var(--color-border, rgba(0,0,0,0.1)); border-radius: 12px; padding: 0.8rem 1rem; display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto; gap: 0.25rem 0.5rem; min-width: 220px; }
+        .user-field .field-label { grid-column: 1 / 2; font-size: 0.8rem; color: #718096; text-transform: uppercase; letter-spacing: 0.4px; display: inline-flex; align-items: center; gap: 0.4rem; }
+        .user-field .field-value { grid-column: 1 / 2; font-weight: 700; color: var(--color-text); align-self: end; font-size: 1rem; }
+        .user-field .field-edit-btn { grid-column: 2 / 3; grid-row: 1 / span 2; align-self: center; height: fit-content; padding: 0.5rem; border: none; border-radius: 8px; background: transparent; color: #ccc; font-size: 1.1rem; cursor: pointer; transition: color 0.3s ease; }
+        .user-field .field-edit-btn:hover { color: #9966ff; }
+
+        .badges-section { border-top: 2px solid rgba(0, 0, 0, 0.1); padding-top: 1.5rem; margin-bottom: 1.5rem; }
+        .badges-title { color: var(--color-primary); font-size: 1.3rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .badges-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+        .badge-item { background: rgba(102, 51, 204, 0.05); border: 2px solid rgba(102, 51, 204, 0.2); border-radius: 12px; padding: 1.2rem; display: flex; align-items: center; gap: 1rem; }
+        .badge-icon { width: 50px; height: 50px; background: var(--color-primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+        .badge-info h4 { color: var(--color-primary); margin-bottom: 0.3rem; }
+        .badge-info p { color: #666; font-size: 0.9rem; }
+
+        .stats-section { border-top: 2px solid rgba(0, 0, 0, 0.1); padding-top: 1.5rem; }
+        .stats-title { color: var(--color-primary); font-size: 1.3rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+        .stat-card { background: white; border: 2px solid rgba(102, 51, 204, 0.2); border-radius: 12px; padding: 1.5rem; text-align: center; transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102, 51, 204, 0.1); }
+        .stat-number { font-size: 2.5rem; font-weight: bold; color: var(--color-primary); margin-bottom: 0.5rem; }
+        .stat-label { color: #666; font-weight: 600; }
+
+        /* All Tournaments Section */
+        .all-tournaments-section { display: block; }
+        .all-tournaments-section.active { display: block; }
+
+        /* Timeline */
+        .tournaments-timeline { position: relative; z-index: 0; }
+        .tournaments-timeline::before {
+            content: '';
+            position: absolute;
+            left: 2rem;
+            top: 0; bottom: 0;
+            width: 4px;
+            background: var(--color-primary);
+            border-radius: 2px;
+            z-index: 1;
+        }
+
+        .tournament-card {
+            position: relative;
+            background: white;
+            border: 2px solid var(--color-text);
+            border-radius: 16px;
+            margin: 2rem 0 2rem 5rem;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            /* MODIFICA: permetti alla data di uscire a sinistra senza essere tagliata */
+            overflow: visible;
+            z-index: 1; /* sotto al tag data */
+        }
+
+        .tournament-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; transition: opacity 0.3s ease; }
+        .tournament-card.strategy-theme::after { background: var(--color-strategy-bg); }
+        .tournament-card.dnd-theme::after { background: var(--color-dnd-bg); }
+        .tournament-card.party-theme::after { background: var(--color-party-bg); }
+        .tournament-card.card-theme::after { background: var(--color-card-bg); }
+        .tournament-card.board-theme::after { background: var(--color-board-bg); }
+
+        /* Special D&D Card */
+        .tournament-card.dnd-special { border: 3px solid var(--color-dnd); box-shadow: 0 8px 24px rgba(138, 43, 226, 0.2); }
+        .tournament-card.dnd-special::after { background: var(--color-dnd-bg); }
+        .tournament-card.dnd-special::before { background: var(--color-dnd); box-shadow: 0 0 0 3px white, 0 0 0 5px var(--color-dnd); }
+
+        .tournament-card > * { position: relative; z-index: 1; }
+        .tournament-card:hover { transform: translateX(15px) scale(1.02); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2); z-index: 2; }
+
+        /* RIMOSSO: pallino timeline vicino alla data */
+        .tournament-card::before { content: none; display: none; }
+
+        /* MODIFICA: data a destra della linea viola, più grande */
+        /* MODIFICA: data centrata (asse Y della card) e centrata sulla linea timeline (asse X), sopra la linea */
+        .tournament-date {
+            position: absolute;
+            top: 50%;
+            left: -3.6rem; /* leggermente più a sinistra per più spazio */
+            transform: translate(-50%, -50%);
+            background: var(--color-primary);
+            color: white;
+            padding: 0.6rem 0.9rem;
+            border-radius: 12px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 110px;
+            box-shadow: 0 4px 12px rgba(102, 51, 204, 0.3);
+            z-index: 10; /* sempre sopra la linea timeline e la card */
+            pointer-events: none; /* non interagisce e non prende hover */
+            /* Fluidità movimento quando la card va in hover */
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
+        }
+        /* Variante per eventi ricorrenti: più piccola, pill a una riga, non ostruente */
+        .tournament-date.recurring {
+            background: #4c2aa6;
+            border: 2px dashed rgba(255,255,255,0.9);
+            padding: 0.35rem 1.2rem 0.35rem 0.6rem;
+            min-width: auto;
+            left: -4.2rem; /* più esterna per non invadere il contenuto */
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        }
+        .tournament-date.recurring .day { display: inline; font-size: 0.9rem; margin-right: 4px; }
+        .tournament-date.recurring .month { display: inline; font-size: 0.9rem; }
+        .tournament-date.recurring::after {
+            content: '\f2f1'; /* fa-sync-alt */
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.85rem;
+            opacity: 0.95;
+        }
+        /* Mantieni la data visivamente fissa quando la card va in hover (counter-transform) */
+        .tournament-card:hover > .tournament-date {
+            transform: translate(calc(-50% - 15px), -50%) scale(0.980392);
+        }
+        .tournament-date .day { font-size: 2rem; display: block; line-height: 1; }
+        .tournament-date .month { font-size: 1rem; opacity: 0.95; letter-spacing: 0.03em; }
+
+        .tournament-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; gap: 1rem; }
+        .tournament-info { flex: 1; }
+        .tournament-title { font-size: 1.8rem; color: var(--color-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.8rem; }
+        .tournament-game { font-size: 1.4rem; color: var(--color-text); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 1rem; font-weight: 600; }
+
+        .game-info-btn { background: rgba(102, 51, 204, 0.1); border: 2px solid var(--color-primary); color: var(--color-primary); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease; flex-shrink: 0; }
+        .game-info-btn:hover { background: var(--color-primary); color: white; transform: scale(1.1); }
+
+        .tournament-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.5rem 0; }
+        .tag { padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; font-weight: bold; color: white; display: flex; align-items: center; gap: 0.3rem; }
+        .tag.dnd { background: var(--color-dnd); }
+        /* Ongoing non usa il verde per evitare conflitti semantici con "successo" */
+        .tag.ongoing { background: var(--color-info); }
+        .tag.strategy { background: var(--color-strategy); }
+        .tag.party { background: var(--color-party); }
+        .tag.card { background: var(--color-card); }
+        .tag.board { background: var(--color-board); }
+
+        .tournament-time { color: #666; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+
+        .tournament-status { background: var(--color-success); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: bold; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .tournament-status.full { background: var(--color-danger); }
+        .tournament-status.almost-full { background: var(--color-warning); color: var(--color-text); }
+
+        .tournament-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .detail-item { display: flex; align-items: center; gap: 0.8rem; padding: 1rem; background: rgba(102, 51, 204, 0.05); border-radius: 10px; border: 1px solid rgba(102, 51, 204, 0.1); }
+        .detail-icon { width: 40px; height: 40px; background: var(--color-primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .detail-content { flex: 1; }
+        .detail-label { font-size: 0.85rem; color: #666; margin-bottom: 0.2rem; }
+        .detail-value { font-weight: bold; color: var(--color-text); font-size: 1rem; }
+
+        .participants-bar { background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 0.5rem; }
+        .participants-progress { height: 100%; border-radius: 4px; transition: width 0.3s ease; }
+        .participants-progress.low { background: var(--color-success); }
+        .participants-progress.medium { background: var(--color-warning); }
+        .participants-progress.high { background: var(--color-danger); }
+
+        /* Sezioni chiare per In Corso / Prossimi / Conclusi */
+        .section-block { margin: 2rem 0; }
+        /* Sezioni: titoli in nero per gerarchia più chiara */
+        .section-title { color: #1a202c; font-size: 1.8rem; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.6rem; font-weight: 800; letter-spacing: 0.2px; }
+        .section-title .subtitle { font-size: 0.9rem; font-weight: 600; color: #718096; margin-left: 0.5rem; }
+        .tournaments-list { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+
+        /* Evidenziazione tornei conclusi */
+        .tournament-card.completed { border-color: rgba(0,0,0,0.2); background: linear-gradient(90deg, rgba(45,55,72,0.04), white); }
+        .tournament-card.completed .tournament-title { color: #4a5568; }
+
+        /* Tag posizioni ben visibili */
+        .tag.position-first { background: #ffd700; color: #6b4f00; box-shadow: 0 0 0 2px rgba(255,215,0,0.6) inset; }
+        .tag.position-second { background: #c0c0c0; color: #404040; box-shadow: 0 0 0 2px rgba(192,192,192,0.6) inset; }
+        .tag.position-third { background: #cd7f32; color: #3a2410; box-shadow: 0 0 0 2px rgba(205,127,50,0.6) inset; }
+
+        /* D&D Campaign Info */
+        .dnd-campaign-info { background: rgba(138, 43, 226, 0.08); border: 2px solid rgba(138, 43, 226, 0.3); border-radius: 12px; padding: 1.5rem; margin-top: 1rem; }
+        .campaign-section { margin-bottom: 1.5rem; }
+        .campaign-section:last-child { margin-bottom: 0; }
+        .campaign-section h4 { color: var(--color-dnd); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem; }
+        .campaign-details-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+        .campaign-detail-item { display: flex; align-items: center; gap: 0.8rem; padding: 0.8rem; background: white; border-radius: 8px; border: 1px solid rgba(138, 43, 226, 0.2); }
+        .campaign-detail-icon { width: 32px; height: 32px; background: var(--color-dnd); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+        .character-avatars { display: flex; gap: 1.5rem; margin-top: 0.8rem; margin-left: 0.8rem; }
+        .character-avatar { position: relative; width: 60px; height: 60px; cursor: pointer; transition: all 0.3s ease; }
+        .character-avatar img { width: 100%; height: 100%; border-radius: 50%; border: 3px solid var(--color-dnd); object-fit: cover; }
+        .character-avatar:hover { transform: scale(1.2); }
+        .character-avatar.party-leader::before { content: ''; position: absolute; top: -3px; left: -3px; right: -3px; bottom: -3px; border-radius: 50%; background: #ffd700; z-index: -1; animation: crownGlow 2s infinite alternate; }
+        @keyframes crownGlow { 0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.6); } 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.9); } }
+        .crown { position: absolute; top: -8px; right: -5px; font-size: 1.2rem; z-index: 10; animation: crownBounce 1s infinite alternate; }
+        @keyframes crownBounce { 0% { transform: translateY(0) rotate(-5deg); } 100% { transform: translateY(-2px) rotate(5deg); } }
+        .empty-slot { border: 3px dashed var(--color-dnd); background: rgba(138, 43, 226, 0.1); display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
+        .empty-slot:hover { background: rgba(138, 43, 226, 0.2); border-style: solid; }
+        .registered-slot { border: 3px solid var(--color-success); background: rgba(40, 167, 69, 0.1); display: flex; align-items: center; justify-content: center; cursor: default; }
+        .registered-slot .empty-avatar { color: var(--color-success); }
+        .empty-avatar { font-size: 1.8rem; color: var(--color-dnd); font-weight: bold; }
+        .character-tooltip { position: absolute; bottom: -6rem; left: 50%; transform: translateX(-50%); background: rgba(45, 55, 72, 0.95); color: white; padding: 0.5rem; border-radius: 8px; font-size: 0.85rem; text-align: center; min-width: 160px; opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 1000; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); }
+        .character-tooltip::before { content: ''; position: absolute; top: -8px; left: 50%; transform: translateX(-50%); border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 8px solid rgba(45, 55, 72, 0.95); }
+        .character-avatar:hover .character-tooltip { opacity: 0.8; visibility: visible; }
+
+        .tournament-actions { display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem; }
+        .btn { padding: 0.8rem 1.5rem; border: 2px solid; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; font-size: 0.95rem; }
+        .btn-primary { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+        .btn-primary:hover { background: var(--color-secondary); border-color: var(--color-secondary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 51, 204, 0.3); }
+        .btn-secondary { background: white; color: var(--color-primary); border-color: var(--color-primary); }
+        .btn-secondary:hover { background: var(--color-primary); color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 51, 204, 0.2); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn:disabled:hover { transform: none; box-shadow: none; }
+
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 9999; opacity: 0; transition: opacity 0.3s ease; }
+        .modal.show { display: flex; align-items: center; justify-content: center; opacity: 1; }
+        .modal-content { background: white; border: 2px solid var(--color-text); border-radius: 16px; max-width: 800px; width: 90%; max-height: 90vh; overflow: hidden; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); transform: scale(0.9); transition: transform 0.3s ease; display: flex; flex-direction: column; }
+        .modal.show .modal-content { transform: scale(1); animation: modalSlideIn 0.4s ease-out; }
+        @keyframes modalSlideIn { from { opacity: 0; transform: scale(0.9) translateY(-20px);} to { opacity: 1; transform: scale(1) translateY(0);} }
+        .modal-header { padding: 2rem 2rem 1rem 2rem; border-bottom: 2px solid rgba(0, 0, 0, 0.1); position: relative; }
+        /* Header dei modali sempre visibile durante lo scroll */
+        .modal-header { position: sticky; top: 0; z-index: 5; background: white; }
+        .modal-title { font-size: 1.8rem; color: var(--color-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.8rem; }
+        .modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; color: #999; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+        .modal-close:hover { background: rgba(0, 0, 0, 0.1); color: #333; transform: rotate(90deg); }
+        .modal-body { padding: 2rem; flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .modal-section { margin-bottom: 2rem; }
+        .modal-section:last-child { margin-bottom: 0; }
+        .modal-section h3 { color: var(--color-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .info-card { background: rgba(102, 51, 204, 0.05); border: 2px solid rgba(102, 51, 204, 0.1); border-radius: 12px; padding: 1.2rem; }
+        .info-card h4 { color: var(--color-primary); margin-bottom: 0.8rem; display: inherit; align-items: center; gap: 0.5rem; }
+
+        /* Custom Scrollbar coerente nei modali (solo nell'area scorrevole sotto l'header) */
+        .modal-body { scrollbar-width: thin; scrollbar-color: var(--color-secondary) rgba(102, 51, 204, 0.10); }
+        .modal-body::-webkit-scrollbar { width: 8px; }
+        .modal-body::-webkit-scrollbar-track { background: rgba(102, 51, 204, 0.08); border-radius: 8px; }
+        .modal-body::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--color-secondary), var(--color-primary)); border-radius: 8px; border: 2px solid rgba(255,255,255,0.6); }
+        .modal-body::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #8a5ae6, #5a2db8); }
+        body.modal-open { overflow: hidden; }
+
+        /* Animazioni per successo iscrizione */
+        @keyframes successPulse {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes buttonSuccess {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .btn-success-animation {
+            animation: buttonSuccess 0.3s ease-out;
+        }
+
+        /* Stili per tornei ai quali l'utente è già iscritto - colori tenui e trasparenti */
+        .tournament-card.registered {
+            position: relative;
+            opacity: 0.75;
+        }
+        
+        /* Strategy Theme - Giallo/Oro più tenue */
+        .tournament-card.registered.strategy-theme {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%);
+            border: 2px solid rgba(255, 193, 7, 0.3);
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
+        }
+        
+        /* D&D Theme - Rosso più tenue */
+        .tournament-card.registered.dnd-theme {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(220, 53, 69, 0.05) 100%);
+            border: 2px solid rgba(220, 53, 69, 0.3);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.15);
+        }
+        
+        /* Party Theme - Viola più tenue */
+        .tournament-card.registered.party-theme {
+            background: linear-gradient(135deg, rgba(102, 51, 204, 0.1) 0%, rgba(102, 51, 204, 0.05) 100%);
+            border: 2px solid rgba(102, 51, 204, 0.3);
+            box-shadow: 0 4px 12px rgba(102, 51, 204, 0.15);
+        }
+        
+        /* Puzzle Theme - Azzurro più tenue */
+        .tournament-card.registered.puzzle-theme {
+            background: linear-gradient(135deg, rgba(23, 162, 184, 0.1) 0%, rgba(23, 162, 184, 0.05) 100%);
+            border: 2px solid rgba(23, 162, 184, 0.3);
+            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.15);
+        }
+        
+        /* Racing Theme - Verde più tenue */
+        .tournament-card.registered.racing-theme {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(40, 167, 69, 0.05) 100%);
+            border: 2px solid rgba(40, 167, 69, 0.3);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+        }
+
+        /* Mantieni i colori originali ma più tenui - NO scala di grigi */
+        .tournament-card.registered .tournament-title {
+            opacity: 0.8;
+        }
+        
+        .tournament-card.registered .tournament-game {
+            opacity: 0.8;
+        }
+        
+        .tournament-card.registered .detail-value {
+            opacity: 0.85;
+        }
+
+        .tournament-card.registered .tag {
+            opacity: 0.7;
+        }
+
+        /* Badge registrato rimosso - non più necessario */
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 0; }
+            .tournaments-timeline::before { left: 1rem; }
+            .tournament-card { margin: 1rem 0 1rem 3rem; padding: 1rem; border-radius: 12px; }
+            .tournament-card::before { left: -2.3rem; }
+            /* MODIFICA mobile: sposta data più vicino alla linea */
+            /* Mobile: linea a 1rem, card a 3rem -> offset 2rem; sposta leggermente più a sinistra */
+            .tournament-date { left: -2.4rem; min-width: 90px; padding: 0.4rem 0.7rem; }
+            .tournament-date .day { font-size: 1.5rem; }
+            .tournament-date .month { font-size: 0.85rem; }
+            .tournament-header { flex-direction: column; gap: 0.6rem; }
+            .tournament-actions { justify-content: stretch; }
+            .tournament-actions .btn { flex: 1; justify-content: center; }
+            .tournament-details { grid-template-columns: 1fr; }
+            /* Modali full-screen mobile per massima accessibilità */
+            .modal-content { width: 100vw !important; height: 100vh !important; max-width: 100vw !important; max-height: 100vh !important; border-radius: 0; margin: 0; }
+            .modal-header, .modal-body { padding: 1rem; }
+            .info-grid { grid-template-columns: 1fr; }
+            .profile-info { flex-direction: column; text-align: center; gap: 1rem; }
+            .badges-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+            .section-title { font-size: 1.5rem; padding: 0 1rem; }
+            .tournaments-header { border-radius: 0; padding: 1rem; margin-bottom: 1rem; }
+            .view-toggle { padding: 0 1rem; }
+            .tournaments-timeline { padding-right: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="tournaments-header">
+            <h1>
+                <i class="fas fa-trophy"></i>
+                Tornei Dice & Drink
+            </h1>
+            <p>Partecipa ai nostri tornei di giochi da tavolo e divertiti con altri appassionati!</p>
+
+            <!-- View Toggle -->
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="showAllTournaments(this)">
+                    <i class="fas fa-list"></i>
+                    Tutti i Tornei
+                </button>
+                <button class="toggle-btn" onclick="showMyTournaments(this)">
+                    <i class="fas fa-user"></i>
+                    I Miei Tornei
+                </button>
+            </div>
+        </div>
+
+        <!-- I Miei Tornei Section -->
+        <div class="my-tournaments-section" id="myTournamentsSection">
+            <!-- User Profile Header -->
+            <div class="user-profile-header">
+                <div class="user-profile-row">
+                    <div class="user-avatar-block">
+                        <div class="avatar-frame">
+                            <img src="public/images/avatars/cacciatore.png" alt="Foto profilo" class="profile-avatar">
+                            <button type="button" class="avatar-change-btn" onclick="alert('Placeholder: cambia foto profilo');"><i class="fas fa-camera"></i></button>
+                            <input type="file" id="avatarFileInput" accept="image/*" style="display:none">
+                        </div>
+                    </div>
+                    <div class="user-fields">
+                        <div class="user-field">
+                            <div class="field-label"><i class="fas fa-user"></i> Nome</div>
+                            <div class="field-value" data-placeholder="nome">Marco Rossi</div>
+                            <button type="button" class="field-edit-btn" onclick="alert('Placeholder: modifica nome');"><i class="fas fa-pen"></i></button>
+                        </div>
+                        <div class="user-field">
+                            <div class="field-label"><i class="fas fa-envelope"></i> Email</div>
+                            <div class="field-value" data-placeholder="email">marco.rossi@email.com</div>
+                            <button type="button" class="field-edit-btn" onclick="alert('Placeholder: modifica email');"><i class="fas fa-pen"></i></button>
+                        </div>
+                        <div class="user-field">
+                            <div class="field-label"><i class="fas fa-phone"></i> Telefono</div>
+                            <div class="field-value" data-placeholder="telefono">+39 333 123 4567</div>
+                            <button type="button" class="field-edit-btn" onclick="alert('Placeholder: modifica telefono');"><i class="fas fa-pen"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Badges Section -->
+                <div class="badges-section">
+                    <h3 class="badges-title">
+                        <i class="fas fa-award"></i>
+                        Coccarde e Riconoscimenti
+                    </h3>
+                    <div class="badges-grid">
+                        <div class="badge-item">
+                            <div class="badge-icon">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <div class="badge-info">
+                                <h4>Il Conquistatore</h4>
+                                <p>Ha vinto 5 tornei consecutivi di strategia nel 2024</p>
+                            </div>
+                        </div>
+                        <div class="badge-item">
+                            <div class="badge-icon">
+                                <i class="fas fa-dice-d20"></i>
+                            </div>
+                            <div class="badge-info">
+                                <h4>Master del D&D</h4>
+                                <p>Ha completato 3 campagne complete come party leader</p>
+                            </div>
+                        </div>
+                        <div class="badge-item">
+                            <div class="badge-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="badge-info">
+                                <h4>Veterano della Comunità</h4>
+                                <p>Membro attivo da oltre 1 anno con 50+ partecipazioni</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Section -->
+                <div class="stats-section">
+                    <h3 class="stats-title">
+                        <i class="fas fa-chart-line"></i>
+                        Le Tue Statistiche
+                    </h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number">27</div>
+                            <div class="stat-label">Tornei Partecipati</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">3</div>
+                            <div class="stat-label">Tornei Prenotati</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">12</div>
+                            <div class="stat-label">Vittorie</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label" style="font-size: 0.9rem; margin-bottom: 0.5rem;">Gioco Preferito</div>
+                            <div style="color: var(--color-primary); font-weight: bold;">D&D 5e</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tournaments Lists will be populated by JavaScript -->
+            <div id="upcomingTournaments"></div>
+            <div id="completedTournaments"></div>
+        </div>
+
+        <!-- All Tournaments Section -->
+        <div class="all-tournaments-section active" id="allTournamentsSection">
+            <!-- Timeline Tornei -->
+            <div class="tournaments-timeline">
+                <!-- Torneo 1 - Prossimo -->
+                <div class="tournament-card strategy-theme">
+                    <div class="tournament-date">
+                        <span class="day">15</span>
+                        <span class="month">GEN</span>
+                    </div>
+
+                    <div class="tournament-header">
+                        <div class="tournament-info">
+                            <h2 class="tournament-title">
+                                <i class="fas fa-crown"></i>
+                                Torneo Invernale - Catan
+                            </h2>
+                            <div class="tournament-game">
+                                I Coloni di Catan
+                                <button class="game-info-btn" onclick="showGameInfo('catan')">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                            </div>
+                            <div class="tournament-tags">
+                                <span class="tag strategy"><i class="fas fa-chess-board"></i> Strategico</span>
+                            </div>
+                            <div class="tournament-time">
+                                <i class="fas fa-clock"></i>
+                                20:30 - 23:00
+                            </div>
+                        </div>
+                        <div class="tournament-status">
+                            <i class="fas fa-users"></i>
+                            Posti disponibili
+                        </div>
+                    </div>
+
+                    <div class="tournament-details">
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="detail-content">
+                                <div class="detail-label">Partecipanti</div>
+                                <div class="detail-value">6 / 12</div>
+                                <div class="participants-bar">
+                                    <div class="participants-progress low" style="width: 50%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-euro-sign"></i>
+                            </div>
+                            <div class="detail-content">
+                                <div class="detail-label">Quota partecipazione</div>
+                                <div class="detail-value">€15,00</div>
+                            </div>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-gift"></i>
+                            </div>
+                            <div class="detail-content">
+                                <div class="detail-label">Premio</div>
+                                <div class="detail-value">€100 + Trofeo</div>
+                            </div>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="detail-content">
+                                <div class="detail-label">Difficoltà</div>
+                                <div class="detail-value">Intermedio</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tournament-actions">
+                        <button class="btn btn-secondary" onclick="openTournamentModal('catan-winter')">
+                            <i class="fas fa-info-circle"></i>
+                            Informazioni
+                        </button>
+                        <button class="btn btn-primary" onclick="registerForTournament('catan-winter', this)">
+                            <i class="fas fa-plus"></i>
+                            Iscriviti
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card Torneo D&D Speciale -->
+                <div class="tournament-card dnd-special dnd-theme">
+                    <div class="tournament-date">
+                        <span class="day">Ogni</span>
+                        <span class="month">SAB</span>
+                    </div>
+
+                    <div class="tournament-header">
+                        <div class="tournament-info">
+                            <h2 class="tournament-title">
+                                <i class="fas fa-dragon"></i>
+                                Campagna D&D - La Maledizione di Strahd
+                            </h2>
+                            <div class="tournament-game">
+                                Dungeons & Dragons 5e
+                                <button class="game-info-btn" onclick="showGameInfo('dnd')">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                            </div>
+                            <div class="tournament-tags">
+                                <span class="tag dnd"><i class="fas fa-dice-d20"></i> Campagna Epica</span>
+                                <span class="tag ongoing"><i class="fas fa-play"></i> In Corso</span>
+                            </div>
+                            <div class="tournament-time">
+                                <i class="fas fa-clock"></i>
+                                Ogni Sabato • 15:00 - 19:00
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tournament-details">
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-scroll"></i>
+                            </div>
+                            <div class="detail-content">
+                                <div class="detail-label">Sessione Corrente</div>
+                                <div class="detail-value">12 / 20</div>
+                            </div>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-hourglass-half"></i>
+                            </div>
+                            <div class="detail-content">
+                                <div class="detail-label">Ore di Gioco</div>
+                                <div class="detail-value">48h totali</div>
+                            </div>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-level-up-alt"></i>
+                            </div>
+                            <div class="detail-content">
+                                <div class="detail-label">Livello Gruppo</div>
+                                <div class="detail-value">8° Livello</div>
+                            </div>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-map"></i>
+                            </div>
+                            <div class="detail-content">
+                                <div class="detail-label">Setting</div>
+                                <div class="detail-value">Barovia</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dnd-campaign-info">
+                        <div class="campaign-section">
+                            <h4><i class="fas fa-scroll"></i> Dettagli Campagna</h4>
+                            <div class="campaign-details-grid">
+                                <div class="campaign-detail-item">
+                                    <div class="campaign-detail-icon">
+                                        <i class="fas fa-user-tie"></i>
+                                    </div>
+                                    <div>
+                                        <strong>Dungeon Master</strong><br>
+                                        Marco "Il Narratore" Rossi
+                                    </div>
+                                </div>
+                                <div class="campaign-detail-item">
+                                    <div class="campaign-detail-icon">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </div>
+                                    <div>
+                                        <strong>Location</strong><br>
+                                        Sala Epica - Tavolo 1
+                                    </div>
+                                </div>
+                                <div class="campaign-detail-item">
+                                    <div class="campaign-detail-icon">
+                                        <i class="fas fa-theater-masks"></i>
+                                    </div>
+                                    <div>
+                                        <strong>Stile di Gioco</strong><br>
+                                        Roleplay Intenso
+                                    </div>
+                                </div>
+                                <div class="campaign-detail-item">
+                                    <div class="campaign-detail-icon">
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <div>
+                                        <strong>Esperienza Richiesta</strong><br>
+                                        Intermedio/Avanzato
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="campaign-section">
+                            <h4><i class="fas fa-users"></i> Composizione Party Attuale</h4>
+                            <div class="character-avatars">
+                                <div class="character-avatar party-leader" onclick="showCharacterBio('elena')">
+                                    <img src="public/images/avatars/dragonide.png" alt="Elena">
+                                    <span class="crown"><i class="fas fa-crown"></i></span>
+                                    <div class="character-tooltip">
+                                        <strong>Elena Drakemoor</strong><br>
+                                        Paladino Dragonide<br>
+                                        <em>Party Leader</em>
+                                    </div>
+                                </div>
+                                <div class="character-avatar" onclick="showCharacterBio('marcus')">
+                                    <img src="public/images/avatars/cacciatore.png" alt="Marcus">
+                                    <div class="character-tooltip">
+                                        <strong>Marcus Shadowbane</strong><br>
+                                        Ranger Umano<br>
+                                        <em>Cacciatore di Mostri</em>
+                                    </div>
+                                </div>
+                                <div class="character-avatar" onclick="showCharacterBio('lyra')">
+                                    <img src="public/images/avatars/elfo.png" alt="Lyra">
+                                    <div class="character-tooltip">
+                                        <strong>Lyralei Moonwhisper</strong><br>
+                                        Druida Elfa<br>
+                                        <em>Guaritrice della Natura</em>
+                                    </div>
+                                </div>
+                                <div class="character-avatar empty-slot" id="dnd-strahd-slot" onclick="showRegistrationModal('dnd-strahd')">
+                                    <div class="empty-avatar"><i class="fas fa-plus"></i></div>
+                                    <div class="character-tooltip">
+                                        <strong>Slot Libero</strong><br>
+                                        Clicca per richiedere<br>
+                                        l'accesso alla campagna
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tournament-actions">
+                        <button class="btn btn-primary" id="dnd-strahd-register-btn" onclick="showRegistrationModal('dnd-strahd')">
+                            <i class="fas fa-user-plus"></i>
+                            Richiedi Accesso
+                        </button>
+                        <button class="btn btn-secondary" onclick="showCampaignInfo('dnd-strahd')">
+                            <i class="fas fa-scroll"></i>
+                            Info Campagna
+                        </button>
+                    </div>
+                </div>
+
+                <!-- More tournaments will be added here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // VIEW TOGGLE FUNCTIONALITY
+        // ==========================================
+        function showAllTournaments(element = null) {
+            document.getElementById('allTournamentsSection').classList.add('active');
+            document.getElementById('myTournamentsSection').classList.remove('active');
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            if (element) {
+                element.classList.add('active');
+            } else {
+                document.querySelector('.toggle-btn[onclick*="showAllTournaments"]').classList.add('active');
+            }
+        }
+        
+        function showMyTournaments(element = null) {
+            document.getElementById('allTournamentsSection').classList.remove('active');
+            document.getElementById('myTournamentsSection').classList.add('active');
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            if (element) {
+                element.classList.add('active');
+            } else {
+                document.querySelector('.toggle-btn[onclick*="showMyTournaments"]').classList.add('active');
+            }
+        }
+
+        // ==========================================
+        // MODAL SYSTEMS
+        // ==========================================
+        function showGameInfo(gameType) {
+            const gameData = {
+                'catan': {
+                    name: 'I Coloni di Catan',
+                    category: 'Strategico',
+                    players: '3-4 giocatori',
+                    duration: '60-90 minuti',
+                    difficulty: 'Intermedio',
+                    description: 'Un classico gioco di strategia dove costruisci strade, insediamenti e città sull\'isola di Catan.',
+                    mechanics: [ 'Gestione risorse', 'Costruzione', 'Commercio', 'Dadi e fortuna' ],
+                    tips: 'Perfetto per chi ama la strategia ma vuole un gioco accessibile e divertente!'
+                },
+                'dnd': {
+                    name: 'Dungeons & Dragons 5e',
+                    category: 'Gioco di Ruolo',
+                    players: '3-6 giocatori + DM',
+                    duration: '3-4 ore per sessione',
+                    difficulty: 'Intermedio/Avanzato',
+                    description: 'Il più famoso gioco di ruolo fantasy al mondo. Crea il tuo personaggio e vivi avventure epiche!',
+                    mechanics: [ 'Narrazione collaborativa', 'Interpretazione del ruolo', 'Sistema di combattimento tattico', 'Progressione del personaggio' ],
+                    tips: 'Ideale per chi ama le storie fantasy e vuole immergersi completamente in un altro mondo!'
+                }
+            };
+
+            const game = gameData[gameType];
+            if (!game) return;
+
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 1200px; width: 95%; height: 80vh; max-height: 800px; overflow: hidden; position: relative; display: flex; flex-direction: column;">
+                    <div class="modal-header" style="padding: 1.5rem 2rem 1rem 2rem; height: 80px; flex-shrink: 0;">
+                        <h2 class="modal-title">
+                            <i class="fas fa-gamepad"></i>
+                            ${game.name}
+                        </h2>
+                        <button class="modal-close" onclick="this.closest('.modal').remove(); document.body.classList.remove('modal-open');">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body" style="flex: 1; overflow-y: auto; padding: 2rem; padding-bottom: 120px;">
+                        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; min-height: 0;">
+                            <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+                                <div class="info-card" style="text-align: center; padding: 1.2rem;">
+                                    <p style="font-size: 1.1rem; color: #666; line-height: 1.5;">${game.description}</p>
+                                </div>
+
+                                <div class="info-card">
+                                    <h4 style="margin-bottom: 1rem;"><i class="fas fa-cogs"></i> Meccaniche di Gioco</h4>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                        ${game.mechanics.map(m => `<div style="padding: 0.6rem; background: rgba(102, 51, 204, 0.1); border-radius: 6px; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;"><i class=\"fas fa-check-circle\" style=\"color: var(--color-success); flex-shrink: 0;\"></i><span>${m}</span></div>`).join('')}
+                                    </div>
+                                </div>
+
+                                <div class="info-card" style="background: rgba(40, 167, 69, 0.1); border-color: #28a745;">
+                                    <h4 style="color: #28a745; margin-bottom: 0.8rem;"><i class="fas fa-lightbulb"></i> Consiglio del Locale</h4>
+                                    <p style="font-style: italic; font-size: 0.95rem; line-height: 1.4;">${game.tips}</p>
+                                </div>
+                            </div>
+
+                            <!-- MODIFICA: blocchi compatti su due colonne -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; min-height: 0;">
+                                <div class="info-card" style="text-align: center; padding: 0.8rem;">
+                                    <div style="background: var(--color-primary); color: white; padding: 0.6rem; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem auto;">
+                                        <i class="fas fa-users" style="font-size: 1rem;"></i>
+                                    </div>
+                                    <h4 style="font-size: 0.95rem; margin-bottom: 0.2rem;">Giocatori</h4>
+                                    <p style="font-size: 0.95rem; font-weight: 600; color: var(--color-primary);">${game.players}</p>
+                                </div>
+
+                                <div class="info-card" style="text-align: center; padding: 0.8rem;">
+                                    <div style="background: var(--color-info); color: white; padding: 0.6rem; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem auto;">
+                                        <i class="fas fa-clock" style="font-size: 1rem;"></i>
+                                    </div>
+                                    <h4 style="font-size: 0.95rem; margin-bottom: 0.2rem;">Durata</h4>
+                                    <p style="font-size: 0.95rem; font-weight: 600; color: var(--color-info);">${game.duration}</p>
+                                </div>
+
+                                <div class="info-card" style="text-align: center; padding: 0.8rem;">
+                                    <div style="background: var(--color-warning); color: white; padding: 0.6rem; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem auto;">
+                                        <i class="fas fa-signal" style="font-size: 1rem;"></i>
+                                    </div>
+                                    <h4 style="font-size: 0.95rem; margin-bottom: 0.2rem;">Difficoltà</h4>
+                                    <p style="font-size: 0.95rem; font-weight: 600; color: var(--color-warning);">${game.difficulty}</p>
+                                </div>
+
+                                <div class="info-card" style="text-align: center; padding: 0.8rem;">
+                                    <div style="background: var(--color-success); color: white; padding: 0.6rem; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem auto;">
+                                        <i class="fas fa-tag" style="font-size: 1rem;"></i>
+                                    </div>
+                                    <h4 style="font-size: 0.95rem; margin-bottom: 0.2rem;">Categoria</h4>
+                                    <p style="font-size: 0.95rem; font-weight: 600; color: var(--color-success);">${game.category}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%);">
+                        <button class="btn btn-primary" onclick="this.closest('.modal').remove()">
+                            <i class="fas fa-check"></i>
+                            Ho Capito!
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) { modal.remove(); document.body.classList.remove('modal-open'); } });
+            document.body.classList.add('modal-open');
+        }
+
+        function registerForTournament(tournamentId, buttonElement = null) {
+            // Controlla se già iscritto
+            if (userTournamentState.registeredTournaments.has(tournamentId)) {
+                alert('⚠️ Sei già iscritto a questo torneo!\n\nPuoi trovarlo nella sezione "I Miei Tornei".');
+                return;
+            }
+
+            // Animazione del bottone se fornito
+            if (buttonElement) {
+                const originalHTML = buttonElement.innerHTML;
+                buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iscrizione...';
+                buttonElement.disabled = true;
+                buttonElement.style.opacity = '0.7';
+                
+                setTimeout(() => {
+                    buttonElement.innerHTML = '<i class="fas fa-check"></i> Iscritto!';
+                    buttonElement.style.background = 'var(--color-success)';
+                    buttonElement.style.borderColor = 'var(--color-success)';
+                    
+                    setTimeout(() => {
+                        // Aggiorna stato torneo
+                        updateTournamentState(tournamentId, 'register');
+                        showRegistrationSuccessModal(tournamentId);
+                        if (buttonElement.closest('.modal')) {
+                            buttonElement.closest('.modal').remove();
+                            document.body.classList.remove('modal-open');
+                        }
+                    }, 1500);
+                }, 1500);
+            } else {
+                // Aggiorna stato torneo
+                updateTournamentState(tournamentId, 'register');
+                showRegistrationSuccessModal(tournamentId);
+                const modal = document.querySelector('.modal');
+                if (modal) { modal.remove(); document.body.classList.remove('modal-open'); }
+            }
+        }
+
+        function showRegistrationSuccessModal(tournamentId) {
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 500px; text-align: center; padding: 2rem;">
+                    <div style="margin-bottom: 2rem;">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--color-success), #28a745); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; animation: successPulse 0.6s ease-out;">
+                            <i class="fas fa-check" style="font-size: 2.5rem; color: white;"></i>
+                        </div>
+                        <h2 style="color: var(--color-success); margin-bottom: 1rem; font-size: 1.8rem;">
+                            🎉 Iscrizione Completata!
+                        </h2>
+                        <p style="color: #666; font-size: 1.1rem; line-height: 1.6;">
+                            Congratulazioni! Ti sei iscritto con successo al torneo.
+                            <br><br>
+                            <strong>Riceverai una email di conferma</strong> con tutti i dettagli del torneo, incluse le informazioni per il pagamento e le regole specifiche.
+                            <br><br>
+                            <em>Grazie per aver scelto Dice & Drink!</em>
+                        </p>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; justify-content: center;">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove(); document.body.classList.remove('modal-open');">
+                            <i class="fas fa-times"></i>
+                            Chiudi
+                        </button>
+                        <button class="btn btn-primary" onclick="this.closest('.modal').remove(); document.body.classList.remove('modal-open'); showMyTournaments();">
+                            <i class="fas fa-user"></i>
+                            Vedi I Miei Tornei
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            document.body.classList.add('modal-open');
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                    document.body.classList.remove('modal-open');
+                }
+            });
+        }
+
+        function showCharacterBio(characterId) {
+            const characterData = {
+                'elena': { name: 'Elena Drakemoor', class: 'Paladino', race: 'Dragonide Oro', level: 8, background: 'Nobile', story: 'Figlia di un antico lignaggio dragonico, Elena ha dedicato la sua vita alla protezione degli innocenti. Il suo cuore dorato e il suo coraggio incrollabile la rendono una leader naturale.', stats: 'FOR 16, DES 12, COS 15, INT 13, SAG 14, CAR 18', equipment: 'Spada Sacra +2, Armatura a Piastre Benedetta, Scudo del Drago Dorato', avatar: 'public/images/avatars/dragonide.png' },
+                'marcus': { name: 'Marcus Shadowbane', class: 'Ranger', race: 'Umano Variante', level: 8, background: 'Cacciatore di Mostri', story: 'Veterano cacciatore specializzato nella lotta contro le creature delle tenebre. Ha perso la famiglia a causa di un attacco di non-morti e ora dedica la sua vita a proteggere gli altri.', stats: 'FOR 14, DES 18, COS 16, INT 12, SAG 16, CAR 10', equipment: 'Arco Lungo Magico +2, Spada Lunga Argentata, Armatura di Cuoio Borchiato +1', avatar: 'public/images/avatars/cacciatore.png' },
+                'lyra': { name: 'Lyralei Moonwhisper', class: 'Druida', race: 'Elfa dei Boschi', level: 8, background: 'Eremita', story: 'Guardiana di antichi segreti naturali, Lyra ha vissuto per secoli nelle foreste selvagge. Ora cerca di purificare la corruzione che avvolge Barovia.', stats: 'FOR 10, DES 14, COS 14, INT 14, SAG 18, CAR 13', equipment: 'Bastone del Druido +1, Armatura di Cuoio +1, Amuleto della Natura', avatar: 'public/images/avatars/elfo.png' }
+            };
+
+            const char = characterData[characterId];
+            if (!char) return;
+
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 700px;">
+                    <div class="modal-header" style="background: linear-gradient(135deg, var(--color-dnd), #9370db); color: white;">
+                        <h2 class="modal-title" style="color: white;">
+                            <i class="fas fa-user"></i>
+                            ${char.name}
+                        </h2>
+                        <button class="modal-close" onclick="this.closest('.modal').remove()" style="color: white;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="display: flex; gap: 2rem; margin-bottom: 2rem; align-items: center;">
+                            <img src="${char.avatar}" alt="${char.name}" style="width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--color-dnd); object-fit: cover;">
+                            <div style="flex: 1;">
+                                <div class="info-card">
+                                    <h4><i class="fas fa-id-card"></i> Informazioni Base</h4>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                                        <div><strong>Classe:</strong> ${char.class}</div>
+                                        <div><strong>Razza:</strong> ${char.race}</div>
+                                        <div><strong>Livello:</strong> ${char.level}°</div>
+                                        <div><strong>Background:</strong> ${char.background}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-card" style="margin-bottom: 1.5rem;">
+                            <h4><i class="fas fa-book"></i> Storia del Personaggio</h4>
+                            <p style="line-height: 1.7; margin-top: 0.8rem;">${char.story}</p>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div class="info-card">
+                                <h4><i class="fas fa-dice-d20"></i> Statistiche</h4>
+                                <p style="font-family: 'Courier New', monospace; background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-top: 0.8rem;">${char.stats}</p>
+                            </div>
+                            <div class="info-card">
+                                <h4><i class="fas fa-sword"></i> Equipaggiamento</h4>
+                                <p style="line-height: 1.6; margin-top: 0.8rem;">${char.equipment}</p>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 2rem;">
+                            <button class="btn btn-primary" onclick="this.closest('.modal').remove()">
+                                <i class="fas fa-times"></i>
+                                Chiudi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) { modal.remove(); document.body.classList.remove('modal-open'); } });
+            document.body.classList.add('modal-open');
+        }
+
+        function showRegistrationModal(tournamentId) {
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">
+                            <i class="fas fa-user-plus"></i>
+                            Richiedi Accesso alla Campagna D&D
+                        </h2>
+                        <button class="modal-close" onclick="this.closest('.modal').remove(); document.body.classList.remove('modal-open');">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="info-card" style="background: rgba(255, 193, 7, 0.1); border-color: #ffc107; margin-bottom: 1.5rem;">
+                            <h4 style="color: #e67e22;"><i class="fas fa-exclamation-triangle"></i> Campagna in Corso</h4>
+                            <p>Questa è una campagna D&D già iniziata. La tua richiesta verrà inviata al <strong>Party Leader Elena</strong> che deciderà se integrare un nuovo personaggio nella storia attuale.</p>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div class="info-card">
+                                <h4><i class="fas fa-check-circle"></i> Requisiti</h4>
+                                <ul style="margin-left: 1rem; font-size: 0.9rem; margin-top: 0.5rem;">
+                                    <li>Esperienza D&D intermedia</li>
+                                    <li>Disponibilità ogni sabato</li>
+                                    <li>Personaggio di livello 8</li>
+                                    <li>Backstory coerente con Barovia</li>
+                                </ul>
+                            </div>
+                            <div class="info-card">
+                                <h4><i class="fas fa-list-ol"></i> Processo di Approvazione</h4>
+                                <ol style="margin-left: 1rem; font-size: 0.9rem; margin-top: 0.5rem;">
+                                    <li>Invio richiesta</li>
+                                    <li>Revisione del Party Leader</li>
+                                    <li>Colloquio con il DM</li>
+                                    <li>Integrazione nella storia</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="info-card" style="margin-bottom: 1.5rem;">
+                            <h4><i class="fas fa-envelope"></i> Messaggio per il Party Leader</h4>
+                            <textarea id="dndMessage" placeholder="Descrivi brevemente la tua esperienza con D&D, il tipo di personaggio che vorresti interpretare e come pensi che possa inserirsi nella campagna di Barovia..."
+                                     style="width: 100%; min-height: 120px; padding: 1rem; border: 2px solid #ddd; border-radius: 8px; resize: vertical; font-family: inherit; margin-top: 0.8rem;"></textarea>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+                            <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">
+                                <i class="fas fa-times"></i>
+                                Annulla
+                            </button>
+                            <button class="btn btn-primary" onclick="submitDnDRequest(this)">
+                                <i class="fas fa-paper-plane"></i>
+                                Invia Richiesta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) { modal.remove(); document.body.classList.remove('modal-open'); } });
+            document.body.classList.add('modal-open');
+        }
+
+        function submitDnDRequest(button) {
+            const message = document.getElementById('dndMessage').value.trim();
+            if (message.length < 50) {
+                alert('⚠️ Il messaggio deve essere di almeno 50 caratteri per fornire informazioni sufficienti al Party Leader.');
+                return;
+            }
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Invio in corso...';
+            button.disabled = true;
+            setTimeout(() => {
+                alert('🎉 Richiesta inviata con successo!\n\nIl Party Leader Elena riceverà la tua richiesta e ti contatterà entro 24 ore per discutere l\'inserimento del tuo personaggio nella campagna.\n\nRiceverai una notifica email con tutti i dettagli.');
+                button.closest('.modal').remove();
+            }, 2000);
+        }
+
+        function showCampaignInfo(campaignId) {
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 1000px; width: 90%; max-height: 85vh; overflow-y: auto;">
+                    <div class="modal-header" style="background: linear-gradient(135deg, var(--color-dnd), #9370db); color: white;">
+                        <h2 class="modal-title" style="color: white;">
+                            <i class="fas fa-dragon"></i>
+                            La Maledizione di Strahd - Informazioni Campagna
+                        </h2>
+                        <button class="modal-close" onclick="this.closest('.modal').remove()" style="color: white;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body" style="padding: 2rem;">
+                        <!-- Campaign Overview -->
+                        <div class="modal-section">
+                            <h3><i class="fas fa-scroll"></i> Panoramica della Campagna</h3>
+                            <div class="info-card" style="padding: 1.5rem; text-align: center; margin-bottom: 2rem;">
+                                <p style="font-size: 1.1rem; line-height: 1.7; color: #666;">
+                                    <strong>Curse of Strahd</strong> è una delle campagne più iconiche di D&D 5e. I personaggi vengono trascinati nel dominio gotico di Barovia, intrappolati dalle nebbie che circondano questa terra maledetta, dove devono affrontare l'antico vampiro Strahd von Zarovich nel suo castello.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Campaign Details Grid -->
+                        <div class="modal-section">
+                            <h3><i class="fas fa-info-circle"></i> Dettagli della Campagna</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                                <div class="info-card">
+                                    <h4><i class="fas fa-user-tie"></i> Dungeon Master</h4>
+                                    <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.8rem;">
+                                        <img src="public/images/avatars/mago.png" style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--color-dnd);">
+                                        <div>
+                                            <strong>Marco "Il Narratore" Rossi</strong><br>
+                                            <small>5+ anni di esperienza • Specializzato in Horror Gothic</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="info-card">
+                                    <h4><i class="fas fa-calendar-alt"></i> Programma</h4>
+                                    <p><strong>Quando:</strong> Ogni Sabato</p>
+                                    <p><strong>Orario:</strong> 15:00 - 19:00 (4 ore)</p>
+                                    <p><strong>Pausa:</strong> 17:00 - 17:15</p>
+                                    <p><strong>Prossima Sessione:</strong> 12 Gennaio 2025</p>
+                                </div>
+
+                                <div class="info-card">
+                                    <h4><i class="fas fa-map-marker-alt"></i> Ambientazione</h4>
+                                    <p><strong>Livello Attuale:</strong> 8° Livello</p>
+                                    <p><strong>Sessioni Completate:</strong> 12/20 (stimato)</p>
+                                    <p><strong>Ore Giocate:</strong> 48h totali</p>
+                                    <p><strong>Location:</strong> Barovia - Vallaki</p>
+                                </div>
+
+                                <div class="info-card">
+                                    <h4><i class="fas fa-cogs"></i> Stile di Gioco</h4>
+                                    <p><i class="fas fa-theater-masks"></i> <strong>Roleplay:</strong> 60%</p>
+                                    <p><i class="fas fa-sword"></i> <strong>Combattimento:</strong> 30%</p>
+                                    <p><i class="fas fa-search"></i> <strong>Esplorazione:</strong> 10%</p>
+                                    <p><strong>Tono:</strong> Horror Gothic Serio</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Current Party -->
+                        <div class="modal-section">
+                            <h3><i class="fas fa-users"></i> Party Attuale (3/4 membri)</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                                <div class="info-card">
+                                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                        <div style="position: relative;">
+                                            <img src="public/images/avatars/dragonide.png" style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid #ffd700;">
+                                            <i class="fas fa-crown" style="position: absolute; top: -8px; right: -5px; color: #ffd700; font-size: 1.2rem;"></i>
+                                        </div>
+                                        <div>
+                                            <h4 style="color: var(--color-dnd); margin-bottom: 0.3rem;">Elena Drakemoor</h4>
+                                            <p><strong>Party Leader</strong> • Paladino Dragonide</p>
+                                            <small>Tank/Support • Specializzato in protezione gruppo</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="info-card">
+                                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                        <img src="public/images/avatars/cacciatore.png" style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--color-dnd);">
+                                        <div>
+                                            <h4 style="color: var(--color-dnd); margin-bottom: 0.3rem;">Marcus Shadowbane</h4>
+                                            <p>Ranger Umano • Cacciatore di Mostri</p>
+                                            <small>DPS/Scout • Esperto in sopravvivenza</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="info-card">
+                                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                        <img src="public/images/avatars/elfo.png" style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--color-dnd);">
+                                        <div>
+                                            <h4 style="color: var(--color-dnd); margin-bottom: 0.3rem;">Lyralei Moonwhisper</h4>
+                                            <p>Druida Elfa • Guaritrice</p>
+                                            <small>Healer/Utility • Magia della natura</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="info-card" style="border: 3px dashed var(--color-dnd); text-align: center; display: flex; align-items: center; justify-content: center;">
+                                    <div>
+                                        <i class="fas fa-plus" style="font-size: 2rem; color: var(--color-dnd); margin-bottom: 0.5rem;"></i>
+                                        <h4 style="color: var(--color-dnd);">Slot Libero</h4>
+                                        <p>Ruolo consigliato: <strong>Wizard/Caster</strong></p>
+                                        <button class="btn" style="margin-top: 0.8rem; background: var(--color-dnd); color: white; border-color: var(--color-dnd);" onclick="showRegistrationModal('dnd-strahd')">
+                                            <i class="fas fa-user-plus"></i>
+                                            Candidati
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Campaign Rules -->
+                        <div class="modal-section">
+                            <h3><i class="fas fa-gavel"></i> Regole della Campagna</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                                <div class="info-card">
+                                    <h4><i class="fas fa-book"></i> Regole Generali</h4>
+                                    <ul style="margin-left: 1rem; line-height: 1.6;">
+                                        <li>Puntualità richiesta (15:00 sharp)</li>
+                                        <li>Sessioni senza telefoni/distrazioni</li>
+                                        <li>Rispetto per tutti i giocatori</li>
+                                        <li>Backup del personaggio richiesto</li>
+                                        <li>Comunicazione assenze 24h prima</li>
+                                    </ul>
+                                </div>
+                                <div class="info-card">
+                                    <h4><i class="fas fa-dice-d20"></i> Regole di Gioco</h4>
+                                    <ul style="margin-left: 1rem; line-height: 1.6;">
+                                        <li>D&D 5e PHB + Xanathar's Guide</li>
+                                        <li>Point Buy per le statistiche</li>
+                                        <li>No multi-classing estremo</li>
+                                        <li>Background deve fits Barovia</li>
+                                        <li>Morte permanente possibile</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Current Campaign Status -->
+                        <div class="modal-section">
+                            <h3><i class="fas fa-map"></i> Stato Attuale della Campagna</h3>
+                            <div class="info-card" style="background: rgba(220, 53, 69, 0.1); border-color: #dc3545; padding: 1.5rem;">
+                                <h4 style="color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> Attenzione: Spoiler Alert</h4>
+                                <p style="margin-top: 0.8rem;">
+                                    <strong>Location Attuale:</strong> Il party si trova nella città di Vallaki, dopo aver scoperto i segreti del Burgomaster. Stanno investigando eventi misteriosi legati al Festival del Sole Ardente.
+                                </p>
+                                <p style="margin-top: 0.5rem;">
+                                    <strong>Obiettivi Principali:</strong> Trovare un modo per sconfiggere Strahd, liberare Ireena, e scoprire la verità su Barovia.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; padding-top: 1rem; border-top: 2px solid rgba(0,0,0,0.1);">
+                            <button class="btn btn-secondary" onclick="this.closest('.modal').remove(); document.body.classList.remove('modal-open');">
+                                <i class="fas fa-times"></i>
+                                Chiudi
+                            </button>
+                            <button class="btn btn-primary" onclick="showRegistrationModal('dnd-strahd')">
+                                <i class="fas fa-user-plus"></i>
+                                Richiedi Accesso
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) { modal.remove(); document.body.classList.remove('modal-open'); } });
+            document.body.classList.add('modal-open');
+        }
+
+        function openTournamentModal(tournamentId) {
+            const tournamentData = {
+                'catan-winter': {
+                    title: 'Torneo Invernale - I Coloni di Catan',
+                    game: 'I Coloni di Catan',
+                    date: 'Mercoledì 15 Gennaio 2025',
+                    time: '20:30 - 23:00',
+                    location: 'Sala Principale - Tavoli 1-3',
+                    participants: { current: 6, max: 12, waitlist: 2 },
+                    fee: '€15,00',
+                    prizes: ['1° posto: €100 + Trofeo', '2° posto: €50', '3° posto: €25'],
+                    description: 'Il nostro torneo invernale dedicato al classico gioco di strategia tedesco. Una serata di commercio, costruzione e strategia!',
+                    format: 'Torneo Svizzero - 4 round + finale',
+                    rules: [ 'Regole base di Catan (4ª edizione)', 'Tempo massimo 90 minuti per partita', 'Pareggi risolti con punti sviluppo', 'Fair play richiesto sempre' ],
+                    included: [ 'Gioco e materiali forniti', 'Aperitivo di benvenuto', 'Snack durante le pause', 'Certificato di partecipazione', 'Foto ricordo del torneo' ],
+                    registeredPlayers: [
+                        { name: 'Marco Rossi', rating: '1850', avatar: 'public/images/avatars/default.png' },
+                        { name: 'Laura Verdi', rating: '1720', avatar: 'public/images/avatars/default.png' },
+                        { name: 'Andrea Bianchi', rating: '1650', avatar: 'public/images/avatars/default.png' },
+                        { name: 'Sara Neri', rating: '1580', avatar: 'public/images/avatars/default.png' },
+                        { name: 'Giulio Gialli', rating: '1520', avatar: 'public/images/avatars/default.png' },
+                        { name: 'Francesca Rosa', rating: '1480', avatar: 'public/images/avatars/default.png' }
+                    ]
+                }
+            };
+
+            const tournament = tournamentData[tournamentId] || tournamentData['catan-winter'];
+
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 1000px; width: 90%; max-height: 85vh; overflow-y: auto;">
+                    <div class="modal-header">
+                        <h2 class="modal-title">
+                            <i class="fas fa-trophy"></i>
+                            ${tournament.title}
+                        </h2>
+                        <button class="modal-close" onclick="this.closest('.modal').remove(); document.body.classList.remove('modal-open');">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Tournament Overview -->
+                        <div class="modal-section">
+                            <div class="info-card" style="text-align: center; padding: 1.5rem; margin-bottom: 2rem;">
+                                <p style="font-size: 1.1rem; line-height: 1.7;">${tournament.description}</p>
+                            </div>
+                        </div>
+
+                        <!-- Tournament Details -->
+                        <div class="modal-section">
+                            <h3><i class="fas fa-info-circle"></i> Dettagli del Torneo</h3>
+                            <div class="info-grid">
+                                <div class="info-card">
+                                    <h4><i class="fas fa-gamepad"></i> Gioco</h4>
+                                    <p><strong>${tournament.game}</strong></p>
+                                    <p>Editore: Kosmos (1995)</p>
+                                    <p>Età minima: 10 anni</p>
+                                </div>
+
+                                <div class="info-card">
+                                    <h4><i class="fas fa-calendar-alt"></i> Data e Orario</h4>
+                                    <p><strong>Data:</strong> ${tournament.date}</p>
+                                    <p><strong>Orario:</strong> ${tournament.time}</p>
+                                    <p><strong>Check-in:</strong> 20:15</p>
+                                </div>
+
+                                <div class="info-card">
+                                    <h4><i class="fas fa-map-marker-alt"></i> Luogo</h4>
+                                    <p><strong>Location:</strong> ${tournament.location}</p>
+                                    <p><strong>Indirizzo:</strong> Via del Gioco 123</p>
+                                    <p><strong>Parcheggio:</strong> Disponibile</p>
+                                </div>
+
+                                <div class="info-card">
+                                    <h4><i class="fas fa-users"></i> Partecipanti</h4>
+                                    <p><strong>Iscritti:</strong> ${tournament.participants.current}/${tournament.participants.max}</p>
+                                    <p><strong>Lista d'attesa:</strong> ${tournament.participants.waitlist}</p>
+                                    <p><strong>Quota:</strong> ${tournament.fee}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tournament Format -->
+                        <div class="modal-section">
+                            <h3><i class="fas fa-cogs"></i> Formato e Regole</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                                <div class="info-card">
+                                    <h4><i class="fas fa-trophy"></i> Formato Torneo</h4>
+                                    <p style="margin-bottom: 1rem;">${tournament.format}</p>
+                                    <h5 style="margin-bottom: 0.5rem;">Premi:</h5>
+                                    <ul style="margin-left: 1rem;">
+                                        ${tournament.prizes.map(prize => `<li>${prize}</li>`).join('')}
+                                    </ul>
+                                </div>
+
+                                <div class="info-card">
+                                    <h4><i class="fas fa-gavel"></i> Regole Principali</h4>
+                                    <ul style="margin-left: 1rem;">
+                                        ${tournament.rules.map(rule => `<li>${rule}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- What's Included -->
+                        <div class="modal-section">
+                            <h3><i class="fas fa-gift"></i> Cosa è Incluso</h3>
+                            <div class="info-card">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                                    ${tournament.included.map(item => `
+                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <i class="fas fa-check-circle" style="color: var(--color-success);"></i>
+                                            <span>${item}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Registered Players -->
+                        <div class="modal-section">
+                            <h3><i class="fas fa-users"></i> Giocatori Iscritti (${tournament.participants.current}/${tournament.participants.max})</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                ${tournament.registeredPlayers.map(player => `
+                                    <div class="info-card" style="display: flex; align-items: center; gap: 1rem;">
+                                        <img src="${player.avatar}" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--color-primary);">
+                                        <div>
+                                            <div style="font-weight: bold;">${player.name}</div>
+                                            <div style="font-size: 0.85rem; color: #666;">Rating: ${player.rating}</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; padding-top: 1rem; border-top: 2px solid rgba(0,0,0,0.1);">
+                            <button class="btn btn-secondary" onclick="this.closest('.modal').remove(); document.body.classList.remove('modal-open');">
+                                <i class="fas fa-times"></i>
+                                Chiudi
+                            </button>
+                            <button class="btn btn-primary" onclick="registerForTournament('${tournamentId}', this)">
+                                <i class="fas fa-plus"></i>
+                                Iscriviti al Torneo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) { modal.remove(); document.body.classList.remove('modal-open'); } });
+            document.body.classList.add('modal-open');
+            
+            // Aggiorna dinamicamente il bottone se l'utente è già registrato
+            const actionButton = modal.querySelector('.btn-primary[onclick*="registerForTournament"]');
+            if (actionButton && userTournamentState.registeredTournaments.has(tournamentId)) {
+                actionButton.className = 'btn btn-success';
+                actionButton.innerHTML = '<i class="fas fa-check"></i> Già Iscritto';
+                actionButton.disabled = true;
+                actionButton.style.opacity = '0.7';
+                actionButton.removeAttribute('onclick');
+            }
+        }
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        function initScrollAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateX(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.tournament-card').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateX(-50px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
+            });
+        }
+
+        // ==========================================
+        // SISTEMA GESTIONE STATO TORNEI
+        // ==========================================
+        
+        // Stato tornei - inizialmente l'utente è iscritto alla campagna D&D, Catan e Magic
+        let userTournamentState = {
+            registeredTournaments: new Set(['dnd-strahd', 'catan-winter', 'magic-standard']),
+            completedTournaments: new Set(['splendor-autumn', 'dnd-crimson', 'betrayal-halloween'])
+        };
+
+        // Funzione per aggiornare lo stato di un torneo
+        function updateTournamentState(tournamentId, action) {
+            if (action === 'register') {
+                userTournamentState.registeredTournaments.add(tournamentId);
+                localStorage.setItem('userTournaments', JSON.stringify({
+                    registered: Array.from(userTournamentState.registeredTournaments),
+                    completed: Array.from(userTournamentState.completedTournaments)
+                }));
+                refreshAllTournamentsSection();
+            }
+        }
+
+        // Carica stato da localStorage se disponibile
+        function loadTournamentState() {
+            const saved = localStorage.getItem('userTournaments');
+            if (saved) {
+                const data = JSON.parse(saved);
+                userTournamentState.registeredTournaments = new Set(data.registered || []);
+                userTournamentState.completedTournaments = new Set(data.completed || []);
+            }
+        }
+
+        // Funzione per aggiornare tutte le viste dopo una modifica dello stato
+        function refreshAllTournamentsSection() {
+            updateAllTournamentsSection();
+            populateMyTournaments();
+            updateStaticDnDSection();
+        }
+
+        // Funzione per aggiornare dinamicamente la sezione D&D statica
+        function updateStaticDnDSection() {
+            const isDnDRegistered = userTournamentState.registeredTournaments.has('dnd-strahd');
+            
+            // Aggiorna lo slot dell'avatar
+            const dndSlot = document.getElementById('dnd-strahd-slot');
+            if (dndSlot) {
+                const icon = dndSlot.querySelector('.empty-avatar i');
+                const tooltip = dndSlot.querySelector('.character-tooltip');
+                
+                if (isDnDRegistered) {
+                    dndSlot.className = 'character-avatar registered-slot';
+                    dndSlot.removeAttribute('onclick');
+                    dndSlot.style.cursor = 'default';
+                    if (icon) {
+                        icon.className = 'fas fa-check';
+                    }
+                    if (tooltip) {
+                        tooltip.innerHTML = `
+                            <strong>Già Iscritto</strong><br>
+                            Sei già parte della<br>
+                            campagna
+                        `;
+                    }
+                } else {
+                    dndSlot.className = 'character-avatar empty-slot';
+                    dndSlot.setAttribute('onclick', "showRegistrationModal('dnd-strahd')");
+                    dndSlot.style.cursor = 'pointer';
+                    if (icon) {
+                        icon.className = 'fas fa-plus';
+                    }
+                    if (tooltip) {
+                        tooltip.innerHTML = `
+                            <strong>Slot Libero</strong><br>
+                            Clicca per richiedere<br>
+                            l'accesso alla campagna
+                        `;
+                    }
+                }
+            }
+            
+            // Aggiorna il bottone di registrazione
+            const registerBtn = document.getElementById('dnd-strahd-register-btn');
+            if (registerBtn) {
+                if (isDnDRegistered) {
+                    registerBtn.className = 'btn btn-success';
+                    registerBtn.innerHTML = '<i class="fas fa-check"></i> Già Iscritto';
+                    registerBtn.disabled = true;
+                    registerBtn.style.opacity = '0.7';
+                    registerBtn.removeAttribute('onclick');
+                } else {
+                    registerBtn.className = 'btn btn-primary';
+                    registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> Richiedi Accesso';
+                    registerBtn.disabled = false;
+                    registerBtn.style.opacity = '';
+                    registerBtn.setAttribute('onclick', "showRegistrationModal('dnd-strahd')");
+                }
+            }
+        }
+
+        // Funzione per aggiornare la sezione "Tutti i Tornei" in base allo stato
+        function updateAllTournamentsSection() {
+            const allTournamentCards = document.querySelectorAll('#allTournamentsSection .tournament-card');
+            
+            allTournamentCards.forEach(card => {
+                // Estrae l'ID del torneo dal bottone di iscrizione o altre fonti
+                const registerBtn = card.querySelector('.btn-primary[onclick*="registerForTournament"]');
+                let tournamentId = null;
+                
+                if (registerBtn) {
+                    const onclickAttr = registerBtn.getAttribute('onclick');
+                    const match = onclickAttr.match(/registerForTournament\('([^']+)'/);
+                    if (match) {
+                        tournamentId = match[1];
+                    }
+                }
+                
+                // Se non trovato dal bottone, prova a determinare dall'HTML esistente
+                if (!tournamentId) {
+                    if (card.innerHTML.includes('Catan')) tournamentId = 'catan-winter';
+                    else if (card.innerHTML.includes('D&D') && card.classList.contains('dnd-special')) tournamentId = 'dnd-strahd';
+                    else if (card.innerHTML.includes('Magic')) tournamentId = 'magic-standard';
+                }
+                
+                // Rimuovi badge esistenti e classi registered
+                const existingBadge = card.querySelector('.registered-badge');
+                if (existingBadge) existingBadge.remove();
+                card.classList.remove('registered');
+                
+                // Se l'utente è iscritto a questo torneo
+                if (tournamentId && userTournamentState.registeredTournaments.has(tournamentId)) {
+                    // Aggiungi classe registered
+                    card.classList.add('registered');
+                    
+                    // NON aggiungere più il badge - è già chiaro dal bottone "Già Iscritto"
+                    
+                    // Disabilita i bottoni di iscrizione
+                    const actionBtns = card.querySelectorAll('.tournament-actions .btn-primary');
+                    actionBtns.forEach(btn => {
+                        if (btn.textContent.includes('Iscriviti')) {
+                            btn.innerHTML = '<i class="fas fa-check"></i> Già Iscritto';
+                            btn.disabled = true;
+                            btn.style.opacity = '0.5';
+                            btn.style.cursor = 'not-allowed';
+                            // Rimuovi onclick per evitare doppia iscrizione
+                            btn.removeAttribute('onclick');
+                            btn.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                alert('⚠️ Sei già iscritto a questo torneo!\n\nPuoi trovarlo nella sezione "I Miei Tornei".');
+                            });
+                        }
+                    });
+                } else {
+                    // Ripristina i bottoni di iscrizione se necessario
+                    const actionBtns = card.querySelectorAll('.tournament-actions .btn-primary');
+                    actionBtns.forEach(btn => {
+                        if (btn.textContent.includes('Già Iscritto')) {
+                            btn.innerHTML = '<i class="fas fa-plus"></i> Iscriviti';
+                            btn.disabled = false;
+                            btn.style.opacity = '';
+                            btn.style.cursor = '';
+                        }
+                    });
+                }
+            });
+        }
+
+        // Auto-setup per bottoni iscrizione senza onclick
+        document.querySelectorAll('.btn-primary:not([disabled])').forEach(btn => {
+            if (btn.textContent.includes('Iscriviti') && !btn.onclick) {
+                btn.addEventListener('click', function() {
+                    registerForTournament('generic-tournament', this);
+                });
+            }
+        });
+
+        function populateMyTournaments() {
+            const upcomingContainer = document.getElementById('upcomingTournaments');
+            
+            // Definizione dei dati dei tornei
+            const tournamentData = {
+                'dnd-strahd': {
+                    title: 'Campagna D&D - La Maledizione di Strahd',
+                    game: 'Dungeons & Dragons 5e',
+                    date: 'Ogni SAB',
+                    time: 'Ogni Sabato • 15:00 - 19:00',
+                    theme: 'dnd-special dnd-theme',
+                    status: 'ongoing',
+                    details: [
+                        { icon: 'fas fa-scroll', label: 'Sessione', value: '12 / 20' },
+                        { icon: 'fas fa-level-up-alt', label: 'Livello', value: '8° Livello' },
+                        { icon: 'fas fa-crown', label: 'Ruolo', value: 'Party Leader' }
+                    ]
+                },
+                'catan-winter': {
+                    title: 'Torneo Invernale - I Coloni di Catan',
+                    game: 'I Coloni di Catan',
+                    date: '15 GEN',
+                    time: 'Mercoledì 15 Gennaio • 20:30 - 23:00',
+                    theme: 'strategy-theme',
+                    status: 'upcoming',
+                    details: [
+                        { icon: 'fas fa-users', label: 'Posizione', value: '6 / 12' },
+                        { icon: 'fas fa-euro-sign', label: 'Quota', value: '€15' },
+                        { icon: 'fas fa-trophy', label: '1° Premio', value: '€100' }
+                    ]
+                },
+                'magic-standard': {
+                    title: 'Torneo Magic: The Gathering Standard',
+                    game: 'Magic: The Gathering',
+                    date: '22 GEN',
+                    time: 'Mercoledì 22 Gennaio • 19:00 - 23:00',
+                    theme: 'card-theme',
+                    status: 'upcoming',
+                    details: [
+                        { icon: 'fas fa-users', label: 'Posizione', value: '8 / 16' },
+                        { icon: 'fas fa-euro-sign', label: 'Quota', value: '€20' },
+                        { icon: 'fas fa-trophy', label: '1° Premio', value: '€120' }
+                    ]
+                }
+            };
+
+            // Filtra solo i tornei ai quali l'utente è iscritto
+            const registeredTournaments = Array.from(userTournamentState.registeredTournaments)
+                .filter(id => tournamentData[id])
+                .map(id => ({ id, ...tournamentData[id] }));
+
+            if (registeredTournaments.length === 0) {
+                upcomingContainer.innerHTML = `
+                    <div style="margin-top: 2rem;">
+                        <h3 style="color: var(--color-primary); margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-calendar-alt"></i>
+                            Tornei in Corso e Prossimi
+                        </h3>
+                        <div style="text-align: center; padding: 3rem; background: #f8f9fa; border-radius: 12px; color: #666;">
+                            <i class="fas fa-calendar-plus" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                            <h4>Nessun torneo in programma</h4>
+                            <p>Vai alla sezione "Tutti i Tornei" per iscriverti a nuovi eventi!</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            upcomingContainer.innerHTML = `
+                <div style="margin-top: 2rem;">
+                    <h3 style="color: var(--color-primary); margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-calendar-alt"></i>
+                        Tornei in Corso e Prossimi (${registeredTournaments.length})
+                    </h3>
+                    <div class="tournaments-timeline">
+                        ${registeredTournaments.map(tournament => {
+                            const [day, month] = tournament.date.split(' ');
+                            return `
+                                <div class="tournament-card ${tournament.theme}">
+                                    <div class="tournament-date ${tournament.date.includes('Ogni') ? 'recurring' : ''}">
+                                        <span class="day">${day}</span>
+                                        <span class="month">${month}</span>
+                                    </div>
+                                    
+                                    <div class="tournament-header">
+                                        <div class="tournament-info">
+                                            <h2 class="tournament-title">
+                                                <i class="fas fa-${tournament.id.includes('dnd') ? 'dragon' : tournament.id.includes('magic') ? 'magic' : 'chess'}"></i>
+                                                ${tournament.title}
+                                            </h2>
+                                            <div class="tournament-game">${tournament.game}</div>
+                                            <div class="tournament-tags">
+                                                <span class="tag ${tournament.theme.split('-')[0]}" style="background: var(--color-success);">
+                                                    <i class="fas fa-check-circle"></i> Iscritto
+                                                </span>
+                                                ${tournament.status === 'ongoing' ? '<span class="tag ongoing"><i class="fas fa-play"></i> In Corso</span>' : ''}
+                                            </div>
+                                            <div class="tournament-time">
+                                                <i class="fas fa-clock"></i>
+                                                ${tournament.time}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="tournament-details">
+                                        ${tournament.details.map(detail => `
+                                            <div class="detail-item">
+                                                <div class="detail-icon">
+                                                    <i class="${detail.icon}"></i>
+                                                </div>
+                                                <div class="detail-content">
+                                                    <div class="detail-label">${detail.label}</div>
+                                                    <div class="detail-value">${detail.value}</div>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Popolamento sezione tornei conclusi
+            const completedContainer = document.getElementById('completedTournaments');
+            completedContainer.innerHTML = `
+                <div style="margin-top: 3rem;">
+                    <h3 style="color: var(--color-secondary); margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-trophy"></i>
+                        Tornei Conclusi
+                    </h3>
+                    <div class="tournaments-timeline">
+                        <div class="tournament-card strategy-theme completed">
+                            <div class="tournament-date">
+                                <span class="day">12</span>
+                                <span class="month">DIC</span>
+                            </div>
+                            
+                            <div class="tournament-header">
+                                <div class="tournament-info">
+                                    <h2 class="tournament-title">
+                                        <i class="fas fa-crown"></i>
+                                        Torneo Autunnale - Splendor
+                                    </h2>
+                                    <div class="tournament-game">Splendor</div>
+                                    <div class="tournament-tags">
+                                        <span class="tag" style="background: var(--color-success); color: white;"><i class="fas fa-trophy"></i> 1° Posto</span>
+                                        <span class="tag strategy"><i class="fas fa-gem"></i> Strategia</span>
+                                    </div>
+                                    <div class="tournament-time">
+                                        <i class="fas fa-calendar"></i>
+                                        Domenica 12 Dicembre 2024
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tournament-details">
+                                <div class="detail-item">
+                                    <div class="detail-icon">
+                                        <i class="fas fa-trophy"></i>
+                                    </div>
+                                    <div class="detail-content">
+                                        <div class="detail-label">Posizione</div>
+                                        <div class="detail-value" style="color: var(--color-success); font-weight: bold;">1° / 8</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="detail-item">
+                                    <div class="detail-icon">
+                                        <i class="fas fa-gift"></i>
+                                    </div>
+                                    <div class="detail-content">
+                                        <div class="detail-label">Premio</div>
+                                        <div class="detail-value" style="color: var(--color-success);">€75 + Trofeo</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="detail-item">
+                                    <div class="detail-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="detail-content">
+                                        <div class="detail-label">Durata</div>
+                                        <div class="detail-value">3h 45min</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                // Inizializza il sistema
+                console.log('🔄 Inizializzazione sistema tornei...');
+                loadTournamentState();
+                console.log('📊 Stato caricato:', userTournamentState);
+                
+                initScrollAnimations();
+                console.log('🎨 Animazioni inizializzate');
+                
+                populateMyTournaments();
+                console.log('👤 I Miei Tornei popolati');
+                
+                updateAllTournamentsSection();
+                console.log('🏆 Tutti i tornei aggiornati');
+                
+                updateStaticDnDSection();
+                console.log('🎲 Sezione D&D statica aggiornata');
+                
+                console.log('✅ Pagina Tornei (copia) caricata con successo!');
+            } catch (error) {
+                console.error('❌ Errore durante inizializzazione:', error);
+            }
+        });
+    </script>
+</body>
+</html>

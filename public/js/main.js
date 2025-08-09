@@ -8,6 +8,7 @@ import { showBookings } from './pages/bookings.js';
 import { showAboutUs } from './pages/aboutus.js';
 import { showError404 } from './pages/error404.js';
 import { showUserBookings } from './pages/user-bookings.js';
+import { showTournaments } from './pages/tournaments.js';
 
 const ROLE_ICONS = {
     guest: {
@@ -571,6 +572,12 @@ const ROUTES_CONFIG = {
         title: 'Chi Siamo - Dice & Drink',
         handler: () => showAboutUs(),
         navItem: 'aboutus'
+    },
+
+    '/tornei': {
+        title: 'Tornei & Campagne - Dice & Drink',
+        handler: () => showTournaments(),
+        navItem: 'tornei'
     },
 
     '/prenotazioni-utente': {
