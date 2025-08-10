@@ -1,3 +1,4 @@
+// Modified copy of tournaments.js with extra checks for empty My Tournaments
 // ==========================================
 // TOURNAMENTS PAGE - Dice & Drink
 // Converted from HTML prototype to JS module
@@ -427,15 +428,18 @@ function renderAllTournaments(tournaments) {
 function renderMyTournaments(userTournaments) {
     const upcomingContainer = document.getElementById('upcomingTournaments');
     const completedContainer = document.getElementById('completedTournaments');
+    const section = document.getElementById('myTournamentsSection');
     // Ensure profile header visible in authenticated context
     const header = document.querySelector('.user-profile-header');
     if (header) header.style.display = '';
 
     if (!userTournaments || userTournaments.length === 0) {
+        if (section) section.classList.add('empty');
         upcomingContainer.innerHTML = '';
         completedContainer.innerHTML = '';
         return;
     }
+    if (section) section.classList.remove('empty');
 
     // Group tournaments by status
     const upcoming = userTournaments.filter(t => t.status !== 'completed');
@@ -1056,23 +1060,23 @@ window.showAllTournaments = function(element = null) {
 
 window.showMyTournaments = function(element = null) {
     if (element) {
-        // Update toggle buttons
         document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
         element.classList.add('active');
     }
 
-    // Show/hide sections
+    const mySection = document.getElementById('myTournamentsSection');
     document.getElementById('allTournamentsSection').classList.remove('active');
-    document.getElementById('myTournamentsSection').classList.add('active');
     document.getElementById('createTournamentSection').classList.remove('active');
 
     tournamentState.currentView = 'my';
 
-    // Load user tournaments if authenticated
     if (window.SimpleAuth && window.SimpleAuth.isAuthenticated) {
+        mySection.classList.add('active');
+        mySection.classList.remove('empty');
         loadUserTournaments();
     } else {
-        showAuthPromptInMyTournaments();
+        mySection.classList.remove('active');
+        mySection.classList.add('empty');
     }
 
     console.log('👤 Showing my tournaments');
@@ -1102,6 +1106,7 @@ window.registerForTournament = async function(tournamentId, buttonElement = null
     try {
         const response = await fetch(`/api/tournaments/${tournamentId}/register`, {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -1110,6 +1115,12 @@ window.registerForTournament = async function(tournamentId, buttonElement = null
 
         if (response.status === 401) {
             showAuthPrompt();
+            return;
+        }
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: 'Errore durante la registrazione' }));
+            showNotification(errorData.message || 'Errore durante la registrazione', 'error');
             return;
         }
 
@@ -1141,10 +1152,17 @@ window.unregisterFromTournament = async function(tournamentId) {
         const token = localStorage.getItem('authToken') || localStorage.getItem('accessToken');
         const response = await fetch(`/api/tournaments/${tournamentId}/register`, {
             method: 'DELETE',
+            credentials: 'include',
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
+
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({ message: 'Errore durante la cancellazione' }));
+            showNotification(err.message || 'Errore durante la cancellazione', 'error');
+            return;
+        }
 
         const data = await response.json();
 
@@ -1210,14 +1228,23 @@ window.submitDnDRequest = async function(button, tournamentId) {
         button.disabled = true;
         const res = await fetch(`/api/tournaments/${tournamentId}/request`, {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('accessToken') || localStorage.getItem('authToken')}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ message })
         });
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({ message: 'Errore invio richiesta' }));
+            showNotification(err.message || 'Errore invio richiesta', 'error');
+            button.disabled = false;
+            return;
+        }
+
         const data = await res.json();
-        if (res.ok && data.success !== false) {
+        if (data.success !== false) {
             showNotification(data.message || 'Richiesta inviata', 'success');
             tournamentState.registeredTournaments.add(parseInt(tournamentId));
             updateTournamentState(tournamentId, 'register');
@@ -1227,8 +1254,8 @@ window.submitDnDRequest = async function(button, tournamentId) {
             }
         } else {
             showNotification(data.message || 'Errore invio richiesta', 'error');
-            button.disabled = false;
         }
+        button.disabled = false;
     } catch (err) {
         console.error('submitDnDRequest error:', err);
         showNotification('Errore invio richiesta', 'error');
@@ -2091,12 +2118,14 @@ function initializeUserProfile() {
 }
 
 function showAuthPromptInMyTournaments() {
+    const section = document.getElementById('myTournamentsSection');
     const upcomingContainer = document.getElementById('upcomingTournaments');
     const completedContainer = document.getElementById('completedTournaments');
     // Hide profile header when not authenticated
     const header = document.querySelector('.user-profile-header');
     if (header) header.style.display = 'none';
 
+    if (section) section.classList.add('empty');
     const authPromptHTML = `
         <div style="margin-top: 2rem;">
             <div class="auth-prompt">

@@ -1,3 +1,4 @@
+/* Modified copy of tournaments.css for experimental fixes */
 /* ==========================================
    TOURNAMENTS PAGE CSS - Dice & Drink
    ========================================== */
@@ -98,6 +99,9 @@
 }
 .my-tournaments-section.active {
     display: block;
+}
+.my-tournaments-section.empty {
+    display: none !important;
 }
 
 .user-profile-header {
@@ -336,7 +340,7 @@
     width: 4px;
     background: var(--color-primary);
     border-radius: 2px;
-    z-index: 1;
+    z-index: 0;
 }
 
 /* ==========================================
@@ -352,7 +356,7 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: visible;
-    z-index: 1;
+    z-index: 2;
 }
 
 .tournament-card::after {
@@ -399,9 +403,9 @@
     z-index: 1;
 }
 .tournament-card:hover {
-    transform: translateX(15px) scale(1.02);
+    transform: scale(1.02);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
-    z-index: 2;
+    z-index: 3;
 }
 
 /* Stati delle card registrate */
@@ -416,7 +420,7 @@
 }
 
 .tournament-card.registered:hover {
-    transform: translateX(10px) scale(1.01);
+    transform: scale(1.01);
     opacity: 0.9;
 }
 
@@ -479,7 +483,7 @@
 }
 
 .tournament-card:hover > .tournament-date {
-    transform: translate(calc(-50% - 15px), -50%) scale(0.980392);
+    transform: translate(-50%, -50%) scale(0.980392);
 }
 .tournament-date .day {
     font-size: 2rem;
@@ -819,7 +823,7 @@
 }
 
 .modal-header {
-    padding: 1.5rem 2rem;
+    padding: 1.5rem 2rem 1rem;
     border-bottom: 2px solid rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: between;
@@ -850,11 +854,11 @@
 }
 
 .modal-body {
-    padding: 2rem;
+    padding: 1.5rem;
 }
 
 .modal-section {
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
 }
 
 .info-grid {
@@ -868,7 +872,7 @@
     background: #f8f9fa;
     border: 2px solid #e9ecef;
     border-radius: 12px;
-    padding: 1.5rem;
+    padding: 1.2rem;
 }
 
 .info-card h4 {
