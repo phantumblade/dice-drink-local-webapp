@@ -61,9 +61,46 @@ async function initTournamentsDb() {
         days TEXT, -- es. "Ogni Sabato"
         session_duration TEXT, -- es. "4 ore"
         safety_tools TEXT, -- JSON array
+        dm_name TEXT,
+        dm_description TEXT,
+        play_style TEXT,
+        experience_required TEXT,
+        location TEXT,
+        total_hours INTEGER,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
+      )
+    `);
+
+    // Tabella personaggi D&D
+    await db.exec(`
+      CREATE TABLE IF NOT EXISTS dnd_characters (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tournament_id INTEGER NOT NULL,
+        user_id INTEGER,
+        name TEXT NOT NULL,
+        class TEXT NOT NULL,
+        race TEXT,
+        level INTEGER DEFAULT 1,
+        role TEXT,
+        is_party_leader BOOLEAN DEFAULT 0,
+        background TEXT,
+        alignment TEXT,
+        description TEXT,
+        personality TEXT,
+        ideals TEXT,
+        bonds TEXT,
+        flaws TEXT,
+        backstory TEXT,
+        avatar_image TEXT,
+        stats TEXT, -- JSON delle statistiche
+        equipment TEXT, -- JSON dell'equipaggiamento
+        spells TEXT, -- JSON degli incantesimi
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
       )
     `);
 
@@ -91,6 +128,9 @@ async function initTournamentsDb() {
       CREATE INDEX IF NOT EXISTS idx_tournaments_game_id ON tournaments(game_id);
       CREATE INDEX IF NOT EXISTS idx_tournament_registrations_user ON tournament_registrations(user_id);
       CREATE INDEX IF NOT EXISTS idx_tournament_registrations_tournament ON tournament_registrations(tournament_id);
+      CREATE INDEX IF NOT EXISTS idx_dnd_campaigns_tournament ON dnd_campaigns(tournament_id);
+      CREATE INDEX IF NOT EXISTS idx_dnd_characters_tournament ON dnd_characters(tournament_id);
+      CREATE INDEX IF NOT EXISTS idx_dnd_characters_user ON dnd_characters(user_id);
     `);
 
     console.log('✅ Tabelle tornei create con successo');
@@ -441,12 +481,30 @@ async function seedTournaments(db) {
     let setting = 'Forgotten Realms';
     let world = null;
     let tags = [];
-    if (/Strahd/i.test(t.title)) { setting = 'Barovia'; world = 'Ravenloft'; tags = ['Horror', 'Gotico', 'Vampiri']; }
-    if (/Phandelver/i.test(t.title)) { setting = 'Neverwinter'; world = 'Forgotten Realms'; tags = ['Intro', 'Avventura', 'Caverne']; }
+    let dmName = 'Marco "Il Narratore" Rossi';
+    let dmDescription = 'Master esperto con oltre 5 anni di esperienza';
+    let playStyle = 'Roleplay Intenso';
+    let experienceRequired = 'Intermedio/Avanzato';
+    let totalHours = 48;
+    
+    if (/Strahd/i.test(t.title)) { 
+      setting = 'Barovia'; 
+      world = 'Ravenloft'; 
+      tags = ['Horror', 'Gotico', 'Vampiri'];
+      totalHours = 48;
+    }
+    if (/Phandelver/i.test(t.title)) { 
+      setting = 'Neverwinter'; 
+      world = 'Forgotten Realms'; 
+      tags = ['Intro', 'Avventura', 'Caverne'];
+      experienceRequired = 'Principiante';
+      playStyle = 'Bilanciato';
+      totalHours = 24;
+    }
 
     await db.run(`
-      INSERT OR REPLACE INTO dnd_campaigns (tournament_id, setting, world, tags, allowed_classes, days, session_duration, safety_tools, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT OR REPLACE INTO dnd_campaigns (tournament_id, setting, world, tags, allowed_classes, days, session_duration, safety_tools, dm_name, dm_description, play_style, experience_required, location, total_hours, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       t.id,
       setting,
@@ -456,9 +514,140 @@ async function seedTournaments(db) {
       'Ogni Sabato',
       '4 ore',
       JSON.stringify(['X-Card', 'Lines & Veils']),
+      dmName,
+      dmDescription,
+      playStyle,
+      experienceRequired,
+      'Sala Epica - Tavolo 1',
+      totalHours,
       new Date().toISOString(),
       new Date().toISOString()
     ]);
+
+    // Aggiungi personaggi di esempio per ogni campagna D&D
+    if (/Strahd/i.test(t.title)) {
+      const characters = [
+        {
+          name: 'Elena Drakemoor',
+          class: 'Paladino',
+          race: 'Dragonide',
+          level: 8,
+          role: 'Party Leader',
+          is_party_leader: 1,
+          background: 'Nobile',
+          alignment: 'Legale Buono',
+          description: 'Una nobile dragonide dal cuore d\'oro',
+          personality: 'Coraggiosa e determinata, sempre pronta ad aiutare gli innocenti',
+          ideals: 'La giustizia deve prevalere sempre',
+          bonds: 'Giurata a proteggere i deboli e gli oppressi',
+          flaws: 'A volte troppo testarda nelle sue convinzioni',
+          backstory: 'Figlia di una famiglia nobile decaduta, ha giurato di restaurare l\'onore del suo casato',
+          avatar_image: '/images/avatars/dragonide.png',
+          stats: JSON.stringify({str: 18, dex: 12, con: 16, int: 13, wis: 14, cha: 16})
+        },
+        {
+          name: 'Marcus Shadowbane',
+          class: 'Ranger',
+          race: 'Umano',
+          level: 8,
+          role: 'Cacciatore di Mostri',
+          is_party_leader: 0,
+          background: 'Eremita',
+          alignment: 'Caotico Buono',
+          description: 'Un cacciatore esperto delle terre selvagge',
+          personality: 'Silenzioso e osservatore, preferisce l\'azione alle parole',
+          ideals: 'La natura deve essere protetta dagli abomini',
+          bonds: 'Ha perso la famiglia per colpa di non-morti',
+          flaws: 'Diffida eccessivamente degli estranei',
+          backstory: 'Sopravvissuto a un attacco di non-morti, dedica la sua vita a cacciarli',
+          avatar_image: '/images/avatars/cacciatore.png',
+          stats: JSON.stringify({str: 15, dex: 18, con: 14, int: 12, wis: 16, cha: 10})
+        },
+        {
+          name: 'Lyralei Moonwhisper',
+          class: 'Druida',
+          race: 'Elfa',
+          level: 8,
+          role: 'Guaritrice della Natura',
+          is_party_leader: 0,
+          background: 'Eremita',
+          alignment: 'Neutrale Buono',
+          description: 'Una druida elfa saggia e compassionevole',
+          personality: 'Calma e riflessiva, cerca sempre soluzioni pacifiche',
+          ideals: 'L\'equilibrio naturale va preservato',
+          bonds: 'Custode di un bosco sacro',
+          flaws: 'A volte troppo ingenua riguardo alla natura umana',
+          backstory: 'Cresciuta in un circolo druidico, è la custode di antichi segreti naturali',
+          avatar_image: '/images/avatars/elfo.png',
+          stats: JSON.stringify({str: 10, dex: 14, con: 15, int: 13, wis: 18, cha: 12})
+        }
+      ];
+
+      for (const char of characters) {
+        await db.run(`
+          INSERT INTO dnd_characters (tournament_id, name, class, race, level, role, is_party_leader, background, alignment, description, personality, ideals, bonds, flaws, backstory, avatar_image, stats, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [
+          t.id, char.name, char.class, char.race, char.level, char.role, char.is_party_leader,
+          char.background, char.alignment, char.description, char.personality, char.ideals,
+          char.bonds, char.flaws, char.backstory, char.avatar_image, char.stats,
+          new Date().toISOString(), new Date().toISOString()
+        ]);
+      }
+    }
+
+    if (/Phandelver/i.test(t.title)) {
+      const characters = [
+        {
+          name: 'Gareth il Coraggioso',
+          class: 'Guerriero',
+          race: 'Umano',
+          level: 1,
+          role: 'Tank',
+          is_party_leader: 1,
+          background: 'Soldato',
+          alignment: 'Legale Neutrale',
+          description: 'Un giovane guerriero pieno di speranze',
+          personality: 'Ottimista e coraggioso, sempre pronto alla battaglia',
+          ideals: 'Il coraggio non è l\'assenza di paura, ma agire nonostante essa',
+          bonds: 'Fedele ai suoi compagni d\'arme',
+          flaws: 'A volte sottovaluta i pericoli',
+          backstory: 'Ex soldato in cerca di avventura e gloria',
+          avatar_image: '/images/avatars/guerriero.png',
+          stats: JSON.stringify({str: 16, dex: 13, con: 15, int: 10, wis: 12, cha: 14})
+        },
+        {
+          name: 'Mira Frecciargento',
+          class: 'Ranger',
+          race: 'Elfa',
+          level: 1,
+          role: 'DPS',
+          is_party_leader: 0,
+          background: 'Popolana',
+          alignment: 'Caotico Buono',
+          description: 'Una giovane elfa arciera dalle mire precise',
+          personality: 'Indipendente e determinata',
+          ideals: 'La libertà è il bene più prezioso',
+          bonds: 'Protegge il suo villaggio natale',
+          flaws: 'Troppo orgogliosa per chiedere aiuto',
+          backstory: 'Cresciuta in un piccolo villaggio, ha imparato a cacciare per necessità',
+          avatar_image: '/images/avatars/elfo.png',
+          stats: JSON.stringify({str: 12, dex: 16, con: 13, int: 11, wis: 15, cha: 10})
+        }
+      ];
+
+      for (const char of characters) {
+        await db.run(`
+          INSERT INTO dnd_characters (tournament_id, name, class, race, level, role, is_party_leader, background, alignment, description, personality, ideals, bonds, flaws, backstory, avatar_image, stats, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [
+          t.id, char.name, char.class, char.race, char.level, char.role, char.is_party_leader,
+          char.background, char.alignment, char.description, char.personality, char.ideals,
+          char.bonds, char.flaws, char.backstory, char.avatar_image, char.stats,
+          new Date().toISOString(), new Date().toISOString()
+        ]);
+      }
+    }
   }
 }
 

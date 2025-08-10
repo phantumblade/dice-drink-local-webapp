@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const TournamentsDao = require('../daos/tournamentsDao');
 const TournamentRegistrationsDao = require('../daos/tournamentRegistrationsDao');
+const DndCampaignsDao = require('../dao/dndCampaignsDao');
 const { requireAuth, requireRole, optionalAuth } = require('../middleware/auth');
 const { User } = require('../models/User');
 
@@ -485,6 +486,144 @@ router.put('/:id/status', requireRole(['admin', 'staff']), async (req, res) => {
     res.status(400).json({
       success: false,
       message: error.message,
+      error: error.message
+    });
+  }
+});
+
+// ==========================================
+// D&D CAMPAIGNS ROUTES
+// ==========================================
+
+// GET /api/tournaments/:id/campaign - Dettagli campagna D&D
+router.get('/:id/campaign', async (req, res) => {
+  try {
+    const tournamentId = parseInt(req.params.id);
+    
+    if (isNaN(tournamentId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID torneo non valido'
+      });
+    }
+
+    const campaignDetails = await DndCampaignsDao.getCampaignDetails(tournamentId);
+    
+    if (!campaignDetails) {
+      return res.status(404).json({
+        success: false,
+        message: 'Dettagli campagna non trovati'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: campaignDetails
+    });
+  } catch (error) {
+    console.error('Error fetching campaign details:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore nel recupero dettagli campagna',
+      error: error.message
+    });
+  }
+});
+
+// GET /api/tournaments/:id/characters - Personaggi della campagna
+router.get('/:id/characters', async (req, res) => {
+  try {
+    const tournamentId = parseInt(req.params.id);
+    
+    if (isNaN(tournamentId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID torneo non valido'
+      });
+    }
+
+    const characters = await DndCampaignsDao.getCampaignCharacters(tournamentId);
+    
+    res.json({
+      success: true,
+      data: characters
+    });
+  } catch (error) {
+    console.error('Error fetching characters:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore nel recupero personaggi',
+      error: error.message
+    });
+  }
+});
+
+// GET /api/tournaments/characters/:characterId - Dettagli personaggio
+router.get('/characters/:characterId', async (req, res) => {
+  try {
+    const characterId = parseInt(req.params.characterId);
+    
+    if (isNaN(characterId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID personaggio non valido'
+      });
+    }
+
+    const character = await DndCampaignsDao.getCharacterDetails(characterId);
+    
+    if (!character) {
+      return res.status(404).json({
+        success: false,
+        message: 'Personaggio non trovato'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: character
+    });
+  } catch (error) {
+    console.error('Error fetching character details:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore nel recupero dettagli personaggio',
+      error: error.message
+    });
+  }
+});
+
+// GET /api/tournaments/:id/characters/:name - Trova personaggio per nome
+router.get('/:id/characters/:name', async (req, res) => {
+  try {
+    const tournamentId = parseInt(req.params.id);
+    const characterName = req.params.name;
+    
+    if (isNaN(tournamentId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID torneo non valido'
+      });
+    }
+
+    const character = await DndCampaignsDao.findCharacterByName(tournamentId, characterName);
+    
+    if (!character) {
+      return res.status(404).json({
+        success: false,
+        message: 'Personaggio non trovato'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: character
+    });
+  } catch (error) {
+    console.error('Error finding character by name:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore nella ricerca del personaggio',
       error: error.message
     });
   }
