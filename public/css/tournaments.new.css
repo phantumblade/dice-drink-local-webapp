@@ -1,3 +1,4 @@
+/* Modified copy of tournaments.css for experimental fixes */
 /* ==========================================
    TOURNAMENTS PAGE CSS - Dice & Drink
    ========================================== */
@@ -98,6 +99,9 @@
 }
 .my-tournaments-section.active {
     display: block;
+}
+.my-tournaments-section.empty {
+    display: none !important;
 }
 
 .user-profile-header {
@@ -321,43 +325,6 @@
 }
 
 /* ==========================================
-   TIMELINE DIVIDERS
-   ========================================== */
-.timeline-section-divider {
-    display: flex;
-    align-items: center;
-    margin: 3rem 0 2rem 0;
-    gap: 1rem;
-}
-
-.divider-line {
-    flex: 1;
-    height: 2px;
-    background: linear-gradient(90deg, transparent 0%, var(--color-primary) 50%, transparent 100%);
-}
-
-.divider-title {
-    background: white;
-    color: var(--color-primary);
-    padding: 0.8rem 1.5rem;
-    border: 2px solid var(--color-primary);
-    border-radius: 25px;
-    font-weight: 600;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    white-space: nowrap;
-    box-shadow: 0 4px 12px rgba(102, 51, 204, 0.15);
-    transition: all 0.3s ease;
-}
-
-.divider-title:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(102, 51, 204, 0.25);
-}
-
-/* ==========================================
    TIMELINE TORNEI
    ========================================== */
 .tournaments-timeline {
@@ -527,13 +494,6 @@
     font-size: 1rem;
     opacity: 0.95;
     letter-spacing: 0.03em;
-}
-.tournament-date .year {
-    font-size: 0.8rem;
-    display: block;
-    opacity: 0.8;
-    margin-top: 2px;
-    letter-spacing: 0.05em;
 }
 
 /* ==========================================
@@ -795,41 +755,6 @@
     transform: translateY(-2px);
 }
 
-/* Disabled button styles */
-.btn:disabled,
-.btn.disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none !important;
-    box-shadow: none !important;
-}
-
-.btn:disabled:hover,
-.btn.disabled:hover {
-    transform: none !important;
-    box-shadow: none !important;
-}
-
-.btn-primary:disabled,
-.btn-primary.disabled {
-    background: #95a5a6;
-    color: white;
-}
-
-.btn-secondary:disabled,
-.btn-secondary.disabled {
-    background: #95a5a6;
-    color: white;
-}
-
-.btn-primary:disabled:hover,
-.btn-primary.disabled:hover,
-.btn-secondary:disabled:hover,
-.btn-secondary.disabled:hover {
-    background: #95a5a6 !important;
-    color: white !important;
-}
-
 .btn-success {
     background: var(--color-success);
     color: white;
@@ -947,126 +872,15 @@
     background: #f8f9fa;
     border: 2px solid #e9ecef;
     border-radius: 12px;
-    padding: 1rem;
+    padding: 1.5rem;
 }
 
 .info-card h4 {
     color: var(--color-primary);
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 1.1rem;
-}
-
-/* ==========================================
-   TORNEI COMPLETATI E PIENI
-   ========================================== */
-.tournament-card.completed {
-    opacity: 0.75;
-    border-color: #ccc !important;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
-}
-
-.tournament-card.full {
-    opacity: 0.85;
-    border-color: #ffc107 !important;
-    background: linear-gradient(135deg, #fff9e6 0%, #fffbf0 100%) !important;
-}
-
-.tournament-card.cancelled {
-    opacity: 0.65;
-    border-color: #dc3545 !important;
-    background: linear-gradient(135deg, #ffeaea 0%, #fff0f0 100%) !important;
-}
-
-.tournament-card.completed::before {
-    display: none;
-}
-
-.tournament-card.completed::after {
-    display: none;
-}
-
-.tournament-card.completed .tournament-header h2 {
-    color: #6c757d;
-}
-
-.tournament-card.completed .tournament-date {
-    background: #6c757d !important;
-    color: white;
-}
-
-/* Full tournament styles */
-.tournament-card.full::before {
-    display: none;
-}
-
-.tournament-card.full::after {
-    display: none;
-}
-
-.tournament-card.full .tournament-header h2 {
-    color: #856404;
-}
-
-.tournament-card.full .tournament-date {
-    background: #ffc107 !important;
-    color: white;
-}
-
-/* Cancelled tournament styles */
-.tournament-card.cancelled::before {
-    display: none;
-}
-
-.tournament-card.cancelled::after {
-    display: none;
-}
-
-.tournament-card.cancelled .tournament-header h2 {
-    color: #721c24;
-}
-
-.tournament-card.cancelled .tournament-date {
-    background: #dc3545 !important;
-    color: white;
-}
-
-/* ==========================================
-   MODALI
-   ========================================== */
-.modal-section {
-    margin-bottom: 2rem;
-}
-
-.modal-section h3 {
-    color: var(--color-primary);
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.3rem;
-    border-bottom: 2px solid #e9ecef;
-    padding-bottom: 0.5rem;
-}
-
-.modal-section .info-card h4 {
-    margin-bottom: 0.75rem;
-}
-
-.modal-section .info-card p {
-    margin-bottom: 0.5rem;
-    line-height: 1.6;
-}
-
-.tag.recurring {
-    background: #28a745;
-    color: white;
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: bold;
 }
 
 /* ==========================================
