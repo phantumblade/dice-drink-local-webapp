@@ -69,6 +69,10 @@ function generateTournamentsHTML() {
                         <i class="fas fa-user"></i>
                         I Miei Tornei
                     </button>
+                    <button class="toggle-btn" id="createTournamentBtn" style="display:none" onclick="showCreateTournament(this)">
+                        <i class="fas fa-plus"></i>
+                        Crea Torneo
+                    </button>
                 </div>
             </div>
 
@@ -162,6 +166,9 @@ function generateTournamentsHTML() {
                     </div>
                 </div>
             </div>
+
+            <!-- Create Tournament Section -->
+            <div class="create-tournament-section" id="createTournamentSection"></div>
         </div>
 
         <!-- Modal Container -->
@@ -241,6 +248,12 @@ async function loadUserProfile() {
 
                 // Load user tournaments
                 await loadUserTournaments();
+
+                // Show admin/staff create button
+                if (['admin', 'staff'].includes(user.role)) {
+                    const btn = document.getElementById('createTournamentBtn');
+                    if (btn) btn.style.display = '';
+                }
             }
         }
     } catch (error) {
@@ -379,10 +392,34 @@ function renderAllTournaments(tournaments) {
         return;
     }
 
-    tournaments.forEach(tournament => {
-        const tournamentCard = createTournamentCard(tournament);
-        container.appendChild(tournamentCard);
+    const now = new Date();
+    const available = tournaments.filter(t => {
+        const start = new Date(t.start_date);
+        return t.status !== 'completed' && t.status !== 'cancelled' && start >= now;
     });
+    const past = tournaments.filter(t => !available.includes(t));
+
+    if (available.length > 0) {
+        const title = document.createElement('h3');
+        title.style.cssText = 'color: var(--color-primary); margin-bottom:1.5rem;';
+        title.innerHTML = '<i class="fas fa-calendar-alt"></i> Tornei Disponibili';
+        container.appendChild(title);
+        const timeline = document.createElement('div');
+        timeline.className = 'tournaments-timeline';
+        available.forEach(t => timeline.appendChild(createTournamentCard(t)));
+        container.appendChild(timeline);
+    }
+
+    if (past.length > 0) {
+        const title = document.createElement('h3');
+        title.style.cssText = 'color: var(--color-primary); margin:2rem 0 1.5rem;';
+        title.innerHTML = '<i class="fas fa-archive"></i> Tornei Conclusi o Passati';
+        container.appendChild(title);
+        const pastTimeline = document.createElement('div');
+        pastTimeline.className = 'tournaments-timeline';
+        past.forEach(t => pastTimeline.appendChild(createTournamentCard(t)));
+        container.appendChild(pastTimeline);
+    }
 
     showNotification(`${tournaments.length} tornei caricati con successo!`, 'success');
 }
@@ -395,19 +432,7 @@ function renderMyTournaments(userTournaments) {
     if (header) header.style.display = '';
 
     if (!userTournaments || userTournaments.length === 0) {
-        upcomingContainer.innerHTML = `
-            <div style="margin-top: 2rem;">
-                <h3 style="color: var(--color-primary); margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fas fa-calendar-alt"></i>
-                    Tornei in Corso e Prossimi
-                </h3>
-                <div style="text-align: center; padding: 3rem; background: #f8f9fa; border-radius: 12px; color: #666;">
-                    <i class="fas fa-calendar-plus" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                    <h4>Nessun torneo in programma</h4>
-                    <p>Vai alla sezione "Tutti i Tornei" per iscriverti a nuovi eventi!</p>
-                </div>
-            </div>
-        `;
+        upcomingContainer.innerHTML = '';
         completedContainer.innerHTML = '';
         return;
     }
@@ -572,57 +597,95 @@ function generateTournamentCardHTML(tournament, isMyTournament) {
                     ${formatTournamentTime(tournament)}
                 </div>
             </div>
+            ${generateTournamentStatus(tournament)}
         </div>
 
         <!-- Tournament Details -->
+        ${tournament.category === 'dnd'
+            ? generateDnDTournamentDetails(tournament)
+            : generateStandardTournamentDetails(tournament)}
+
+        <!-- D&D Campaign Specific Content -->
+        ${tournament.category === 'dnd' ? generateDnDContent(tournament) : ''}
+
+        <!-- Tournament Actions -->
+        ${generateTournamentActions(tournament, isRegistered, isAuthenticated, isMyTournament)}
+    `;
+}
+
+function generateStandardTournamentDetails(tournament) {
+    return `
         <div class="tournament-details">
             <div class="detail-item">
-                <div class="detail-icon">
-                    <i class="fas fa-users"></i>
-                </div>
+                <div class="detail-icon"><i class="fas fa-users"></i></div>
                 <div class="detail-content">
                     <div class="detail-label">Partecipanti</div>
                     <div class="detail-value">${tournament.current_participants || 0} / ${tournament.max_participants || 'N/A'}</div>
                     ${generateParticipantsBar(tournament)}
                 </div>
             </div>
-
             <div class="detail-item">
-                <div class="detail-icon">
-                    <i class="fas fa-euro-sign"></i>
-                </div>
+                <div class="detail-icon"><i class="fas fa-euro-sign"></i></div>
                 <div class="detail-content">
                     <div class="detail-label">Quota partecipazione</div>
                     <div class="detail-value">${tournament.entry_fee ? `€${tournament.entry_fee}` : 'Gratuito'}</div>
                 </div>
             </div>
-
             <div class="detail-item">
-                <div class="detail-icon">
-                    <i class="fas fa-gift"></i>
-                </div>
+                <div class="detail-icon"><i class="fas fa-gift"></i></div>
                 <div class="detail-content">
                     <div class="detail-label">Premio</div>
                     <div class="detail-value">${getFirstPrize(tournament)}</div>
                 </div>
             </div>
-
             <div class="detail-item">
-                <div class="detail-icon">
-                    <i class="fas fa-star"></i>
-                </div>
+                <div class="detail-icon"><i class="fas fa-star"></i></div>
                 <div class="detail-content">
                     <div class="detail-label">Difficoltà</div>
                     <div class="detail-value">${getDifficultyText(tournament.difficulty)}</div>
                 </div>
             </div>
         </div>
+    `;
+}
 
-        <!-- D&D Campaign Specific Content -->
-        ${tournament.category === 'dnd' && tournament.format === 'campaign' ? generateDnDContent(tournament) : ''}
-
-        <!-- Tournament Actions -->
-        ${generateTournamentActions(tournament, isRegistered, isAuthenticated, isMyTournament)}
+function generateDnDTournamentDetails(tournament) {
+    const currentSession = tournament.current_session || tournament.currentSession;
+    const totalSessions = tournament.total_sessions || tournament.totalSessions;
+    const hoursPlayed = tournament.hours_played || tournament.played_hours || tournament.total_hours || tournament.totalHours;
+    const currentLevel = tournament.current_level || tournament.currentLevel;
+    const setting = tournament.dnd_setting || tournament.setting || tournament.dndSetting;
+    return `
+        <div class="tournament-details">
+            <div class="detail-item">
+                <div class="detail-icon"><i class="fas fa-scroll"></i></div>
+                <div class="detail-content">
+                    <div class="detail-label">Sessione Corrente</div>
+                    <div class="detail-value">${currentSession || '?'}${totalSessions ? ` / ${totalSessions}` : ''}</div>
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-icon"><i class="fas fa-hourglass-half"></i></div>
+                <div class="detail-content">
+                    <div class="detail-label">Ore di Gioco</div>
+                    <div class="detail-value">${hoursPlayed || '0h'}</div>
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-icon"><i class="fas fa-level-up-alt"></i></div>
+                <div class="detail-content">
+                    <div class="detail-label">Livello Gruppo</div>
+                    <div class="detail-value">${currentLevel || '?'}°</div>
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-icon"><i class="fas fa-map"></i></div>
+                <div class="detail-content">
+                    <div class="detail-label">Setting</div>
+                    <div class="detail-value">${setting || 'N/D'}</div>
+                </div>
+            </div>
+        </div>
     `;
 }
 
@@ -633,18 +696,13 @@ function generateDnDContent(tournament) {
         try { partyComposition = JSON.parse(partyComposition); } catch { partyComposition = []; }
     }
 
-    const dndSetting = tournament.dndSetting || tournament.dnd_setting || null;
-    const dndWorld = tournament.dndWorld || tournament.dnd_world || null;
-    let dndTags = tournament.dndTags || tournament.dnd_tags || [];
-    if (typeof dndTags === 'string') { try { dndTags = JSON.parse(dndTags); } catch { dndTags = []; } }
-    const dndDays = tournament.dndDays || tournament.dnd_days || null;
-    const dndSessionDuration = tournament.dndSessionDuration || tournament.dnd_session_duration || null;
     let safetyTools = tournament.dndSafetyTools || tournament.dnd_safety_tools || [];
     if (typeof safetyTools === 'string') { try { safetyTools = JSON.parse(safetyTools); } catch { safetyTools = []; } }
 
-    const currentSession = tournament.current_session || tournament.currentSession;
-    const totalSessions = tournament.total_sessions || tournament.totalSessions;
-    const currentLevel = tournament.current_level || tournament.currentLevel;
+    const dm = tournament.dungeonMaster || tournament.dungeon_master || '';
+    const location = tournament.location || '';
+    const playStyle = tournament.play_style || tournament.playStyle || '';
+    const requiredExp = tournament.required_experience || tournament.requiredExperience || '';
 
     const maxSlots = tournament.max_participants || tournament.maxParticipants || 5;
     const emptySlotsCount = Math.max(0, maxSlots - (Array.isArray(partyComposition) ? partyComposition.length : 0));
@@ -652,54 +710,32 @@ function generateDnDContent(tournament) {
     return `
         <div class="dnd-campaign-info" style="margin: 1.5rem 0; padding: 1.5rem; background: var(--color-dnd-bg); border-radius: 12px; border: 2px solid var(--color-dnd);">
             <div class="campaign-section">
-                <h4><i class="fas fa-dragon"></i> Dettagli Campagna</h4>
+                <h4><i class="fas fa-scroll"></i> Dettagli Campagna</h4>
                 <div class="campaign-details-grid">
-                    ${dndSetting ? `
-                        <div class="campaign-detail-item">
-                            <div class="campaign-detail-icon"><i class="fas fa-globe"></i></div>
-                            <div><div class="detail-label">Ambientazione</div><div class="detail-value">${dndSetting}${dndWorld ? ` • ${dndWorld}` : ''}</div></div>
-                        </div>` : ''}
-                    ${(currentSession && totalSessions) ? `
-                        <div class="campaign-detail-item">
-                            <div class="campaign-detail-icon"><i class="fas fa-book-open"></i></div>
-                            <div><div class="detail-label">Sessione</div><div class="detail-value">${currentSession} / ${totalSessions}</div></div>
-                        </div>` : ''}
-                    ${currentLevel ? `
-                        <div class="campaign-detail-item">
-                            <div class="campaign-detail-icon"><i class="fas fa-star"></i></div>
-                            <div><div class="detail-label">Livello</div><div class="detail-value">${currentLevel}</div></div>
-                        </div>` : ''}
-                    ${dndDays ? `
-                        <div class="campaign-detail-item">
-                            <div class="campaign-detail-icon"><i class="fas fa-calendar-alt"></i></div>
-                            <div><div class="detail-label">Giorni</div><div class="detail-value">${dndDays}</div></div>
-                        </div>` : ''}
-                    ${dndSessionDuration ? `
-                        <div class="campaign-detail-item">
-                            <div class="campaign-detail-icon"><i class="fas fa-hourglass-half"></i></div>
-                            <div><div class="detail-label">Durata Sessione</div><div class="detail-value">${dndSessionDuration}</div></div>
-                        </div>` : ''}
+                    ${dm ? `<div class="campaign-detail-item"><div class="campaign-detail-icon"><i class="fas fa-user-tie"></i></div><div><div class="detail-label">Dungeon Master</div><div class="detail-value">${dm}</div></div></div>` : ''}
+                    ${location ? `<div class="campaign-detail-item"><div class="campaign-detail-icon"><i class="fas fa-map-marker-alt"></i></div><div><div class="detail-label">Location</div><div class="detail-value">${location}</div></div></div>` : ''}
+                    ${playStyle ? `<div class="campaign-detail-item"><div class="campaign-detail-icon"><i class="fas fa-theater-masks"></i></div><div><div class="detail-label">Stile di Gioco</div><div class="detail-value">${playStyle}</div></div></div>` : ''}
+                    ${requiredExp ? `<div class="campaign-detail-item"><div class="campaign-detail-icon"><i class="fas fa-star"></i></div><div><div class="detail-label">Esperienza Richiesta</div><div class="detail-value">${requiredExp}</div></div></div>` : ''}
                 </div>
-                ${Array.isArray(dndTags) && dndTags.length ? `<div class="tournament-tags">${dndTags.map(tag => `<span class="tag dnd">${tag}</span>`).join('')}</div>` : ''}
             </div>
 
             <div class="campaign-section">
-                <h4><i class="fas fa-users-cog"></i> Composizione del Party</h4>
+                <h4><i class="fas fa-users"></i> Composizione Party</h4>
                 <div class="character-avatars">
                     ${(partyComposition || []).map(ch => `
-                        <div class="character-avatar ${/leader/i.test(ch.role || '') ? 'party-leader' : ''}" onclick="showCharacterBio('${ch.name}')">
-                            <img src="/images/avatars/${(ch.class || 'default').toLowerCase().replace(/\s+/g,'-')}.png" alt="${ch.name}" onerror="this.src='/images/avatars/default.png'" />
-                            ${/leader/i.test(ch.role || '') ? `<i class='fas fa-crown crown'></i>` : ''}
+                        <div class="character-avatar ${ch.leader ? 'party-leader' : ''}" onclick="showCharacterBio('${ch.id || ch.characterId || ch.name}')">
+                            <img src="${ch.avatar || '/images/avatars/default.png'}" alt="${ch.characterName || ch.name}" onerror="this.src='/images/avatars/default.png'" />
+                            ${ch.leader ? `<span class='crown'><i class="fas fa-crown"></i></span>` : ''}
                             <div class="character-tooltip">
-                                <strong>${ch.name}</strong><br/>
-                                ${ch.class || ''} • Liv. ${ch.level || '?'}<br/>
-                                ${ch.role || ''}
+                                <strong>${ch.accountName || ch.username || 'Giocatore'}</strong><br/>
+                                ${ch.characterName || ch.name || ''}<br/>
+                                <em>${ch.gender || ''}</em>
                             </div>
                         </div>
                     `).join('')}
                     ${Array.from({ length: emptySlotsCount }).map(() => `
-                        <div class="character-avatar empty-slot">
-                            <div class="empty-avatar">?</div>
+                        <div class="character-avatar empty-slot" onclick="showDnDRegistrationModal('${tournament.id}')">
+                            <div class="empty-avatar"><i class="fas fa-plus"></i></div>
                         </div>
                     `).join('')}
                 </div>
@@ -740,6 +776,52 @@ function generateTournamentTags(tournament, isRegistered, isMyTournament) {
 }
 
 function generateTournamentActions(tournament, isRegistered, isAuthenticated, isMyTournament) {
+    // Special case for D&D cards: show register + campaign info buttons
+    if (tournament.category === 'dnd') {
+        if (!isAuthenticated) {
+            return `
+            <div class="tournament-actions">
+                <button class="btn btn-primary" onclick="showAuthPrompt()">
+                    <i class="fas fa-user-plus"></i>
+                    Accedi per Iscriverti
+                </button>
+                <button class="btn btn-secondary" onclick="showCampaignInfo('${tournament.id}')">
+                    <i class="fas fa-scroll"></i>
+                    Info Campagna
+                </button>
+            </div>
+        `;
+        }
+
+        if (isRegistered) {
+            return `
+            <div class="tournament-actions">
+                <button class="btn btn-success" disabled>
+                    <i class="fas fa-check"></i>
+                    Già Iscritto
+                </button>
+                <button class="btn btn-secondary" onclick="showCampaignInfo('${tournament.id}')">
+                    <i class="fas fa-scroll"></i>
+                    Info Campagna
+                </button>
+            </div>
+        `;
+        }
+
+        return `
+        <div class="tournament-actions">
+            <button class="btn btn-primary" onclick="showDnDRegistrationModal('${tournament.id}')">
+                <i class="fas fa-user-plus"></i>
+                Richiedi Accesso
+            </button>
+            <button class="btn btn-secondary" onclick="showCampaignInfo('${tournament.id}')">
+                <i class="fas fa-scroll"></i>
+                Info Campagna
+            </button>
+        </div>
+        `;
+    }
+
     if (tournament.status === 'completed') {
         return `
             <div class="tournament-actions">
@@ -920,6 +1002,29 @@ function getFirstPrize(tournament) {
     return 'Partecipazione';
 }
 
+function generateTournamentStatus(tournament) {
+    const start = new Date(tournament.start_date);
+    const now = new Date();
+    let statusText = 'Posti disponibili';
+    let statusClass = 'available';
+
+    if (tournament.status === 'cancelled') {
+        statusText = 'Cancellato';
+        statusClass = 'closed';
+    } else if (tournament.status === 'completed' || start < now) {
+        statusText = 'Concluso';
+        statusClass = 'closed';
+    } else if (tournament.current_participants >= tournament.max_participants) {
+        statusText = 'Pieno';
+        statusClass = 'full';
+    } else if (tournament.registration_open === false) {
+        statusText = 'Iscrizioni chiuse';
+        statusClass = 'closed';
+    }
+
+    return `<div class="tournament-status ${statusClass}"><i class="fas fa-users"></i> ${statusText}</div>`;
+}
+
 function getDifficultyText(difficulty) {
     const difficultyMap = {
         'easy': 'Principiante',
@@ -943,6 +1048,7 @@ window.showAllTournaments = function(element = null) {
     // Show/hide sections
     document.getElementById('allTournamentsSection').classList.add('active');
     document.getElementById('myTournamentsSection').classList.remove('active');
+    document.getElementById('createTournamentSection').classList.remove('active');
 
     tournamentState.currentView = 'all';
     console.log('📋 Showing all tournaments');
@@ -958,6 +1064,7 @@ window.showMyTournaments = function(element = null) {
     // Show/hide sections
     document.getElementById('allTournamentsSection').classList.remove('active');
     document.getElementById('myTournamentsSection').classList.add('active');
+    document.getElementById('createTournamentSection').classList.remove('active');
 
     tournamentState.currentView = 'my';
 
@@ -971,8 +1078,23 @@ window.showMyTournaments = function(element = null) {
     console.log('👤 Showing my tournaments');
 };
 
+window.showCreateTournament = function(element = null) {
+    if (element) {
+        document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+        element.classList.add('active');
+    }
+
+    document.getElementById('allTournamentsSection').classList.remove('active');
+    document.getElementById('myTournamentsSection').classList.remove('active');
+    document.getElementById('createTournamentSection').classList.add('active');
+
+    tournamentState.currentView = 'create';
+    renderCreateTournamentForm();
+};
+
 window.registerForTournament = async function(tournamentId, buttonElement = null) {
-    if (!window.SimpleAuth || !window.SimpleAuth.isAuthenticated) {
+    const token = localStorage.getItem('authToken') || localStorage.getItem('accessToken');
+    if (!window.SimpleAuth || !window.SimpleAuth.isAuthenticated || !token) {
         showAuthPrompt();
         return;
     }
@@ -981,10 +1103,15 @@ window.registerForTournament = async function(tournamentId, buttonElement = null
         const response = await fetch(`/api/tournaments/${tournamentId}/register`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('accessToken') || localStorage.getItem('authToken')}`,
+                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         });
+
+        if (response.status === 401) {
+            showAuthPrompt();
+            return;
+        }
 
         const data = await response.json();
 
@@ -1011,10 +1138,11 @@ window.registerForTournament = async function(tournamentId, buttonElement = null
 
 window.unregisterFromTournament = async function(tournamentId) {
     try {
+        const token = localStorage.getItem('authToken') || localStorage.getItem('accessToken');
         const response = await fetch(`/api/tournaments/${tournamentId}/register`, {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('accessToken') || localStorage.getItem('authToken')}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -1038,13 +1166,89 @@ window.unregisterFromTournament = async function(tournamentId) {
     }
 };
 
+window.showDnDRegistrationModal = function(tournamentId) {
+    if (!window.SimpleAuth || !window.SimpleAuth.isAuthenticated) {
+        showAuthPrompt();
+        return;
+    }
+
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-user-plus"></i> Richiedi Accesso alla Campagna D&D</h2>
+                <button class="modal-close" onclick="closeModal(this.closest('.modal'))"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="info-card" style="background: rgba(255, 193, 7, 0.1); border-color: #ffc107; margin-bottom: 1.5rem;">
+                    <h4 style="color: #e67e22;"><i class="fas fa-exclamation-triangle"></i> Campagna in Corso</h4>
+                    <p>Questa è una campagna D&D già iniziata. La tua richiesta sarà valutata dal party leader.</p>
+                </div>
+                <div class="info-card" style="margin-bottom: 1.5rem;">
+                    <h4><i class="fas fa-envelope"></i> Messaggio per il Party Leader</h4>
+                    <textarea id="dndRequestMessage" placeholder="Descrivi la tua esperienza e il personaggio che vorresti inserire..." style="width: 100%; min-height: 120px; padding: 1rem; border: 2px solid #ddd; border-radius: 8px; resize: vertical;"></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+                    <button class="btn btn-secondary" onclick="closeModal(this.closest('.modal'))"><i class="fas fa-times"></i> Annulla</button>
+                    <button class="btn btn-primary" onclick="submitDnDRequest(this, '${tournamentId}')"><i class="fas fa-paper-plane"></i> Invia Richiesta</button>
+                </div>
+            </div>
+        </div>`;
+    document.getElementById('modalContainer').appendChild(modal);
+    document.body.classList.add('modal-open');
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(modal); });
+};
+
+window.submitDnDRequest = async function(button, tournamentId) {
+    const message = document.getElementById('dndRequestMessage').value.trim();
+    if (message.length < 50) {
+        showNotification('Il messaggio deve contenere almeno 50 caratteri', 'error');
+        return;
+    }
+    try {
+        button.disabled = true;
+        const res = await fetch(`/api/tournaments/${tournamentId}/request`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('accessToken') || localStorage.getItem('authToken')}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message })
+        });
+        const data = await res.json();
+        if (res.ok && data.success !== false) {
+            showNotification(data.message || 'Richiesta inviata', 'success');
+            tournamentState.registeredTournaments.add(parseInt(tournamentId));
+            updateTournamentState(tournamentId, 'register');
+            closeModal(button.closest('.modal'));
+            if (tournamentState.currentView === 'my') {
+                await loadUserTournaments();
+            }
+        } else {
+            showNotification(data.message || 'Errore invio richiesta', 'error');
+            button.disabled = false;
+        }
+    } catch (err) {
+        console.error('submitDnDRequest error:', err);
+        showNotification('Errore invio richiesta', 'error');
+        button.disabled = false;
+    }
+};
+
 window.openTournamentModal = async function(tournamentId) {
     try {
-        const response = await fetch(`/api/tournaments/${tournamentId}`);
-        const data = await response.json();
+        const [tRes, pRes] = await Promise.all([
+            fetch(`/api/tournaments/${tournamentId}`),
+            fetch(`/api/tournaments/${tournamentId}/participants`)
+        ]);
 
-        if (data.success) {
-            createTournamentModal(data.data);
+        const tData = await tRes.json();
+        const pData = pRes.ok ? await pRes.json() : { success: false };
+
+        if (tData.success) {
+            const participants = pData.success && pData.data ? pData.data.participants : [];
+            createTournamentModal(tData.data, participants);
         } else {
             showNotification('Errore nel caricamento del torneo', 'error');
         }
@@ -1052,6 +1256,182 @@ window.openTournamentModal = async function(tournamentId) {
         console.error('Error loading tournament details:', error);
         showNotification('Errore nel caricamento del torneo', 'error');
     }
+};
+
+// Modal with detailed campaign information (based on HTML prototype)
+window.showCampaignInfo = function(campaignId) {
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 1000px; width: 90%; max-height: 85vh; overflow-y: auto;">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--color-dnd), #9370db); color: white;">
+                <h2 class="modal-title" style="color: white;">
+                    <i class="fas fa-dragon"></i>
+                    La Maledizione di Strahd - Informazioni Campagna
+                </h2>
+                <button class="modal-close" style="color: white;" onclick="closeModal(this.closest('.modal'))">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 2rem;">
+                <div class="modal-section">
+                    <h3><i class="fas fa-scroll"></i> Panoramica della Campagna</h3>
+                    <div class="info-card" style="padding: 1.5rem; text-align: center; margin-bottom: 2rem;">
+                        <p style="font-size: 1.1rem; line-height: 1.7; color: #666;">
+                            <strong>Curse of Strahd</strong> è una delle campagne più iconiche di D&D 5e. I personaggi vengono trascinati nel dominio gotico di Barovia, intrappolati dalle nebbie che circondano questa terra maledetta, dove devono affrontare l'antico vampiro Strahd von Zarovich nel suo castello.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3><i class="fas fa-info-circle"></i> Dettagli della Campagna</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                        <div class="info-card">
+                            <h4><i class="fas fa-user-tie"></i> Dungeon Master</h4>
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.8rem;">
+                                <img src="/images/avatars/mago.png" style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--color-dnd);">
+                                <div>
+                                    <strong>Marco \"Il Narratore\" Rossi</strong><br>
+                                    <small>5+ anni di esperienza • Specializzato in Horror Gothic</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <h4><i class="fas fa-calendar-alt"></i> Programma</h4>
+                            <p><strong>Quando:</strong> Ogni Sabato</p>
+                            <p><strong>Orario:</strong> 15:00 - 19:00 (4 ore)</p>
+                            <p><strong>Pausa:</strong> 17:00 - 17:15</p>
+                            <p><strong>Prossima Sessione:</strong> 12 Gennaio 2025</p>
+                        </div>
+
+                        <div class="info-card">
+                            <h4><i class="fas fa-map-marker-alt"></i> Ambientazione</h4>
+                            <p><strong>Livello Attuale:</strong> 8° Livello</p>
+                            <p><strong>Sessioni Completate:</strong> 12/20 (stimato)</p>
+                            <p><strong>Ore Giocate:</strong> 48h totali</p>
+                            <p><strong>Location:</strong> Barovia - Vallaki</p>
+                        </div>
+
+                        <div class="info-card">
+                            <h4><i class="fas fa-cogs"></i> Stile di Gioco</h4>
+                            <p><i class="fas fa-theater-masks"></i> <strong>Roleplay:</strong> 60%</p>
+                            <p><i class="fas fa-sword"></i> <strong>Combattimento:</strong> 30%</p>
+                            <p><i class="fas fa-search"></i> <strong>Esplorazione:</strong> 10%</p>
+                            <p><strong>Tono:</strong> Horror Gothic Serio</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3><i class="fas fa-users"></i> Party Attuale (3/4 membri)</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                        <div class="info-card">
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <div style="position: relative;">
+                                    <img src="/images/avatars/dragonide.png" style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid #ffd700;">
+                                    <i class="fas fa-crown" style="position: absolute; top: -8px; right: -5px; color: #ffd700; font-size: 1.2rem;"></i>
+                                </div>
+                                <div>
+                                    <h4 style="color: var(--color-dnd); margin-bottom: 0.3rem;">Elena Drakemoor</h4>
+                                    <p><strong>Party Leader</strong> • Paladino Dragonide</p>
+                                    <small>Tank/Support • Specializzato in protezione gruppo</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <img src="/images/avatars/cacciatore.png" style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--color-dnd);">
+                                <div>
+                                    <h4 style="color: var(--color-dnd); margin-bottom: 0.3rem;">Marcus Shadowbane</h4>
+                                    <p>Ranger Umano • Cacciatore di Mostri</p>
+                                    <small>DPS/Scout • Esperto in sopravvivenza</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <img src="/images/avatars/elfo.png" style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--color-dnd);">
+                                <div>
+                                    <h4 style="color: var(--color-dnd); margin-bottom: 0.3rem;">Lyralei Moonwhisper</h4>
+                                    <p>Druida Elfa • Guaritrice</p>
+                                    <small>Healer/Utility • Magia della natura</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-card" style="border: 3px dashed var(--color-dnd); text-align: center; display: flex; align-items: center; justify-content: center;">
+                            <div>
+                                <i class="fas fa-plus" style="font-size: 2rem; color: var(--color-dnd); margin-bottom: 0.5rem;"></i>
+                                <h4 style="color: var(--color-dnd);">Slot Libero</h4>
+                                <p>Ruolo consigliato: <strong>Wizard/Caster</strong></p>
+                                <button class="btn" style="margin-top: 0.8rem; background: var(--color-dnd); color: white; border-color: var(--color-dnd);" onclick="registerForTournament('${campaignId}')">
+                                    <i class="fas fa-user-plus"></i>
+                                    Candidati
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3><i class="fas fa-gavel"></i> Regole della Campagna</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="info-card">
+                            <h4><i class="fas fa-book"></i> Regole Generali</h4>
+                            <ul style="margin-left: 1rem; line-height: 1.6;">
+                                <li>Puntualità richiesta (15:00 sharp)</li>
+                                <li>Sessioni senza telefoni/distrazioni</li>
+                                <li>Rispetto per tutti i giocatori</li>
+                                <li>Backup del personaggio richiesto</li>
+                                <li>Comunicazione assenze 24h prima</li>
+                            </ul>
+                        </div>
+                        <div class="info-card">
+                            <h4><i class="fas fa-dice-d20"></i> Regole di Gioco</h4>
+                            <ul style="margin-left: 1rem; line-height: 1.6;">
+                                <li>D&D 5e PHB + Xanathar's Guide</li>
+                                <li>Point Buy per le statistiche</li>
+                                <li>No multi-classing estremo</li>
+                                <li>Background deve fits Barovia</li>
+                                <li>Morte permanente possibile</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3><i class="fas fa-map"></i> Stato Attuale della Campagna</h3>
+                    <div class="info-card" style="background: rgba(220, 53, 69, 0.1); border-color: #dc3545; padding: 1.5rem;">
+                        <h4 style="color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> Attenzione: Spoiler Alert</h4>
+                        <p style="margin-top: 0.8rem;">
+                            <strong>Location Attuale:</strong> Il party si trova nella città di Vallaki, dopo aver scoperto i segreti del Burgomaster. Stanno investigando eventi misteriosi legati al Festival del Sole Ardente.
+                        </p>
+                        <p style="margin-top: 0.5rem;">
+                            <strong>Obiettivi Principali:</strong> Trovare un modo per sconfiggere Strahd, liberare Ireena, e scoprire la verità su Barovia.
+                        </p>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; padding-top: 1rem; border-top: 2px solid rgba(0,0,0,0.1);">
+                    <button class="btn btn-secondary" onclick="closeModal(this.closest('.modal'))">
+                        <i class="fas fa-times"></i>
+                        Chiudi
+                    </button>
+                    <button class="btn btn-primary" onclick="registerForTournament('${campaignId}')">
+                        <i class="fas fa-user-plus"></i>
+                        Richiedi Accesso
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('modalContainer').appendChild(modal);
+    document.body.classList.add('modal-open');
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(modal); });
 };
 
 window.showGameInfo = function(category, gameName = null, difficulty = null, minPlayers = null, maxPlayers = null, durationStr = '') {
@@ -1174,7 +1554,63 @@ window.showGameInfo = function(category, gameName = null, difficulty = null, min
 };
 
 window.showCharacterBio = function(characterId) {
-    showNotification(`Biografia di ${characterId} - Feature in sviluppo`, 'info');
+    // Find character data from tournaments state
+    let character = null;
+    (tournamentState.tournaments || []).forEach(t => {
+        const party = t.partyComposition || t.party_composition || [];
+        const found = party.find(ch => (ch.id || ch.characterId || ch.name) === characterId);
+        if (found) character = found;
+    });
+    if (!character) {
+        showNotification('Personaggio non trovato', 'error');
+        return;
+    }
+
+    const avatar = character.avatar || '/images/avatars/default.png';
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--color-dnd), #9370db); color: white;">
+                <h2 class="modal-title" style="color: white;">
+                    <i class="fas fa-user"></i>
+                    ${character.characterName || character.name}
+                </h2>
+                <button class="modal-close" onclick="closeModal(this.closest('.modal'))" style="color: white;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex; gap: 2rem; margin-bottom: 2rem; align-items: center;">
+                    <img src="${avatar}" alt="${character.characterName || character.name}" style="width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--color-dnd); object-fit: cover;">
+                    <div style="flex: 1;">
+                        <div class="info-card">
+                            <h4><i class="fas fa-id-card"></i> Informazioni Base</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                                ${character.class ? `<div><strong>Classe:</strong> ${character.class}</div>` : ''}
+                                ${character.race ? `<div><strong>Razza:</strong> ${character.race}</div>` : ''}
+                                ${character.level ? `<div><strong>Livello:</strong> ${character.level}</div>` : ''}
+                                ${character.background ? `<div><strong>Background:</strong> ${character.background}</div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                ${character.bio ? `<div class="info-card" style="margin-bottom: 1.5rem;"><h4><i class='fas fa-book'></i> Storia del Personaggio</h4><p style='line-height:1.7; margin-top:0.8rem;'>${character.bio}</p></div>` : ''}
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="closeModal(this.closest('.modal'))">
+                        <i class="fas fa-times"></i>
+                        Chiudi
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('modalContainer').appendChild(modal);
+    document.body.classList.add('modal-open');
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(modal); });
 };
 
 window.showAuthPrompt = function() {
@@ -1312,6 +1748,105 @@ function updateTournamentState(tournamentId, action) {
     }
 }
 
+// ==========================================
+// CREATE TOURNAMENT FORM
+// ==========================================
+
+function renderCreateTournamentForm() {
+    const section = document.getElementById('createTournamentSection');
+    if (!section) return;
+
+    section.innerHTML = `
+        <form id="tournamentForm" class="tournament-form">
+            <div class="form-group">
+                <label for="tournamentType">Tipo Torneo</label>
+                <select id="tournamentType">
+                    <option value="standard">Torneo Normale</option>
+                    <option value="dnd">Campagna D&D</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="tournamentTitle">Titolo</label>
+                <input type="text" id="tournamentTitle" required>
+            </div>
+            <div class="form-group">
+                <label for="tournamentStartDate">Data Inizio</label>
+                <input type="date" id="tournamentStartDate" required>
+            </div>
+            <div class="form-group">
+                <label for="tournamentMax">Max Partecipanti</label>
+                <input type="number" id="tournamentMax" required>
+            </div>
+            <div id="dndExtraFields" style="display:none">
+                <div class="form-group">
+                    <label for="dndDM">Dungeon Master</label>
+                    <input type="text" id="dndDM">
+                </div>
+                <div class="form-group">
+                    <label for="dndSetting">Setting</label>
+                    <input type="text" id="dndSetting">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Concludi Operazione</button>
+        </form>
+    `;
+
+    const typeSelect = document.getElementById('tournamentType');
+    typeSelect.addEventListener('change', () => {
+        const isDnd = typeSelect.value === 'dnd';
+        document.getElementById('dndExtraFields').style.display = isDnd ? '' : 'none';
+        document.getElementById('tournamentForm').classList.toggle('dnd-theme', isDnd);
+    });
+
+    document.getElementById('tournamentForm').addEventListener('submit', handleCreateTournamentSubmit);
+}
+
+async function handleCreateTournamentSubmit(e) {
+    e.preventDefault();
+    const type = document.getElementById('tournamentType').value;
+    const token = localStorage.getItem('authToken') || localStorage.getItem('accessToken');
+    if (!token) {
+        showAuthPrompt();
+        return;
+    }
+
+    const body = {
+        title: document.getElementById('tournamentTitle').value,
+        start_date: document.getElementById('tournamentStartDate').value,
+        max_participants: parseInt(document.getElementById('tournamentMax').value) || 0,
+        category: type === 'dnd' ? 'dnd' : 'strategy',
+        format: type === 'dnd' ? 'campaign' : 'elimination',
+        game_id: 1
+    };
+
+    if (type === 'dnd') {
+        body.dungeon_master = document.getElementById('dndDM').value;
+        body.dnd_setting = document.getElementById('dndSetting').value;
+    }
+
+    try {
+        const res = await fetch('/api/tournaments', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (data.success) {
+            showNotification(data.message, 'success');
+            loadAllTournaments();
+            showAllTournaments(document.querySelector('.view-toggle .toggle-btn'));
+        } else {
+            showNotification(data.message || 'Errore creazione torneo', 'error');
+        }
+    } catch (err) {
+        console.error('Error creating tournament:', err);
+        showNotification('Errore creazione torneo', 'error');
+    }
+}
+
 function showRegistrationSuccessModal(tournamentId) {
     const tournament = tournamentState.tournaments.find(t => t.id == tournamentId);
     if (!tournament) return;
@@ -1361,9 +1896,52 @@ function showRegistrationSuccessModal(tournamentId) {
     });
 }
 
-function createTournamentModal(tournament) {
+function createTournamentModal(tournament, participants = []) {
     const modal = document.createElement('div');
     modal.className = 'modal show';
+
+    const isAuthenticated = window.SimpleAuth && window.SimpleAuth.isAuthenticated;
+    const isRegistered = tournamentState.registeredTournaments.has(parseInt(tournament.id));
+
+    const participantsHTML = participants.map(p => {
+        const name = `${p.first_name || ''} ${p.last_name || ''}`.trim();
+        const avatar = p.profile_image || '/images/avatars/default.png';
+        return `
+            <div class="info-card" style="display: flex; align-items: center; gap: 1rem;">
+                <img src="${avatar}" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--color-primary);">
+                <div>
+                    <div style="font-weight: bold;">${name}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    const prizesHTML = Array.isArray(tournament.prizes) && tournament.prizes.length
+        ? `<h5 style="margin-bottom: 0.5rem;">Premi:</h5><ul style="margin-left: 1rem;">${tournament.prizes.map(prize => `<li>${prize}</li>`).join('')}</ul>`
+        : '';
+
+    const rulesHTML = Array.isArray(tournament.rules) && tournament.rules.length
+        ? `<div class="info-card"><h4><i class="fas fa-gavel"></i> Regole Principali</h4><ul style="margin-left: 1rem;">${tournament.rules.map(rule => `<li>${rule}</li>`).join('')}</ul></div>`
+        : '';
+
+    const includedHTML = Array.isArray(tournament.included) && tournament.included.length
+        ? `<div class="modal-section"><h3><i class="fas fa-gift"></i> Cosa è Incluso</h3><div class="info-card"><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">${tournament.included.map(item => `<div style="display: flex; align-items: center; gap: 0.5rem;"><i class="fas fa-check-circle" style="color: var(--color-success);"></i><span>${item}</span></div>`).join('')}</div></div></div>`
+        : '';
+
+    const formatSection = (tournament.format || prizesHTML || rulesHTML)
+        ? `<div class="modal-section"><h3><i class="fas fa-cogs"></i> Formato e Regole</h3><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">${(tournament.format || prizesHTML) ? `<div class="info-card"><h4><i class="fas fa-trophy"></i> Formato Torneo</h4>${tournament.format ? `<p style="margin-bottom: 1rem;">${tournament.format}</p>` : ''}${prizesHTML}</div>` : ''}${rulesHTML}</div></div>`
+        : '';
+
+    const playersSection = participants.length
+        ? `<div class="modal-section"><h3><i class="fas fa-users"></i> Giocatori Iscritti (${participants.length}/${tournament.maxParticipants || '?'})</h3><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">${participantsHTML}</div></div>`
+        : '';
+
+    const actionButton = isAuthenticated
+        ? (isRegistered
+            ? `<button class="btn btn-danger" onclick="unregisterFromTournament('${tournament.id}')"><i class="fas fa-times"></i> Cancella Iscrizione</button>`
+            : `<button class="btn btn-primary" onclick="registerForTournament('${tournament.id}')"><i class="fas fa-plus"></i> Iscriviti al Torneo</button>`)
+        : `<button class="btn btn-primary" onclick="showAuthPrompt()"><i class="fas fa-user-plus"></i> Accedi per Iscriverti</button>`;
+
     modal.innerHTML = `
         <div class="modal-content" style="max-width: 1000px; width: 90%; max-height: 85vh; overflow-y: auto;">
             <div class="modal-header">
@@ -1376,41 +1954,52 @@ function createTournamentModal(tournament) {
                 </button>
             </div>
             <div class="modal-body">
-                <div class="info-card" style="text-align: center; margin-bottom: 2rem;">
-                    <p style="font-size: 1.1rem;">${tournament.description || 'Partecipa a questo fantastico torneo!'}</p>
-                </div>
-
-                <div class="info-grid">
-                    <div class="info-card">
-                        <h4><i class="fas fa-gamepad"></i> Gioco</h4>
-                        <p><strong>${tournament.gameName || tournament.game_name || 'Gioco da tavolo'}</strong></p>
-                        <p>Categoria: ${getCategoryName(tournament.category)}</p>
-                    </div>
-
-                    <div class="info-card">
-                        <h4><i class="fas fa-calendar-alt"></i> Data e Orario</h4>
-                        <p><strong>Data:</strong> ${tournament.start_date ? new Date(tournament.start_date).toLocaleDateString('it-IT') : 'Da definire'}</p>
-                        <p><strong>Orario:</strong> ${tournament.start_time || '20:30'} - ${tournament.end_time || '23:00'}</p>
-                    </div>
-
-                    <div class="info-card">
-                        <h4><i class="fas fa-users"></i> Partecipanti</h4>
-                        <p><strong>Iscritti:</strong> ${tournament.current_participants || 0}/${tournament.max_participants || 'N/A'}</p>
-                        <p><strong>Quota:</strong> ${tournament.entry_fee ? `€${tournament.entry_fee}` : 'Gratuito'}</p>
-                    </div>
-
-                    <div class="info-card">
-                        <h4><i class="fas fa-trophy"></i> Premio</h4>
-                        <p><strong>${getFirstPrize(tournament)}</strong></p>
-                        <p>Difficoltà: ${getDifficultyText(tournament.difficulty)}</p>
+                <div class="modal-section">
+                    <div class="info-card" style="text-align: center; padding: 1.5rem; margin-bottom: 2rem;">
+                        <p style="font-size: 1.1rem; line-height: 1.7;">${tournament.description || ''}</p>
                     </div>
                 </div>
 
-                <div style="text-align: center; margin-top: 2rem;">
+                <div class="modal-section">
+                    <h3><i class="fas fa-info-circle"></i> Dettagli del Torneo</h3>
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h4><i class="fas fa-gamepad"></i> Gioco</h4>
+                            <p><strong>${tournament.gameName || tournament.game_name || ''}</strong></p>
+                            ${tournament.category ? `<p>Categoria: ${getCategoryName(tournament.category)}</p>` : ''}
+                        </div>
+
+                        <div class="info-card">
+                            <h4><i class="fas fa-calendar-alt"></i> Data e Orario</h4>
+                            <p><strong>Data:</strong> ${tournament.start_date ? new Date(tournament.start_date).toLocaleDateString('it-IT') : 'Da definire'}</p>
+                            <p><strong>Orario:</strong> ${tournament.start_time || ''}${tournament.end_time ? ' - ' + tournament.end_time : ''}</p>
+                        </div>
+
+                        <div class="info-card">
+                            <h4><i class="fas fa-map-marker-alt"></i> Luogo</h4>
+                            <p><strong>Location:</strong> ${tournament.location || 'Da definire'}</p>
+                        </div>
+
+                        <div class="info-card">
+                            <h4><i class="fas fa-users"></i> Partecipanti</h4>
+                            <p><strong>Iscritti:</strong> ${tournament.currentParticipants || 0}/${tournament.maxParticipants || 'N/A'}</p>
+                            ${tournament.waitlistCount ? `<p><strong>Lista d'attesa:</strong> ${tournament.waitlistCount}</p>` : ''}
+                            <p><strong>Quota:</strong> ${tournament.entryFee ? `€${tournament.entryFee}` : 'Gratuito'}</p>
+                        </div>
+                    </div>
+                </div>
+
+                ${formatSection}
+
+                ${includedHTML}
+
+                ${playersSection}
+
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; padding-top: 1rem; border-top: 2px solid rgba(0,0,0,0.1);">
                     <button class="btn btn-secondary" onclick="closeModal(this.closest('.modal'))">
-                        <i class="fas fa-times"></i>
-                        Chiudi
+                        <i class="fas fa-times"></i> Chiudi
                     </button>
+                    ${actionButton}
                 </div>
             </div>
         </div>
@@ -1565,167 +2154,4 @@ function initScrollAnimations() {
         observer.observe(card);
     });
 }
-
-// Funzione per creare una card di torneo D&D (es. campagna)
-// userState: { isRegistered: boolean, isLoggedIn: boolean }
-function createDndTournamentCard(userState) {
-    // Dati statici (da DB o mock)
-    const campaignInfo = {
-        title: 'Campagna D&D - La Maledizione di Strahd',
-        game: 'Dungeons & Dragons 5e',
-        date: 'Ogni SAB',
-        time: 'Ogni Sabato • 15:00 - 19:00',
-        theme: 'dnd-special dnd-theme',
-        tags: [
-            { class: 'tag dnd', icon: 'fas fa-dice-d20', text: 'Campagna Epica' },
-            { class: 'tag ongoing', icon: 'fas fa-play', text: 'In Corso' }
-        ],
-        details: [
-            { icon: 'fas fa-scroll', label: 'Sessione Corrente', value: '12 / 20' },
-            { icon: 'fas fa-hourglass-half', label: 'Ore di Gioco', value: '48h totali' },
-            { icon: 'fas fa-level-up-alt', label: 'Livello Gruppo', value: '8° Livello' },
-            { icon: 'fas fa-map', label: 'Setting', value: 'Barovia' }
-        ],
-        party: [
-            {
-                name: 'Elena Drakemoor',
-                role: 'Party Leader',
-                class: 'Paladino Dragonide',
-                avatar: 'public/images/avatars/dragonide.png',
-                leader: true
-            },
-            {
-                name: 'Marcus Shadowbane',
-                role: 'Cacciatore di Mostri',
-                class: 'Ranger Umano',
-                avatar: 'public/images/avatars/cacciatore.png'
-            },
-            {
-                name: 'Lyralei Moonwhisper',
-                role: 'Guaritrice della Natura',
-                class: 'Druida Elfa',
-                avatar: 'public/images/avatars/elfo.png'
-            },
-            {
-                empty: true
-            }
-        ]
-    };
-
-    // Crea la card
-    const card = document.createElement('div');
-    card.className = `tournament-card ${campaignInfo.theme}`;
-
-    // Data
-    const dateDiv = document.createElement('div');
-    dateDiv.className = 'tournament-date recurring';
-    dateDiv.innerHTML = `<span class="day">Ogni</span><span class="month">SAB</span>`;
-    card.appendChild(dateDiv);
-
-    // Header
-    const header = document.createElement('div');
-    header.className = 'tournament-header';
-    header.innerHTML = `
-        <div class="tournament-info">
-            <h2 class="tournament-title">
-                <i class="fas fa-dragon"></i>
-                ${campaignInfo.title}
-            </h2>
-            <div class="tournament-game">
-                ${campaignInfo.game}
-                <button class="game-info-btn" onclick="showGameInfo('dnd')">
-                    <i class="fas fa-info-circle"></i>
-                </button>
-            </div>
-            <div class="tournament-tags">
-                ${campaignInfo.tags.map(tag => `<span class="${tag.class}"><i class="${tag.icon}"></i> ${tag.text}</span>`).join('')}
-            </div>
-            <div class="tournament-time">
-                <i class="fas fa-clock"></i>
-                ${campaignInfo.time}
-            </div>
-        </div>
-    `;
-    card.appendChild(header);
-
-    // Details
-    const detailsDiv = document.createElement('div');
-    detailsDiv.className = 'tournament-details';
-    detailsDiv.innerHTML = campaignInfo.details.map(detail => `
-        <div class="detail-item">
-            <div class="detail-icon">
-                <i class="${detail.icon}"></i>
-            </div>
-            <div class="detail-content">
-                <div class="detail-label">${detail.label}</div>
-                <div class="detail-value">${detail.value}</div>
-            </div>
-        </div>
-    `).join('');
-    card.appendChild(detailsDiv);
-
-    // Campaign Info (party composition)
-    const campaignInfoDiv = document.createElement('div');
-    campaignInfoDiv.className = 'dnd-campaign-info';
-    campaignInfoDiv.innerHTML = `
-        <div class="campaign-section">
-            <h4><i class="fas fa-users"></i> Composizione Party Attuale</h4>
-            <div class="character-avatars">
-                ${campaignInfo.party.map(member => member.empty
-                    ? `<div class="character-avatar empty-slot" id="dnd-strahd-slot" onclick="showRegistrationModal('dnd-strahd')">
-                            <div class="empty-avatar"><i class="fas fa-plus"></i></div>
-                            <div class="character-tooltip">
-                                <strong>Slot Libero</strong><br>
-                                Clicca per richiedere<br>
-                                l'accesso alla campagna
-                            </div>
-                        </div>`
-                    : `<div class="character-avatar${member.leader ? ' party-leader' : ''}" onclick="showCharacterBio('${member.name.toLowerCase().split(' ')[0]}')">
-                            <img src="${member.avatar}" alt="${member.name}">
-                            ${member.leader ? '<span class="crown"><i class="fas fa-crown"></i></span>' : ''}
-                            <div class="character-tooltip">
-                                <strong>${member.name}</strong><br>
-                                ${member.class}<br>
-                                <em>${member.role}</em>
-                            </div>
-                        </div>`
-                ).join('')}
-            </div>
-        </div>
-    `;
-    card.appendChild(campaignInfoDiv);
-
-    // Actions
-    const actionsDiv = document.createElement('div');
-    actionsDiv.className = 'tournament-actions';
-
-    // Bottone Iscriviti
-    const registerBtn = document.createElement('button');
-    registerBtn.className = userState.isRegistered ? 'btn btn-success' : 'btn btn-primary';
-    registerBtn.id = 'dnd-strahd-register-btn';
-    registerBtn.innerHTML = userState.isRegistered
-        ? '<i class="fas fa-check"></i> Già Iscritto'
-        : '<i class="fas fa-user-plus"></i> Richiedi Accesso';
-    registerBtn.disabled = userState.isRegistered || !userState.isLoggedIn;
-    if (!userState.isRegistered && userState.isLoggedIn) {
-        registerBtn.onclick = function() { showRegistrationModal('dnd-strahd'); };
-    }
-
-    // Bottone Info Campagna
-    const infoBtn = document.createElement('button');
-    infoBtn.className = 'btn btn-secondary';
-    infoBtn.innerHTML = '<i class="fas fa-scroll"></i> Info Campagna';
-    infoBtn.onclick = function() { showCampaignInfo('dnd-strahd'); };
-
-    actionsDiv.appendChild(registerBtn);
-    actionsDiv.appendChild(infoBtn);
-    card.appendChild(actionsDiv);
-
-    return card;
-}
-
-// Esempio di utilizzo:
-// const userState = { isRegistered: true, isLoggedIn: true };
-// document.querySelector('.tournaments-timeline').appendChild(createDndTournamentCard(userState));
-
 console.log('✅ Tournaments page module loaded successfully');

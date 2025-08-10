@@ -330,7 +330,7 @@
    SEZIONE TUTTI I TORNEI
    ========================================== */
 .all-tournaments-section {
-    display: block;
+    display: none;
 }
 .all-tournaments-section.active {
     display: block;
@@ -569,6 +569,27 @@
     margin-bottom: 1rem;
 }
 
+.tournament-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.tournament-status.available {
+    background: var(--color-success);
+    color: #fff;
+}
+
+.tournament-status.full,
+.tournament-status.closed {
+    background: var(--color-danger);
+    color: #fff;
+}
+
 .tag {
     padding: 0.3rem 0.8rem;
     border-radius: 20px;
@@ -751,6 +772,29 @@
     color: white;
 }
 
+/* Create tournament form */
+.create-tournament-section { display: none; }
+.create-tournament-section.active { display: block; }
+
+.tournament-form {
+    background: #fff;
+    border: 2px solid var(--color-text);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 600px;
+    margin: 2rem auto;
+}
+
+.tournament-form.dnd-theme {
+    border-color: var(--color-dnd);
+    background: var(--color-dnd-bg);
+}
+
+.tournament-form .form-group { margin-bottom: 1rem; }
+.tournament-form label { font-weight: 600; display: block; margin-bottom: 0.25rem; }
+.tournament-form input,
+.tournament-form select { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 8px; }
+
 /* ==========================================
    MODALI
    ========================================== */
@@ -879,11 +923,23 @@
 }
 
 .character-avatar {
-    width: 50px;
-    height: 50px;
+    position: relative;
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.character-avatar img {
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
-    border: 2px solid var(--color-dnd);
+    border: 3px solid var(--color-dnd);
     object-fit: cover;
+}
+
+.character-avatar:hover {
+    transform: scale(1.2);
 }
 
 .character-info h5 {
