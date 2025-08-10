@@ -61,9 +61,46 @@ async function initTournamentsDb() {
         days TEXT, -- es. "Ogni Sabato"
         session_duration TEXT, -- es. "4 ore"
         safety_tools TEXT, -- JSON array
+        dm_name TEXT,
+        dm_description TEXT,
+        play_style TEXT,
+        experience_required TEXT,
+        location TEXT,
+        total_hours INTEGER,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
+      )
+    `);
+
+    // Tabella personaggi D&D
+    await db.exec(`
+      CREATE TABLE IF NOT EXISTS dnd_characters (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tournament_id INTEGER NOT NULL,
+        user_id INTEGER,
+        name TEXT NOT NULL,
+        class TEXT NOT NULL,
+        race TEXT,
+        level INTEGER DEFAULT 1,
+        role TEXT,
+        is_party_leader BOOLEAN DEFAULT 0,
+        background TEXT,
+        alignment TEXT,
+        description TEXT,
+        personality TEXT,
+        ideals TEXT,
+        bonds TEXT,
+        flaws TEXT,
+        backstory TEXT,
+        avatar_image TEXT,
+        stats TEXT, -- JSON delle statistiche
+        equipment TEXT, -- JSON dell'equipaggiamento
+        spells TEXT, -- JSON degli incantesimi
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
       )
     `);
 
@@ -91,6 +128,9 @@ async function initTournamentsDb() {
       CREATE INDEX IF NOT EXISTS idx_tournaments_game_id ON tournaments(game_id);
       CREATE INDEX IF NOT EXISTS idx_tournament_registrations_user ON tournament_registrations(user_id);
       CREATE INDEX IF NOT EXISTS idx_tournament_registrations_tournament ON tournament_registrations(tournament_id);
+      CREATE INDEX IF NOT EXISTS idx_dnd_campaigns_tournament ON dnd_campaigns(tournament_id);
+      CREATE INDEX IF NOT EXISTS idx_dnd_characters_tournament ON dnd_characters(tournament_id);
+      CREATE INDEX IF NOT EXISTS idx_dnd_characters_user ON dnd_characters(user_id);
     `);
 
     console.log('✅ Tabelle tornei create con successo');
@@ -409,6 +449,210 @@ async function seedTournaments(db) {
         'Atmosfera da battaglia',
         'Premi creativi'
       ])
+    },
+    // TORNEI AL COMPLETO (PIENI)
+    {
+      title: 'Torneo PIENO - 7 Wonders',
+      description: 'Costruisci la tua civiltà in questo capolavoro strategico. ATTENZIONE: Torneo al completo!',
+      game_id: games.find(g => g.name.includes('7 Wonders'))?.id || games[0].id,
+      start_date: '2025-01-30',
+      start_time: '19:00',
+      end_time: '22:00',
+      max_participants: 7,
+      current_participants: 7, // AL COMPLETO
+      entry_fee: 10.00,
+      prize_pool: 65.00,
+      format: 'elimination',
+      difficulty: 'medium',
+      category: 'strategy',
+      theme: 'strategy-theme',
+      status: 'upcoming',
+      registration_open: 0, // REGISTRAZIONI CHIUSE
+      prizes: JSON.stringify(['1° posto: €35', '2° posto: €20', '3° posto: €10']),
+      rules: JSON.stringify([
+        '7 Wonders base + Leaders',
+        'Tempo massimo per turno: 30 sec',
+        'Lista d\'attesa disponibile',
+        'Controlliamo sempre ID per fair play'
+      ])
+    },
+    {
+      title: 'COMPLETO - Ticket to Ride Europe',
+      description: 'Avventure ferroviarie attraverso l\'Europa! Questo torneo ha raggiunto il massimo dei partecipanti.',
+      game_id: games.find(g => g.name.includes('Ticket'))?.id || games[1].id,
+      start_date: '2025-02-05',
+      start_time: '20:00',
+      end_time: '23:30',
+      max_participants: 15,
+      current_participants: 15, // AL COMPLETO
+      waitlist_count: 3, // LISTA D'ATTESA
+      entry_fee: 8.00,
+      prize_pool: 110.00,
+      format: 'swiss',
+      difficulty: 'easy',
+      category: 'strategy',
+      theme: 'strategy-theme',
+      status: 'upcoming',
+      registration_open: 0,
+      prizes: JSON.stringify(['1° posto: €60', '2° posto: €35', '3° posto: €15']),
+      rules: JSON.stringify([
+        'Ticket to Ride Europe',
+        'Mappa Europa ufficiale',
+        'Biglietti segreti obbligatori',
+        'Lista d\'attesa attiva'
+      ])
+    },
+    // TORNEI COMPLETATI NEL PASSATO
+    {
+      title: 'COMPLETATO - Torneo Natale Magic',
+      description: 'Il grande torneo natalizio di Magic: The Gathering è stato un successo! Complimenti ai vincitori.',
+      game_id: games.find(g => g.name.includes('Magic'))?.id || games[2].id,
+      start_date: '2024-12-20',
+      start_time: '18:00',
+      end_time: '24:00',
+      max_participants: 32,
+      current_participants: 32,
+      entry_fee: 20.00,
+      prize_pool: 500.00,
+      format: 'swiss',
+      difficulty: 'hard',
+      category: 'card',
+      theme: 'card-theme',
+      status: 'completed', // COMPLETATO
+      prizes: JSON.stringify(['1° posto: €200 + Playset Premium', '2° posto: €150', '3°-4° posto: €75 cad.']),
+      rules: JSON.stringify([
+        'Formato Standard',
+        'Prize support Wizards',
+        'Judge certificato L2',
+        'Streaming live della finale'
+      ])
+    },
+    {
+      title: 'FINITO - Campionato Catan Invernale',
+      description: 'Il campionato invernale di Catan si è concluso con grande partecipazione. Arrivederci alla prossima stagione!',
+      game_id: games.find(g => g.name.includes('Catan'))?.id || games[0].id,
+      start_date: '2024-12-01',
+      start_time: '15:00',
+      end_time: '20:00',
+      max_participants: 20,
+      current_participants: 20,
+      entry_fee: 15.00,
+      prize_pool: 250.00,
+      format: 'swiss',
+      difficulty: 'medium',
+      category: 'strategy',
+      theme: 'strategy-theme',
+      status: 'completed',
+      prizes: JSON.stringify(['1° posto: €120 + Trofeo Stagionale', '2° posto: €80', '3° posto: €50']),
+      rules: JSON.stringify([
+        'Catan base + Navigatori',
+        'Partite da 90 minuti max',
+        'Sistema svizzero 5 round',
+        'Cerimonia di premiazione'
+      ])
+    },
+    // TORNEI CANCELLATI
+    {
+      title: 'CANCELLATO - Gloomhaven Legacy',
+      description: 'Purtroppo questo torneo è stato cancellato per mancanza di partecipanti. Rimborsi automatici.',
+      game_id: games.find(g => g.name.includes('Gloomhaven'))?.id || games[3].id,
+      start_date: '2025-01-26',
+      start_time: '10:00',
+      end_time: '18:00',
+      max_participants: 4,
+      current_participants: 1,
+      entry_fee: 25.00,
+      prize_pool: 0.00,
+      format: 'campaign',
+      difficulty: 'hard',
+      category: 'strategy',
+      theme: 'strategy-theme',
+      status: 'cancelled', // CANCELLATO
+      registration_open: 0,
+      prizes: JSON.stringify(['Torneo cancellato - rimborsi automatici']),
+      rules: JSON.stringify([
+        'Torneo cancellato',
+        'Rimborso completo automatico',
+        'Possibile riprogrammazione',
+        'Contattare staff per info'
+      ])
+    },
+    {
+      title: 'ANNULLATO - Serata Diplomacy',
+      description: 'La serata Diplomacy è stata annullata per problemi organizzativi. Ci scusiamo per il disagio.',
+      game_id: games.find(g => g.name.includes('Diplomacy'))?.id || games[4].id,
+      start_date: '2025-02-10',
+      start_time: '19:00',
+      end_time: '02:00',
+      max_participants: 7,
+      current_participants: 2,
+      entry_fee: 12.00,
+      prize_pool: 0.00,
+      format: 'elimination',
+      difficulty: 'hard',
+      category: 'strategy',
+      theme: 'strategy-theme',
+      status: 'cancelled',
+      registration_open: 0,
+      prizes: JSON.stringify(['Evento cancellato - rimborso garantito']),
+      rules: JSON.stringify([
+        'Evento cancellato per motivi organizzativi',
+        'Rimborso completo entro 48h',
+        'Nuova data in valutazione',
+        'Info: staff@diceanddrink.com'
+      ])
+    },
+    // TORNEI CON STATI VARI PER TEST
+    {
+      title: 'Pandemic Legacy - Salvare il Mondo',
+      description: 'Una campagna cooperativa per salvare il mondo dalle epidemie. Teamwork essenziale!',
+      game_id: games.find(g => g.name.includes('Pandemic'))?.id || games[5].id,
+      start_date: '2025-02-15',
+      start_time: '15:00',
+      end_time: '19:00',
+      max_participants: 4,
+      current_participants: 4, // COMPLETO
+      entry_fee: 18.00,
+      prize_pool: 60.00,
+      format: 'campaign',
+      difficulty: 'hard',
+      category: 'strategy',
+      theme: 'strategy-theme',
+      status: 'upcoming',
+      registration_open: 0, // REGISTRAZIONI CHIUSE
+      current_session: 1,
+      total_sessions: 12,
+      prizes: JSON.stringify(['Esperienza di gioco unica', 'Certificato di completamento', 'Foto di gruppo finale']),
+      rules: JSON.stringify([
+        'Pandemic Legacy Season 1',
+        'Stesso gruppo per tutta la campagna',
+        'Decisioni permanenti',
+        'Impegno per 12 sessioni'
+      ])
+    },
+    {
+      title: 'Brass Birmingham - Rivoluzione Industriale',
+      description: 'Strategia economica complessa nell\'Inghilterra industriale. Solo per giocatori esperti.',
+      game_id: games.find(g => g.name.includes('Brass'))?.id || games[6].id,
+      start_date: '2025-03-01',
+      start_time: '14:00',
+      end_time: '19:00',
+      max_participants: 8,
+      current_participants: 3,
+      entry_fee: 20.00,
+      prize_pool: 140.00,
+      format: 'swiss',
+      difficulty: 'hard',
+      category: 'strategy',
+      theme: 'strategy-theme',
+      status: 'upcoming',
+      prizes: JSON.stringify(['1° posto: €80 + Gioco Deluxe', '2° posto: €40', '3° posto: €20']),
+      rules: JSON.stringify([
+        'Brass Birmingham completo',
+        'Solo giocatori con esperienza',
+        'Partite da 3+ ore',
+        'Strategia economica avanzata'
+      ])
     }
   ];
 
@@ -441,12 +685,30 @@ async function seedTournaments(db) {
     let setting = 'Forgotten Realms';
     let world = null;
     let tags = [];
-    if (/Strahd/i.test(t.title)) { setting = 'Barovia'; world = 'Ravenloft'; tags = ['Horror', 'Gotico', 'Vampiri']; }
-    if (/Phandelver/i.test(t.title)) { setting = 'Neverwinter'; world = 'Forgotten Realms'; tags = ['Intro', 'Avventura', 'Caverne']; }
+    let dmName = 'Marco "Il Narratore" Rossi';
+    let dmDescription = 'Master esperto con oltre 5 anni di esperienza';
+    let playStyle = 'Roleplay Intenso';
+    let experienceRequired = 'Intermedio/Avanzato';
+    let totalHours = 48;
+    
+    if (/Strahd/i.test(t.title)) { 
+      setting = 'Barovia'; 
+      world = 'Ravenloft'; 
+      tags = ['Horror', 'Gotico', 'Vampiri'];
+      totalHours = 48;
+    }
+    if (/Phandelver/i.test(t.title)) { 
+      setting = 'Neverwinter'; 
+      world = 'Forgotten Realms'; 
+      tags = ['Intro', 'Avventura', 'Caverne'];
+      experienceRequired = 'Principiante';
+      playStyle = 'Bilanciato';
+      totalHours = 24;
+    }
 
     await db.run(`
-      INSERT OR REPLACE INTO dnd_campaigns (tournament_id, setting, world, tags, allowed_classes, days, session_duration, safety_tools, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT OR REPLACE INTO dnd_campaigns (tournament_id, setting, world, tags, allowed_classes, days, session_duration, safety_tools, dm_name, dm_description, play_style, experience_required, location, total_hours, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       t.id,
       setting,
@@ -456,9 +718,140 @@ async function seedTournaments(db) {
       'Ogni Sabato',
       '4 ore',
       JSON.stringify(['X-Card', 'Lines & Veils']),
+      dmName,
+      dmDescription,
+      playStyle,
+      experienceRequired,
+      'Sala Epica - Tavolo 1',
+      totalHours,
       new Date().toISOString(),
       new Date().toISOString()
     ]);
+
+    // Aggiungi personaggi di esempio per ogni campagna D&D
+    if (/Strahd/i.test(t.title)) {
+      const characters = [
+        {
+          name: 'Elena Drakemoor',
+          class: 'Paladino',
+          race: 'Dragonide',
+          level: 8,
+          role: 'Party Leader',
+          is_party_leader: 1,
+          background: 'Nobile',
+          alignment: 'Legale Buono',
+          description: 'Una nobile dragonide dal cuore d\'oro',
+          personality: 'Coraggiosa e determinata, sempre pronta ad aiutare gli innocenti',
+          ideals: 'La giustizia deve prevalere sempre',
+          bonds: 'Giurata a proteggere i deboli e gli oppressi',
+          flaws: 'A volte troppo testarda nelle sue convinzioni',
+          backstory: 'Figlia di una famiglia nobile decaduta, ha giurato di restaurare l\'onore del suo casato',
+          avatar_image: '/images/avatars/dragonide.png',
+          stats: JSON.stringify({str: 18, dex: 12, con: 16, int: 13, wis: 14, cha: 16})
+        },
+        {
+          name: 'Marcus Shadowbane',
+          class: 'Ranger',
+          race: 'Umano',
+          level: 8,
+          role: 'Cacciatore di Mostri',
+          is_party_leader: 0,
+          background: 'Eremita',
+          alignment: 'Caotico Buono',
+          description: 'Un cacciatore esperto delle terre selvagge',
+          personality: 'Silenzioso e osservatore, preferisce l\'azione alle parole',
+          ideals: 'La natura deve essere protetta dagli abomini',
+          bonds: 'Ha perso la famiglia per colpa di non-morti',
+          flaws: 'Diffida eccessivamente degli estranei',
+          backstory: 'Sopravvissuto a un attacco di non-morti, dedica la sua vita a cacciarli',
+          avatar_image: '/images/avatars/cacciatore.png',
+          stats: JSON.stringify({str: 15, dex: 18, con: 14, int: 12, wis: 16, cha: 10})
+        },
+        {
+          name: 'Lyralei Moonwhisper',
+          class: 'Druida',
+          race: 'Elfa',
+          level: 8,
+          role: 'Guaritrice della Natura',
+          is_party_leader: 0,
+          background: 'Eremita',
+          alignment: 'Neutrale Buono',
+          description: 'Una druida elfa saggia e compassionevole',
+          personality: 'Calma e riflessiva, cerca sempre soluzioni pacifiche',
+          ideals: 'L\'equilibrio naturale va preservato',
+          bonds: 'Custode di un bosco sacro',
+          flaws: 'A volte troppo ingenua riguardo alla natura umana',
+          backstory: 'Cresciuta in un circolo druidico, è la custode di antichi segreti naturali',
+          avatar_image: '/images/avatars/elfo.png',
+          stats: JSON.stringify({str: 10, dex: 14, con: 15, int: 13, wis: 18, cha: 12})
+        }
+      ];
+
+      for (const char of characters) {
+        await db.run(`
+          INSERT INTO dnd_characters (tournament_id, name, class, race, level, role, is_party_leader, background, alignment, description, personality, ideals, bonds, flaws, backstory, avatar_image, stats, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [
+          t.id, char.name, char.class, char.race, char.level, char.role, char.is_party_leader,
+          char.background, char.alignment, char.description, char.personality, char.ideals,
+          char.bonds, char.flaws, char.backstory, char.avatar_image, char.stats,
+          new Date().toISOString(), new Date().toISOString()
+        ]);
+      }
+    }
+
+    if (/Phandelver/i.test(t.title)) {
+      const characters = [
+        {
+          name: 'Gareth il Coraggioso',
+          class: 'Guerriero',
+          race: 'Umano',
+          level: 1,
+          role: 'Tank',
+          is_party_leader: 1,
+          background: 'Soldato',
+          alignment: 'Legale Neutrale',
+          description: 'Un giovane guerriero pieno di speranze',
+          personality: 'Ottimista e coraggioso, sempre pronto alla battaglia',
+          ideals: 'Il coraggio non è l\'assenza di paura, ma agire nonostante essa',
+          bonds: 'Fedele ai suoi compagni d\'arme',
+          flaws: 'A volte sottovaluta i pericoli',
+          backstory: 'Ex soldato in cerca di avventura e gloria',
+          avatar_image: '/images/avatars/guerriero.png',
+          stats: JSON.stringify({str: 16, dex: 13, con: 15, int: 10, wis: 12, cha: 14})
+        },
+        {
+          name: 'Mira Frecciargento',
+          class: 'Ranger',
+          race: 'Elfa',
+          level: 1,
+          role: 'DPS',
+          is_party_leader: 0,
+          background: 'Popolana',
+          alignment: 'Caotico Buono',
+          description: 'Una giovane elfa arciera dalle mire precise',
+          personality: 'Indipendente e determinata',
+          ideals: 'La libertà è il bene più prezioso',
+          bonds: 'Protegge il suo villaggio natale',
+          flaws: 'Troppo orgogliosa per chiedere aiuto',
+          backstory: 'Cresciuta in un piccolo villaggio, ha imparato a cacciare per necessità',
+          avatar_image: '/images/avatars/elfo.png',
+          stats: JSON.stringify({str: 12, dex: 16, con: 13, int: 11, wis: 15, cha: 10})
+        }
+      ];
+
+      for (const char of characters) {
+        await db.run(`
+          INSERT INTO dnd_characters (tournament_id, name, class, race, level, role, is_party_leader, background, alignment, description, personality, ideals, bonds, flaws, backstory, avatar_image, stats, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [
+          t.id, char.name, char.class, char.race, char.level, char.role, char.is_party_leader,
+          char.background, char.alignment, char.description, char.personality, char.ideals,
+          char.bonds, char.flaws, char.backstory, char.avatar_image, char.stats,
+          new Date().toISOString(), new Date().toISOString()
+        ]);
+      }
+    }
   }
 }
 

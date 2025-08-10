@@ -64,10 +64,12 @@ class TournamentsDao {
       sql += ' AND t.current_participants < t.max_participants';
     }
 
-    // Ordinamento
+    // Ordinamento cronologico per timeline: futuri prima (ASC), poi passati (DESC)
     const validOrderBy = ['start_date', 'title', 'created_at', 'current_participants'];
     const orderBy = validOrderBy.includes(filters.orderBy) ? filters.orderBy : 'start_date';
     const orderDir = filters.orderDir === 'DESC' ? 'DESC' : 'ASC';
+    
+    // Ordinamento per timeline: prima futuri (ASC), poi passati
     sql += ` ORDER BY t.${orderBy} ${orderDir}`;
 
     // Limit per paginazione
@@ -413,6 +415,52 @@ class TournamentsDao {
     const result = await db.get(sql, params);
     await db.close();
     return result.total;
+  }
+
+  // Aggiorna automaticamente tornei scaduti
+  static async updateExpiredTournaments() {
+    const db = await openDb();
+    const now = new Date().toISOString();
+    
+    try {
+      // Trova tornei che dovrebbero essere marcati come completati
+      // Escludi tornei D&D che hanno gestione manuale dello status
+      const expiredTournaments = await db.all(`
+        SELECT id, title, start_date, end_date, status, category
+        FROM tournaments 
+        WHERE status IN ('upcoming', 'ongoing') 
+        AND category NOT IN ('dnd', 'D&D')
+        AND (
+          (end_date IS NOT NULL AND end_date < ?) 
+          OR (end_date IS NULL AND start_date < ?)
+        )
+      `, [now, now]);
+
+      if (expiredTournaments.length > 0) {
+        // Aggiorna lo stato a 'completed'
+        await db.run(`
+          UPDATE tournaments 
+          SET status = 'completed', updated_at = ?
+          WHERE status IN ('upcoming', 'ongoing') 
+          AND category NOT IN ('dnd', 'D&D')
+          AND (
+            (end_date IS NOT NULL AND end_date < ?) 
+            OR (end_date IS NULL AND start_date < ?)
+          )
+        `, [now, now, now]);
+
+        console.log(`✅ Aggiornati ${expiredTournaments.length} tornei scaduti:`);
+        expiredTournaments.forEach(t => {
+          console.log(`   - ${t.title} (${t.start_date}) → completed`);
+        });
+      }
+
+      await db.close();
+      return expiredTournaments.length;
+    } catch (error) {
+      await db.close();
+      throw error;
+    }
   }
 }
 

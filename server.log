@@ -1,7 +1,12 @@
+
+> dice-drink-local-webapp@1.0.0 start
+> node server.js
+
 ✅ Database Games OK - 15 giochi disponibili
 ✅ Database Drinks OK - 16 drink disponibili
 ✅ Database Snacks OK - 10 snack disponibili
-✅ Database Tournaments OK - 10 tornei disponibili
+✅ Database Tournaments OK - 22 tornei disponibili
+✅ Database User Stats OK - 3 statistiche, 16 coccarde
 🎲🍹🍿 =====================================
 🎲🍹🍿  DICE & DRINK & SNACK SERVER!
 🎲🍹🍿 =====================================
@@ -25,10 +30,2138 @@
    🎮 Snack game-friendly: /api/snacks/game-friendly
    🔍 Cerca 'cioccolato': /api/snacks/search?q=cioccolato
 🎲🍹🍿 =====================================
-💡 Se vedi errori, esegui: node initDb.js, node initDrinksDb.js e node initSnacksDb.js
+💡 Se vedi errori, esegui: node initDb.js, node initDrinksDb.js, node initSnacksDb.js, node initTournamentsDb.js e node initUserStatsDb.js
+[AuthMiddleware] Rate limit check passed {
+  "limitType": "login",
+  "clientId": "::1:TW96aWxsYS81LjAgKE1h",
+  "attempts": 1,
+  "max": 5
+}
+[AuthRoutes] Login attempt {
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] authenticateUser called {
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] getUserByEmail called {
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] User found by email {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] updateLoginSuccess called {
+  "userId": 19
+}
+[UsersDao] Login success updated {
+  "userId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] User authenticated successfully {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] createSession called {
+  "userId": 19
+}
+[UsersDao] Session created {
+  "userId": 19,
+  "sessionId": 204
+}
+[AuthRoutes] Login successful {
+  "userId": 19,
+  "role": "customer",
+  "rememberMe": false
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersRoutes] Get user profile + dashboard data {
+  "userId": "19",
+  "requesterId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] getUserPreferences called {
+  "userId": 19
+}
+[UsersDao] Preferences retrieved {
+  "userId": 19
+}
+[UsersRoutes] Preferenze customer caricate: {
+  "hasGameCategories": true,
+  "gameCategories": [
+    "Strategia",
+    "Avventura"
+  ],
+  "hasDrinkTypes": true,
+  "drinkTypes": [
+    "analcolici",
+    "te",
+    "cocktail"
+  ],
+  "complexity": 4
+}
+[UsersDao] getUserBookings called {
+  "userId": 19,
+  "options": {}
+}
+[UsersRoutes] Customer dashboard data loaded {
+  "totalBookings": 4,
+  "activeBookings": 4,
+  "monthlyActivity": 4,
+  "preferencesValid": true
+}
+[SECURITY] dashboard_profile_accessed: {
+  userId: 19,
+  ip: '::1',
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Safari/605.1.15',
+  timestamp: '2025-08-10T14:46:56.417Z',
+  role: 'customer',
+  isOwnProfile: true,
+  requestedBy: 19
+}
+[UsersRoutes] Profile + dashboard data retrieved successfully {
+  "userId": 19,
+  "role": "customer",
+  "isOwnProfile": true,
+  "hasStats": true
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+Error fetching user statistics: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: user_statistics.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthRoutes] Get current user {
+  "userId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthRoutes] Get current user {
+  "userId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersRoutes] Get user profile + dashboard data {
+  "userId": "19",
+  "requesterId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] getUserPreferences called {
+  "userId": 19
+}
+[UsersDao] Preferences retrieved {
+  "userId": 19
+}
+[UsersRoutes] Preferenze customer caricate: {
+  "hasGameCategories": true,
+  "gameCategories": [
+    "Strategia",
+    "Avventura"
+  ],
+  "hasDrinkTypes": true,
+  "drinkTypes": [
+    "analcolici",
+    "te",
+    "cocktail"
+  ],
+  "complexity": 4
+}
+[UsersDao] getUserBookings called {
+  "userId": 19,
+  "options": {}
+}
+[UsersRoutes] Customer dashboard data loaded {
+  "totalBookings": 4,
+  "activeBookings": 4,
+  "monthlyActivity": 4,
+  "preferencesValid": true
+}
+[SECURITY] dashboard_profile_accessed: {
+  userId: 19,
+  ip: '::1',
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Safari/605.1.15',
+  timestamp: '2025-08-10T14:46:59.434Z',
+  role: 'customer',
+  isOwnProfile: true,
+  requestedBy: 19
+}
+[UsersRoutes] Profile + dashboard data retrieved successfully {
+  "userId": 19,
+  "role": "customer",
+  "isOwnProfile": true,
+  "hasStats": true
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+Error fetching user statistics: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: user_statistics.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+Error fetching user statistics: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: user_statistics.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+Error registering for tournament: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: tournament_registrations.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthRoutes] Get current user {
+  "userId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersRoutes] Get user profile + dashboard data {
+  "userId": "19",
+  "requesterId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] getUserPreferences called {
+  "userId": 19
+}
+[UsersDao] Preferences retrieved {
+  "userId": 19
+}
+[UsersRoutes] Preferenze customer caricate: {
+  "hasGameCategories": true,
+  "gameCategories": [
+    "Strategia",
+    "Avventura"
+  ],
+  "hasDrinkTypes": true,
+  "drinkTypes": [
+    "analcolici",
+    "te",
+    "cocktail"
+  ],
+  "complexity": 4
+}
+[UsersDao] getUserBookings called {
+  "userId": 19,
+  "options": {}
+}
+[UsersRoutes] Customer dashboard data loaded {
+  "totalBookings": 4,
+  "activeBookings": 4,
+  "monthlyActivity": 4,
+  "preferencesValid": true
+}
+[SECURITY] dashboard_profile_accessed: {
+  userId: 19,
+  ip: '::1',
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Safari/605.1.15',
+  timestamp: '2025-08-10T14:47:09.620Z',
+  role: 'customer',
+  isOwnProfile: true,
+  requestedBy: 19
+}
+[UsersRoutes] Profile + dashboard data retrieved successfully {
+  "userId": 19,
+  "role": "customer",
+  "isOwnProfile": true,
+  "hasStats": true
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+Error fetching user statistics: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: user_statistics.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+Error fetching user statistics: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: user_statistics.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthRoutes] Get current user {
+  "userId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthRoutes] Get current user {
+  "userId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersRoutes] Get user profile + dashboard data {
+  "userId": "19",
+  "requesterId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] getUserPreferences called {
+  "userId": 19
+}
+[UsersDao] Preferences retrieved {
+  "userId": 19
+}
+[UsersRoutes] Preferenze customer caricate: {
+  "hasGameCategories": true,
+  "gameCategories": [
+    "Strategia",
+    "Avventura"
+  ],
+  "hasDrinkTypes": true,
+  "drinkTypes": [
+    "analcolici",
+    "te",
+    "cocktail"
+  ],
+  "complexity": 4
+}
+[UsersDao] getUserBookings called {
+  "userId": 19,
+  "options": {}
+}
+[UsersRoutes] Customer dashboard data loaded {
+  "totalBookings": 4,
+  "activeBookings": 4,
+  "monthlyActivity": 4,
+  "preferencesValid": true
+}
+[SECURITY] dashboard_profile_accessed: {
+  userId: 19,
+  ip: '::1',
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Safari/605.1.15',
+  timestamp: '2025-08-10T14:47:10.853Z',
+  role: 'customer',
+  isOwnProfile: true,
+  requestedBy: 19
+}
+[UsersRoutes] Profile + dashboard data retrieved successfully {
+  "userId": 19,
+  "role": "customer",
+  "isOwnProfile": true,
+  "hasStats": true
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+Error fetching user statistics: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: user_statistics.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+Error fetching user statistics: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: user_statistics.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthRoutes] Get current user {
+  "userId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthRoutes] Get current user {
+  "userId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersRoutes] Get user profile + dashboard data {
+  "userId": "19",
+  "requesterId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] getUserPreferences called {
+  "userId": 19
+}
+[UsersDao] Preferences retrieved {
+  "userId": 19
+}
+[UsersRoutes] Preferenze customer caricate: {
+  "hasGameCategories": true,
+  "gameCategories": [
+    "Strategia",
+    "Avventura"
+  ],
+  "hasDrinkTypes": true,
+  "drinkTypes": [
+    "analcolici",
+    "te",
+    "cocktail"
+  ],
+  "complexity": 4
+}
+[UsersDao] getUserBookings called {
+  "userId": 19,
+  "options": {}
+}
+[UsersRoutes] Customer dashboard data loaded {
+  "totalBookings": 4,
+  "activeBookings": 4,
+  "monthlyActivity": 4,
+  "preferencesValid": true
+}
+[SECURITY] dashboard_profile_accessed: {
+  userId: 19,
+  ip: '::1',
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Safari/605.1.15',
+  timestamp: '2025-08-10T14:47:11.993Z',
+  role: 'customer',
+  isOwnProfile: true,
+  requestedBy: 19
+}
+[UsersRoutes] Profile + dashboard data retrieved successfully {
+  "userId": 19,
+  "role": "customer",
+  "isOwnProfile": true,
+  "hasStats": true
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthRoutes] Get current user {
+  "userId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+Error fetching user statistics: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: user_statistics.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+Error fetching user statistics: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: user_statistics.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthRoutes] Get current user {
+  "userId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersRoutes] Get user profile + dashboard data {
+  "userId": "19",
+  "requesterId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] getUserPreferences called {
+  "userId": 19
+}
+[UsersDao] Preferences retrieved {
+  "userId": 19
+}
+[UsersRoutes] Preferenze customer caricate: {
+  "hasGameCategories": true,
+  "gameCategories": [
+    "Strategia",
+    "Avventura"
+  ],
+  "hasDrinkTypes": true,
+  "drinkTypes": [
+    "analcolici",
+    "te",
+    "cocktail"
+  ],
+  "complexity": 4
+}
+[UsersDao] getUserBookings called {
+  "userId": 19,
+  "options": {}
+}
+[UsersRoutes] Customer dashboard data loaded {
+  "totalBookings": 4,
+  "activeBookings": 4,
+  "monthlyActivity": 4,
+  "preferencesValid": true
+}
+[SECURITY] dashboard_profile_accessed: {
+  userId: 19,
+  ip: '::1',
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Safari/605.1.15',
+  timestamp: '2025-08-10T14:47:43.514Z',
+  role: 'customer',
+  isOwnProfile: true,
+  requestedBy: 19
+}
+[UsersRoutes] Profile + dashboard data retrieved successfully {
+  "userId": 19,
+  "role": "customer",
+  "isOwnProfile": true,
+  "hasStats": true
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+Error fetching user statistics: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: user_statistics.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+Error fetching user statistics: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: user_statistics.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthRoutes] Get current user {
+  "userId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+Error registering for tournament: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: tournament_registrations.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthRoutes] Get current user {
+  "userId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersRoutes] Get user profile + dashboard data {
+  "userId": "19",
+  "requesterId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] getUserPreferences called {
+  "userId": 19
+}
+[UsersDao] Preferences retrieved {
+  "userId": 19
+}
+[UsersRoutes] Preferenze customer caricate: {
+  "hasGameCategories": true,
+  "gameCategories": [
+    "Strategia",
+    "Avventura"
+  ],
+  "hasDrinkTypes": true,
+  "drinkTypes": [
+    "analcolici",
+    "te",
+    "cocktail"
+  ],
+  "complexity": 4
+}
+[UsersDao] getUserBookings called {
+  "userId": 19,
+  "options": {}
+}
+[UsersRoutes] Customer dashboard data loaded {
+  "totalBookings": 4,
+  "activeBookings": 4,
+  "monthlyActivity": 4,
+  "preferencesValid": true
+}
+[SECURITY] dashboard_profile_accessed: {
+  userId: 19,
+  ip: '::1',
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Safari/605.1.15',
+  timestamp: '2025-08-10T14:48:11.626Z',
+  role: 'customer',
+  isOwnProfile: true,
+  requestedBy: 19
+}
+[UsersRoutes] Profile + dashboard data retrieved successfully {
+  "userId": 19,
+  "role": "customer",
+  "isOwnProfile": true,
+  "hasStats": true
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+Error fetching user statistics: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: user_statistics.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+Error fetching user statistics: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: user_statistics.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthRoutes] Get current user {
+  "userId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthRoutes] Get current user {
+  "userId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersRoutes] Get user profile + dashboard data {
+  "userId": "19",
+  "requesterId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] getUserPreferences called {
+  "userId": 19
+}
+[UsersDao] Preferences retrieved {
+  "userId": 19
+}
+[UsersRoutes] Preferenze customer caricate: {
+  "hasGameCategories": true,
+  "gameCategories": [
+    "Strategia",
+    "Avventura"
+  ],
+  "hasDrinkTypes": true,
+  "drinkTypes": [
+    "analcolici",
+    "te",
+    "cocktail"
+  ],
+  "complexity": 4
+}
+[UsersDao] getUserBookings called {
+  "userId": 19,
+  "options": {}
+}
+[UsersRoutes] Customer dashboard data loaded {
+  "totalBookings": 4,
+  "activeBookings": 4,
+  "monthlyActivity": 4,
+  "preferencesValid": true
+}
+[SECURITY] dashboard_profile_accessed: {
+  userId: 19,
+  ip: '::1',
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Safari/605.1.15',
+  timestamp: '2025-08-10T14:48:17.010Z',
+  role: 'customer',
+  isOwnProfile: true,
+  requestedBy: 19
+}
+[UsersRoutes] Profile + dashboard data retrieved successfully {
+  "userId": 19,
+  "role": "customer",
+  "isOwnProfile": true,
+  "hasStats": true
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+Error fetching user statistics: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: user_statistics.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+Error fetching user statistics: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: user_statistics.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthRoutes] Get current user {
+  "userId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthRoutes] Get current user {
+  "userId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersRoutes] Get user profile + dashboard data {
+  "userId": "19",
+  "requesterId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersDao] getUserPreferences called {
+  "userId": 19
+}
+[UsersDao] Preferences retrieved {
+  "userId": 19
+}
+[UsersRoutes] Preferenze customer caricate: {
+  "hasGameCategories": true,
+  "gameCategories": [
+    "Strategia",
+    "Avventura"
+  ],
+  "hasDrinkTypes": true,
+  "drinkTypes": [
+    "analcolici",
+    "te",
+    "cocktail"
+  ],
+  "complexity": 4
+}
+[UsersDao] getUserBookings called {
+  "userId": 19,
+  "options": {}
+}
+[UsersRoutes] Customer dashboard data loaded {
+  "totalBookings": 4,
+  "activeBookings": 4,
+  "monthlyActivity": 4,
+  "preferencesValid": true
+}
+[SECURITY] dashboard_profile_accessed: {
+  userId: 19,
+  ip: '::1',
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Safari/605.1.15',
+  timestamp: '2025-08-10T14:50:04.000Z',
+  role: 'customer',
+  isOwnProfile: true,
+  requestedBy: 19
+}
+[UsersRoutes] Profile + dashboard data retrieved successfully {
+  "userId": 19,
+  "role": "customer",
+  "isOwnProfile": true,
+  "hasStats": true
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+Error fetching user statistics: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: user_statistics.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+Error fetching user statistics: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: user_statistics.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+[AuthRoutes] Get current user {
+  "userId": 19
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[UsersRoutes] Get user avatar {
+  "userId": "19"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: token decoded {
+  "userId": 19,
+  "role": "customer"
+}
+[UsersDao] getUserById called {
+  "id": 19
+}
+[UsersDao] User found {
+  "id": 19,
+  "email": "andrea.perini02@gmail.com"
+}
+[AuthMiddleware] Auth required: user verified {
+  "userId": 19,
+  "role": "customer"
+}
+Error registering for tournament: [Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: tournament_registrations.user_id] {
+  errno: 19,
+  code: 'SQLITE_CONSTRAINT'
+}
 [AuthMiddleware] Optional auth: no token provided 
-[AuthMiddleware] Optional auth: no token provided 
-[AuthMiddleware] Optional auth: no token provided 
-[AuthMiddleware] Optional auth: no token provided 
-[AuthMiddleware] Optional auth: no token provided 
-[AuthMiddleware] Optional auth: no token provided 
+[AuthMiddleware] Rate limit cleanup: removed 1 expired entries 
