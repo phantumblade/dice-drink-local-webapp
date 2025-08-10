@@ -248,6 +248,12 @@ async function loadUserProfile() {
 
                 // Load user tournaments, statistics and badges
                 await loadUserTournaments();
+
+                // Show admin/staff create button
+                if (['admin', 'staff'].includes(user.role)) {
+                    const btn = document.getElementById('createTournamentBtn');
+                    if (btn) btn.style.display = '';
+                }
             }
         }
     } catch (error) {
@@ -541,8 +547,6 @@ async function renderAllTournaments(tournaments) {
         `;
         return;
     }
-
-
     }
 
     showNotification(`${tournaments.length} tornei caricati con successo!`, 'success');
@@ -798,12 +802,10 @@ function generateTournamentCardHTML(tournament, isMyTournament) {
         </div>
 
         <!-- Tournament Details -->
-
             ? generateDnDTournamentDetails(tournament)
             : generateStandardTournamentDetails(tournament)}
 
         <!-- D&D Campaign Specific Content -->
-
 
         <!-- Tournament Actions -->
         ${generateTournamentActions(tournament, isRegistered, isAuthenticated, isMyTournament)}
@@ -925,7 +927,6 @@ async function generateDnDContent(tournament) {
             <div class="campaign-section">
                 <h4><i class="fas fa-users"></i> Composizione Party</h4>
                 <div class="character-avatars">
-
                             </div>
                         </div>
                     `).join('')}
@@ -996,7 +997,6 @@ function generateTournamentTags(tournament, isRegistered, isMyTournament) {
 }
 
 function generateTournamentActions(tournament, isRegistered, isAuthenticated, isMyTournament) {
-
                 </button>
                 <button class="btn btn-secondary" onclick="showCampaignInfo('${tournament.id}')">
                     <i class="fas fa-scroll"></i>
@@ -1031,7 +1031,6 @@ function generateTournamentActions(tournament, isRegistered, isAuthenticated, is
         </div>
         `;
     }
-
         return `
             <div class="tournament-actions">
                 <button class="btn btn-secondary" onclick="openTournamentModal('${tournament.id}')">
@@ -1657,7 +1656,6 @@ window.showGameInfo = function(category, gameName = null, difficulty = null, min
                         </div>
                     </div>
                 </div>
-
 
                 <div style="text-align: center; margin-top: 2rem;">
                     <button class="btn btn-primary" onclick="closeModal(this.closest('.modal'))">

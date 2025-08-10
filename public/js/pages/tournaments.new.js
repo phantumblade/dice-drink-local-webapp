@@ -1220,8 +1220,6 @@ window.submitDnDRequest = async function(button, tournamentId) {
             },
             body: JSON.stringify({ message })
         });
-        const data = await res.json();
-        if (res.ok && data.success !== false) {
             showNotification(data.message || 'Richiesta inviata', 'success');
             tournamentState.registeredTournaments.add(parseInt(tournamentId));
             updateTournamentState(tournamentId, 'register');
