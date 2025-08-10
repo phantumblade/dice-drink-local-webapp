@@ -56,6 +56,8 @@
 - **📚 Catalogo Prodotti**: Gestione completa di giochi da tavolo, bevande e snack
 - **🔍 Ricerca e Filtri**: Sistema di ricerca avanzato con filtri multipli
 - **📅 Sistema Prenotazioni**: Gestione completa prenotazioni tavoli
+- **🏆 Sistema Tornei**: Gestione completa tornei con iscrizioni e timeline
+- **🐉 Campagne D&D**: Sistema dedicato per campagne Dungeons & Dragons
 - **⭐ Recensioni e Valutazioni**: Sistema di rating per prodotti
 - **🛒 Wishlist**: Lista desideri personalizzata per utenti
 
@@ -106,6 +108,7 @@ dice-drink-local-webapp/
 │       │   ├── homepage.js         # Pagina iniziale
 │       │   ├── catalog.js          # Catalogo prodotti
 │       │   ├── bookings.js         # Gestione prenotazioni
+│       │   ├── tournaments.js      # Sistema tornei e D&D
 │       │   ├── dashboard.js        # Pannello admin
 │       │   └── aboutus.js          # Informazioni
 │       │
@@ -296,6 +299,17 @@ BCRYPT_ROUNDS=12
 | `/api/snacks` | GET | Lista snack | `?type=sweet&limit=15` |
 | `/api/snacks/:id` | GET | Dettaglio snack | - |
 
+### 🏆 Tornei e D&D
+
+| Endpoint | Metodo | Descrizione | Parametri Query |
+|----------|--------|-------------|-----------------|
+| `/api/tournaments` | GET | Lista tornei | `?status=upcoming&category=dnd` |
+| `/api/tournaments/:id` | GET | Dettaglio torneo | - |
+| `/api/tournaments/:id/register` | POST/DELETE | Iscrizione/cancellazione | ✅ Auth |
+| `/api/tournaments/:id/campaign` | GET | Dettagli campagna D&D | - |
+| `/api/tournaments/:id/characters` | GET | Personaggi campagna D&D | - |
+| `/api/tournaments/:id/characters/:name` | GET | Dettagli personaggio D&D | - |
+
 ### 👤 Gestione Utenti
 
 | Endpoint | Metodo | Descrizione | Ruolo Richiesto |
@@ -319,6 +333,69 @@ BCRYPT_ROUNDS=12
 | Endpoint | Descrizione |
 |----------|-------------|
 | `/api/health` | Stato server e disponibilità endpoint |
+
+---
+
+## 🏆 Sistema Tornei e D&D
+
+### 🎯 Caratteristiche Tornei
+
+**Dice & Drink** include un sistema completo per la gestione dei tornei di giochi da tavolo:
+
+#### 🏅 Tipi di Tornei Supportati
+- **🏆 Tornei Standard**: Magic: The Gathering, Catan, Splendor, ecc.
+- **🐉 Campagne D&D**: Gestione completa campagne Dungeons & Dragons
+- **🎉 Tornei Party**: Eventi sociali e giochi di gruppo
+- **⚡ Tornei Blitz**: Competizioni veloci e dinamiche
+
+#### 🌟 Funzionalità Tornei
+- **📅 Timeline Interattiva**: Visualizzazione cronologica tornei
+- **📝 Sistema Iscrizioni**: Registrazione con lista d'attesa automatica
+- **💰 Gestione Quote**: Entry fee e montepremi trasparenti
+- **🏆 Sistema Premi**: Configurazione premi personalizzati
+- **📊 Dashboard**: Pannello controllo per organizzatori
+
+### 🐉 Sistema D&D Dedicato
+
+#### 🎭 Gestione Campagne
+- **👥 Party Composition**: Visualizzazione membri party con ruoli
+- **📜 Schede Personaggio**: Dati completi (stats, background, personalità)
+- **🎨 Avatar Personalizzati**: Sistema avatars per personaggi
+- **👑 Party Leader**: Gestione leader party e permessi
+- **🗓️ Programmazione Sessioni**: Calendario sessioni ricorrenti
+
+#### 📋 Database D&D Integrato
+```sql
+-- Struttura campagne D&D
+dnd_campaigns: setting, world, DM, safety_tools, play_style
+dnd_characters: name, class, race, level, stats, personality, backstory
+```
+
+#### 🎪 Modali Interattivi
+- **📖 Biografia Personaggi**: Modale dettagliata con tutte le informazioni
+- **🏰 Info Campagna**: Dettagli setting, DM, regole di sicurezza
+- **⚔️ Statistiche**: Visualizzazione stats D&D (FOR, DES, COS, INT, SAG, CAR)
+- **📝 Background**: Personalità, ideali, legami, difetti
+
+#### 🎲 Caratteristiche Uniche D&D
+- **🔗 Richiesta Accesso**: Sistema permessi party leader
+- **🛡️ Safety Tools**: X-Card, Lines & Veils configurabili  
+- **🎯 Esperienza Richiesta**: Filtri per livello giocatori
+- **📍 Location Dedicata**: Spazi specifici per sessioni D&D
+
+### 🖥️ Interfaccia Utente Tornei
+
+#### 📱 Design Responsive
+- **🎨 Card Tornei**: Layout moderno con informazioni chiare
+- **🏷️ Tag Categoria**: Etichette colorate per tipo torneo
+- **📊 Progress Bar**: Stato partecipazione visuale
+- **🎯 Azioni Dinamiche**: Bottoni contestuali per ogni torneo
+
+#### 🔄 Stati Tornei
+- **📅 Upcoming**: Tornei in arrivo con iscrizioni aperte
+- **▶️ Ongoing**: Tornei in corso con dettagli sessione
+- **✅ Completed**: Tornei conclusi con risultati
+- **❌ Cancelled**: Tornei cancellati con refund automatico
 
 ---
 
@@ -501,6 +578,10 @@ const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 - **🛒 Carrello Fluido**: Aggiornamenti incrementali senza scatti, micro-animazioni sui numeri
 - **🔄 Transizioni Smooth**: Fade opacity per cambio categoria, skeleton loading per eliminare flash
 - **📱 Mobile First**: Design responsive ottimizzato per dispositivi mobili
+- **🏆 Sistema Tornei**: Timeline interattiva con card moderne e iscrizioni real-time
+- **🐉 Campagne D&D**: Gestione completa personaggi con modali biografiche dettagliate
+- **📅 Timeline Tornei**: Visualizzazione cronologica con date reali e stati dinamici
+- **🎭 Avatar Personaggi**: Sistema avatar personalizzati con indicatori party leader
 
 ### 👾bug noti
 
@@ -513,6 +594,11 @@ const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 - ✅ **Notifiche poco professionali**: RISOLTO - Implementato sistema notifiche personalizzate animate
 - ✅ **Carrello scattoso**: RISOLTO - Ottimizzati aggiornamenti incrementali fluidi
 - ✅ **Controlli quantità poco chiari**: RISOLTO - Migliorati controlli con badge e tooltip
+- ✅ **Date tornei mostravano TBD**: RISOLTO - Sistema date reali con formato italiano
+- ✅ **Modali personaggi D&D mancanti**: RISOLTO - Implementati modali biografici completi
+- ✅ **Iscrizioni tornei richiedevano email**: RISOLTO - Disabilitata verifica email obbligatoria
+- ✅ **Tornei completati non distinguibili**: RISOLTO - Stili differenziati con badge completamento
+- ✅ **Padding eccessivo box informazioni**: RISOLTO - Ottimizzato spacing per migliore UX
 
 ---
 
@@ -535,6 +621,10 @@ const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 - ✅ Interfaccia utente responsive
 - ✅ Sistema di ruoli e permessi
 - ✅ Testing e debugging integrati
+- ✅ Sistema tornei completo con timeline interattiva
+- ✅ Gestione campagne D&D con personaggi dettagliati
+- ✅ Modali biografici per personaggi con stats complete
+- ✅ Sistema iscrizioni real-time con gestione liste d'attesa
 
 ---
 

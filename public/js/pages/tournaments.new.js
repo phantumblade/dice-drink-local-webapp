@@ -1106,7 +1106,6 @@ window.registerForTournament = async function(tournamentId, buttonElement = null
     try {
         const response = await fetch(`/api/tournaments/${tournamentId}/register`, {
             method: 'POST',
-            credentials: 'include',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -1115,12 +1114,6 @@ window.registerForTournament = async function(tournamentId, buttonElement = null
 
         if (response.status === 401) {
             showAuthPrompt();
-            return;
-        }
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ message: 'Errore durante la registrazione' }));
-            showNotification(errorData.message || 'Errore durante la registrazione', 'error');
             return;
         }
 
@@ -1152,17 +1145,10 @@ window.unregisterFromTournament = async function(tournamentId) {
         const token = localStorage.getItem('authToken') || localStorage.getItem('accessToken');
         const response = await fetch(`/api/tournaments/${tournamentId}/register`, {
             method: 'DELETE',
-            credentials: 'include',
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
-
-        if (!response.ok) {
-            const err = await response.json().catch(() => ({ message: 'Errore durante la cancellazione' }));
-            showNotification(err.message || 'Errore durante la cancellazione', 'error');
-            return;
-        }
 
         const data = await response.json();
 
@@ -1228,23 +1214,12 @@ window.submitDnDRequest = async function(button, tournamentId) {
         button.disabled = true;
         const res = await fetch(`/api/tournaments/${tournamentId}/request`, {
             method: 'POST',
-            credentials: 'include',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('accessToken') || localStorage.getItem('authToken')}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ message })
         });
-
-        if (!res.ok) {
-            const err = await res.json().catch(() => ({ message: 'Errore invio richiesta' }));
-            showNotification(err.message || 'Errore invio richiesta', 'error');
-            button.disabled = false;
-            return;
-        }
-
-        const data = await res.json();
-        if (data.success !== false) {
             showNotification(data.message || 'Richiesta inviata', 'success');
             tournamentState.registeredTournaments.add(parseInt(tournamentId));
             updateTournamentState(tournamentId, 'register');
@@ -1254,8 +1229,8 @@ window.submitDnDRequest = async function(button, tournamentId) {
             }
         } else {
             showNotification(data.message || 'Errore invio richiesta', 'error');
+            button.disabled = false;
         }
-        button.disabled = false;
     } catch (err) {
         console.error('submitDnDRequest error:', err);
         showNotification('Errore invio richiesta', 'error');

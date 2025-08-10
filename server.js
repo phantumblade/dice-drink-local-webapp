@@ -49,6 +49,10 @@ app.use(express.static('public', {
   const tournamentsRoutes = require('./routes/tournaments');
   app.use('/api/tournaments', tournamentsRoutes);
 
+  // USER STATS API - Routes per statistiche e coccarde utenti
+  const userStatsRoutes = require('./routes/userStats');
+  app.use('/api/user-stats', userStatsRoutes);
+
 
 
 
@@ -64,6 +68,8 @@ app.use(express.static('public', {
     const snacksTable = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='snacks'");
     // Verifica tabella tournaments
     const tournamentsTable = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='tournaments'");
+    // Verifica tabella user_statistics
+    const userStatsTable = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='user_statistics'");
 
     if (!gamesTable) {
       console.log('⚠️  ATTENZIONE: Tabella games non trovata!');
@@ -97,10 +103,19 @@ app.use(express.static('public', {
       console.log(`✅ Database Tournaments OK - ${tournamentCount.count} tornei disponibili`);
     }
 
+    if (!userStatsTable) {
+      console.log('⚠️  ATTENZIONE: Tabella user_statistics non trovata!');
+      console.log('💡 Esegui: node initUserStatsDb.js');
+    } else {
+      const statsCount = await db.get('SELECT COUNT(*) as count FROM user_statistics');
+      const badgesCount = await db.get('SELECT COUNT(*) as count FROM user_badges');
+      console.log(`✅ Database User Stats OK - ${statsCount.count} statistiche, ${badgesCount.count} coccarde`);
+    }
+
     await db.close();
   } catch (err) {
     console.log('⚠️  Impossibile verificare il database');
-    console.log('💡 Assicurati di aver eseguito: node initDb.js, node initDrinksDb.js, node initSnacksDb.js e node initTournamentsDb.js');
+    console.log('💡 Assicurati di aver eseguito: node initDb.js, node initDrinksDb.js, node initSnacksDb.js, node initTournamentsDb.js e node initUserStatsDb.js');
   }
 
   // Health check per verificare che l'API funzioni
@@ -183,7 +198,7 @@ app.use(express.static('public', {
       res.status(500).json({
         status: 'ERROR',
         message: 'Database non disponibile',
-        hint: 'Esegui: node initDb.js, node initDrinksDb.js e node initSnacksDb.js'
+        hint: 'Esegui: node initDb.js, node initDrinksDb.js, node initSnacksDb.js, node initTournamentsDb.js e node initUserStatsDb.js'
       });
     }
   });
@@ -272,7 +287,7 @@ app.use(express.static('public', {
     console.log(`   🎮 Snack game-friendly: /api/snacks/game-friendly`);
     console.log(`   🔍 Cerca 'cioccolato': /api/snacks/search?q=cioccolato`);
     console.log('🎲🍹🍿 =====================================');
-    console.log('💡 Se vedi errori, esegui: node initDb.js, node initDrinksDb.js e node initSnacksDb.js');
+    console.log('💡 Se vedi errori, esegui: node initDb.js, node initDrinksDb.js, node initSnacksDb.js, node initTournamentsDb.js e node initUserStatsDb.js');
   });
 }
 
@@ -286,5 +301,7 @@ init().catch(err => {
   console.log('   - Esegui "node initDb.js" per creare il database giochi');
   console.log('   - Esegui "node initDrinksDb.js" per creare il database drink');
   console.log('   - Esegui "node initSnacksDb.js" per creare il database snack');
+  console.log('   - Esegui "node initTournamentsDb.js" per creare il database tornei');
+  console.log('   - Esegui "node initUserStatsDb.js" per creare il database statistiche');
   process.exit(1);
 });
