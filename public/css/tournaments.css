@@ -2,45 +2,29 @@
    TOURNAMENTS PAGE CSS - Dice & Drink
    ========================================== */
 
-.container {
+.tournaments-page .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
 }
 
-:root {
-    /* Game Theme Colors - Subtle backgrounds */
-    --color-strategy-bg: rgba(34, 139, 34, 0.08);
-    --color-dnd-bg: rgba(138, 43, 226, 0.08);
-    --color-party-bg: rgba(255, 20, 147, 0.08);
-    --color-card-bg: rgba(30, 144, 255, 0.08);
-    --color-board-bg: rgba(255, 140, 0, 0.08);
-
-    /* Game Theme Accent Colors */
-    --color-strategy: #228b22;
-    --color-dnd: #8a2be2;
-    --color-party: #ff1493;
-    --color-card: #1e90ff;
-    --color-board: #ff8c00;
-}
-
 /* ==========================================
    SCROLLBAR PERSONALIZZATE
    ========================================== */
-*::-webkit-scrollbar {
+.tournaments-page *::-webkit-scrollbar {
     width: 10px;
     height: 10px;
 }
-*::-webkit-scrollbar-track {
+.tournaments-page *::-webkit-scrollbar-track {
     background: rgba(102, 51, 204, 0.08);
     border-radius: 12px;
 }
-*::-webkit-scrollbar-thumb {
+.tournaments-page *::-webkit-scrollbar-thumb {
     background: linear-gradient(180deg, var(--color-secondary), var(--color-primary));
     border-radius: 12px;
     border: 2px solid rgba(255, 255, 255, 0.6);
 }
-*::-webkit-scrollbar-thumb:hover {
+.tournaments-page *::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(180deg, #8a5ae6, #5a2db8);
 }
 
