@@ -12,6 +12,12 @@ const { User } = require('../models/User');
 
 // GET /api/tournaments - Ottieni tutti i tornei con filtri
 router.get('/', async (req, res) => {
+  // Aggiorna automaticamente i tornei scaduti prima di restituire i dati
+  try {
+    await TournamentsDao.updateExpiredTournaments();
+  } catch (error) {
+    console.error('Error updating expired tournaments:', error);
+  }
   try {
     const {
       status,
@@ -213,10 +219,23 @@ router.post('/:id/register', requireAuth, async (req, res) => {
     const tournamentId = parseInt(req.params.id);
     const userId = req.user.id;
     
+    console.log('[TournamentRegistration] Registration attempt:', {
+      tournamentId,
+      userId,
+      userObject: req.user
+    });
+    
     if (isNaN(tournamentId)) {
       return res.status(400).json({
         success: false,
         message: 'ID torneo non valido'
+      });
+    }
+    
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Utente non identificato'
       });
     }
 
@@ -308,6 +327,9 @@ router.delete('/:id/register', requireAuth, async (req, res) => {
 // GET /api/tournaments/user/my - I miei tornei
 router.get('/user/my', requireAuth, async (req, res) => {
   try {
+    // Aggiorna automaticamente i tornei scaduti
+    await TournamentsDao.updateExpiredTournaments();
+    
     const userId = req.user.id;
     const status = req.query.status; // upcoming, ongoing, completed
     

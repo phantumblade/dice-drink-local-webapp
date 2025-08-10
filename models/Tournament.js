@@ -24,7 +24,7 @@ class Tournament {
     // Finanziario
     this.entryFee = tournamentData.entry_fee || 0;
     this.prizePool = tournamentData.prize_pool || 0;
-    this.prizes = tournamentData.prizes ? JSON.parse(tournamentData.prizes) : [];
+    this.prizes = tournamentData.prizes ? safeParseJSON(tournamentData.prizes, []) : [];
 
     // Dettagli torneo
     this.format = tournamentData.format; // 'elimination', 'swiss', 'round-robin'
@@ -45,14 +45,14 @@ class Tournament {
     this.imageUrl = tournamentData.image_url;
 
     // Regole specifiche
-    this.rules = tournamentData.rules ? JSON.parse(tournamentData.rules) : [];
-    this.included = tournamentData.included ? JSON.parse(tournamentData.included) : [];
+    this.rules = tournamentData.rules ? safeParseJSON(tournamentData.rules, []) : [];
+    this.included = tournamentData.included ? safeParseJSON(tournamentData.included, []) : [];
 
     // Per D&D campaigns
     this.currentSession = tournamentData.current_session || 1;
     this.totalSessions = tournamentData.total_sessions;
     this.currentLevel = tournamentData.current_level;
-    this.partyComposition = tournamentData.party_composition ? JSON.parse(tournamentData.party_composition) : [];
+    this.partyComposition = tournamentData.party_composition ? safeParseJSON(tournamentData.party_composition, []) : [];
     // D&D extra (joined from dnd_campaigns)
     this.dndSetting = tournamentData.dnd_setting || null;
     this.dndWorld = tournamentData.dnd_world || null;
@@ -208,10 +208,17 @@ class Tournament {
 
   getDisplayDate() {
     const date = new Date(this.startDate);
-    return {
+    const currentYear = new Date().getFullYear();
+    const tournamentYear = date.getFullYear();
+    
+    const displayData = {
       day: date.getDate().toString().padStart(2, '0'),
-      month: date.toLocaleString('it-IT', { month: 'short' }).toUpperCase()
+      month: date.toLocaleString('it-IT', { month: 'short' }).toUpperCase(),
+      year: tournamentYear,
+      showYear: tournamentYear !== currentYear
     };
+    
+    return displayData;
   }
 
   getDisplayTime() {

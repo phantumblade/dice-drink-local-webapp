@@ -449,6 +449,210 @@ async function seedTournaments(db) {
         'Atmosfera da battaglia',
         'Premi creativi'
       ])
+    },
+    // TORNEI AL COMPLETO (PIENI)
+    {
+      title: 'Torneo PIENO - 7 Wonders',
+      description: 'Costruisci la tua civiltà in questo capolavoro strategico. ATTENZIONE: Torneo al completo!',
+      game_id: games.find(g => g.name.includes('7 Wonders'))?.id || games[0].id,
+      start_date: '2025-01-30',
+      start_time: '19:00',
+      end_time: '22:00',
+      max_participants: 7,
+      current_participants: 7, // AL COMPLETO
+      entry_fee: 10.00,
+      prize_pool: 65.00,
+      format: 'elimination',
+      difficulty: 'medium',
+      category: 'strategy',
+      theme: 'strategy-theme',
+      status: 'upcoming',
+      registration_open: 0, // REGISTRAZIONI CHIUSE
+      prizes: JSON.stringify(['1° posto: €35', '2° posto: €20', '3° posto: €10']),
+      rules: JSON.stringify([
+        '7 Wonders base + Leaders',
+        'Tempo massimo per turno: 30 sec',
+        'Lista d\'attesa disponibile',
+        'Controlliamo sempre ID per fair play'
+      ])
+    },
+    {
+      title: 'COMPLETO - Ticket to Ride Europe',
+      description: 'Avventure ferroviarie attraverso l\'Europa! Questo torneo ha raggiunto il massimo dei partecipanti.',
+      game_id: games.find(g => g.name.includes('Ticket'))?.id || games[1].id,
+      start_date: '2025-02-05',
+      start_time: '20:00',
+      end_time: '23:30',
+      max_participants: 15,
+      current_participants: 15, // AL COMPLETO
+      waitlist_count: 3, // LISTA D'ATTESA
+      entry_fee: 8.00,
+      prize_pool: 110.00,
+      format: 'swiss',
+      difficulty: 'easy',
+      category: 'strategy',
+      theme: 'strategy-theme',
+      status: 'upcoming',
+      registration_open: 0,
+      prizes: JSON.stringify(['1° posto: €60', '2° posto: €35', '3° posto: €15']),
+      rules: JSON.stringify([
+        'Ticket to Ride Europe',
+        'Mappa Europa ufficiale',
+        'Biglietti segreti obbligatori',
+        'Lista d\'attesa attiva'
+      ])
+    },
+    // TORNEI COMPLETATI NEL PASSATO
+    {
+      title: 'COMPLETATO - Torneo Natale Magic',
+      description: 'Il grande torneo natalizio di Magic: The Gathering è stato un successo! Complimenti ai vincitori.',
+      game_id: games.find(g => g.name.includes('Magic'))?.id || games[2].id,
+      start_date: '2024-12-20',
+      start_time: '18:00',
+      end_time: '24:00',
+      max_participants: 32,
+      current_participants: 32,
+      entry_fee: 20.00,
+      prize_pool: 500.00,
+      format: 'swiss',
+      difficulty: 'hard',
+      category: 'card',
+      theme: 'card-theme',
+      status: 'completed', // COMPLETATO
+      prizes: JSON.stringify(['1° posto: €200 + Playset Premium', '2° posto: €150', '3°-4° posto: €75 cad.']),
+      rules: JSON.stringify([
+        'Formato Standard',
+        'Prize support Wizards',
+        'Judge certificato L2',
+        'Streaming live della finale'
+      ])
+    },
+    {
+      title: 'FINITO - Campionato Catan Invernale',
+      description: 'Il campionato invernale di Catan si è concluso con grande partecipazione. Arrivederci alla prossima stagione!',
+      game_id: games.find(g => g.name.includes('Catan'))?.id || games[0].id,
+      start_date: '2024-12-01',
+      start_time: '15:00',
+      end_time: '20:00',
+      max_participants: 20,
+      current_participants: 20,
+      entry_fee: 15.00,
+      prize_pool: 250.00,
+      format: 'swiss',
+      difficulty: 'medium',
+      category: 'strategy',
+      theme: 'strategy-theme',
+      status: 'completed',
+      prizes: JSON.stringify(['1° posto: €120 + Trofeo Stagionale', '2° posto: €80', '3° posto: €50']),
+      rules: JSON.stringify([
+        'Catan base + Navigatori',
+        'Partite da 90 minuti max',
+        'Sistema svizzero 5 round',
+        'Cerimonia di premiazione'
+      ])
+    },
+    // TORNEI CANCELLATI
+    {
+      title: 'CANCELLATO - Gloomhaven Legacy',
+      description: 'Purtroppo questo torneo è stato cancellato per mancanza di partecipanti. Rimborsi automatici.',
+      game_id: games.find(g => g.name.includes('Gloomhaven'))?.id || games[3].id,
+      start_date: '2025-01-26',
+      start_time: '10:00',
+      end_time: '18:00',
+      max_participants: 4,
+      current_participants: 1,
+      entry_fee: 25.00,
+      prize_pool: 0.00,
+      format: 'campaign',
+      difficulty: 'hard',
+      category: 'strategy',
+      theme: 'strategy-theme',
+      status: 'cancelled', // CANCELLATO
+      registration_open: 0,
+      prizes: JSON.stringify(['Torneo cancellato - rimborsi automatici']),
+      rules: JSON.stringify([
+        'Torneo cancellato',
+        'Rimborso completo automatico',
+        'Possibile riprogrammazione',
+        'Contattare staff per info'
+      ])
+    },
+    {
+      title: 'ANNULLATO - Serata Diplomacy',
+      description: 'La serata Diplomacy è stata annullata per problemi organizzativi. Ci scusiamo per il disagio.',
+      game_id: games.find(g => g.name.includes('Diplomacy'))?.id || games[4].id,
+      start_date: '2025-02-10',
+      start_time: '19:00',
+      end_time: '02:00',
+      max_participants: 7,
+      current_participants: 2,
+      entry_fee: 12.00,
+      prize_pool: 0.00,
+      format: 'elimination',
+      difficulty: 'hard',
+      category: 'strategy',
+      theme: 'strategy-theme',
+      status: 'cancelled',
+      registration_open: 0,
+      prizes: JSON.stringify(['Evento cancellato - rimborso garantito']),
+      rules: JSON.stringify([
+        'Evento cancellato per motivi organizzativi',
+        'Rimborso completo entro 48h',
+        'Nuova data in valutazione',
+        'Info: staff@diceanddrink.com'
+      ])
+    },
+    // TORNEI CON STATI VARI PER TEST
+    {
+      title: 'Pandemic Legacy - Salvare il Mondo',
+      description: 'Una campagna cooperativa per salvare il mondo dalle epidemie. Teamwork essenziale!',
+      game_id: games.find(g => g.name.includes('Pandemic'))?.id || games[5].id,
+      start_date: '2025-02-15',
+      start_time: '15:00',
+      end_time: '19:00',
+      max_participants: 4,
+      current_participants: 4, // COMPLETO
+      entry_fee: 18.00,
+      prize_pool: 60.00,
+      format: 'campaign',
+      difficulty: 'hard',
+      category: 'strategy',
+      theme: 'strategy-theme',
+      status: 'upcoming',
+      registration_open: 0, // REGISTRAZIONI CHIUSE
+      current_session: 1,
+      total_sessions: 12,
+      prizes: JSON.stringify(['Esperienza di gioco unica', 'Certificato di completamento', 'Foto di gruppo finale']),
+      rules: JSON.stringify([
+        'Pandemic Legacy Season 1',
+        'Stesso gruppo per tutta la campagna',
+        'Decisioni permanenti',
+        'Impegno per 12 sessioni'
+      ])
+    },
+    {
+      title: 'Brass Birmingham - Rivoluzione Industriale',
+      description: 'Strategia economica complessa nell\'Inghilterra industriale. Solo per giocatori esperti.',
+      game_id: games.find(g => g.name.includes('Brass'))?.id || games[6].id,
+      start_date: '2025-03-01',
+      start_time: '14:00',
+      end_time: '19:00',
+      max_participants: 8,
+      current_participants: 3,
+      entry_fee: 20.00,
+      prize_pool: 140.00,
+      format: 'swiss',
+      difficulty: 'hard',
+      category: 'strategy',
+      theme: 'strategy-theme',
+      status: 'upcoming',
+      prizes: JSON.stringify(['1° posto: €80 + Gioco Deluxe', '2° posto: €40', '3° posto: €20']),
+      rules: JSON.stringify([
+        'Brass Birmingham completo',
+        'Solo giocatori con esperienza',
+        'Partite da 3+ ore',
+        'Strategia economica avanzata'
+      ])
     }
   ];
 

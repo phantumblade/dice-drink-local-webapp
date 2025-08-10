@@ -496,6 +496,12 @@ class User {
       return false;
     }
 
+    // Development/testing flag per saltare completamente la verifica
+    const skipEmailVerification = process.env.SKIP_EMAIL_VERIFICATION === 'true';
+    if (skipEmailVerification) {
+      return false;
+    }
+
     // Feature flag da environment
     const emailVerificationEnabled = process.env.FEATURE_EMAIL_VERIFICATION === 'true';
     if (!emailVerificationEnabled) {
