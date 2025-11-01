@@ -1,3 +1,4 @@
+// Modified copy of tournaments.js with extra checks for empty My Tournaments
 // ==========================================
 // TOURNAMENTS PAGE - Dice & Drink
 // Converted from HTML prototype to JS module
@@ -246,7 +247,7 @@ async function loadUserProfile() {
                 // Sync extra profile info (phone, avatar) from API
                 await fetchAndSyncUserDetails(user.id);
 
-                // Load user tournaments, statistics and badges
+                // Load user tournaments
                 await loadUserTournaments();
 
                 // Show admin/staff create button
@@ -326,7 +327,7 @@ async function loadAllTournaments() {
 
         if (data.success && data.data) {
             tournamentState.tournaments = data.data;
-            await renderAllTournaments(data.data);
+            renderAllTournaments(data.data);
         } else {
             throw new Error(data.message || 'Failed to load tournaments');
         }
@@ -373,242 +374,79 @@ async function loadUserTournaments() {
     }
 }
 
-async function loadUserStats() {
-    try {
-        if (!window.SimpleAuth || !window.SimpleAuth.isAuthenticated) {
-            return;
-        }
-
-        const token = localStorage.getItem('authToken') || localStorage.getItem('accessToken');
-        if (!token) return;
-
-        const response = await fetch('/api/user-stats/statistics', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success) {
-                renderUserStats(data.data);
-            }
-        }
-    } catch (error) {
-        console.error('Error loading user statistics:', error);
-        // Render empty stats if error
-        renderUserStats(null);
-    }
-}
-
-async function loadUserBadges() {
-    try {
-        if (!window.SimpleAuth || !window.SimpleAuth.isAuthenticated) {
-            return;
-        }
-
-        const token = localStorage.getItem('authToken') || localStorage.getItem('accessToken');
-        if (!token) return;
-
-        const response = await fetch('/api/user-stats/badges', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success) {
-                renderUserBadges(data.data);
-            }
-        }
-    } catch (error) {
-        console.error('Error loading user badges:', error);
-        // Render empty badges if error
-        renderUserBadges([]);
-    }
-}
-
-function renderUserStats(stats) {
-    const statsContainer = document.getElementById('userStats');
-    if (!statsContainer) return;
-
-    // If no stats available, show default zeros
-    if (!stats) {
-        stats = {
-            tournaments_played: 0,
-            tournaments_won: 0,
-            tournaments_podium: 0,
-            total_games_played: 0,
-            total_hours_played: 0,
-            win_rate: 0,
-            avg_placement: 0,
-            total_prize_money: 0,
-            longest_win_streak: 0,
-            current_win_streak: 0
-        };
-    }
-
-    const registeredCount = tournamentState.registeredTournaments.size;
-
-    statsContainer.innerHTML = `
-        <div class="stat-card">
-            <div class="stat-number">${registeredCount}</div>
-            <div class="stat-label">Tornei Attivi</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">${stats.tournaments_played || 0}</div>
-            <div class="stat-label">Tornei Giocati</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">${stats.tournaments_won || 0}</div>
-            <div class="stat-label">Vittorie</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">${stats.tournaments_podium || 0}</div>
-            <div class="stat-label">Podi Conquistati</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">${parseFloat(stats.win_rate || 0).toFixed(1)}%</div>
-            <div class="stat-label">Win Rate</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">${stats.total_hours_played || 0}h</div>
-            <div class="stat-label">Ore di Gioco</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">€${parseFloat(stats.total_prize_money || 0).toFixed(0)}</div>
-            <div class="stat-label">Premi Vinti</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">${stats.longest_win_streak || 0}</div>
-            <div class="stat-label">Serie Vincente Max</div>
-        </div>
-    `;
-}
-
-function renderUserBadges(badges) {
-    const badgesContainer = document.getElementById('userBadges');
-    if (!badgesContainer) return;
-
-    // If no badges, show encouraging message
-    if (!badges || badges.length === 0) {
-        badgesContainer.innerHTML = `
-            <div class="no-badges-message" style="
-                grid-column: 1 / -1;
-                text-align: center; 
-                padding: 2rem; 
-                color: #999; 
-                font-style: italic;
-                background: rgba(0,0,0,0.05);
-                border-radius: 8px;
-                border: 2px dashed #ddd;
-            ">
-                <i class="fas fa-trophy" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                <p style="margin: 0; font-size: 1.1rem;">Continua a giocare per ottenere riconoscimenti!</p>
-            </div>
-        `;
-        return;
-    }
-
-    // Render badges
-    badgesContainer.innerHTML = badges.map(badge => `
-        <div class="badge-item" title="${badge.badge_description}">
-            <div class="badge-icon" style="background-color: ${badge.badge_color || '#007bff'};">
-                <i class="${badge.badge_icon || 'fas fa-award'}"></i>
-            </div>
-            <div class="badge-info">
-                <h4>${badge.badge_name}</h4>
-                <p>${badge.badge_description}</p>
-            </div>
-        </div>
-    `).join('');
-}
-
 // ==========================================
 // RENDERING FUNCTIONS
 // ==========================================
 
-async function renderAllTournaments(tournaments) {
+function renderAllTournaments(tournaments) {
     const container = document.getElementById('allTournamentsList');
     container.innerHTML = '';
 
-    if (!tournaments || tournaments.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-calendar-times"></i>
-                <h3>Nessun Torneo Disponibile</h3>
-                <p>Al momento non ci sono tornei attivi. Torna presto per nuove opportunità di gioco!</p>
-            </div>
-        `;
-        return;
-    }
-    }
+if (!tournaments || tournaments.length === 0) {
+    container.innerHTML = `
+        <div class="empty-state">
+            <i class="fas fa-calendar-times"></i>
+            <h3>Nessun Torneo Disponibile</h3>
+            <p>Al momento non ci sono tornei attivi. Torna presto per nuove opportunità di gioco!</p>
+        </div>
+    `;
+    return;
+}
 
-    showNotification(`${tournaments.length} tornei caricati con successo!`, 'success');
+const now = new Date();
+const available = tournaments.filter(t => {
+    const start = new Date(t.start_date);
+    return t.status !== 'completed' && t.status !== 'cancelled' && start >= now;
+});
+const past = tournaments.filter(t => !available.includes(t));
+
+if (available.length > 0) {
+    const title = document.createElement('h3');
+    title.style.cssText = 'color: var(--color-primary); margin-bottom:1.5rem;';
+    title.innerHTML = '<i class="fas fa-calendar-alt"></i> Tornei Disponibili';
+    container.appendChild(title);
+
+    const timeline = document.createElement('div');
+    timeline.className = 'tournaments-timeline';
+    available.forEach(t => timeline.appendChild(createTournamentCard(t)));
+    container.appendChild(timeline);
+}
+
+if (past.length > 0) {
+    const title = document.createElement('h3');
+    title.style.cssText = 'color: var(--color-primary); margin:2rem 0 1.5rem;';
+    title.innerHTML = '<i class="fas fa-archive"></i> Tornei Conclusi o Passati';
+    container.appendChild(title);
+
+    const pastTimeline = document.createElement('div');
+    pastTimeline.className = 'tournaments-timeline';
+    past.forEach(t => pastTimeline.appendChild(createTournamentCard(t)));
+    container.appendChild(pastTimeline);
+}
+
+showNotification(`${tournaments.length} tornei caricati con successo!`, 'success');
+
 }
 
 function renderMyTournaments(userTournaments) {
     const upcomingContainer = document.getElementById('upcomingTournaments');
     const completedContainer = document.getElementById('completedTournaments');
+    const section = document.getElementById('myTournamentsSection');
     // Ensure profile header visible in authenticated context
     const header = document.querySelector('.user-profile-header');
     if (header) header.style.display = '';
 
     if (!userTournaments || userTournaments.length === 0) {
+        if (section) section.classList.add('empty');
         upcomingContainer.innerHTML = '';
         completedContainer.innerHTML = '';
         return;
     }
+    if (section) section.classList.remove('empty');
 
-    const now = new Date();
-    
-    // Group tournaments by status and date
-    const upcoming = userTournaments.filter(t => {
-        // Se è già marcato come completato o cancellato, non è upcoming
-        if (t.status === 'completed' || t.status === 'cancelled') {
-            return false;
-        }
-        
-        // Per i tornei D&D multi-sessione, considera solo lo status, non la data
-        if (t.category === 'dnd' || t.category === 'D&D') {
-            return t.status !== 'completed' && t.status !== 'cancelled';
-        }
-        
-        // Per gli altri tornei, considera la data di fine se disponibile, altrimenti la data di inizio
-        const endDate = t.end_date ? new Date(t.end_date) : new Date(t.start_date);
-        return endDate >= now;
-    }).sort((a, b) => {
-        // Ordina i tornei futuri: più vicini alla data odierna in alto
-        const dateA = new Date(a.start_date);
-        const dateB = new Date(b.start_date);
-        return dateA - dateB;
-    });
-    
-    const completed = userTournaments.filter(t => {
-        // Se è marcato come completato o cancellato, è completed
-        if (t.status === 'completed' || t.status === 'cancelled') {
-            return true;
-        }
-        
-        // Per i tornei D&D multi-sessione, considera solo lo status, non la data
-        if (t.category === 'dnd' || t.category === 'D&D') {
-            return false; // Solo status può determinare se è completato
-        }
-        
-        // Per gli altri tornei, considera la data di fine se disponibile, altrimenti la data di inizio
-        const endDate = t.end_date ? new Date(t.end_date) : new Date(t.start_date);
-        return endDate < now;
-    }).sort((a, b) => {
-        // Ordina i tornei passati: più recenti in alto
-        const dateA = new Date(a.start_date);
-        const dateB = new Date(b.start_date);
-        return dateB - dateA;
-    });
+    // Group tournaments by status
+    const upcoming = userTournaments.filter(t => t.status !== 'completed');
+    const completed = userTournaments.filter(t => t.status === 'completed');
 
     // Render upcoming tournaments
     if (upcoming.length > 0) {
@@ -625,14 +463,10 @@ function renderMyTournaments(userTournaments) {
 
         upcomingContainer.innerHTML = `
             <div style="margin-top: 2rem;">
-                <div class="timeline-section-divider">
-                    <div class="divider-line"></div>
-                    <div class="divider-title">
-                        <i class="fas fa-calendar-plus"></i>
-                        Tornei Futuri Prenotabili (${upcoming.length})
-                    </div>
-                    <div class="divider-line"></div>
-                </div>
+                <h3 style="color: var(--color-primary); margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-calendar-alt"></i>
+                    Tornei in Corso e Prossimi (${upcoming.length})
+                </h3>
                 <div class="tournaments-timeline">
                     ${upcomingCardsHTML}
                 </div>
@@ -669,14 +503,10 @@ function renderMyTournaments(userTournaments) {
 
         completedContainer.innerHTML = `
             <div style="margin-top: 3rem;">
-                <div class="timeline-section-divider">
-                    <div class="divider-line"></div>
-                    <div class="divider-title">
-                        <i class="fas fa-history"></i>
-                        Eventi Completati o Cancellati (${completed.length})
-                    </div>
-                    <div class="divider-line"></div>
-                </div>
+                <h3 style="color: var(--color-primary); margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-trophy"></i>
+                    Tornei Conclusi (${completed.length})
+                </h3>
                 <div class="tournaments-timeline">
                     ${completedCardsHTML}
                 </div>
@@ -709,26 +539,12 @@ function getTournamentThemeClass(tournament) {
     return theme;
 }
 
-async function createTournamentCard(tournament, isMyTournament = false) {
+function createTournamentCard(tournament, isMyTournament = false) {
     const card = document.createElement('div');
     card.className = getTournamentCardClasses(tournament);
     card.dataset.tournamentId = tournament.id;
 
     card.innerHTML = generateTournamentCardHTML(tournament, isMyTournament);
-
-    // Load D&D content asynchronously if it's a D&D campaign
-    if (tournament.category === 'dnd' && tournament.format === 'campaign') {
-        const dndContentContainer = card.querySelector(`#dnd-content-${tournament.id}`);
-        if (dndContentContainer) {
-            try {
-                const dndContent = await generateDnDContent(tournament);
-                dndContentContainer.innerHTML = dndContent;
-            } catch (error) {
-                console.error('Error loading D&D content:', error);
-                dndContentContainer.innerHTML = '<div style="color: #999; font-style: italic; padding: 1rem;">Errore nel caricamento dei dettagli della campagna</div>';
-            }
-        }
-    }
 
     return card;
 }
@@ -751,15 +567,6 @@ function getTournamentCardClasses(tournament) {
         classes += ' registered';
     }
 
-    // Add status-based classes
-    if (tournament.status === 'completed') {
-        classes += ' completed';
-    } else if (tournament.status === 'cancelled') {
-        classes += ' cancelled';
-    } else if (tournament.current_participants >= tournament.max_participants) {
-        classes += ' full';
-    }
-
     return classes;
 }
 
@@ -774,7 +581,6 @@ function generateTournamentCardHTML(tournament, isMyTournament) {
         <div class="tournament-date${isRecurring ? ' recurring' : ''}">
             <span class="day">${displayDate.day}</span>
             <span class="month">${displayDate.month}</span>
-            ${displayDate.showYear ? `<span class="year">${displayDate.year.toString().substr(-2)}</span>` : ''}
         </div>
 
         <!-- Tournament Header -->
@@ -888,17 +694,11 @@ function generateDnDTournamentDetails(tournament) {
     `;
 }
 
-async function generateDnDContent(tournament) {
-    // Fetch real character data from API
-    let characters = [];
-    try {
-        const response = await fetch(`/api/tournaments/${tournament.id}/characters`);
-        const data = await response.json();
-        if (data.success && data.data) {
-            characters = data.data;
-        }
-    } catch (error) {
-        console.error('Error fetching characters:', error);
+function generateDnDContent(tournament) {
+    // Parse party composition if it's a JSON string
+    let partyComposition = tournament.partyComposition || tournament.party_composition;
+    if (typeof partyComposition === 'string') {
+        try { partyComposition = JSON.parse(partyComposition); } catch { partyComposition = []; }
     }
 
     let safetyTools = tournament.dndSafetyTools || tournament.dnd_safety_tools || [];
@@ -910,7 +710,7 @@ async function generateDnDContent(tournament) {
     const requiredExp = tournament.required_experience || tournament.requiredExperience || '';
 
     const maxSlots = tournament.max_participants || tournament.maxParticipants || 5;
-    const emptySlotsCount = Math.max(0, maxSlots - characters.length);
+    const emptySlotsCount = Math.max(0, maxSlots - (Array.isArray(partyComposition) ? partyComposition.length : 0));
 
     return `
         <div class="dnd-campaign-info" style="margin: 1.5rem 0; padding: 1.5rem; background: var(--color-dnd-bg); border-radius: 12px; border: 2px solid var(--color-dnd);">
@@ -927,9 +727,18 @@ async function generateDnDContent(tournament) {
             <div class="campaign-section">
                 <h4><i class="fas fa-users"></i> Composizione Party</h4>
                 <div class="character-avatars">
-                            </div>
+                ${(partyComposition || []).map(ch => `
+                    <div class="character-avatar ${ch.leader ? 'party-leader' : ''}" onclick="showCharacterBio('${ch.id || ch.characterId || ch.name}')">
+                        <img src="${ch.avatar || '/images/avatars/default.png'}" alt="${ch.characterName || ch.name}" onerror="this.src='/images/avatars/default.png'" />
+                        ${ch.leader ? `<span class='crown'><i class="fas fa-crown"></i></span>` : ''}
+                        <div class="character-tooltip">
+                            <strong>${ch.accountName || ch.username || 'Giocatore'}</strong><br/>
+                            ${ch.characterName || ch.name || ''}<br/>
+                            <em>${ch.gender || ''}</em>
                         </div>
-                    `).join('')}
+                    </div>
+                `).join('')}
+
                     ${Array.from({ length: emptySlotsCount }).map(() => `
                         <div class="character-avatar empty-slot" onclick="showDnDRegistrationModal('${tournament.id}')">
                             <div class="empty-avatar"><i class="fas fa-plus"></i></div>
@@ -956,37 +765,13 @@ async function generateDnDContent(tournament) {
 
 function generateTournamentTags(tournament, isRegistered, isMyTournament) {
     const tags = [];
-    const isCompleted = tournament.status === 'completed';
-    const isCancelled = tournament.status === 'cancelled';
-    
-    // Per i tornei D&D, controlla anche la data se non è esplicitamente completato/cancellato
-    const now = new Date();
-    const endDate = tournament.end_date ? new Date(tournament.end_date) : new Date(tournament.start_date);
-    const isPastDate = (tournament.category !== 'dnd' && tournament.category !== 'D&D') && endDate < now;
-    const isTournamentCompleted = isCompleted || isCancelled || isPastDate;
 
-    // Solo per tornei attivi: mostra tag "Iscritto" e badge posti disponibili/completo
-    if (isRegistered && !isTournamentCompleted) {
+    if (isRegistered) {
         tags.push('<span class="tag registered"><i class="fas fa-user-check"></i> Iscritto</span>');
     }
 
     if (tournament.status === 'ongoing') {
         tags.push('<span class="tag ongoing"><i class="fas fa-play"></i> In Corso</span>');
-    }
-    
-    // Mostra badge posti disponibili/completo solo per tornei attivi
-    if (!isTournamentCompleted && !isCancelled) {
-        const isFull = tournament.current_participants >= tournament.max_participants;
-        if (isFull) {
-            tags.push('<span class="tag full"><i class="fas fa-users-slash"></i> Completo</span>');
-        } else {
-            const availableSpots = tournament.max_participants - tournament.current_participants;
-            if (availableSpots <= 3) {
-                tags.push(`<span class="tag almost-full"><i class="fas fa-clock"></i> ${availableSpots} posti rimasti</span>`);
-            } else {
-                tags.push('<span class="tag available"><i class="fas fa-check-circle"></i> Posti disponibili</span>');
-            }
-        }
     }
 
     if (tournament.category) {
@@ -997,15 +782,21 @@ function generateTournamentTags(tournament, isRegistered, isMyTournament) {
 }
 
 function generateTournamentActions(tournament, isRegistered, isAuthenticated, isMyTournament) {
+    // D&D: pulsanti speciali
+    if (tournament.category === 'dnd') {
+        if (!isAuthenticated) {
+            return `
+            <div class="tournament-actions">
+                <button class="btn btn-primary" onclick="showAuthPrompt()">
+                    <i class="fas fa-user-plus"></i>
+                    Accedi per Iscriverti
                 </button>
                 <button class="btn btn-secondary" onclick="showCampaignInfo('${tournament.id}')">
                     <i class="fas fa-scroll"></i>
                     Info Campagna
                 </button>
-            </div>
-        `;
+            </div>`;
         }
-
         if (isRegistered) {
             return `
             <div class="tournament-actions">
@@ -1017,84 +808,76 @@ function generateTournamentActions(tournament, isRegistered, isAuthenticated, is
                     <i class="fas fa-scroll"></i>
                     Info Campagna
                 </button>
-            </div>
-        `;
+            </div>`;
         }
-
         return `
         <div class="tournament-actions">
+            <button class="btn btn-primary" onclick="showDnDRegistrationModal('${tournament.id}')">
+                <i class="fas fa-user-plus"></i>
+                Richiedi Accesso
             </button>
             <button class="btn btn-secondary" onclick="showCampaignInfo('${tournament.id}')">
                 <i class="fas fa-scroll"></i>
                 Info Campagna
             </button>
-        </div>
-        `;
-    }
-        return `
-            <div class="tournament-actions">
-                <button class="btn btn-secondary" onclick="openTournamentModal('${tournament.id}')">
-                    <i class="fas fa-info-circle"></i>
-                    Informazioni
-                </button>
-                <button class="btn btn-danger disabled" disabled>
-                    <i class="fas fa-ban"></i>
-                    Torneo Cancellato
-                </button>
-            </div>
-        `;
+        </div>`;
     }
 
-    // Not authenticated users
-    if (!isAuthenticated) {
+    // Torneo concluso: solo info
+    if (tournament.status === 'completed') {
         return `
-            <div class="tournament-actions">
-                <button class="btn btn-secondary" onclick="openTournamentModal('${tournament.id}')">
-                    <i class="fas fa-info-circle"></i>
-                    Informazioni
-                </button>
-                <button class="btn ${(isFull || isRegistrationClosed) ? 'btn-primary disabled' : 'btn-primary'}" 
-                        ${(isFull || isRegistrationClosed) ? 'disabled' : ''} 
-                        ${(isFull || isRegistrationClosed) ? '' : 'onclick="showAuthPrompt()"'}>
-                    <i class="fas fa-user-plus"></i>
-                    ${isFull ? 'Al Completo' : isRegistrationClosed ? 'Iscrizioni Chiuse' : 'Accedi per Iscriverti'}
-                </button>
-            </div>
-        `;
-    }
-
-    // Already registered users
-    if (isRegistered) {
-        return `
-            <div class="tournament-actions">
-                <button class="btn btn-secondary" onclick="openTournamentModal('${tournament.id}')">
-                    <i class="fas fa-info-circle"></i>
-                    Informazioni
-                </button>
-                <button class="btn btn-danger" onclick="unregisterFromTournament('${tournament.id}')">
-                    <i class="fas fa-times"></i>
-                    Cancella Iscrizione
-                </button>
-            </div>
-        `;
-    }
-
-    // Default case for authenticated users who can register
-    return `
         <div class="tournament-actions">
             <button class="btn btn-secondary" onclick="openTournamentModal('${tournament.id}')">
                 <i class="fas fa-info-circle"></i>
                 Informazioni
             </button>
-            <button class="btn ${(isFull || isRegistrationClosed) ? 'btn-primary disabled' : 'btn-primary'}" 
-                    ${(isFull || isRegistrationClosed) ? 'disabled' : ''} 
-                    ${(isFull || isRegistrationClosed) ? '' : `onclick="registerForTournament('${tournament.id}')"`}>
-                <i class="fas fa-plus"></i>
-                ${isFull ? 'Al Completo' : isRegistrationClosed ? 'Iscrizioni Chiuse' : 'Iscriviti'}
+        </div>`;
+    }
+
+    // Utente non autenticato
+    if (!isAuthenticated) {
+        return `
+        <div class="tournament-actions">
+            <button class="btn btn-secondary" onclick="openTournamentModal('${tournament.id}')">
+                <i class="fas fa-info-circle"></i>
+                Informazioni
             </button>
-        </div>
-    `;
+            <button class="btn btn-primary" onclick="showAuthPrompt()">
+                <i class="fas fa-user-plus"></i>
+                Accedi per Iscriverti
+            </button>
+        </div>`;
+    }
+
+    // Utente registrato
+    if (isRegistered) {
+        return `
+        <div class="tournament-actions">
+            <button class="btn btn-secondary" onclick="openTournamentModal('${tournament.id}')">
+                <i class="fas fa-info-circle"></i>
+                Informazioni
+            </button>
+            <button class="btn btn-danger" onclick="unregisterFromTournament('${tournament.id}')">
+                <i class="fas fa-times"></i>
+                Cancella Iscrizione
+            </button>
+        </div>`;
+    }
+
+    // Default
+    return `
+    <div class="tournament-actions">
+        <button class="btn btn-secondary" onclick="openTournamentModal('${tournament.id}')">
+            <i class="fas fa-info-circle"></i>
+            Informazioni
+        </button>
+        <button class="btn btn-primary" onclick="registerForTournament('${tournament.id}')">
+            <i class="fas fa-plus"></i>
+            Iscriviti
+        </button>
+    </div>`;
 }
+
 
 // ==========================================
 // UTILITY FUNCTIONS
@@ -1275,28 +1058,85 @@ window.showAllTournaments = function(element = null) {
 
 window.showMyTournaments = function(element = null) {
     if (element) {
-        // Update toggle buttons
         document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
         element.classList.add('active');
     }
 
-    // Show/hide sections
+    const mySection = document.getElementById('myTournamentsSection');
     document.getElementById('allTournamentsSection').classList.remove('active');
     document.getElementById('myTournamentsSection').classList.add('active');
     document.getElementById('createTournamentSection').classList.remove('active');
-
     tournamentState.currentView = 'my';
 
-    // Load user tournaments if authenticated
     if (window.SimpleAuth && window.SimpleAuth.isAuthenticated) {
+        mySection.classList.add('active');
+        mySection.classList.remove('empty');
         loadUserTournaments();
     } else {
-        showAuthPromptInMyTournaments();
+        mySection.classList.remove('active');
+        mySection.classList.add('empty');
     }
 
     console.log('👤 Showing my tournaments');
 };
 
+window.showCreateTournament = function(element = null) {
+    if (element) {
+        document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+        element.classList.add('active');
+    }
+
+    document.getElementById('allTournamentsSection').classList.remove('active');
+    document.getElementById('myTournamentsSection').classList.remove('active');
+    document.getElementById('createTournamentSection').classList.add('active');
+
+    tournamentState.currentView = 'create';
+    renderCreateTournamentForm();
+};
+
+window.registerForTournament = async function(tournamentId, buttonElement = null) {
+    const token = localStorage.getItem('authToken') || localStorage.getItem('accessToken');
+    if (!window.SimpleAuth || !window.SimpleAuth.isAuthenticated || !token) {
+        showAuthPrompt();
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/tournaments/${tournamentId}/register`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.status === 401) {
+            showAuthPrompt();
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+            showNotification(data.message, 'success');
+            tournamentState.registeredTournaments.add(parseInt(tournamentId));
+            updateTournamentState(tournamentId, 'register');
+
+            // Show success modal
+            showRegistrationSuccessModal(tournamentId);
+
+            // Reload user tournaments if in my tournaments view
+            if (tournamentState.currentView === 'my') {
+                await loadUserTournaments();
+            }
+        } else {
+            showNotification(data.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error registering for tournament:', error);
+        showNotification('Errore durante la registrazione', 'error');
+    }
+};
 
 window.unregisterFromTournament = async function(tournamentId) {
     try {
@@ -1328,11 +1168,25 @@ window.unregisterFromTournament = async function(tournamentId) {
     }
 };
 
-window.showDnDRegistrationModal = function(tournamentId) {
+window.showDnDRegistrationModal = async function(tournamentId) {
     if (!window.SimpleAuth || !window.SimpleAuth.isAuthenticated) {
         showAuthPrompt();
         return;
     }
+
+    try {
+        const token = localStorage.getItem('authToken') || localStorage.getItem('accessToken');
+
+        // Fetch tournament and participants data
+        const [tRes, pRes] = await Promise.all([
+            fetch(`/api/tournaments/${tournamentId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            }),
+            fetch(`/api/tournaments/${tournamentId}/participants`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+        ]);
+
         const tData = await tRes.json();
         const pData = pRes.ok ? await pRes.json() : { success: false };
 
@@ -1547,7 +1401,7 @@ window.showGameInfo = function(category, gameName = null, difficulty = null, min
         'strategy': 'Perfetto per chi ama la strategia con una curva accessibile ma profonda!',
         'party': 'Ideale per gruppi numerosi che vogliono ridere e rompere il ghiaccio!',
         'card': 'Consigliato a chi ama combo e decisioni rapide con un pizzico di fortuna!',
-        'dnd': 'Ottimo per immergersi in storie epiche e vivere avventure con gli amici!',
+        'dnd': 'Ottimo per immergersi in storie epiche e vivere avventure con, o senza, esperienza pregressa.',
         'racing': 'Partite rapide e adrenaliniche: perfetto tra un drink e l’altro!',
         'puzzle': 'Per chi adora costruire e ottimizzare senza troppo conflitto diretto.'
     };
@@ -1642,7 +1496,7 @@ window.showGameInfo = function(category, gameName = null, difficulty = null, min
     document.body.classList.add('modal-open');
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(modal); });
 };
-                </h2>
+                `</h2>
                 <button class="modal-close" onclick="closeModal(this.closest('.modal'))" style="color: white;">
                     <i class="fas fa-times"></i>
                 </button>
@@ -1670,113 +1524,12 @@ window.showGameInfo = function(category, gameName = null, difficulty = null, min
     document.getElementById('modalContainer').appendChild(modal);
     document.body.classList.add('modal-open');
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(modal); });
-};
 
 window.showAuthPrompt = function() {
     if (window.SimpleAuth && window.SimpleAuth.showLoginModal) {
         window.SimpleAuth.showLoginModal();
     } else {
         showNotification('Effettua il login per accedere a questa funzione', 'info');
-    }
-};
-
-window.registerForTournament = async function(tournamentId) {
-    try {
-        if (!window.SimpleAuth || !window.SimpleAuth.isAuthenticated) {
-            showAuthPrompt();
-            return;
-        }
-
-        const token = localStorage.getItem('authToken') || localStorage.getItem('accessToken');
-        if (!token) {
-            showAuthPrompt();
-            return;
-        }
-
-        showNotification('Iscrizione in corso...', 'info');
-        
-        const response = await fetch(`/api/tournaments/${tournamentId}/register`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const data = await response.json();
-        
-        if (response.ok && data.success !== false) {
-            if (data.data && data.data.isWaitlist) {
-                showNotification(`Aggiunto alla lista d'attesa (posizione ${data.data.position})`, 'success');
-            } else {
-                showNotification('Iscrizione completata con successo!', 'success');
-            }
-            
-            // Aggiorna lo stato della registrazione
-            tournamentState.registeredTournaments.add(parseInt(tournamentId));
-            updateTournamentState(tournamentId, 'register');
-            
-            // Ricarica i tornei per aggiornare i dati
-            await loadAllTournaments();
-            
-            // Se siamo nella vista "I miei tornei", ricarica anche quella
-            if (tournamentState.currentView === 'my') {
-                await loadUserTournaments();
-            }
-        } else {
-            showNotification(data.message || 'Errore durante l\'iscrizione', 'error');
-        }
-        
-    } catch (error) {
-        console.error('Error registering for tournament:', error);
-        showNotification('Errore durante l\'iscrizione al torneo', 'error');
-    }
-};
-
-window.unregisterFromTournament = async function(tournamentId) {
-    try {
-        if (!window.SimpleAuth || !window.SimpleAuth.isAuthenticated) {
-            showAuthPrompt();
-            return;
-        }
-
-        const token = localStorage.getItem('authToken') || localStorage.getItem('accessToken');
-        if (!token) {
-            showAuthPrompt();
-            return;
-        }
-
-        const confirmed = confirm('Sei sicuro di voler cancellare la tua iscrizione a questo torneo?');
-        if (!confirmed) return;
-
-        showNotification('Cancellazione in corso...', 'info');
-        
-        const response = await fetch(`/api/tournaments/${tournamentId}/register`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const data = await response.json();
-        
-        if (response.ok && data.success !== false) {
-            showNotification('Iscrizione cancellata con successo', 'success');
-            
-            // Aggiorna lo stato della registrazione
-            tournamentState.registeredTournaments.delete(parseInt(tournamentId));
-            updateTournamentState(tournamentId, 'unregister');
-            
-            // Ricarica i tornei per aggiornare i dati
-            await loadAllTournaments();
-        } else {
-            showNotification(data.message || 'Errore durante la cancellazione', 'error');
-        }
-        
-    } catch (error) {
-        console.error('Error unregistering from tournament:', error);
-        showNotification('Errore durante la cancellazione dell\'iscrizione', 'error');
     }
 };
 
@@ -2173,18 +1926,91 @@ function createTournamentModal(tournament, participants = []) {
 }
 
 function initializeUserProfile() {
-    // Load dynamic user badges and statistics from database
-    loadUserBadges();
-    loadUserStats();
+    // Initialize user badges (following original HTML)
+    const badgesContainer = document.getElementById('userBadges');
+    if (badgesContainer) {
+        badgesContainer.innerHTML = `
+            <div class="badge-item">
+                <div class="badge-icon">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <div class="badge-info">
+                    <h4>Il Conquistatore</h4>
+                    <p>Ha vinto 5 tornei consecutivi di strategia nel 2024</p>
+                </div>
+            </div>
+            <div class="badge-item">
+                <div class="badge-icon">
+                    <i class="fas fa-dice-d20"></i>
+                </div>
+                <div class="badge-info">
+                    <h4>Master del D&D</h4>
+                    <p>Ha completato 3 campagne complete come party leader</p>
+                </div>
+            </div>
+            <div class="badge-item">
+                <div class="badge-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="badge-info">
+                    <h4>Animatore Social</h4>
+                    <p>Ha organizzato più di 10 serate di gioco per il locale</p>
+                </div>
+            </div>
+            <div class="badge-item">
+                <div class="badge-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="badge-info">
+                    <h4>Veterano</h4>
+                    <p>Cliente fedele da oltre 2 anni</p>
+                </div>
+            </div>
+        `;
+    }
+
+    // Initialize user stats (following original HTML)
+    const statsContainer = document.getElementById('userStats');
+    if (statsContainer) {
+        const registeredCount = tournamentState.registeredTournaments.size;
+        statsContainer.innerHTML = `
+            <div class="stat-card">
+                <div class="stat-number">${registeredCount}</div>
+                <div class="stat-label">Tornei Attivi</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">23</div>
+                <div class="stat-label">Tornei Giocati</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">7</div>
+                <div class="stat-label">Vittorie</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">95%</div>
+                <div class="stat-label">Tasso Partecipazione</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">4.8</div>
+                <div class="stat-label">Rating Medio</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">156h</div>
+                <div class="stat-label">Ore di Gioco</div>
+            </div>
+        `;
+    }
 }
 
 function showAuthPromptInMyTournaments() {
+    const section = document.getElementById('myTournamentsSection');
     const upcomingContainer = document.getElementById('upcomingTournaments');
     const completedContainer = document.getElementById('completedTournaments');
     // Hide profile header when not authenticated
     const header = document.querySelector('.user-profile-header');
     if (header) header.style.display = 'none';
 
+    if (section) section.classList.add('empty');
     const authPromptHTML = `
         <div style="margin-top: 2rem;">
             <div class="auth-prompt">

@@ -155,13 +155,13 @@ window.SimpleAuth = {
     async checkAuthStatus() {
         const token = localStorage.getItem(AUTH_CONFIG.STORAGE_KEY);
 
-        if (!token) {
-            this.isAuthenticated = false;
-            this.updateUI();
-            return;
-        }
-
         try {
+            if (!token) {
+                this.isAuthenticated = false;
+                this.updateUI();
+                return;
+            }
+
             const response = await fetch(`${AUTH_CONFIG.API_BASE}/me`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -175,12 +175,23 @@ window.SimpleAuth = {
                 this.currentUser = data.user;
                 console.log('✅ Utente autenticato:', this.currentUser.email);
                 this.updateUI();
+                // Dispatch login event to notify other modules
+                document.dispatchEvent(new CustomEvent('userLoggedIn', { detail: this.currentUser }));
             } else {
-                this.logout();
+                await this.logout();
             }
         } catch (error) {
             console.error('❌ Errore verifica auth:', error);
-            this.logout();
+            await this.logout();
+        } finally {
+            // Signal that the authentication check is complete
+            console.log('🚀 Dispatching authStatusReady event');
+            document.dispatchEvent(new CustomEvent('authStatusReady', {
+                detail: {
+                    isAuthenticated: this.isAuthenticated,
+                    currentUser: this.currentUser
+                }
+            }));
         }
     },
 
@@ -190,7 +201,7 @@ window.SimpleAuth = {
             if (this.isAuthenticated) {
                 profileIcon.style.color = '#4CAF50';
                 profileIcon.title = `Loggato come ${this.currentUser?.first_name || 'Utente'}`;
-                
+
                 // Carica avatar nella navbar dopo un breve delay
                 setTimeout(() => {
                     this.updateNavbarProfileButton();
@@ -336,7 +347,7 @@ showProfile() {
 
     showBookings() {
         console.log('📋 Navigazione alla pagina prenotazioni utente...');
-        
+
         // Carica direttamente il modulo - approccio più semplice e affidabile
         this.loadBookingsPage();
     },
@@ -344,27 +355,27 @@ showProfile() {
     async loadBookingsPage() {
         try {
             console.log('🔄 Caricamento modulo prenotazioni...');
-            
+
             // Cambia l'URL senza ricaricare la pagina
             if (window.history && window.history.pushState) {
                 window.history.pushState({}, '', '/prenotazioni-utente');
             }
-            
+
             // Cambia il titolo della pagina
             document.title = 'Le Mie Prenotazioni - Dice & Drink';
-            
+
             // Importa e carica il modulo
             const module = await import('./pages/user-bookings.js');
             await module.showUserBookings();
-            
+
             console.log('✅ Pagina prenotazioni caricata con successo');
-            
+
         } catch (error) {
             console.error('❌ Errore caricamento pagina prenotazioni:', error);
-            
+
             // Mostra errore user-friendly
             let content = document.getElementById('content');
-            
+
             // Fallback: se #content non esiste, prova a crearlo
             if (!content) {
                 const app = document.getElementById('app');
@@ -376,7 +387,7 @@ showProfile() {
                     console.log('✅ Container #content creato come fallback in auth-system');
                 }
             }
-            
+
             if (content) {
                 content.innerHTML = `
                     <div class="error-page" style="
@@ -582,7 +593,7 @@ showProfile() {
 
             console.log('✅ Logout completato');
             NotificationSystem.showLogout();
-            
+
             // Redirect automatico alla home se si è in una pagina riservata
             this.redirectToHomeIfRestricted();
         }
@@ -591,10 +602,10 @@ showProfile() {
     redirectToHomeIfRestricted() {
         const currentPath = window.location.pathname;
         const restrictedPaths = ['/prenotazioni-utente', '/dashboard', '/profile'];
-        
+
         if (restrictedPaths.includes(currentPath)) {
             console.log('🏠 Redirect automatico alla home dopo logout da pagina riservata');
-            
+
             // Usa Page.js se disponibile, altrimenti window.location
             if (window.page) {
                 window.page('/');
@@ -632,8 +643,8 @@ showProfile() {
                 const cacheBuster = `?t=${Date.now()}`;
 
                 avatarContainer.innerHTML = `
-                    <img src="${avatarUrl}${cacheBuster}" 
-                         alt="Avatar profilo" 
+                    <img src="${avatarUrl}${cacheBuster}"
+                         alt="Avatar profilo"
                          style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover;" />
                 `;
 
@@ -664,11 +675,11 @@ showProfile() {
 
                 // Sostituisce l'icona con l'immagine avatar
                 profileButton.innerHTML = `
-                    <img src="${avatarUrl}${cacheBuster}" 
-                         alt="Il tuo profilo" 
+                    <img src="${avatarUrl}${cacheBuster}"
+                         alt="Il tuo profilo"
                          style="width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-primary);" />
                 `;
-                
+
                 profileButton.title = 'Il tuo profilo';
                 console.log('✅ Avatar navbar aggiornato:', avatarUrl);
             }
@@ -679,7 +690,7 @@ showProfile() {
 };
 
 // ==========================================
-// CLASSE MODALE GRAFICA 
+// CLASSE MODALE GRAFICA
 // ==========================================
 
 class AuthModal {
@@ -744,8 +755,8 @@ class AuthModal {
                 <!-- SEZIONE SINISTRA: CARD CON LOGO -->
                 <div class="auth-modal-left">
                     <div class="image-wrapper">
-                        <img src="/assets/Logo.png" 
-                             alt="Dice&Drink Logo" 
+                        <img src="/assets/Logo.png"
+                             alt="Dice&Drink Logo"
                              class="background-img"
                              onerror="this.style.display='none'; this.parentNode.classList.add('no-image');" />
                         <div class="overlay-text">
