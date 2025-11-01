@@ -2,3 +2,9 @@ node_modules/
 .DS_Store
 .env
 dist/
+
+# logs e db
+server.log
+dice_drink.db
+*.log
+*.db
