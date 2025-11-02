@@ -223,7 +223,7 @@ ls -la dice_drink.db
 Il database SQLite è già incluso con dati demo. Per rigenerarlo:
 
 ```bash
-# Inizializzazione database completa
+# Inizializzazione database completa (solo per ambiente locale)
 node initGamesDb.js
 node initDrinksDb.js
 node initSnacksDb.js
@@ -231,6 +231,12 @@ node initTournamentsDb.js
 node initUsersDb.js
 node initUserStatsDb.js
 ```
+
+### 🌐 Deploy Frontend su GitHub Pages
+
+- Il workflow `.github/workflows/deploy-pages.yml` pubblica automaticamente la cartella `public/` su Pages ad ogni push su `main`.
+- Se ti serve puntare il frontend a un backend esterno, aggiorna `public/js/config.js` (campo `API_BASE`) oppure definisci `window.GLOBAL_API_BASE` prima del caricamento di `config.js` in `index.html`.
+- In assenza del backend, i dati mock (`public/data/mock-*.json`) mantengono navigabile il catalogo su Pages.
 
 ### 🚀 Avvio Applicazione
 
@@ -256,6 +262,9 @@ Crea un file `.env` nella root del progetto:
 # Configurazione Server
 PORT=3000
 NODE_ENV=development
+CORS_ORIGINS=http://localhost:3000,https://<username>.github.io
+# Imposta a "false" quando il frontend è servito da GitHub Pages
+SERVE_STATIC=true
 
 # Database
 DB_PATH=./dice_drink.db

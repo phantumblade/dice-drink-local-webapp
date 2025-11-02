@@ -38,9 +38,9 @@ const CATALOG_CONFIG = {
 const IMAGE_CONFIG = {
     // IMMAGINI LOCALI DI DEFAULT
     LOCAL_DEFAULTS: {
-        games: '/assets/defaults/default-game.jpg',
-        drinks: '/assets/defaults/default-drink.png',
-        snacks: '/assets/defaults/default-snack.png'
+        games: 'assets/defaults/default-game.jpg',
+        drinks: 'assets/defaults/default-drink.png',
+        snacks: 'assets/defaults/default-snack.png'
     },
 
     // FALLBACK FINALE (SVG se mancano anche i default)
@@ -99,7 +99,7 @@ function setupLocalImageFallback(element, category) {
     const originalUrl = urlMatch[1];
 
     // Se è già un fallback locale o CSS, skip
-    if (originalUrl.includes('/assets/defaults/') || originalUrl.startsWith('data:image/svg')) {
+    if (originalUrl.includes('assets/defaults/') || originalUrl.startsWith('data:image/svg')) {
         return;
     }
 
@@ -2558,7 +2558,7 @@ createCartCategoryHTML(category, title, icon) {
     // ==========================================
 
     populateGameModal(game, modalImage, modalTitle, modalDescription, modalStats, modalActionBtn) {
-        const imageUrl = game.imageUrl || '/assets/games/default.jpg';
+        const imageUrl = game.imageUrl || 'assets/games/default.jpg';
 
         modalImage.style.backgroundImage = `url('${imageUrl}')`;
         modalTitle.textContent = game.name;
@@ -2595,7 +2595,7 @@ createCartCategoryHTML(category, title, icon) {
     }
 
     populateDrinkModal(drink, modalImage, modalTitle, modalDescription, modalStats, modalActionBtn) {
-        modalImage.style.backgroundImage = `url('${drink.imageUrl || '/assets/drinks/default.jpg'}')`;
+        modalImage.style.backgroundImage = `url('${drink.imageUrl || 'assets/drinks/default.jpg'}')`;
         modalTitle.textContent = drink.name;
         modalDescription.textContent = drink.description;
 
@@ -2630,7 +2630,7 @@ createCartCategoryHTML(category, title, icon) {
     }
 
     populateSnackModal(snack, modalImage, modalTitle, modalDescription, modalStats, modalActionBtn) {
-        modalImage.style.backgroundImage = `url('${snack.imageUrl || '/assets/snacks/default.jpg'}')`;
+        modalImage.style.backgroundImage = `url('${snack.imageUrl || 'assets/snacks/default.jpg'}')`;
         modalTitle.textContent = snack.name;
         modalDescription.textContent = snack.description;
 

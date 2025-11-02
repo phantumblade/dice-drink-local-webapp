@@ -1,24 +1,40 @@
 const express = require('express');
-const path = require('path');
+const cors = require('cors');
 const openDb = require('./db');
 
 async function init() {
   const app = express();
   const port = process.env.PORT || 3000;
 
-
   app.use(express.json());
 
-app.use(express.static('public', {
-  setHeaders: (res, path, stat) => {
-    if (path.endsWith('.js')) {
-      res.set('Content-Type', 'application/javascript; charset=utf-8');
-    }
-    if (path.endsWith('.css')) {
-      res.set('Content-Type', 'text/css; charset=utf-8');
-    }
+  const allowedOrigins = (process.env.CORS_ORIGINS || '')
+    .split(',')
+    .map(o => o.trim())
+    .filter(Boolean);
+
+  app.use(cors({
+    origin(origin, callback) {
+      if (!origin || !allowedOrigins.length || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('Origin not allowed by CORS'));
+    },
+    credentials: true
+  }));
+
+  if (process.env.SERVE_STATIC !== 'false') {
+    app.use(express.static('public', {
+      setHeaders: (res, assetPath) => {
+        if (assetPath.endsWith('.js')) {
+          res.set('Content-Type', 'application/javascript; charset=utf-8');
+        }
+        if (assetPath.endsWith('.css')) {
+          res.set('Content-Type', 'text/css; charset=utf-8');
+        }
+      }
+    }));
   }
-}));
 
 
   // GAMES API - Routes per giochi da tavolo

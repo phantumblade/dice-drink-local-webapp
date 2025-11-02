@@ -1,0 +1,28 @@
+{
+  "games": [
+    {
+      "id": 1,
+      "name": "Catan",
+      "description": "Classico gestionale di sviluppo su isola, grande per famiglie e gruppi di amici.",
+      "minPlayers": 3,
+      "maxPlayers": 4,
+      "rentalPrice": 8.0,
+      "durationMinutes": 90,
+      "difficultyLevel": 2,
+      "category": "Strategia",
+      "imageUrl": "assets/games/default.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Wingspan",
+      "description": "Strategico gestionale card-driven ambientato sul birdwatching.",
+      "minPlayers": 1,
+      "maxPlayers": 5,
+      "rentalPrice": 9.0,
+      "durationMinutes": 75,
+      "difficultyLevel": 3,
+      "category": "Gestionale",
+      "imageUrl": "assets/games/default.jpg"
+    }
+  ]
+}

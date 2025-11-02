@@ -1,0 +1,22 @@
+{
+  "drinks": [
+    {
+      "id": 1,
+      "name": "Gin Tonic Botanico",
+      "description": "Gin premium infuso con botaniche mediterranee, servito con tonica artigianale.",
+      "isAlcoholic": true,
+      "baseSpirit": "gin",
+      "price": 8.5,
+      "imageUrl": "assets/drinks/default.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Cooler Analcolico Lime & Basilico",
+      "description": "Drink fresco lime e basilico, analcolico ma ricco di gusto.",
+      "isAlcoholic": false,
+      "baseSpirit": "limonata",
+      "price": 5.0,
+      "imageUrl": "assets/drinks/default.jpg"
+    }
+  ]
+}

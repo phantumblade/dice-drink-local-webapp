@@ -1,0 +1,26 @@
+{
+  "snacks": [
+    {
+      "id": 1,
+      "name": "Tagliere Formaggi & Confetture",
+      "description": "Selezione di formaggi lombardi con confetture artigianali e focaccia.",
+      "isSweet": false,
+      "mainIngredient": "formaggio",
+      "price": 7.5,
+      "suggestedGame": "Party game",
+      "suggestedDrink": "Gin Tonic Botanico",
+      "imageUrl": "assets/snacks/default.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Mini Brownies al Cioccolato",
+      "description": "Brownies mignon al fondente belga, perfetti per una pausa dolce.",
+      "isSweet": true,
+      "mainIngredient": "cioccolato",
+      "price": 5.5,
+      "suggestedGame": "Giochi cooperativi",
+      "suggestedDrink": "Cooler Analcolico Lime & Basilico",
+      "imageUrl": "assets/snacks/default.jpg"
+    }
+  ]
+}

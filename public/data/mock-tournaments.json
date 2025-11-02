@@ -1,0 +1,19 @@
+{
+  "tournaments": [
+    {
+      "id": 101,
+      "title": "Coppa Strategia Primavera",
+      "description": "Torneo a eliminazione dedicato ai giochi di strategia moderni.",
+      "start_date": "2025-05-10",
+      "start_time": "18:30",
+      "max_participants": 16,
+      "current_participants": 10,
+      "entry_fee": 12.0,
+      "prize_pool": 120.0,
+      "format": "elimination",
+      "category": "strategy",
+      "status": "upcoming",
+      "image_url": "assets/games/default.jpg"
+    }
+  ]
+}
