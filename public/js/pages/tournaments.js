@@ -334,7 +334,7 @@ async function fetchAndSyncUserDetails(userId) {
 async function loadAllTournaments() {
     try {
         console.log('📡 Fetching tournaments from API...');
-        const response = await fetch('/api/tournaments?orderBy=start_date&orderDir=ASC');
+        const response = await apiFetch('/api/tournaments?orderBy=start_date&orderDir=ASC');
 
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -363,7 +363,7 @@ async function loadUserTournaments() {
     }
 
     try {
-        const response = await fetch('/api/tournaments/user/my', {
+        const response = await apiFetch('/api/tournaments/user/my', {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('accessToken') || localStorage.getItem('authToken')}`
             }
@@ -1552,7 +1552,7 @@ window.changeAvatar = async function() {
             return;
         }
 
-        const res = await fetch('/api/users/avatars/list', { headers: { 'Authorization': `Bearer ${token}` } });
+        const res = await apiFetch('/api/users/avatars/list', { headers: { 'Authorization': `Bearer ${token}` } });
         if (!res.ok) {
             showNotification('Impossibile caricare gli avatar disponibili', 'error');
             return;
@@ -1741,7 +1741,7 @@ async function handleCreateTournamentSubmit(e) {
     }
 
     try {
-        const res = await fetch('/api/tournaments', {
+        const res = await apiFetch('/api/tournaments', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,

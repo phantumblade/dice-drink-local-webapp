@@ -1,4 +1,4 @@
-import page from "//unpkg.com/page/page.mjs";
+import page from 'https://unpkg.com/page/page.mjs';
 
 import { createNavbar } from './components/navbar.js';
 import { buildFooter } from './components/footer.js';

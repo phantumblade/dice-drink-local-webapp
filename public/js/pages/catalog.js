@@ -210,7 +210,7 @@ class CatalogPageManager {
 
         this.cart = this.loadCartFromStorage();
         this.globalEventsBound = false;
-        
+
         // Validazione struttura carrello
         this.validateCartStructure();
 
@@ -219,7 +219,7 @@ class CatalogPageManager {
         this.isEditingBooking = false;
         this.editContext = null;
     }
-    
+
     // ==========================================
     // MODALITÀ EDITING PRENOTAZIONE
     // ==========================================
@@ -227,14 +227,14 @@ class CatalogPageManager {
         this.isEditingBooking = true;
         this.editContext = editContext;
         console.log('📝 Attivata modalità editing prenotazione:', editContext);
-        
+
         // Personalizza l'interfaccia per l'editing
         this.customizeForEditing();
-        
+
         // Forza ricreazione carrello per applicare stili editing
         this.refreshCartForEditing();
     }
-    
+
     refreshCartForEditing() {
         const cartBox = document.getElementById('catalog-cart-box');
         if (cartBox && this.isAuthenticated) {
@@ -244,17 +244,17 @@ class CatalogPageManager {
             this.updateCartUI();
         }
     }
-    
+
     customizeForEditing() {
         if (!this.isEditingBooking || !this.editContext) return;
-        
+
         // Mostra notifica di editing
         this.showEditingNotification();
-        
+
         // Personalizza il carrello per l'editing
         this.customizeCartForEditing();
     }
-    
+
     showEditingNotification() {
         // Controlla se la notifica esiste già
         const existingNotification = document.querySelector('.editing-notification');
@@ -262,20 +262,20 @@ class CatalogPageManager {
             console.log('⚠️ Notifica editing già presente, skip');
             return;
         }
-        
+
         if (!this.editContext) {
             console.log('⚠️ Nessun context editing, skip notifica');
             return;
         }
-        
+
         const editType = this.editContext.editType || 'prodotti';
         const bookingDate = this.editContext.bookingDate || 'N/A';
-        
+
         setTimeout(() => {
             // Doppio controllo per evitare race conditions
             const existingCheck = document.querySelector('.editing-notification');
             if (existingCheck) return;
-            
+
             const notification = document.createElement('div');
             notification.className = 'editing-notification';
             notification.innerHTML = `
@@ -291,14 +291,14 @@ class CatalogPageManager {
                     </button>
                 </div>
             `;
-            
+
             const content = document.getElementById('content');
             if (content && content.firstChild) {
                 content.insertBefore(notification, content.firstChild);
             }
         }, 500);
     }
-    
+
     customizeCartForEditing() {
         // Invece di modificare la struttura del carrello, usiamo proprietà separate
         // per evitare di corrompere la struttura degli array
@@ -354,10 +354,10 @@ class CatalogPageManager {
             snacks: []
         };
     }
-    
+
     validateCartStructure() {
         const validCategories = ['games', 'drinks', 'snacks'];
-        
+
         // Assicurati che il carrello sia un oggetto
         if (typeof this.cart !== 'object' || this.cart === null) {
             console.warn('⚠️ Carrello corrotto, ripristino struttura base');
@@ -368,7 +368,7 @@ class CatalogPageManager {
             };
             return;
         }
-        
+
         // Assicurati che tutte le categorie siano array
         validCategories.forEach(category => {
             if (!Array.isArray(this.cart[category])) {
@@ -376,7 +376,7 @@ class CatalogPageManager {
                 this.cart[category] = [];
             }
         });
-        
+
         // Rimuovi proprietà non valide che possono causare errori
         Object.keys(this.cart).forEach(key => {
             if (!validCategories.includes(key)) {
@@ -384,7 +384,7 @@ class CatalogPageManager {
                 delete this.cart[key];
             }
         });
-        
+
         console.log('✅ Struttura carrello validata');
     }
 
@@ -469,7 +469,7 @@ class CatalogPageManager {
     clearCart() {
         // Svuota completamente il carrello
         this.cart = { games: [], drinks: [], snacks: [] };
-        
+
         // Pulisci anche il sessionStorage per evitare dati residui
         try {
             sessionStorage.removeItem(CATALOG_CONFIG.CART_STORAGE_KEY);
@@ -477,7 +477,7 @@ class CatalogPageManager {
         } catch (error) {
             console.warn('⚠️ Errore pulizia storage carrello:', error);
         }
-        
+
         // Aggiorna UI
         this.updateCartUI();
         console.log('🧹 Carrello completamente svuotato e storage pulito');
@@ -525,7 +525,7 @@ class CatalogPageManager {
             // ✅ CARRELLO SEMPRE VISIBILE PER UTENTI AUTENTICATI
             if (this.isAuthenticated) {
                 cartBox.style.display = 'block';
-                
+
                 // Aggiornamento fluido senza scatti
                 if (summary.totalItems > 0) {
                     this.updateCartBoxSmooth(cartBox, summary);
@@ -546,7 +546,7 @@ class CatalogPageManager {
     updateCartBoxSmooth(cartBox, summary) {
         // Controlla se dobbiamo ricreare la struttura
         const existingContent = cartBox.querySelector('.cart-summary');
-        
+
         if (!existingContent) {
             // Prima volta: crea con fade-in
             cartBox.style.opacity = '0';
@@ -565,13 +565,13 @@ class CatalogPageManager {
     updateCartNumbers(cartBox, summary) {
         const totalItemsEl = cartBox.querySelector('.cart-total-items');
         const totalPriceEl = cartBox.querySelector('.cart-total-price');
-        
+
         if (totalItemsEl && totalItemsEl.textContent != summary.totalItems) {
             totalItemsEl.style.transform = 'scale(1.1)';
             totalItemsEl.textContent = summary.totalItems;
             setTimeout(() => totalItemsEl.style.transform = 'scale(1)', 200);
         }
-        
+
         if (totalPriceEl) {
             totalPriceEl.textContent = `€${summary.totalPrice.toFixed(2)}`;
         }
@@ -703,7 +703,7 @@ class CatalogPageManager {
                     </button>
 
                     <div class="quantity-modal-header">
-                        <img src="${item.imageUrl || '/assets/default.jpg'}" alt="${item.name}" class="quantity-item-image">
+                        <img src="${item.imageUrl || 'assets/default.jpg'}" alt="${item.name}" class="quantity-item-image">
                         <div class="quantity-item-info">
                             <h3>${item.name}</h3>
                             <p class="quantity-item-price">€${item.price} cad.</p>
@@ -1367,7 +1367,7 @@ createCartCategoryHTML(category, title, icon) {
         const modalOverlay = document.createElement('div');
         modalOverlay.className = 'modal-overlay custom-confirm-modal';
         modalOverlay.style.zIndex = '10000';
-        
+
         modalOverlay.innerHTML = `
             <div class="modal-content confirm-modal-content">
                 <div class="confirm-modal-header">
@@ -1376,7 +1376,7 @@ createCartCategoryHTML(category, title, icon) {
                     </div>
                     <h3 class="confirm-title">Svuota Carrello</h3>
                 </div>
-                
+
                 <div class="confirm-modal-body">
                     <p class="confirm-message">
                         Sei sicuro di voler rimuovere <strong>tutti gli elementi</strong> dal carrello?
@@ -1386,7 +1386,7 @@ createCartCategoryHTML(category, title, icon) {
                         Questa azione non può essere annullata.
                     </p>
                 </div>
-                
+
                 <div class="confirm-modal-actions">
                     <button class="confirm-btn confirm-cancel">
                         <i class="fas fa-times"></i>
@@ -1399,30 +1399,30 @@ createCartCategoryHTML(category, title, icon) {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(modalOverlay);
-        
+
         // Animazione di entrata
         setTimeout(() => modalOverlay.classList.add('active'), 10);
-        
+
         // Event listeners
         modalOverlay.querySelector('.confirm-cancel').addEventListener('click', () => {
             this.closeConfirmModal(modalOverlay);
         });
-        
+
         modalOverlay.querySelector('.confirm-delete').addEventListener('click', () => {
             this.clearCart();
             this.closeConfirmModal(modalOverlay);
             console.log('🧹 Carrello svuotato dall\'utente');
         });
-        
+
         // Chiudi cliccando fuori
         modalOverlay.addEventListener('click', (e) => {
             if (e.target === modalOverlay) {
                 this.closeConfirmModal(modalOverlay);
             }
         });
-        
+
         // Chiudi con Escape
         const escapeHandler = (e) => {
             if (e.key === 'Escape') {
@@ -1432,7 +1432,7 @@ createCartCategoryHTML(category, title, icon) {
         };
         document.addEventListener('keydown', escapeHandler);
     }
-    
+
     closeConfirmModal(modalOverlay) {
         modalOverlay.classList.remove('active');
         setTimeout(() => {
@@ -1450,31 +1450,31 @@ createCartCategoryHTML(category, title, icon) {
     // ==========================================
     // GESTIONE EDITING PRENOTAZIONI
     // ==========================================
-    
+
     async confirmBookingChanges() {
         if (!this.isEditingBooking || !this.editContext) {
             console.warn('⚠️ Non in modalità editing');
             return;
         }
-        
+
         const summary = this.getCartSummary();
         if (summary.totalItems === 0) {
             alert('Seleziona almeno un prodotto per confermare le modifiche');
             return;
         }
-        
+
         console.log('💾 Conferma modifiche prenotazione:', this.editContext);
-        
+
         // Prepara i dati delle modifiche
         const modifications = this.prepareBookingModifications();
-        
+
         try {
             // Invia le modifiche al backend
             await this.sendBookingUpdates(modifications);
-            
+
             // Salva le modifiche nel localStorage per il messaggio di ritorno
             localStorage.setItem('pendingBookingChanges', JSON.stringify(modifications));
-            
+
             // Torna alla pagina delle prenotazioni
             this.returnToBookings();
         } catch (error) {
@@ -1482,30 +1482,30 @@ createCartCategoryHTML(category, title, icon) {
             alert('Errore durante il salvataggio delle modifiche. Riprova.');
         }
     }
-    
+
     cancelBookingEdit() {
         if (confirm('Sei sicuro di voler annullare le modifiche? Tutte le selezioni verranno perse.')) {
             console.log('❌ Modifica prenotazione annullata');
-            
+
             // Pulisci il carrello e il context
             this.clearCart();
             this.clearEditingContext();
-            
+
             // Torna alla pagina delle prenotazioni
             this.returnToBookings();
         }
     }
-    
+
     prepareBookingModifications() {
         const summary = this.getCartSummary();
         const editType = this.editContext.editType;
-        
+
         const modifications = {
             bookingDate: this.editContext.bookingDate,
             editType: editType,
             timestamp: Date.now()
         };
-        
+
         // Converte il carrello nel formato appropriato per l'editing
         switch(editType) {
             case 'giochi':
@@ -1518,14 +1518,14 @@ createCartCategoryHTML(category, title, icon) {
                 modifications.snack_orders = this.formatCartItemsForBooking(this.cart.snacks);
                 break;
         }
-        
+
         console.log('📋 Modifiche preparate:', modifications);
         return modifications;
     }
-    
+
     formatCartItemsForBooking(items) {
         if (!items || items.length === 0) return '';
-        
+
         return items.map(item => {
             if (item.quantity > 1) {
                 return `${item.name} (x${item.quantity})`;
@@ -1533,11 +1533,11 @@ createCartCategoryHTML(category, title, icon) {
             return item.name;
         }).join(', ');
     }
-    
+
     returnToBookings() {
         // Salva l'URL di ritorno prima di pulire il context
         const returnUrl = this.editContext?.returnUrl || '/prenotazioni-utente';
-        
+
         // Prepara messaggio di ritorno se ci sono modifiche pendenti
         const pendingChanges = localStorage.getItem('pendingBookingChanges');
         if (pendingChanges) {
@@ -1545,13 +1545,13 @@ createCartCategoryHTML(category, title, icon) {
             const returnMessage = this.createReturnMessage(changes);
             localStorage.setItem('bookingReturnMessage', JSON.stringify(returnMessage));
         }
-        
+
         // Pulisci il context di editing
         this.clearEditingContext();
-        
+
         // Reindirizza alla pagina prenotazioni
         console.log('🔙 Ritorno alla pagina:', returnUrl);
-        
+
         if (window.page) {
             window.page(returnUrl);
         } else {
@@ -1562,10 +1562,10 @@ createCartCategoryHTML(category, title, icon) {
     createReturnMessage(changes) {
         const editType = changes.editType;
         const bookingDate = changes.bookingDate;
-        
+
         let items = [];
         let categoryLabel = '';
-        
+
         switch(editType) {
             case 'giochi':
                 items = changes.game_requests || [];
@@ -1580,10 +1580,10 @@ createCartCategoryHTML(category, title, icon) {
                 categoryLabel = 'snack';
                 break;
         }
-        
+
         const itemCount = items.length;
         const itemsText = items.join(', ');
-        
+
         return {
             type: 'success',
             title: `🎉 Modifiche confermate per ${categoryLabel}`,
@@ -1606,7 +1606,7 @@ createCartCategoryHTML(category, title, icon) {
         }
 
         const updates = {};
-        
+
         // Converti le modifiche nel formato del backend
         switch(modifications.editType) {
             case 'giochi':
@@ -1626,7 +1626,7 @@ createCartCategoryHTML(category, title, icon) {
         }
 
         const url = `/api/users/${currentUser.id}/bookings/${this.editContext.confirmationCode}`;
-        
+
         console.log('🌐 Invio PATCH a:', url, updates);
 
         const response = await fetch(url, {
@@ -1645,15 +1645,15 @@ createCartCategoryHTML(category, title, icon) {
 
         const result = await response.json();
         console.log('✅ Modifiche salvate:', result);
-        
+
         return result;
     }
-    
+
     clearEditingContext() {
         localStorage.removeItem('bookingEditContext');
         this.isEditingBooking = false;
         this.editContext = null;
-        
+
         // Rimuovi la notifica di editing se presente
         const editingNotification = document.querySelector('.editing-notification');
         if (editingNotification) {
@@ -1939,7 +1939,7 @@ createCartCategoryHTML(category, title, icon) {
         } catch (error) {
             console.error('❌ Errore switch categoria:', error);
             window.showError('Errore Categoria', 'Errore nel caricamento della categoria: ' + error.message);
-            
+
             // Ripristina in caso di errore
             const itemsGrid = document.getElementById('itemsGrid');
             if (itemsGrid) {

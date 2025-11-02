@@ -1434,7 +1434,7 @@ async function showAvatarSelectionModal() {
         showNotification('🎨 Caricamento avatar...', 'info');
         
         // Carica lista avatar disponibili
-        const response = await fetch('/api/users/avatars/list');
+        const response = await apiFetch('/api/users/avatars/list');
         const result = await response.json();
         
         if (!result.success) {

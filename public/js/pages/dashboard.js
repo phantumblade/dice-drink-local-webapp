@@ -1879,7 +1879,7 @@ checkAPIStatus() {
     try {
         const token = this.getAuthToken();
 
-        fetch('/api/admin/analytics', {
+        apiFetch('/api/admin/analytics', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,

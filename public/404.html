@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dice & Drink</title>
+    <script>
+      (function () {
+        var pathname = window.location.pathname;
+        var repoMatch = pathname.match(/^\/([^\/]+)\//);
+        var base = repoMatch ? '/' + repoMatch[1] + '/' : '/';
+        var cleanPath = pathname.replace(base, '/');
+        var redirect = base + '#' + cleanPath.replace(/^\//, '');
+        if (window.location.search) {
+          redirect += window.location.search;
+        }
+        if (window.location.hash) {
+          redirect += window.location.hash;
+        }
+        window.location.replace(redirect);
+      })();
+    </script>
+  </head>
+  <body>
+    <noscript>
+      <a href="/">Torna alla home</a>
+    </noscript>
+  </body>
+</html>
