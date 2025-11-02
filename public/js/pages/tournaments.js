@@ -177,6 +177,24 @@ function generateTournamentsHTML() {
     `;
 }
 
+function getModalContainer() {
+    let container = document.getElementById('modalContainer');
+
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'modalContainer';
+
+        const content = document.getElementById('content');
+        if (content) {
+            content.appendChild(container);
+        } else {
+            document.body.appendChild(container);
+        }
+    }
+
+    return container;
+}
+
 // ==========================================
 // INITIALIZATION
 // ==========================================
@@ -380,6 +398,11 @@ async function loadUserTournaments() {
 
 function renderAllTournaments(tournaments) {
     const container = document.getElementById('allTournamentsList');
+    if (!container) {
+        console.error('❌ Container allTournamentsList non trovato');
+        return;
+    }
+
     container.innerHTML = '';
 
 if (!tournaments || tournaments.length === 0) {
@@ -432,6 +455,11 @@ function renderMyTournaments(userTournaments) {
     const upcomingContainer = document.getElementById('upcomingTournaments');
     const completedContainer = document.getElementById('completedTournaments');
     const section = document.getElementById('myTournamentsSection');
+
+    if (!upcomingContainer || !completedContainer || !section) {
+        console.error('❌ Contenitori sezione tornei utente mancanti');
+        return;
+    }
     // Ensure profile header visible in authenticated context
     const header = document.querySelector('.user-profile-header');
     if (header) header.style.display = '';
@@ -608,10 +636,12 @@ function generateTournamentCardHTML(tournament, isMyTournament) {
         </div>
 
         <!-- Tournament Details -->
+        ${tournament.category === 'dnd'
             ? generateDnDTournamentDetails(tournament)
             : generateStandardTournamentDetails(tournament)}
 
         <!-- D&D Campaign Specific Content -->
+        ${tournament.category === 'dnd' ? generateDnDContent(tournament) : ''}
 
         <!-- Tournament Actions -->
         ${generateTournamentActions(tournament, isRegistered, isAuthenticated, isMyTournament)}
@@ -1373,7 +1403,7 @@ window.showCampaignInfo = function(campaignId) {
         </div>
     `;
 
-    document.getElementById('modalContainer').appendChild(modal);
+    getModalContainer().appendChild(modal);
     document.body.classList.add('modal-open');
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(modal); });
 };
@@ -1492,46 +1522,20 @@ window.showGameInfo = function(category, gameName = null, difficulty = null, min
         </div>
     `;
 
-    document.getElementById('modalContainer').appendChild(modal);
+    getModalContainer().appendChild(modal);
     document.body.classList.add('modal-open');
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(modal); });
 };
-                `</h2>
-                <button class="modal-close" onclick="closeModal(this.closest('.modal'))" style="color: white;">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                    <div style="flex: 1;">
-                        <div class="info-card">
-                            <h4><i class="fas fa-id-card"></i> Informazioni Base</h4>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <div style="text-align: center; margin-top: 2rem;">
-                    <button class="btn btn-primary" onclick="closeModal(this.closest('.modal'))">
-                        <i class="fas fa-times"></i>
-                        Chiudi
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-
-    document.getElementById('modalContainer').appendChild(modal);
-    document.body.classList.add('modal-open');
-    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(modal); });
-
-window.showAuthPrompt = function() {
+function showAuthPrompt() {
     if (window.SimpleAuth && window.SimpleAuth.showLoginModal) {
         window.SimpleAuth.showLoginModal();
     } else {
         showNotification('Effettua il login per accedere a questa funzione', 'info');
     }
-};
+}
+
+window.showAuthPrompt = showAuthPrompt;
 
 // Additional helper functions
 window.changeAvatar = async function() {
@@ -1579,7 +1583,7 @@ window.changeAvatar = async function() {
             </div>
         `;
 
-        document.getElementById('modalContainer').appendChild(modal);
+        getModalContainer().appendChild(modal);
         document.body.classList.add('modal-open');
         modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(modal); });
 
@@ -1800,7 +1804,7 @@ function showRegistrationSuccessModal(tournamentId) {
         </div>
     `;
 
-    document.getElementById('modalContainer').appendChild(modal);
+    getModalContainer().appendChild(modal);
     document.body.classList.add('modal-open');
 
     modal.addEventListener('click', (e) => {
@@ -1917,7 +1921,7 @@ function createTournamentModal(tournament, participants = []) {
         </div>
     `;
 
-    document.getElementById('modalContainer').appendChild(modal);
+    getModalContainer().appendChild(modal);
     document.body.classList.add('modal-open');
 
     modal.addEventListener('click', (e) => {

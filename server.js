@@ -73,7 +73,7 @@ app.use(express.static('public', {
 
     if (!gamesTable) {
       console.log('⚠️  ATTENZIONE: Tabella games non trovata!');
-      console.log('💡 Esegui: node initDb.js');
+      console.log('💡 Esegui: node initGamesDb.js');
     } else {
       const gameCount = await db.get('SELECT COUNT(*) as count FROM games');
       console.log(`✅ Database Games OK - ${gameCount.count} giochi disponibili`);
@@ -115,7 +115,7 @@ app.use(express.static('public', {
     await db.close();
   } catch (err) {
     console.log('⚠️  Impossibile verificare il database');
-    console.log('💡 Assicurati di aver eseguito: node initDb.js, node initDrinksDb.js, node initSnacksDb.js, node initTournamentsDb.js e node initUserStatsDb.js');
+    console.log('💡 Assicurati di aver eseguito: node initGamesDb.js, node initDrinksDb.js, node initSnacksDb.js, node initTournamentsDb.js e node initUsersDb.js (più initUserStatsDb.js se servono le statistiche)');
   }
 
   // Health check per verificare che l'API funzioni
@@ -198,7 +198,7 @@ app.use(express.static('public', {
       res.status(500).json({
         status: 'ERROR',
         message: 'Database non disponibile',
-        hint: 'Esegui: node initDb.js, node initDrinksDb.js, node initSnacksDb.js, node initTournamentsDb.js e node initUserStatsDb.js'
+        hint: 'Esegui: node initGamesDb.js, node initDrinksDb.js, node initSnacksDb.js, node initTournamentsDb.js, node initUsersDb.js e node initUserStatsDb.js'
       });
     }
   });
@@ -287,7 +287,7 @@ app.use(express.static('public', {
     console.log(`   🎮 Snack game-friendly: /api/snacks/game-friendly`);
     console.log(`   🔍 Cerca 'cioccolato': /api/snacks/search?q=cioccolato`);
     console.log('🎲🍹🍿 =====================================');
-    console.log('💡 Se vedi errori, esegui: node initDb.js, node initDrinksDb.js, node initSnacksDb.js, node initTournamentsDb.js e node initUserStatsDb.js');
+    console.log('💡 Se vedi errori, esegui: node initGamesDb.js, node initDrinksDb.js, node initSnacksDb.js, node initTournamentsDb.js, node initUsersDb.js e node initUserStatsDb.js');
   });
 }
 
@@ -298,7 +298,7 @@ init().catch(err => {
   console.log('   - Verifica che la porta 3000 sia libera');
   console.log('   - Controlla che i file db.js e routes esistano');
   console.log('   - Esegui "npm install" per installare le dipendenze');
-  console.log('   - Esegui "node initDb.js" per creare il database giochi');
+  console.log('   - Esegui "node initGamesDb.js" per creare il database giochi');
   console.log('   - Esegui "node initDrinksDb.js" per creare il database drink');
   console.log('   - Esegui "node initSnacksDb.js" per creare il database snack');
   console.log('   - Esegui "node initTournamentsDb.js" per creare il database tornei');

@@ -227,7 +227,9 @@ Il database SQLite è già incluso con dati demo. Per rigenerarlo:
 node initGamesDb.js
 node initDrinksDb.js
 node initSnacksDb.js
+node initTournamentsDb.js
 node initUsersDb.js
+node initUserStatsDb.js
 ```
 
 ### 🚀 Avvio Applicazione

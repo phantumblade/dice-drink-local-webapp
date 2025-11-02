@@ -198,9 +198,18 @@ class CatalogPageManager {
         this.currentItems = [];
         this.isModalOpen = false;
         this.searchTerm = '';
-        this.selectedFilters = [];
+        this.filteredCount = 0;
+        this.categoryFilters = {
+            giochi: [],
+            drink: [],
+            snack: []
+        };
+        this.selectedFilters = this.categoryFilters[this.currentCategory];
+        this.itemQuantities = {};
+        this.maxQuantity = 10;
 
         this.cart = this.loadCartFromStorage();
+        this.globalEventsBound = false;
         
         // Validazione struttura carrello
         this.validateCartStructure();
@@ -807,6 +816,7 @@ class CatalogPageManager {
 
             const data = await response.json();
             this.currentItems = Array.isArray(data) ? data : data[config.endpoint] || data;
+            this.filteredCount = this.currentItems.length;
 
             console.log(`📊 Caricati ${this.currentItems.length} items per ${category}`);
 
@@ -863,14 +873,16 @@ class CatalogPageManager {
 
     createStatsBarHTML() {
         const stats = this.getCurrentStats();
+        const filteredCount = this.filteredCount || this.currentItems.length;
+        const searchActive = (this.searchTerm && this.searchTerm.trim().length > 0) || (this.selectedFilters && this.selectedFilters.length > 0);
 
         return `
             <div class="stats-bar">
                 <div class="stats-info">
                     <div class="stat-item">
                         <i class="${stats.icon}"></i>
-                        <span class="stat-number">${stats.count}</span>
-                        <span class="stat-text">${stats.label}</span>
+                        <span class="stat-number">${filteredCount}</span>
+                        <span class="stat-text">${searchActive ? 'Risultati filtrati' : stats.label}</span>
                     </div>
                     <div class="stat-item">
                         <i class="fas fa-star"></i>
@@ -884,7 +896,7 @@ class CatalogPageManager {
                     </div>
                 </div>
 
-                ${this.currentCategory === 'drink' ? this.createAdvancedFiltersHTML() : ''}
+                ${this.createAdvancedFiltersHTML()}
 
                 <div class="search-container">
                     <i class="fas fa-search search-icon"></i>
@@ -897,39 +909,60 @@ class CatalogPageManager {
     }
 
     createAdvancedFiltersHTML() {
+        const filterSets = {
+            drink: [
+                { key: 'alcoholic', icon: 'fas fa-wine-glass', label: 'Alcolico' },
+                { key: 'non-alcoholic', icon: 'fas fa-coffee', label: 'Analcolico' },
+                { key: 'premium', icon: 'fas fa-crown', label: 'Premium' },
+                { key: 'economic', icon: 'fas fa-piggy-bank', label: 'Economico' }
+            ],
+            snack: [
+                { key: 'sweet', icon: 'fas fa-ice-cream', label: 'Dolce' },
+                { key: 'savory', icon: 'fas fa-cheese', label: 'Salato' },
+                { key: 'game-friendly', icon: 'fas fa-gamepad', label: 'Game Friendly' },
+                { key: 'premium', icon: 'fas fa-star', label: 'Gourmet' }
+            ],
+            giochi: [
+                { key: 'party', icon: 'fas fa-user-friends', label: 'Party Game' },
+                { key: 'strategy', icon: 'fas fa-chess-knight', label: 'Strategia' },
+                { key: 'cooperative', icon: 'fas fa-handshake', label: 'Cooperativi' },
+                { key: 'solo', icon: 'fas fa-user', label: 'Giocabili in Solitario' }
+            ]
+        };
+
+        const filters = filterSets[this.currentCategory];
+        if (!filters || filters.length === 0) return '';
+
         return `
             <div class="advanced-filters">
-                <button class="filter-chip alcoholic" data-filter="alcoholic">
-                    <i class="fas fa-wine-glass"></i> Alcolico
-                </button>
-                <button class="filter-chip non-alcoholic" data-filter="non-alcoholic">
-                    <i class="fas fa-coffee"></i> Analcolico
-                </button>
-                <button class="filter-chip premium" data-filter="premium">
-                    <i class="fas fa-crown"></i> Premium
-                </button>
-                <button class="filter-chip economic" data-filter="economic">
-                    <i class="fas fa-piggy-bank"></i> Economico
-                </button>
+                ${filters.map(filter => {
+                    const isActive = this.selectedFilters.includes(filter.key) ? 'active' : '';
+                    return `
+                        <button class="filter-chip ${filter.key} ${isActive}" data-filter="${filter.key}" data-category="${this.currentCategory}">
+                            <i class="${filter.icon}"></i> ${filter.label}
+                        </button>
+                    `;
+                }).join('')}
             </div>
         `;
     }
 
     createItemsGridHTML() {
         const filteredItems = this.getFilteredItems();
+        this.filteredCount = filteredItems.length;
+        const isExtendedLayout = filteredItems.length > 0 && filteredItems.length <= 2;
+        const gridClass = isExtendedLayout ? 'extended-grid' : '';
 
         // Se non ci sono items ancora caricati, mostra skeleton loader
         if (!this.currentItems || this.currentItems.length === 0) {
             return this.createSkeletonGridHTML();
         }
 
-        if (filteredItems.length === 0) {
-            return this.createEmptyStateHTML();
-        }
-
         return `
-            <div class="items-grid" id="itemsGrid">
-                ${filteredItems.map(item => this.createItemCardHTML(item)).join('')}
+            <div class="items-grid ${gridClass}" id="itemsGrid">
+                ${filteredItems.length === 0
+                    ? this.createEmptyStateHTML()
+                    : filteredItems.map(item => this.createItemCardHTML(item, isExtendedLayout)).join('')}
             </div>
         `;
     }
@@ -955,22 +988,24 @@ class CatalogPageManager {
         `;
     }
 
-    createItemCardHTML(item) {
+    createItemCardHTML(item, extended = false) {
         if (this.currentCategory === 'giochi') {
-            return this.createGameCardHTML(item);
+            return this.createGameCardHTML(item, extended);
         } else if (this.currentCategory === 'drink') {
-            return this.createDrinkCardHTML(item);
+            return this.createDrinkCardHTML(item, extended);
         } else if (this.currentCategory === 'snack') {
-            return this.createSnackCardHTML(item);
+            return this.createSnackCardHTML(item, extended);
         }
     }
 
-    createGameCardHTML(game) {
+    createGameCardHTML(game, extended = false) {
         const imageUrl = getImageUrlWithLocalFallback(game, 'games');
         const price = game.rentalPrice ? `€${game.rentalPrice}/sera` : 'Prezzo su richiesta';
+        const gameDescription = game.description || 'Descrizione non disponibile. Seleziona il gioco per scoprire tutti i dettagli della serata.';
+        const highlights = this.getGameHighlights(game);
 
         return `
-            <div class="item-card game-card" data-item-id="${game.id}">
+            <div class="item-card game-card ${extended ? 'extended' : ''}" data-item-id="${game.id}">
                 <div class="item-image" style="background-image: url('${imageUrl}');">
                     <button class="expand-btn" onclick="window.catalogPageManager.openItemModal(${game.id})">
                         <i class="fas fa-expand"></i>
@@ -1009,15 +1044,38 @@ class CatalogPageManager {
                         <i class="fas fa-shopping-cart"></i>
                         Noleggia - ${price}
                     </button>
+
+                    ${extended ? `
+                        <div class="item-extended">
+                            <p class="item-description">${gameDescription}</p>
+                            <div class="item-extended-meta">
+                                ${highlights.map(block => `
+                                    <div class="item-extended-stat">
+                                        <h4><i class="${block.icon}"></i> ${block.label}</h4>
+                                        <p>${block.value}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
             </div>
         `;
     }
 
-    createDrinkCardHTML(drink) {
+    createDrinkCardHTML(drink, extended = false) {
+        const quantity = this.getItemQuantity('drinks', drink.id);
+        const quantityKey = this.getQuantityKey('drinks', drink.id);
+        const isAlcoholic = drink.isAlcoholic === true || drink.isAlcoholic === 1 || drink.isAlcoholic === '1';
+        const priceValue = Number(drink.price || 0);
+        const drinkDescription = drink.description || 'Un drink artigianale, perfetto per accompagnare le partite del tuo gruppo.';
+        const pairing = this.getDrinkPairing(drink);
+        const mood = this.getDrinkMood(drink);
+        const temperature = this.getDrinkServiceTemp(drink);
+
         return `
-            <div class="item-card drink-card" data-item-id="${drink.id}">
-<div class="item-image" style="background-image: url('${getImageUrlWithLocalFallback(drink, 'drinks')}');">
+            <div class="item-card drink-card ${extended ? 'extended' : ''}" data-item-id="${drink.id}">
+                <div class="item-image" style="background-image: url('${getImageUrlWithLocalFallback(drink, 'drinks')}');">
                     <button class="expand-btn" onclick="window.catalogPageManager.openItemModal(${drink.id})">
                         <i class="fas fa-expand"></i>
                     </button>
@@ -1025,8 +1083,8 @@ class CatalogPageManager {
 
                 <div class="item-content">
                     <h3 class="item-title">${drink.name}</h3>
-                    <span class="item-category ${drink.isAlcoholic ? 'alcoholic' : 'non-alcoholic'}">
-                        ${drink.isAlcoholic ? 'Alcolico' : 'Analcolico'}
+                    <span class="item-category ${isAlcoholic ? 'alcoholic' : 'non-alcoholic'}">
+                        ${isAlcoholic ? 'Alcolico' : 'Analcolico'}
                     </span>
 
                     <div class="item-stats">
@@ -1041,31 +1099,65 @@ class CatalogPageManager {
                             <div class="item-stat-icon">
                                 <i class="fas fa-euro-sign"></i>
                             </div>
-                            <div class="item-stat-value">€${drink.price}</div>
+                            <div class="item-stat-value">€${priceValue.toFixed(2)}</div>
                             <div class="item-stat-label">Prezzo</div>
                         </div>
                         <div class="item-stat">
                             <div class="item-stat-icon">
                                 <i class="fas fa-star"></i>
                             </div>
-                            <div class="item-stat-value">${drink.price >= 8.00 ? 'Premium' : 'Classic'}</div>
+                            <div class="item-stat-value">${priceValue >= 8.00 ? 'Premium' : 'Classic'}</div>
                             <div class="item-stat-label">Qualità</div>
                         </div>
                     </div>
 
-                    <button class="rent-btn" onclick="window.catalogPageManager.handleOrderDrink(${drink.id})">
-                        <i class="fas fa-glass-cheers"></i>
-                        Ordina
-                    </button>
+                    <div class="item-actions">
+                        <button class="rent-btn add-to-cart-btn" data-category="drinks" data-item-id="${drink.id}">
+                            <span class="btn-icon"><i class="fas fa-glass-cheers"></i></span>
+                            <span class="btn-text">Aggiungi</span>
+                            <span class="quantity-badge" data-item-key="${quantityKey}">x${quantity}</span>
+                        </button>
+                        <div class="quantity-stepper" data-category="drinks" data-item-id="${drink.id}">
+                            <button class="step-btn step-plus" title="Aumenta quantità">+</button>
+                            <button class="step-btn step-minus" title="Diminuisci quantità">-</button>
+                        </div>
+                    </div>
+
+                    ${extended ? `
+                        <div class="item-extended">
+                            <p class="item-description">${drinkDescription}</p>
+                            <div class="item-extended-meta">
+                                <div class="item-extended-stat">
+                                    <h4><i class="fas fa-utensils"></i> Abbinamento ideale</h4>
+                                    <p>${pairing}</p>
+                                </div>
+                                <div class="item-extended-stat">
+                                    <h4><i class="fas fa-music"></i> Atmosfera consigliata</h4>
+                                    <p>${mood}</p>
+                                </div>
+                                <div class="item-extended-stat">
+                                    <h4><i class="fas fa-thermometer-half"></i> Servizio</h4>
+                                    <p>${temperature}</p>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
             </div>
         `;
     }
 
-    createSnackCardHTML(snack) {
+    createSnackCardHTML(snack, extended = false) {
+        const quantity = this.getItemQuantity('snacks', snack.id);
+        const quantityKey = this.getQuantityKey('snacks', snack.id);
+        const snackPriceValue = Number(snack.price || 0);
+        const snackDescription = snack.description || 'Snack preparato con ingredienti freschi, perfetto per una pausa di gusto durante le tue partite.';
+        const pairing = this.getSnackPairing(snack);
+        const tip = this.getSnackServingTip(snack);
+
         return `
-            <div class="item-card snack-card" data-item-id="${snack.id}">
-<div class="item-image" style="background-image: url('${getImageUrlWithLocalFallback(snack, 'snacks')}');">
+            <div class="item-card snack-card ${extended ? 'extended' : ''}" data-item-id="${snack.id}">
+                <div class="item-image" style="background-image: url('${getImageUrlWithLocalFallback(snack, 'snacks')}');">
                     <button class="expand-btn" onclick="window.catalogPageManager.openItemModal(${snack.id})">
                         <i class="fas fa-expand"></i>
                     </button>
@@ -1082,7 +1174,7 @@ class CatalogPageManager {
                             <div class="item-stat-icon">
                                 <i class="fas fa-euro-sign"></i>
                             </div>
-                            <div class="item-stat-value">€${snack.price}</div>
+                            <div class="item-stat-value">€${snackPriceValue.toFixed(2)}</div>
                             <div class="item-stat-label">Prezzo</div>
                         </div>
                         <div class="item-stat">
@@ -1101,10 +1193,37 @@ class CatalogPageManager {
                         </div>
                     </div>
 
-                    <button class="rent-btn" onclick="window.catalogPageManager.handleOrderSnack(${snack.id})">
-                        <i class="fas fa-shopping-cart"></i>
-                        Ordina
-                    </button>
+                    <div class="item-actions">
+                        <button class="rent-btn add-to-cart-btn" data-category="snacks" data-item-id="${snack.id}">
+                            <span class="btn-icon"><i class="fas fa-shopping-cart"></i></span>
+                            <span class="btn-text">Aggiungi</span>
+                            <span class="quantity-badge" data-item-key="${quantityKey}">x${quantity}</span>
+                        </button>
+                        <div class="quantity-stepper" data-category="snacks" data-item-id="${snack.id}">
+                            <button class="step-btn step-plus" title="Aumenta quantità">+</button>
+                            <button class="step-btn step-minus" title="Diminuisci quantità">-</button>
+                        </div>
+                    </div>
+
+                    ${extended ? `
+                        <div class="item-extended">
+                            <p class="item-description">${snackDescription}</p>
+                            <div class="item-extended-meta">
+                                <div class="item-extended-stat">
+                                    <h4><i class="fas fa-gamepad"></i> Si abbina a</h4>
+                                    <p>${snack.suggestedGame || 'Party e giochi cooperativi'}</p>
+                                </div>
+                                <div class="item-extended-stat">
+                                    <h4><i class="fas fa-glass-cheers"></i> Drink consigliato</h4>
+                                    <p>${snack.suggestedDrink || pairing}</p>
+                                </div>
+                                <div class="item-extended-stat">
+                                    <h4><i class="fas fa-concierge-bell"></i> Servizio</h4>
+                                    <p>${tip}</p>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
             </div>
         `;
@@ -1589,6 +1708,8 @@ createCartCategoryHTML(category, title, icon) {
     // ==========================================
 
     setupEvents() {
+        this.bindGlobalEvents();
+
         // 1) Bottoni di switch categoria
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', e => {
@@ -1598,13 +1719,7 @@ createCartCategoryHTML(category, title, icon) {
         });
 
         // 2) Ricerca live
-        const searchInput = document.querySelector('.search-input');
-        if (searchInput) {
-            searchInput.addEventListener('input', e => {
-                this.searchTerm = e.target.value;
-                this.refreshItemsGrid();
-            });
-        }
+        this.setupSearchInput();
 
         // 3a) Chiusura modale al click sull'overlay
         const modalOverlay = document.getElementById('itemModal');
@@ -1627,31 +1742,163 @@ createCartCategoryHTML(category, title, icon) {
         // 4) Inizializza click sui chip di filtro
         this.setupFilterChipEvents();
 
-        // 5)Setup eventi carrello
+        // 5) Controlli quantità nelle card
+        this.setupCardQuantityControls();
+
+        // 6)Setup eventi carrello
         this.updateCartUI();
     }
 
-    setupFilterChipEvents() {
-        document.querySelectorAll('.filter-chip').forEach(chip => {
-            chip.addEventListener('click', e => this.handleFilterChipClick(e));
+    setupSearchInput() {
+        const searchInput = document.querySelector('.search-input');
+        if (!searchInput) return;
+
+        if (searchInput.dataset.listenerAttached !== 'true') {
+            searchInput.dataset.listenerAttached = 'true';
+            searchInput.addEventListener('input', e => {
+                const position = e.target.selectionStart;
+                this.searchTerm = e.target.value;
+                this.applyFiltersAndRefresh(true);
+                requestAnimationFrame(() => {
+                    if (document.activeElement === searchInput) {
+                        searchInput.setSelectionRange(position, position);
+                    }
+                });
+            });
+        }
+
+        if (searchInput.value !== this.searchTerm) {
+            searchInput.value = this.searchTerm;
+        }
+    }
+
+    applyFiltersAndRefresh(updateStats = false) {
+        const currentSearchInput = document.querySelector('.search-input');
+        const hadFocus = currentSearchInput && document.activeElement === currentSearchInput;
+        const caretPosition = hadFocus ? currentSearchInput.selectionStart : null;
+
+        const filteredItems = this.getFilteredItems();
+        this.filteredCount = filteredItems.length;
+
+        if (updateStats) {
+            const statsBar = document.querySelector('.stats-bar');
+            if (statsBar) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = this.createStatsBarHTML();
+                const newBar = tempDiv.firstElementChild;
+                statsBar.parentNode.replaceChild(newBar, statsBar);
+            }
+        }
+
+        this.refreshItemsGrid();
+        this.refreshFilterChipState();
+        this.setupFilterChipEvents();
+        this.setupSearchInput();
+        if (hadFocus) {
+            const newInput = document.querySelector('.search-input');
+            if (newInput) {
+                newInput.focus();
+                const pos = caretPosition !== null ? Math.min(caretPosition, newInput.value.length) : newInput.value.length;
+                newInput.setSelectionRange(pos, pos);
+            }
+        }
+        this.setupCardQuantityControls();
+        this.updateCartUI();
+
+        const itemsGrid = document.getElementById('itemsGrid');
+        if (itemsGrid) {
+            itemsGrid.style.opacity = '1';
+            itemsGrid.style.pointerEvents = 'auto';
+        }
+    }
+
+    bindGlobalEvents() {
+        if (this.globalEventsBound) return;
+
+        document.addEventListener('click', (event) => {
+            const stepPlus = event.target.closest('.quantity-stepper .step-plus');
+            const stepMinus = event.target.closest('.quantity-stepper .step-minus');
+
+            if (stepPlus || stepMinus) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
         });
 
-        // Forza aggiornamento UI carrello all'inizio
-        this.updateCartUI();
+        this.globalEventsBound = true;
+    }
+
+    setupFilterChipEvents() {
+        const chips = document.querySelectorAll('.filter-chip');
+
+        chips.forEach(chip => {
+            const filter = chip.dataset.filter;
+            chip.classList.toggle('active', this.selectedFilters.includes(filter));
+
+            if (chip.dataset.listenerAttached !== 'true') {
+                chip.dataset.listenerAttached = 'true';
+                chip.addEventListener('click', e => this.handleFilterChipClick(e));
+                chip.addEventListener('keydown', e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        this.handleFilterChipClick(e);
+                    }
+                });
+            }
+        });
+    }
+
+    refreshFilterChipState() {
+        const chips = document.querySelectorAll('.filter-chip');
+        chips.forEach(chip => {
+            const filter = chip.dataset.filter;
+            chip.classList.toggle('active', this.selectedFilters.includes(filter));
+        });
     }
 
     handleFilterChipClick(e) {
         const chip = e.currentTarget;
         const filter = chip.dataset.filter;
 
-        if (this.selectedFilters.includes(filter)) {
-            this.selectedFilters = this.selectedFilters.filter(f => f !== filter);
-        } else {
-            this.selectedFilters.push(filter);
+        if (e && e.preventDefault) {
+            e.preventDefault();
+            e.stopPropagation();
         }
 
-        chip.classList.toggle('active');
-        this.refreshItemsGrid();
+        if (!Array.isArray(this.categoryFilters[this.currentCategory])) {
+            this.categoryFilters[this.currentCategory] = [];
+        }
+
+        let filtersForCategory = this.categoryFilters[this.currentCategory];
+
+        const alreadyActive = filtersForCategory.includes(filter);
+        if (alreadyActive) {
+            this.categoryFilters[this.currentCategory] = filtersForCategory.filter(f => f !== filter);
+            filtersForCategory = this.categoryFilters[this.currentCategory];
+        } else {
+            // Regole mutuali per drink
+            if (this.currentCategory === 'drink') {
+                if (filter === 'alcoholic') {
+                    this.categoryFilters[this.currentCategory] = filtersForCategory.filter(f => f !== 'non-alcoholic');
+                } else if (filter === 'non-alcoholic') {
+                    this.categoryFilters[this.currentCategory] = filtersForCategory.filter(f => f !== 'alcoholic');
+                }
+            }
+
+            if (this.currentCategory === 'snack') {
+                if (filter === 'sweet') {
+                    this.categoryFilters[this.currentCategory] = filtersForCategory.filter(f => f !== 'savory');
+                } else if (filter === 'savory') {
+                    this.categoryFilters[this.currentCategory] = filtersForCategory.filter(f => f !== 'sweet');
+                }
+            }
+
+            this.categoryFilters[this.currentCategory].push(filter);
+            filtersForCategory = this.categoryFilters[this.currentCategory];
+        }
+
+        this.selectedFilters = this.categoryFilters[this.currentCategory];
+        this.refreshFilterChipState();
+        this.applyFiltersAndRefresh(true);
     }
 
     // ==========================================
@@ -1666,9 +1913,15 @@ createCartCategoryHTML(category, title, icon) {
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        document.querySelector(`[data-category="${category}"]`).classList.add('active');
+        const btn = document.querySelector(`[data-category="${category}"]`);
+        if (btn) btn.classList.add('active');
+
+        // Salva filtri categoria corrente
+        this.categoryFilters[this.currentCategory] = [...(this.selectedFilters || [])];
 
         this.currentCategory = category;
+        this.categoryFilters[this.currentCategory] = this.categoryFilters[this.currentCategory] || [];
+        this.selectedFilters = this.categoryFilters[this.currentCategory] || [];
         this.searchTerm = '';
 
         try {
@@ -1680,7 +1933,8 @@ createCartCategoryHTML(category, title, icon) {
             }
 
             await this.loadCategoryData(category);
-            this.refreshFullUISmooth();
+            this.applyFiltersAndRefresh(true);
+            this.setupFilterChipEvents();
 
         } catch (error) {
             console.error('❌ Errore switch categoria:', error);
@@ -1696,75 +1950,28 @@ createCartCategoryHTML(category, title, icon) {
     }
 
     refreshFullUI() {
-        const statsBar = document.querySelector('.stats-bar');
-        if (statsBar) {
-            const newStatsHTML = this.createStatsBarHTML();
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = newStatsHTML;
-            const newStatsBar = tempDiv.firstElementChild;
-
-            statsBar.parentNode.replaceChild(newStatsBar, statsBar);
-        }
-
-        this.refreshItemsGrid();
-
-        this.updateCartUI();
-
-        const searchInput = document.querySelector('.search-input');
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                this.searchTerm = e.target.value;
-                this.refreshItemsGrid();
-            });
-        }
-
-        this.setupFilterChipEvents();
+        this.applyFiltersAndRefresh(true);
     }
 
     refreshFullUISmooth() {
-        // Aggiorna stats bar senza flash
-        const statsBar = document.querySelector('.stats-bar');
-        if (statsBar) {
-            const newStatsHTML = this.createStatsBarHTML();
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = newStatsHTML;
-            const newStatsBar = tempDiv.firstElementChild;
-
-            statsBar.style.transition = 'opacity 0.2s ease';
-            statsBar.style.opacity = '0.7';
-            setTimeout(() => {
-                statsBar.parentNode.replaceChild(newStatsBar, statsBar);
-            }, 100);
-        }
-
-        // Aggiorna grid con fade-in fluido
-        this.refreshItemsGridSmooth();
-
-        // Aggiorna carrello
-        this.updateCartUI();
-
-        // Setup eventi
-        const searchInput = document.querySelector('.search-input');
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                this.searchTerm = e.target.value;
-                this.refreshItemsGrid();
-            });
-        }
-
-        this.setupFilterChipEvents();
+        this.applyFiltersAndRefresh(true);
     }
 
     refreshItemsGridSmooth() {
         const itemsGrid = document.getElementById('itemsGrid');
         if (itemsGrid) {
             const filteredItems = this.getFilteredItems();
+            this.filteredCount = filteredItems.length;
+
+            itemsGrid.classList.add('grid-filtering');
+            const isExtendedLayout = filteredItems.length > 0 && filteredItems.length <= 2;
+            itemsGrid.classList.toggle('extended-grid', isExtendedLayout);
 
             if (filteredItems.length === 0) {
                 itemsGrid.innerHTML = this.createEmptyStateHTML();
             } else {
                 itemsGrid.innerHTML = filteredItems.map(item =>
-                    this.createItemCardHTML(item)
+                    this.createItemCardHTML(item, isExtendedLayout)
                 ).join('');
             }
 
@@ -1774,6 +1981,8 @@ createCartCategoryHTML(category, title, icon) {
                 itemsGrid.style.opacity = '1';
                 itemsGrid.style.pointerEvents = 'auto';
                 setupAllLocalImageFallbacks();
+                this.setupCardQuantityControls();
+                itemsGrid.classList.remove('grid-filtering');
             }, 50);
         }
     }
@@ -1782,15 +1991,24 @@ createCartCategoryHTML(category, title, icon) {
         const itemsGrid = document.getElementById('itemsGrid');
         if (itemsGrid) {
             const filteredItems = this.getFilteredItems();
+            this.filteredCount = filteredItems.length;
+
+            itemsGrid.classList.add('grid-filtering');
+            const isExtendedLayout = filteredItems.length > 0 && filteredItems.length <= 2;
+            itemsGrid.classList.toggle('extended-grid', isExtendedLayout);
 
             if (filteredItems.length === 0) {
                 itemsGrid.innerHTML = this.createEmptyStateHTML();
             } else {
                 itemsGrid.innerHTML = filteredItems.map(item =>
-                    this.createItemCardHTML(item)
+                    this.createItemCardHTML(item, isExtendedLayout)
                 ).join('');
             }
-            setTimeout(() => setupAllLocalImageFallbacks(), 100);
+            setTimeout(() => {
+                setupAllLocalImageFallbacks();
+                this.setupCardQuantityControls();
+                itemsGrid.classList.remove('grid-filtering');
+            }, 100);
 
         }
     }
@@ -1864,10 +2082,12 @@ createCartCategoryHTML(category, title, icon) {
             return;
         }
 
-        // Utente autenticato, attiva controlli inline
         const drink = this.currentItems.find(d => d.id == drinkId);
         if (drink) {
-            this.activateInlineQuantityControls(drinkId, 'drinks', drink);
+            const quantity = this.getItemQuantity('drinks', drinkId);
+            this.addToCart(drink, quantity, 'drinks');
+            this.flashAddToCartState('drinks', drinkId);
+            this.setItemQuantity('drinks', drinkId, 1);
         } else {
             console.error('❌ Drink non trovato:', drinkId);
         }
@@ -1883,174 +2103,23 @@ createCartCategoryHTML(category, title, icon) {
             return;
         }
 
-        // Utente autenticato, attiva controlli inline
         const snack = this.currentItems.find(s => s.id == snackId);
         if (snack) {
-            this.activateInlineQuantityControls(snackId, 'snacks', snack);
+            const quantity = this.getItemQuantity('snacks', snackId);
+            this.addToCart(snack, quantity, 'snacks');
+            this.flashAddToCartState('snacks', snackId);
+            this.setItemQuantity('snacks', snackId, 1);
         } else {
             console.error('❌ Snack non trovato:', snackId);
         }
     }
 
-    // ==========================================
-    // CONTROLLI QUANTITÀ ELEGANTI
-    // ==========================================
-    
-    activateInlineQuantityControls(itemId, category, item) {
-        // Trova il container del bottone
-        const allButtons = document.querySelectorAll('.rent-btn');
-        let targetButton = null;
-        
-        for (let btn of allButtons) {
-            if (btn.onclick && btn.onclick.toString().includes(itemId)) {
-                targetButton = btn;
-                break;
-            }
-        }
-        
-        if (targetButton) {
-            this.createQuantitySelector(targetButton, itemId, category, item);
-        }
-    }
-    
-    createQuantitySelector(button, itemId, category, item) {
-        // Verifica se i controlli esistono già
-        const buttonContainer = button.parentNode;
-        if (buttonContainer.querySelector('.quantity-selector')) {
-            return; // Già attivati
-        }
-        
-        // Crea wrapper per bottone + controlli quantità
-        const wrapper = document.createElement('div');
-        wrapper.className = 'button-quantity-wrapper';
-        
-        // Modifica il bottone originale per mostrare quantità
-        button.classList.add('quantity-enabled');
-        button.innerHTML = `
-            <span class="btn-icon">${category === 'drinks' ? '<i class="fas fa-glass-cheers"></i>' : '<i class="fas fa-shopping-cart"></i>'}</span>
-            <span class="btn-text">Scegli Quantità</span>
-            <span class="quantity-badge" title="Quantità selezionata">1</span>
-        `;
-        
-        // Aggiungi tooltip al bottone
-        button.title = "Clicca per scegliere la quantità e aggiungere al carrello";
-        
-        // Crea controlli quantità compatti
-        const quantitySelector = document.createElement('div');
-        quantitySelector.className = 'quantity-selector';
-        quantitySelector.innerHTML = `
-            <button class="qty-btn qty-minus" data-item-id="${itemId}" title="Riduci quantità">
-                <i class="fas fa-minus"></i>
-            </button>
-            <button class="qty-btn qty-plus" data-item-id="${itemId}" title="Aumenta quantità">
-                <i class="fas fa-plus"></i>
-            </button>
-            <button class="qty-confirm" data-item-id="${itemId}" data-category="${category}" title="Aggiungi al carrello">
-                <i class="fas fa-check"></i>
-            </button>
-        `;
-        
-        // Sostituisci il bottone con il wrapper
-        buttonContainer.replaceChild(wrapper, button);
-        wrapper.appendChild(button);
-        wrapper.appendChild(quantitySelector);
-        
-        // Aggiungi event listeners
-        this.setupQuantityEvents(wrapper, itemId, category, item);
-    }
-    
-    setupQuantityEvents(wrapper, itemId, category, item) {
-        const quantityBadge = wrapper.querySelector('.quantity-badge');
-        const minusBtn = wrapper.querySelector('.qty-minus');
-        const plusBtn = wrapper.querySelector('.qty-plus');
-        const confirmBtn = wrapper.querySelector('.qty-confirm');
-        const orderBtn = wrapper.querySelector('.rent-btn');
-        
-        let currentQuantity = 1;
-        
-        // Aggiorna badge quantità
-        const updateQuantityBadge = () => {
-            quantityBadge.textContent = currentQuantity;
-            quantityBadge.style.background = currentQuantity > 1 ? '#10b981' : '#8B5CF6';
-        };
-        
-        // Diminuisci quantità
-        minusBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (currentQuantity > 1) {
-                currentQuantity--;
-                updateQuantityBadge();
-            }
-        });
-        
-        // Aumenta quantità
-        plusBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (currentQuantity < 10) {
-                currentQuantity++;
-                updateQuantityBadge();
-            }
-        });
-        
-        // Conferma e aggiungi al carrello
-        confirmBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.addToCart(item, currentQuantity, category);
-            this.resetQuantitySelector(wrapper);
-            console.log(`✅ Aggiunto al carrello: ${item.name} x${currentQuantity}`);
-        });
-        
-        // Click sul bottone principale: attiva/disattiva controlli
-        orderBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const selector = wrapper.querySelector('.quantity-selector');
-            selector.classList.toggle('active');
-        });
-    }
-    
-    resetQuantitySelector(wrapper) {
-        const quantityBadge = wrapper.querySelector('.quantity-badge');
-        const selector = wrapper.querySelector('.quantity-selector');
-        
-        // Reset a quantità 1
-        quantityBadge.textContent = '1';
-        quantityBadge.style.background = '#8B5CF6';
-        
-        // Nascondi controlli
-        selector.classList.remove('active');
-        
-        // Breve animazione di conferma
-        wrapper.classList.add('added-to-cart');
-        setTimeout(() => {
-            wrapper.classList.remove('added-to-cart');
-        }, 1000);
-    }
-    
-    restoreOriginalButton(container, itemId) {
-        const originalHtml = container.previousElementSibling?.dataset?.originalHtml || 
-                           container.dataset.originalHtml;
-        
-        if (originalHtml) {
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = originalHtml;
-            const originalButton = tempDiv.firstElementChild;
-            container.parentNode.replaceChild(originalButton, container);
-        } else {
-            // Fallback: ricostruisci il bottone base
-            const fallbackButton = document.createElement('button');
-            fallbackButton.className = 'rent-btn';
-            
-            if (category === 'drinks') {
-                fallbackButton.innerHTML = `<i class="fas fa-glass-cheers"></i> Ordina`;
-                fallbackButton.onclick = () => this.handleOrderDrink(itemId);
-            } else if (category === 'snacks') {
-                fallbackButton.innerHTML = `<i class="fas fa-shopping-cart"></i> Ordina`;
-                fallbackButton.onclick = () => this.handleOrderSnack(itemId);
-            }
-            
-            container.parentNode.replaceChild(fallbackButton, container);
-        }
+    flashAddToCartState(category, itemId) {
+        const button = document.querySelector(`.add-to-cart-btn[data-category="${category}"][data-item-id="${itemId}"]`);
+        if (!button) return;
+
+        button.classList.add('added');
+        setTimeout(() => button.classList.remove('added'), 600);
     }
 
     // ==========================================
@@ -2144,11 +2213,15 @@ createCartCategoryHTML(category, title, icon) {
     }
 
     getFilteredItems() {
+        if (!Array.isArray(this.categoryFilters[this.currentCategory])) {
+            this.categoryFilters[this.currentCategory] = [];
+        }
+        this.selectedFilters = this.categoryFilters[this.currentCategory] || [];
         let items = this.currentItems;
 
         // Ricerca testuale
         if (this.searchTerm) {
-            const term = this.searchTerm.toLowerCase();
+            const term = this.searchTerm.trim().toLowerCase();
             items = items.filter(item => (
                 item.name?.toLowerCase().includes(term) ||
                 item.description?.toLowerCase().includes(term) ||
@@ -2159,26 +2232,164 @@ createCartCategoryHTML(category, title, icon) {
         }
 
         // Filtri avanzati
-        if (this.selectedFilters.length > 0) {
-            items = items.filter(item =>
-                this.selectedFilters.every(filter => {
+        if (this.currentCategory === 'drink' && this.selectedFilters.length > 0) {
+            items = items.filter(item => {
+                const isAlcoholic = item.isAlcoholic === true || item.isAlcoholic === 1 || item.isAlcoholic === '1' || item.isAlcoholic === 'true';
+                const price = typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0;
+
+                return this.selectedFilters.every(filter => {
                     switch (filter) {
                         case 'alcoholic':
-                            return item.isAlcoholic === 1;
+                            return isAlcoholic;
                         case 'non-alcoholic':
-                            return item.isAlcoholic === 0;
+                            return !isAlcoholic;
                         case 'premium':
-                            return item.price >= 8.00;
+                            return price >= 8.00;
                         case 'economic':
-                            return item.price < 8.00;
+                            return price < 8.00;
                         default:
                             return true;
                     }
-                })
-            );
+                });
+            });
+        } else if (this.currentCategory === 'snack' && this.selectedFilters.length > 0) {
+            items = items.filter(item => {
+                const isSweet = item.isSweet === true || item.isSweet === 1 || item.isSweet === '1' || item.isSweet === 'true';
+                const price = typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0;
+                const mainIngredient = (item.mainIngredient || '').toLowerCase();
+
+                return this.selectedFilters.every(filter => {
+                    switch (filter) {
+                        case 'sweet':
+                            return isSweet;
+                        case 'savory':
+                            return !isSweet;
+                        case 'game-friendly':
+                            return ['olive', 'mais', 'farina', 'pane', 'formaggio'].includes(mainIngredient);
+                        case 'premium':
+                            return price >= 6.00;
+                        default:
+                            return true;
+                    }
+                });
+            });
+        } else if (this.currentCategory === 'giochi' && this.selectedFilters.length > 0) {
+            items = items.filter(item => {
+                const category = (item.category || '').toLowerCase();
+                const minPlayers = parseInt(item.minPlayers || item.min_players || 0, 10);
+
+                return this.selectedFilters.every(filter => {
+                    switch (filter) {
+                        case 'party':
+                            return category.includes('party');
+                        case 'strategy':
+                            return category.includes('strategia') || category.includes('strategy');
+                        case 'cooperative':
+                            return category.includes('cooperativo') || category.includes('cooperative');
+                        case 'solo':
+                            return !isNaN(minPlayers) && minPlayers <= 1;
+                        default:
+                            return true;
+                    }
+                });
+            });
         }
 
         return items;
+    }
+
+    getQuantityKey(category, itemId) {
+        return `${category}-${itemId}`;
+    }
+
+    getItemQuantity(category, itemId) {
+        const key = this.getQuantityKey(category, itemId);
+        if (!this.itemQuantities[key]) {
+            this.itemQuantities[key] = 1;
+        }
+        return this.itemQuantities[key];
+    }
+
+    setItemQuantity(category, itemId, quantity) {
+        const key = this.getQuantityKey(category, itemId);
+        const clamped = Math.min(this.maxQuantity, Math.max(1, quantity));
+        this.itemQuantities[key] = clamped;
+        this.updateQuantityDisplay(category, itemId, clamped);
+    }
+
+    updateQuantityDisplay(category, itemId, quantity) {
+        const key = this.getQuantityKey(category, itemId);
+        const badge = document.querySelector(`.quantity-badge[data-item-key="${key}"]`);
+
+        if (badge) {
+            badge.textContent = `x${quantity}`;
+            if (quantity > 1) {
+                badge.classList.add('multiple');
+            } else {
+                badge.classList.remove('multiple');
+            }
+        }
+    }
+
+    adjustItemQuantity(category, itemId, delta) {
+        const current = this.getItemQuantity(category, itemId);
+        this.setItemQuantity(category, itemId, current + delta);
+    }
+
+    setupCardQuantityControls() {
+        document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+            const category = button.dataset.category;
+            const itemId = parseInt(button.dataset.itemId, 10);
+
+            const currentQuantity = this.getItemQuantity(category, itemId);
+            this.updateQuantityDisplay(category, itemId, currentQuantity);
+
+            if (button.dataset.listenerAttached === 'true') {
+                return;
+            }
+            button.dataset.listenerAttached = 'true';
+
+            button.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                if (category === 'drinks') {
+                    this.handleOrderDrink(itemId);
+                } else if (category === 'snacks') {
+                    this.handleOrderSnack(itemId);
+                }
+            });
+        });
+
+        document.querySelectorAll('.quantity-stepper').forEach(stepper => {
+            const category = stepper.dataset.category;
+            const itemId = parseInt(stepper.dataset.itemId, 10);
+            const plusBtn = stepper.querySelector('.step-plus');
+            const minusBtn = stepper.querySelector('.step-minus');
+
+            this.updateQuantityDisplay(category, itemId, this.getItemQuantity(category, itemId));
+
+            if (plusBtn) {
+                if (plusBtn.dataset.listenerAttached !== 'true') {
+                    plusBtn.dataset.listenerAttached = 'true';
+                    plusBtn.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        this.adjustItemQuantity(category, itemId, 1);
+                    });
+                }
+            }
+
+            if (minusBtn) {
+                if (minusBtn.dataset.listenerAttached !== 'true') {
+                    minusBtn.dataset.listenerAttached = 'true';
+                    minusBtn.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        this.adjustItemQuantity(category, itemId, -1);
+                    });
+                }
+            }
+        });
     }
 
     formatDuration(minutes) {
@@ -2222,6 +2433,52 @@ createCartCategoryHTML(category, title, icon) {
         }
     }
 
+    describePlayers(minPlayers, maxPlayers) {
+        if (!minPlayers && !maxPlayers) return 'Gruppi fino a 6 giocatori';
+        if (minPlayers === maxPlayers) {
+            return `${minPlayers} giocatori dedicato`;
+        }
+        if (minPlayers <= 1) {
+            return `Da solo o fino a ${maxPlayers} giocatori`;
+        }
+        return `${minPlayers}-${maxPlayers} giocatori`;
+    }
+
+    describeDifficulty(level) {
+        if (!level) return 'Tutti i livelli';
+        if (level <= 1) return 'Perfetto per principianti';
+        if (level === 2) return 'Richiede un minimo di esperienza';
+        if (level === 3) return 'Sfida intermedia';
+        if (level === 4) return 'Ideale per gruppi esperti';
+        return 'Solo per veri strategist';
+    }
+
+    getGameHighlights(game) {
+        const duration = this.formatDuration(game.durationMinutes);
+        return [
+            {
+                icon: 'fas fa-layer-group',
+                label: 'Categoria',
+                value: game.category || 'Gioco da tavolo'
+            },
+            {
+                icon: 'fas fa-users-cog',
+                label: 'Composizione',
+                value: this.describePlayers(game.minPlayers, game.maxPlayers)
+            },
+            {
+                icon: 'fas fa-lightbulb',
+                label: 'Curva di apprendimento',
+                value: this.describeDifficulty(game.difficultyLevel)
+            },
+            {
+                icon: 'fas fa-hourglass-half',
+                label: 'Durata media',
+                value: duration
+            }
+        ];
+    }
+
     formatBaseSpirit(baseSpirit) {
         if (!baseSpirit) return 'Misto';
 
@@ -2243,6 +2500,57 @@ createCartCategoryHTML(category, title, icon) {
         };
 
         return formatted[baseSpirit] || baseSpirit;
+    }
+
+    getDrinkPairing(drink) {
+        const base = (drink.baseSpirit || '').toLowerCase();
+        if (base.includes('gin')) return 'Provalo con snack agrumati o olive verdi.';
+        if (base.includes('vodka')) return 'Perfetto con appetizer leggeri e finger food.';
+        if (base.includes('rum')) return 'Si abbina a dessert al cioccolato e spezie tropicali.';
+        if (base.includes('tequila')) return 'Ideale con snack speziati o tacos del giorno.';
+        if (base.includes('birra')) return 'Abbinalo a focacce, pizza e stuzzichini salati.';
+        return 'Si abbina perfettamente ai nostri snack gourmet.';
+    }
+
+    getDrinkMood(drink) {
+        const alcoholic = drink.isAlcoholic === true || drink.isAlcoholic === 1 || drink.isAlcoholic === '1';
+        if (alcoholic) {
+            return 'Ideale per serate social e momenti celebrativi.';
+        }
+        return 'Perfetto per giocatori concentrati e pause analcoliche.';
+    }
+
+    getDrinkServiceTemp(drink) {
+        const base = (drink.baseSpirit || '').toLowerCase();
+        if (base.includes('gin') || base.includes('vodka')) return 'Servire molto freddo, con ghiaccio e garnish.';
+        if (base.includes('rum')) return 'Servire con ghiaccio e agrumi freschi.';
+        if (base.includes('caffè')) return 'Servire caldo, in tazza da degustazione.';
+        if (base.includes('birra')) return 'Servire a 4-6°C in bicchiere alto.';
+        return 'Servire fresco, seguito da una breve spiegazione dello staff.';
+    }
+
+    getSnackPairing(snack) {
+        if (snack.suggestedDrink) return snack.suggestedDrink;
+        const ingredient = (snack.mainIngredient || '').toLowerCase();
+        if (ingredient.includes('formaggio')) return 'Ottimo con vini bianchi o cocktail speziati.';
+        if (ingredient.includes('olive')) return 'Match perfetto con gin tonic o spritz.';
+        if (ingredient.includes('cioccolato')) return 'Da gustare con drink dolci o caffè.';
+        return 'Si abbina bene con le nostre proposte artigianali.';
+    }
+
+    getSnackServingTip(snack) {
+        const messiness = this.getSnackMessinessLevel(snack);
+        if (messiness <= 2) return 'Servire direttamente al tavolo, ideale durante la partita.';
+        if (messiness === 3) return 'Consigliato con tovaglioli e piccole ciotole individuali.';
+        return 'Suggeriamo una breve pausa dal gioco per gustarlo al meglio.';
+    }
+
+    getSnackMessinessLevel(snack) {
+        const ingredient = (snack.mainIngredient || '').toLowerCase();
+        if (['olive', 'formaggio', 'mais', 'mandorle'].includes(ingredient)) return 1;
+        if (['patate', 'pane', 'farina'].includes(ingredient)) return 2;
+        if (['cioccolato', 'zucchero', 'mascarpone'].includes(ingredient)) return 4;
+        return 3;
     }
 
     // ==========================================
@@ -2396,13 +2704,17 @@ createCartCategoryHTML(category, title, icon) {
 
     createEmptyStateHTML() {
         const config = CATALOG_CONFIG.CATEGORIES[this.currentCategory];
+        const filters = this.selectedFilters && this.selectedFilters.length > 0
+            ? `<p class="empty-filters">Filtri attivi: ${this.selectedFilters.map(f => `#${f}`).join(', ')}</p>`
+            : '';
 
         return `
             <div class="empty-state">
                 <i class="${config.icon}" style="font-size: 4rem; color: #6633cc; margin-bottom: 1rem;"></i>
                 <h3>Nessun ${config.label.toLowerCase()} trovato</h3>
                 <p>Prova a modificare i criteri di ricerca o torna più tardi.</p>
-                ${this.searchTerm ? `<p><strong>Termine ricercato:</strong> "${this.searchTerm}"</p>` : ''}
+                ${this.searchTerm ? `<p><strong>Ricerca corrente:</strong> "${this.searchTerm}"</p>` : ''}
+                ${filters}
             </div>
         `;
     }
@@ -2472,6 +2784,7 @@ export async function showCatalog(category = 'giochi') {
 
         // Setup eventi e inizializzazioni
         manager.setupEvents();
+        manager.applyFiltersAndRefresh(true);
 
         console.log(`✅ Catalogo ${category} caricato con successo con ${manager.currentItems.length} items`);
         console.log(`🛒 Carrello attuale:`, manager.getCartSummary());
@@ -2832,4 +3145,3 @@ if (typeof window !== 'undefined') {
         console.log('   Ctrl+Shift+T → Test completo');
     }
 }
-
