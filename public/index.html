@@ -1,26 +1,35 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+    <script>
+    (function () {
+      var base = document.createElement('base');
+      base.href = location.hostname.endsWith('github.io')
+        ? '/dice-drink-local-webapp/'
+        : '/';
+      document.head.prepend(base);
+    })();
+  </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dice & Drink SPA</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/dashboard.css">
-    <link rel="stylesheet" href="/css/tournaments.css">
-    <link rel="stylesheet" href="/css/media.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/tournaments.css">
+    <link rel="stylesheet" href="css/media.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link
     rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0"
     />
-    <link rel="icon" type ="image/png" href="./assets/Logo.png">
+    <link rel="icon" type ="image/png" href="assets/Logo.png">
 </head>
 <body>
     <div id="app"></div>
 
-    <script defer src="/js/notifications.js"></script>
-    <script defer src="/js/auth-system.js"></script>
-    <script defer src="/js/components/dropdown-delay.js"></script>
-    <script defer type="module" src="/js/main.js"></script>
+    <script defer src="js/notifications.js"></script>
+    <script defer src="js/auth-system.js"></script>
+    <script defer src="js/components/dropdown-delay.js"></script>
+    <script defer type="module" src="js/main.js"></script>
 </body>
 </html>
